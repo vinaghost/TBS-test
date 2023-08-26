@@ -1,7 +1,7 @@
 ﻿using ReactiveUI;
 using WPFUI.ViewModels.UserControl;
 
-namespace WPFUI.Views.UserControl
+namespace WPFUI.Views.UserControls
 {
     public class WaitingOverlayUcBase : ReactiveUserControl<WaitingOverlayViewModel>
     {

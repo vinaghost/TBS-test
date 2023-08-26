@@ -32,6 +32,7 @@ namespace WPFUI
 
                     services.AddSingleton<MainViewModel>();
                     services.AddSingleton<WaitingOverlayViewModel>();
+                    services.AddSingleton<MainLayoutViewModel>();
                 })
                 .Build();
             Container = host.Services;

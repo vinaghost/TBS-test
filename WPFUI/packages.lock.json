@@ -2,6 +2,16 @@
   "version": 1,
   "dependencies": {
     "net6.0-windows7.0": {
+      "MaterialDesignThemes": {
+        "type": "Direct",
+        "requested": "[4.9.0, )",
+        "resolved": "4.9.0",
+        "contentHash": "Bp9Auw70j+9V7WsUMT4pc8ulVzfL0Eav/tyGgICDirxxhKJwhqtC/6PRkTUm+R1t9611xiDuk5pSUNdDV6vfOQ==",
+        "dependencies": {
+          "MaterialDesignColors": "2.1.4",
+          "Microsoft.Xaml.Behaviors.Wpf": "1.1.39"
+        }
+      },
       "Microsoft.Extensions.Hosting": {
         "type": "Direct",
         "requested": "[7.0.1, )",
@@ -58,6 +68,11 @@
         "dependencies": {
           "System.Reactive": "5.0.0"
         }
+      },
+      "MaterialDesignColors": {
+        "type": "Transitive",
+        "resolved": "2.1.4",
+        "contentHash": "C4Oy+qkjMoMPoZKyqYdCnIYtK8c0OSIHmNP73Vgc69NjiUG093xTkE7W/Ks54cTDS7fmWOtUHfwISTVTtb/YKg=="
       },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
@@ -292,6 +307,11 @@
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
         }
+      },
+      "Microsoft.Xaml.Behaviors.Wpf": {
+        "type": "Transitive",
+        "resolved": "1.1.39",
+        "contentHash": "8PZKqw9QOcu42xk8puY4P1+EXHL9YGOR9b7qhaYx5cILHul456H073tj99vyPcCt0W0781T9RwHqkx507ZyUpQ=="
       },
       "ReactiveUI": {
         "type": "Transitive",

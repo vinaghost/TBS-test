@@ -1,5 +1,5 @@
-﻿<v:WaitingOverlayUcBase x:Class="WPFUI.Views.UserControl.WaitingOverlayUc"
-             xmlns:v="clr-namespace:WPFUI.Views.UserControl"
+﻿<v:WaitingOverlayUcBase x:Class="WPFUI.Views.UserControls.WaitingOverlayUc"
+             xmlns:v="clr-namespace:WPFUI.Views.UserControls"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"

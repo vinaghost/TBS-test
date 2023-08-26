@@ -20,6 +20,7 @@ namespace WPFUI.Views
             InitializeComponent();
             this.WhenActivated(d =>
             {
+                this.Bind(ViewModel, vm => vm.MainLayoutViewModel, v => v.MainLayoutUc.ViewModel).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.WaitingOverlayViewModel, v => v.WaitingOverlayUc.DataContext).DisposeWith(d);
             });
         }

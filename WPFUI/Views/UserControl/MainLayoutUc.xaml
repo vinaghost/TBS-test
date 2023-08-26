@@ -1,0 +1,49 @@
+﻿<v:MainLayoutUcBase x:Class="WPFUI.Views.UserControls.MainLayoutUc"
+             xmlns:v="clr-namespace:WPFUI.Views.UserControls"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="45*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="5*" />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Button x:Name="AddAccountButton"   Content="Add account"       Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,1,2" />
+                <Button x:Name="AddAccountsButton"  Content="Add accounts"      Grid.ColumnSpan="2" Grid.Row="1" Margin="1,0,0,2" />
+                <Button x:Name="LoginButton"        Content="Login"             Grid.Column="0"     Grid.Row="2" Margin="0,0,1,2" />
+                <Button x:Name="LogoutButton"       Content="Logout"            Grid.Column="1"     Grid.Row="2" Margin="1,0,0,2" />
+                <Button x:Name="DeleteButton"       Content="Delete"            Grid.ColumnSpan="2" Grid.Row="3" Margin="1,0,0,2" />
+                <Button x:Name="PauseButton"        Content="Pause"             Grid.Column="0"     Grid.Row="4" Margin="0,0,1,2" />
+                <Button x:Name="RestartButton"      Content="Restart"           Grid.Column="1"     Grid.Row="4" Margin="1,0,0,2" />
+            </Grid>
+            <Grid Grid.Row="1">
+                <ListBox x:Name="AccountGrid" SelectionMode="Single" ItemTemplate="{DynamicResource ListBoxColorItem}" />
+            </Grid>
+        </Grid>
+        <TabControl Grid.Column="1" Margin="10,0,0,0">
+            <TabItem>
+                Holder
+            </TabItem>
+        </TabControl>
+    </Grid>
+</v:MainLayoutUcBase>

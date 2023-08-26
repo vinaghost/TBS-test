@@ -12,9 +12,11 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <AssemblyName>TravianBotSharp</AssemblyName>
     <AssemblyVersion>1975.4.30</AssemblyVersion>
+    <SignAssembly>False</SignAssembly>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="ReactiveUI.WPF" Version="18.4.1" />
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.7.1" />
