@@ -1,5 +1,6 @@
 ﻿using ReactiveUI;
 using System;
+using System.Reactive.Disposables;
 using System.Windows;
 using WPFUI.ViewModels;
 
@@ -17,6 +18,10 @@ namespace WPFUI.Views
         public MainWindow()
         {
             InitializeComponent();
+            this.WhenActivated(d =>
+            {
+                this.Bind(ViewModel, vm => vm.WaitingOverlayViewModel, v => v.WaitingOverlayUc.DataContext).DisposeWith(d);
+            });
         }
 
         protected override void OnClosed(EventArgs e)

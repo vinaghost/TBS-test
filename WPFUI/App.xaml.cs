@@ -6,6 +6,7 @@ using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
 using WPFUI.ViewModels;
+using WPFUI.ViewModels.UserControl;
 using WPFUI.Views;
 
 namespace WPFUI
@@ -30,6 +31,7 @@ namespace WPFUI
                     resolver.InitializeReactiveUI();
 
                     services.AddSingleton<MainViewModel>();
+                    services.AddSingleton<WaitingOverlayViewModel>();
                 })
                 .Build();
             Container = host.Services;
