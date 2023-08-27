@@ -1,4 +1,6 @@
-﻿using ReactiveUI;
+﻿using MainCore;
+using Microsoft.EntityFrameworkCore;
+using ReactiveUI;
 using Splat;
 using System.Threading.Tasks;
 using WPFUI.ViewModels.Abstract;
@@ -8,17 +10,23 @@ namespace WPFUI.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private MainLayoutViewModel _mainLayoutViewModel;
 
-        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel)
+        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
+            _contextFactory = contextFactory;
         }
 
         public async Task Load()
         {
-            await Task.Delay(2000);
+            _waitingOverlayViewModel.Show("loading database");
+            using var context = await _contextFactory.CreateDbContextAsync();
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
+            _waitingOverlayViewModel.Show("loading user interface");
             MainLayoutViewModel = Locator.Current.GetService<MainLayoutViewModel>();
             _waitingOverlayViewModel.Close();
         }

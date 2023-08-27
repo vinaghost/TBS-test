@@ -5,9 +5,8 @@ using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
-using WPFUI.Services;
+using WPFUI.Extensions;
 using WPFUI.ViewModels;
-using WPFUI.ViewModels.UserControls;
 using WPFUI.Views;
 
 namespace WPFUI
@@ -31,11 +30,9 @@ namespace WPFUI
                     resolver.InitializeSplat();
                     resolver.InitializeReactiveUI();
 
-                    services.AddSingleton<MainViewModel>();
-                    services.AddSingleton<WaitingOverlayViewModel>();
-                    services.AddSingleton<MainLayoutViewModel>();
-
-                    services.AddSingleton<IMessageService, MessageService>();
+                    services
+                        .AddLogicServices()
+                        .AddUIServices();
                 })
                 .Build();
             Container = host.Services;
