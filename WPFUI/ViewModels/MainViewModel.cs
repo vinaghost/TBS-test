@@ -22,12 +22,18 @@ namespace WPFUI.ViewModels
 
         public async Task Load()
         {
+            //========================================//
             _waitingOverlayViewModel.Show("loading database");
             using var context = await _contextFactory.CreateDbContextAsync();
-            await context.Database.EnsureDeletedAsync();
+            //await context.Database.EnsureDeletedAsync();
             await context.Database.EnsureCreatedAsync();
+            //========================================//
             _waitingOverlayViewModel.Show("loading user interface");
             MainLayoutViewModel = Locator.Current.GetService<MainLayoutViewModel>();
+            //========================================//
+            _waitingOverlayViewModel.Show("loading account list");
+            await MainLayoutViewModel.Load();
+            //========================================//
             _waitingOverlayViewModel.Close();
         }
 
