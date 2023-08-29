@@ -1,4 +1,5 @@
 ﻿using MainCore;
+using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using WPFUI.Repositories;
@@ -16,6 +17,14 @@ namespace WPFUI.Extensions
         public static IServiceCollection AddLogicServices(this IServiceCollection services)
         {
             services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(_connectionString));
+            return services;
+        }
+
+        public static IServiceCollection AddCoreSerivce(this IServiceCollection services)
+        {
+            services.AddSingleton<IChromeDriverInstaller, ChromeDriverInstaller>();
+            services.AddSingleton<IChromeManager, ChromeManager>();
+
             return services;
         }
 

@@ -1,8 +1,12 @@
 ﻿using MainCore;
+using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using Splat;
+using System;
+using System.IO;
 using System.Threading.Tasks;
+using WPFUI.Services;
 using WPFUI.ViewModels.Abstract;
 using WPFUI.ViewModels.UserControls;
 
@@ -13,15 +17,36 @@ namespace WPFUI.ViewModels
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private MainLayoutViewModel _mainLayoutViewModel;
+        private readonly IMessageService _messageService;
+        private readonly IChromeDriverInstaller _chromeDriverInstaller;
+        private readonly IChromeManager _chromeManager;
 
-        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory)
+        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IMessageService messageService)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _contextFactory = contextFactory;
+            _chromeDriverInstaller = chromeDriverInstaller;
+            _chromeManager = chromeManager;
+            _messageService = messageService;
         }
 
         public async Task Load()
         {
+            //========================================//
+            _waitingOverlayViewModel.Show("loading chromedriver.exe");
+            try
+            {
+                await _chromeDriverInstaller.Install();
+            }
+            catch (Exception e)
+            {
+                _messageService.Show("Error", e.Message);
+                _waitingOverlayViewModel.Close();
+                return;
+            }
+            //========================================//
+            _waitingOverlayViewModel.Show("loading chrome's extensions");
+            await Task.Run(_chromeManager.LoadExtension);
             //========================================//
             _waitingOverlayViewModel.Show("loading database");
             using var context = await _contextFactory.CreateDbContextAsync();
@@ -39,8 +64,15 @@ namespace WPFUI.ViewModels
 
         public async Task Unload()
         {
-            _waitingOverlayViewModel.Show("shutting down");
-            await Task.Delay(2000);
+            _waitingOverlayViewModel.Show("deleting proxy's cache");
+            await Task.Run(() =>
+            {
+                var path = Path.Combine(AppContext.BaseDirectory, "Plugins");
+                if (Directory.Exists(path)) Directory.Delete(path, true);
+            });
+
+            _waitingOverlayViewModel.Show("shuting down chromedriver services");
+            await Task.Run(_chromeManager.Shutdown);
         }
 
         public WaitingOverlayViewModel WaitingOverlayViewModel => _waitingOverlayViewModel;

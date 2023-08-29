@@ -32,6 +32,7 @@ namespace WPFUI
 
                     services
                         .AddLogicServices()
+                        .AddCoreSerivce()
                         .AddUIServices();
                 })
                 .Build();

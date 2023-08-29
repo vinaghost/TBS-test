@@ -79,6 +79,11 @@
           "System.Reactive": "5.0.0"
         }
       },
+      "HtmlAgilityPack": {
+        "type": "Transitive",
+        "resolved": "1.11.52",
+        "contentHash": "qfJzz0eEgoO5O6uA1PpH4wmU4yz64PKnDolAW41vTlCfRyPlAyZIJANg+QYmQgxiWg/cLUAkcLNMpB7CCV66ZQ=="
+      },
       "MaterialDesignColors": {
         "type": "Transitive",
         "resolved": "2.1.4",
@@ -401,6 +406,19 @@
         "resolved": "1.1.39",
         "contentHash": "8PZKqw9QOcu42xk8puY4P1+EXHL9YGOR9b7qhaYx5cILHul456H073tj99vyPcCt0W0781T9RwHqkx507ZyUpQ=="
       },
+      "Newtonsoft.Json": {
+        "type": "Transitive",
+        "resolved": "13.0.1",
+        "contentHash": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A=="
+      },
+      "OpenQA.Selenium.Chrome.ChromeDriverExtensions": {
+        "type": "Transitive",
+        "resolved": "1.2.0",
+        "contentHash": "z5/MAdjFlHcECXN4sxS356Hul5iJD1vHznAwINo9YR3j+PXVU2PjgmkLEB6zvRLxzouL8qfNBioSWkxfvlsbMg==",
+        "dependencies": {
+          "Selenium.WebDriver": "3.141.0"
+        }
+      },
       "ReactiveUI": {
         "type": "Transitive",
         "resolved": "18.4.1",
@@ -408,6 +426,22 @@
         "dependencies": {
           "DynamicData": "7.12.8",
           "Splat": "14.5.1"
+        }
+      },
+      "Selenium.Support": {
+        "type": "Transitive",
+        "resolved": "4.11.0",
+        "contentHash": "PR7ssrG9peQ5AqPSNvOJ846FFOX1wSv5eV3/8zvYwf0jhNx2bEprBZbtYMSWtht+HXtC5xb6atRQLlpKD+FETQ==",
+        "dependencies": {
+          "Selenium.WebDriver": "4.11.0"
+        }
+      },
+      "Selenium.WebDriver": {
+        "type": "Transitive",
+        "resolved": "4.11.0",
+        "contentHash": "V8o+Nvi9/3Ix12ZzMGg+fI7sfu+HrflZkMGq8Orr+j0INbfpEEyM6KR9oaaHlm0WUXcn7dTYwyWrJxYsi6eniw==",
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1"
         }
       },
       "Splat": {
@@ -493,7 +527,11 @@
       "maincore": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "[7.0.10, )"
+          "HtmlAgilityPack": "[1.11.52, )",
+          "Microsoft.EntityFrameworkCore": "[7.0.10, )",
+          "OpenQA.Selenium.Chrome.ChromeDriverExtensions": "[1.2.0, )",
+          "Selenium.Support": "[4.11.0, )",
+          "Selenium.WebDriver": "[4.11.0, )"
         }
       }
     },
