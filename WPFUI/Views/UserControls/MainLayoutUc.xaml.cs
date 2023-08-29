@@ -34,6 +34,7 @@ namespace WPFUI.Views.UserControls
 
                 // tabs
                 this.Bind(ViewModel, vm => vm.AddAccountViewModel, v => v.AddAccount.ViewModel).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.AddAccountsViewModel, v => v.AddAccounts.ViewModel).DisposeWith(d);
             });
         }
     }

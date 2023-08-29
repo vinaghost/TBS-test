@@ -24,15 +24,26 @@ namespace WPFUI.Repositories
         {
             using (var context = await _contextFactory.CreateDbContextAsync())
             {
-                var account = new Account
-                {
-                    Username = input.Username,
-                    Server = input.Server,
-                    Accesses = input.Accesses.Select(x => x.GetAccess()).ToList(),
-                    Info = new()
-                };
+                var account = input.GetAccount();
 
                 await context.AddAsync(account);
+                await context.SaveChangesAsync();
+            }
+            await AccountTableChanged?.Invoke();
+        }
+
+        public async Task AddRange(List<AccountsInput> inputs)
+        {
+            using (var context = await _contextFactory.CreateDbContextAsync())
+            {
+                var accounts = new List<Account>();
+                foreach (var input in inputs)
+                {
+                    var account = input.GetAccount();
+                    accounts.Add(account);
+                }
+
+                await context.AddRangeAsync(accounts);
                 await context.SaveChangesAsync();
             }
             await AccountTableChanged?.Invoke();

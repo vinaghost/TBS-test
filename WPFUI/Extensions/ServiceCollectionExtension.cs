@@ -25,6 +25,7 @@ namespace WPFUI.Extensions
 
             // Tabs
             services.AddSingleton<AddAccountViewModel>();
+            services.AddSingleton<AddAccountsViewModel>();
 
             // UserControls
             services.AddSingleton<WaitingOverlayViewModel>();

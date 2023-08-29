@@ -11,7 +11,7 @@ namespace WPFUI.Repositories
         event Func<Task> AccountTableChanged;
 
         Task Add(AccountInput input);
-
+        Task AddRange(List<AccountsInput> inputs);
         Task Delete(int accountId);
 
         Task<List<Account>> Get();

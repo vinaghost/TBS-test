@@ -18,9 +18,11 @@ namespace WPFUI.ViewModels.UserControls
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
         private readonly AddAccountViewModel _addAccountViewModel;
+        private readonly AddAccountsViewModel _addAccountsViewModel;
         public AddAccountViewModel AddAccountViewModel => _addAccountViewModel;
+        public AddAccountsViewModel AddAccountsViewModel => _addAccountsViewModel;
 
-        public MainLayoutViewModel(IMessageService messageService, AddAccountViewModel addAccountViewModel, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel)
+        public MainLayoutViewModel(IMessageService messageService, AddAccountViewModel addAccountViewModel, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AddAccountsViewModel addAccountsViewModel)
         {
             _messageService = messageService;
             _waitingOverlayViewModel = waitingOverlayViewModel;
@@ -37,6 +39,7 @@ namespace WPFUI.ViewModels.UserControls
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
 
             _accountRepository.AccountTableChanged += LoadAccountList;
+            _addAccountsViewModel = addAccountsViewModel;
         }
 
         public async Task Load()

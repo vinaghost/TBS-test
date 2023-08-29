@@ -43,6 +43,9 @@
             </Grid>
         </Grid>
         <TabControl Grid.Column="1" Margin="10,0,0,0">
+            <TabItem x:Name="AddAccountsTab" Header="Add accounts">
+                <v_tab:AddAccountsTab x:Name="AddAccounts" />
+            </TabItem>
             <TabItem x:Name="AddAccountTab" Header="Add account">
                 <v_tab:AddAccountTab x:Name="AddAccount" />
             </TabItem>
