@@ -1,4 +1,5 @@
 ﻿using MainCore;
+using MainCore.Commands;
 using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,12 @@ namespace WPFUI.Extensions
             services.AddSingleton<IChromeDriverInstaller, ChromeDriverInstaller>();
             services.AddSingleton<IChromeManager, ChromeManager>();
 
+            return services;
+        }
+
+        public static IServiceCollection AddCommand(this IServiceCollection services)
+        {
+            services.AddSingleton<ILoginCommand, LoginCommand>();
             return services;
         }
 

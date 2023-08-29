@@ -3,7 +3,9 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Net.Http.Json;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace MainCore.Services
 {
@@ -29,6 +31,11 @@ namespace MainCore.Services
                 return;
             }
             await Download(chromeVersion);
+
+            if (!IsBinaryPatched())
+            {
+                PatchExe();
+            }
         }
 
         private async Task Download(Version chromeVersion)
@@ -63,9 +70,9 @@ namespace MainCore.Services
             {
                 throw new Exception($"ChromeDriver download request failed with status code: {driverZipResponse.StatusCode}, reason phrase: {driverZipResponse.ReasonPhrase}");
             }
+
             var driverName = GetDriverName();
-            string targetPath = Path.GetDirectoryName(AppContext.BaseDirectory);
-            targetPath = Path.Combine(targetPath, driverName);
+            var targetPath = GetDriverPath();
 
             using var zipFileStream = await driverZipResponse.Content.ReadAsStreamAsync();
             using var zipArchive = new ZipArchive(zipFileStream, ZipArchiveMode.Read);
@@ -75,11 +82,59 @@ namespace MainCore.Services
             await chromeDriverStream.CopyToAsync(chromeDriverWriter);
         }
 
+        private static bool IsBinaryPatched()
+        {
+            var targetPath = GetDriverPath();
+            using var fs = new FileStream(targetPath, FileMode.Open, FileAccess.Read);
+            using var reader = new StreamReader(fs, Encoding.GetEncoding("ISO-8859-1"));
+
+            while (true)
+            {
+                var line = reader.ReadLine();
+                if (line is null)
+                    break;
+                if (line.Contains("undetected chromedriver"))
+                    return true;
+            }
+            return false;
+        }
+
+        private static void PatchExe()
+        {
+            var targetPath = GetDriverPath();
+            using var fs = new FileStream(targetPath, FileMode.Open, FileAccess.ReadWrite);
+
+            var buffer = new byte[1024];
+            var stringBuilder = new StringBuilder();
+
+            var read = 0;
+            while (true)
+            {
+                read = fs.Read(buffer, 0, buffer.Length);
+                if (read == 0)
+                    break;
+                stringBuilder.Append(
+                    Encoding.GetEncoding("ISO-8859-1").GetString(buffer, 0, read));
+            }
+
+            var content = stringBuilder.ToString();
+            var match = Regex.Match(content.ToString(), @"\{window\.cdc.*?;\}");
+            if (match.Success)
+            {
+                var target = match.Value;
+                var newTarget = "{console.log(\"undetected chromedriver 1337!\")}"
+                    .PadRight(target.Length, ' ');
+                var newContent = content.Replace(target, newTarget);
+
+                fs.Seek(0, SeekOrigin.Begin);
+                var bytes = Encoding.GetEncoding("ISO-8859-1").GetBytes(newContent);
+                fs.Write(bytes, 0, bytes.Length);
+            }
+        }
+
         private static async Task<Version> GetCurrentDriverVersion()
         {
-            var driverName = GetDriverName();
-            string targetPath = Path.GetDirectoryName(AppContext.BaseDirectory);
-            targetPath = Path.Combine(targetPath, driverName);
+            var targetPath = GetDriverPath();
             if (!File.Exists(targetPath)) return new Version(0, 0, 0, 0);
 
             using var process = Process.Start(
@@ -106,6 +161,7 @@ namespace MainCore.Services
 
             if (!string.IsNullOrEmpty(error))
             {
+                var driverName = GetDriverName();
                 throw new Exception($"Failed to execute {driverName} --version");
             }
 
@@ -134,6 +190,14 @@ namespace MainCore.Services
                 return "chromedriver";
             }
             return "";
+        }
+
+        private static string GetDriverPath()
+        {
+            var driverName = GetDriverName();
+            string targetPath = Path.GetDirectoryName(AppContext.BaseDirectory);
+            targetPath = Path.Combine(targetPath, driverName);
+            return targetPath;
         }
 
         private static async Task<Version> GetChromeVersion()

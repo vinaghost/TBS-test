@@ -55,9 +55,14 @@ namespace MainCore.Services
             options.AddArgument("--disable-blink-features=AutomationControlled");
             options.AddArgument("--disable-features=UserAgentClientHint");
             options.AddArgument("--disable-logging");
-            options.AddArgument("--no-sandbox");
 
             options.AddArgument("--mute-audio");
+
+            options.AddArguments("--no-default-browser-check", "--no-first-run");
+            options.AddArguments("--no-sandbox", "--test-type");
+
+            options.AddArguments("--start-maximized");
+
             //if (setting.IsDontLoadImage) options.AddArguments("--blink-settings=imagesEnabled=false"); //--disable-images
             var pathUserData = Path.Combine(_pathUserData, string.IsNullOrEmpty(access.ProxyHost) ? "default" : access.ProxyHost);
 
