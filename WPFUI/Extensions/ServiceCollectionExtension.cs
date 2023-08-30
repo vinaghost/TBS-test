@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using WPFUI.Repositories;
 using WPFUI.Services;
+using WPFUI.Stores;
 using WPFUI.ViewModels;
 using WPFUI.ViewModels.Tabs;
 using WPFUI.ViewModels.UserControls;
@@ -14,8 +15,10 @@ namespace WPFUI.Extensions
             services.AddSingleton<MainViewModel>();
 
             // Tabs
+            services.AddSingleton<NoAccountViewModel>();
             services.AddSingleton<AddAccountViewModel>();
             services.AddSingleton<AddAccountsViewModel>();
+            services.AddSingleton<EditAccountViewModel>();
 
             // UserControls
             services.AddSingleton<WaitingOverlayViewModel>();
@@ -26,6 +29,9 @@ namespace WPFUI.Extensions
 
             // Services
             services.AddSingleton<IMessageService, MessageService>();
+
+            // Stores
+            services.AddSingleton<AccountTabStore>();
 
             return services;
         }

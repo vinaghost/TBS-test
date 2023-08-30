@@ -1,12 +1,15 @@
 ﻿using MainCore.Commands;
 using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using WPFUI.Enums;
 using WPFUI.Models.Output;
 using WPFUI.Repositories;
 using WPFUI.Services;
+using WPFUI.Stores;
 using WPFUI.ViewModels.Abstract;
 using WPFUI.ViewModels.Tabs;
 
@@ -22,17 +25,29 @@ namespace WPFUI.ViewModels.UserControls
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
+        private readonly AccountTabStore _accountTabStore;
+
+        private readonly NoAccountViewModel _noAccountViewModel;
         private readonly AddAccountViewModel _addAccountViewModel;
         private readonly AddAccountsViewModel _addAccountsViewModel;
+        private readonly EditAccountViewModel _editAccountViewModel;
+
+        public AccountTabStore AccountTabStore => _accountTabStore;
+        public NoAccountViewModel NoAccountViewModel => _noAccountViewModel;
         public AddAccountViewModel AddAccountViewModel => _addAccountViewModel;
         public AddAccountsViewModel AddAccountsViewModel => _addAccountsViewModel;
+        public EditAccountViewModel EditAccountViewModel => _editAccountViewModel;
 
-        public MainLayoutViewModel(IMessageService messageService, AddAccountViewModel addAccountViewModel, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AddAccountsViewModel addAccountsViewModel, ILoginCommand loginCommand, ILogoutCommand logoutCommand)
+        public MainLayoutViewModel(IMessageService messageService, AddAccountViewModel addAccountViewModel, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AddAccountsViewModel addAccountsViewModel, ILoginCommand loginCommand, ILogoutCommand logoutCommand, EditAccountViewModel editAccountViewModel, NoAccountViewModel noAccountViewModel, AccountTabStore accountTabStore)
         {
             _messageService = messageService;
+            _accountTabStore = accountTabStore;
             _waitingOverlayViewModel = waitingOverlayViewModel;
+
+            _noAccountViewModel = noAccountViewModel;
             _addAccountViewModel = addAccountViewModel;
             _addAccountsViewModel = addAccountsViewModel;
+            _editAccountViewModel = editAccountViewModel;
 
             _accountRepository = accountRepository;
 
@@ -49,6 +64,14 @@ namespace WPFUI.ViewModels.UserControls
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
 
             _accountRepository.AccountTableChanged += LoadAccountList;
+
+            this.WhenAnyValue(x => x.SelectedAccount)
+                .Subscribe(x =>
+                {
+                    var tabType = TabType.Normal;
+                    if (x is null) tabType = TabType.NoAccount;
+                    _accountTabStore.SetTabType(tabType);
+                });
         }
 
         public async Task Load()
@@ -58,13 +81,15 @@ namespace WPFUI.ViewModels.UserControls
 
         private Task AddAccountTask()
         {
-            _messageService.Show("Info", "AddAccountTask");
+            SelectedAccount = null;
+            AccountTabStore.SetTabType(TabType.AddAccount);
             return Task.CompletedTask;
         }
 
         private Task AddAccountsTask()
         {
-            _messageService.Show("Info", "AddAccountsTask");
+            SelectedAccount = null;
+            AccountTabStore.SetTabType(TabType.AddAccounts);
             return Task.CompletedTask;
         }
 
@@ -80,7 +105,8 @@ namespace WPFUI.ViewModels.UserControls
             if (!result) return;
 
             _waitingOverlayViewModel.Show("deleting account ...");
-            await _accountRepository.Delete(SelectedAccount.Id);
+            await Observable.StartAsync(async () => await _accountRepository.Delete(SelectedAccount.Id), RxApp.TaskpoolScheduler);
+
             _waitingOverlayViewModel.Close();
         }
 
@@ -92,7 +118,7 @@ namespace WPFUI.ViewModels.UserControls
                 return;
             }
 
-            await Observable.Start(async () => await _loginCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
+            await Observable.StartAsync(async () => await _loginCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
         }
 
         private async Task LogoutTask()
@@ -102,7 +128,7 @@ namespace WPFUI.ViewModels.UserControls
                 _messageService.Show("Warning", "No account selected");
                 return;
             }
-            await Observable.Start(async () => await _logoutCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
+            await Observable.StartAsync(async () => await _logoutCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
         }
 
         private Task PauseTask()
@@ -119,11 +145,20 @@ namespace WPFUI.ViewModels.UserControls
 
         private async Task LoadAccountList()
         {
+            var accounts = await Observable.StartAsync(_accountRepository.Get, RxApp.TaskpoolScheduler);
             Accounts.Clear();
-            var accounts = await _accountRepository.Get();
             foreach (var account in accounts)
             {
                 Accounts.Add(new(account));
+            }
+
+            if (accounts.Count > 0)
+            {
+                SelectedAccount = Accounts[0];
+            }
+            else
+            {
+                SelectedAccount = null;
             }
         }
 

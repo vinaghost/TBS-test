@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using WPFUI.Models.Input;
 using WPFUI.Repositories;
@@ -13,7 +14,7 @@ using WPFUI.ViewModels.UserControls;
 
 namespace WPFUI.ViewModels.Tabs
 {
-    public class AddAccountsViewModel : ViewModelBase
+    public class AddAccountsViewModel : TabBaseViewModel
     {
         private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
@@ -64,7 +65,7 @@ namespace WPFUI.ViewModels.Tabs
         private async Task AddAccountTask()
         {
             _waitingOverlayViewModel.Show("adding accounts ...");
-            await _accountRepository.AddRange(Accounts.ToList());
+            await Observable.StartAsync(async () => await _accountRepository.AddRange(Accounts.ToList()), RxApp.TaskpoolScheduler);
             Accounts.Clear();
             Input = "";
             _waitingOverlayViewModel.Close();
