@@ -18,6 +18,7 @@ namespace WPFUI.ViewModels.UserControls
         private readonly IAccountRepository _accountRepository;
 
         private readonly ILoginCommand _loginCommand;
+        private readonly ILogoutCommand _logoutCommand;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
@@ -26,12 +27,16 @@ namespace WPFUI.ViewModels.UserControls
         public AddAccountViewModel AddAccountViewModel => _addAccountViewModel;
         public AddAccountsViewModel AddAccountsViewModel => _addAccountsViewModel;
 
-        public MainLayoutViewModel(IMessageService messageService, AddAccountViewModel addAccountViewModel, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AddAccountsViewModel addAccountsViewModel, ILoginCommand loginCommand)
+        public MainLayoutViewModel(IMessageService messageService, AddAccountViewModel addAccountViewModel, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AddAccountsViewModel addAccountsViewModel, ILoginCommand loginCommand, ILogoutCommand logoutCommand)
         {
             _messageService = messageService;
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _addAccountViewModel = addAccountViewModel;
+            _addAccountsViewModel = addAccountsViewModel;
+
             _accountRepository = accountRepository;
+
+            _logoutCommand = logoutCommand;
             _loginCommand = loginCommand;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
@@ -44,7 +49,6 @@ namespace WPFUI.ViewModels.UserControls
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
 
             _accountRepository.AccountTableChanged += LoadAccountList;
-            _addAccountsViewModel = addAccountsViewModel;
         }
 
         public async Task Load()
@@ -91,10 +95,14 @@ namespace WPFUI.ViewModels.UserControls
             await Observable.Start(async () => await _loginCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
         }
 
-        private Task LogoutTask()
+        private async Task LogoutTask()
         {
-            _messageService.Show("Info", "LogoutTask");
-            return Task.CompletedTask;
+            if (SelectedAccount is null)
+            {
+                _messageService.Show("Warning", "No account selected");
+                return;
+            }
+            await Observable.Start(async () => await _logoutCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
         }
 
         private Task PauseTask()

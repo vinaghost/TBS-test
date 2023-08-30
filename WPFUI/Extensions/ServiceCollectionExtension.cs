@@ -33,6 +33,7 @@ namespace WPFUI.Extensions
         public static IServiceCollection AddCommand(this IServiceCollection services)
         {
             services.AddSingleton<ILoginCommand, LoginCommand>();
+            services.AddSingleton<ILogoutCommand, LogoutCommand>();
             return services;
         }
 

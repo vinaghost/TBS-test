@@ -1,7 +1,6 @@
 ﻿namespace MainCore.Commands
 {
-    public interface ILoginCommand
+    public interface ILoginCommand : IAccountCommand
     {
-        Task Execute(int accountId);
     }
 }
