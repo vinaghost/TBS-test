@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using MainCore.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ParserCore.Extensions;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
@@ -33,8 +35,8 @@ namespace WPFUI
                     services
                         .AddLogicServices()
                         .AddCoreSerivce()
-                        .AddParser()
                         .AddCommand()
+                        .AddParser()
                         .AddUIServices();
                 })
                 .Build();

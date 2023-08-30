@@ -12,16 +12,6 @@
           "Microsoft.Xaml.Behaviors.Wpf": "1.1.39"
         }
       },
-      "Microsoft.EntityFrameworkCore.Sqlite": {
-        "type": "Direct",
-        "requested": "[7.0.10, )",
-        "resolved": "7.0.10",
-        "contentHash": "gGOZWOvpRDC2bQAUNwpYzjYRTFbSJKNK60KOnvrstvvKKeM/4dVo7i0dxIvZaHpUuIRnlDybBrSK253/BBsfhg==",
-        "dependencies": {
-          "Microsoft.EntityFrameworkCore.Sqlite.Core": "7.0.10",
-          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.4"
-        }
-      },
       "Microsoft.Extensions.Hosting": {
         "type": "Direct",
         "requested": "[7.0.1, )",
@@ -126,6 +116,15 @@
         "dependencies": {
           "Microsoft.EntityFrameworkCore": "7.0.10",
           "Microsoft.Extensions.Configuration.Abstractions": "7.0.0"
+        }
+      },
+      "Microsoft.EntityFrameworkCore.Sqlite": {
+        "type": "Transitive",
+        "resolved": "7.0.10",
+        "contentHash": "gGOZWOvpRDC2bQAUNwpYzjYRTFbSJKNK60KOnvrstvvKKeM/4dVo7i0dxIvZaHpUuIRnlDybBrSK253/BBsfhg==",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Sqlite.Core": "7.0.10",
+          "SQLitePCLRaw.bundle_e_sqlite3": "2.1.4"
         }
       },
       "Microsoft.EntityFrameworkCore.Sqlite.Core": {
@@ -527,7 +526,7 @@
       "maincore": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.EntityFrameworkCore": "[7.0.10, )",
+          "Microsoft.EntityFrameworkCore.Sqlite": "[7.0.10, )",
           "OpenQA.Selenium.Chrome.ChromeDriverExtensions": "[1.2.0, )",
           "ParserCore": "[1.0.0, )",
           "Selenium.Support": "[4.11.0, )",
@@ -537,7 +536,8 @@
       "parsercore": {
         "type": "Project",
         "dependencies": {
-          "HtmlAgilityPack": "[1.11.52, )"
+          "HtmlAgilityPack": "[1.11.52, )",
+          "Microsoft.Extensions.DependencyInjection": "[7.0.0, )"
         }
       }
     },
