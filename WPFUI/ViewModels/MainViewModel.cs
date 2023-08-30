@@ -20,14 +20,16 @@ namespace WPFUI.ViewModels
         private readonly IMessageService _messageService;
         private readonly IChromeDriverInstaller _chromeDriverInstaller;
         private readonly IChromeManager _chromeManager;
+        private readonly IUseragentManager _useragentManager;
 
-        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IMessageService messageService)
+        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IMessageService messageService, IUseragentManager useragentManager)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _contextFactory = contextFactory;
             _chromeDriverInstaller = chromeDriverInstaller;
             _chromeManager = chromeManager;
             _messageService = messageService;
+            _useragentManager = useragentManager;
         }
 
         public async Task Load()
@@ -47,6 +49,9 @@ namespace WPFUI.ViewModels
             //========================================//
             _waitingOverlayViewModel.Show("loading chrome's extensions");
             await Task.Run(_chromeManager.LoadExtension);
+            //========================================//
+            _waitingOverlayViewModel.Show("loading chrome's useragents");
+            await _useragentManager.Load();
             //========================================//
             _waitingOverlayViewModel.Show("loading database");
             using var context = await _contextFactory.CreateDbContextAsync();
@@ -73,6 +78,8 @@ namespace WPFUI.ViewModels
 
             _waitingOverlayViewModel.Show("shuting down chromedriver services");
             await Task.Run(_chromeManager.Shutdown);
+
+            _useragentManager.Dispose();
         }
 
         public WaitingOverlayViewModel WaitingOverlayViewModel => _waitingOverlayViewModel;

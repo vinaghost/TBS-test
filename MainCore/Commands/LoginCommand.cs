@@ -24,7 +24,7 @@ namespace MainCore.Commands
             {
                 chromeBrowser.Setup(access);
                 //chromeBrowser.Navigate(account.Server);
-                chromeBrowser.Navigate("https://nowsecure.nl");
+                chromeBrowser.Navigate("https://www.google.com");
             }
             catch (Exception)
             {

@@ -25,6 +25,7 @@ namespace WPFUI.Extensions
         {
             services.AddSingleton<IChromeDriverInstaller, ChromeDriverInstaller>();
             services.AddSingleton<IChromeManager, ChromeManager>();
+            services.AddSingleton<IUseragentManager, UseragentManager>();
 
             return services;
         }
