@@ -1,5 +1,7 @@
 ﻿using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium;
+using ParserCore.Parser;
 
 namespace MainCore.Commands
 {
@@ -8,10 +10,18 @@ namespace MainCore.Commands
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IChromeManager _chromeManager;
 
-        public LoginCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager)
+        private readonly IClickButtonCommand _clickButtonCommand;
+        private readonly IInputTextboxCommand _inputTextboxCommand;
+
+        private readonly ILoginPageParser _loginPageParser;
+
+        public LoginCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager, IClickButtonCommand clickButtonCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser)
         {
             _contextFactory = contextFactory;
             _chromeManager = chromeManager;
+            _clickButtonCommand = clickButtonCommand;
+            _inputTextboxCommand = inputTextboxCommand;
+            _loginPageParser = loginPageParser;
         }
 
         public async Task Execute(int accountId)
@@ -23,8 +33,16 @@ namespace MainCore.Commands
             try
             {
                 chromeBrowser.Setup(access);
-                //chromeBrowser.Navigate(account.Server);
-                chromeBrowser.Navigate("https://www.google.com");
+                chromeBrowser.Navigate(account.Server);
+
+                var html = chromeBrowser.Html;
+                var usernameNode = _loginPageParser.GetUsernameNode(html);
+                var passwordNode = _loginPageParser.GetPasswordNode(html);
+                var buttonNode = _loginPageParser.GetLoginButton(html);
+
+                await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(usernameNode.XPath), account.Username);
+                await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(passwordNode.XPath), access.Password);
+                await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
             }
             catch (Exception)
             {

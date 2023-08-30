@@ -10,7 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.52" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
     <PackageReference Include="OpenQA.Selenium.Chrome.ChromeDriverExtensions" Version="1.2.0" />
     <PackageReference Include="Selenium.Support" Version="4.11.0" />
@@ -19,5 +18,9 @@
 
   <ItemGroup>
     <EmbeddedResource Include="ExtensionFiles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ParserCore\ParserCore.csproj" />
   </ItemGroup>
 </Project>

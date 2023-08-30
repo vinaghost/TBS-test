@@ -3,6 +3,7 @@ using MainCore.Commands;
 using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using ParserCore.Parser;
 using WPFUI.Repositories;
 using WPFUI.Services;
 using WPFUI.ViewModels;
@@ -30,10 +31,18 @@ namespace WPFUI.Extensions
             return services;
         }
 
+        public static IServiceCollection AddParser(this IServiceCollection services)
+        {
+            services.AddSingleton<ILoginPageParser, LoginPageParser>();
+            return services;
+        }
+
         public static IServiceCollection AddCommand(this IServiceCollection services)
         {
             services.AddSingleton<ILoginCommand, LoginCommand>();
             services.AddSingleton<ILogoutCommand, LogoutCommand>();
+            services.AddSingleton<IInputTextboxCommand, InputTextboxCommand>();
+            services.AddSingleton<IClickButtonCommand, ClickButtonCommand>();
             return services;
         }
 
