@@ -66,6 +66,23 @@ namespace WPFUI.Repositories
             return await context.Accounts.ToListAsync();
         }
 
+        public async Task<Account> Get(int accountId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var account = await context.Accounts.FindAsync(accountId);
+            await context.Entry(account).Collection(x => x.Accesses).LoadAsync();
+            return account;
+        }
+
+        public async Task Edit(int accountId, AccountInput input)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var account = input.GetAccount();
+            account.Id = accountId;
+            context.Update(account);
+            await context.SaveChangesAsync();
+        }
+
         public async Task Delete(int accountId)
         {
             using (var context = await _contextFactory.CreateDbContextAsync())

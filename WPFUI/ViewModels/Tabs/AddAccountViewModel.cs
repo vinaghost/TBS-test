@@ -37,7 +37,7 @@ namespace WPFUI.ViewModels.Tabs
         private async Task AddAccountTask()
         {
             _waitingOverlayViewModel.Show("adding account ...");
-            await Observable.StartAsync(async () => await _accountRepository.Add(AccountInput), RxApp.TaskpoolScheduler);
+            await Observable.StartAsync(() => _accountRepository.Add(AccountInput), RxApp.TaskpoolScheduler);
 
             AccountInput.Clear();
             AccessInput.Clear();

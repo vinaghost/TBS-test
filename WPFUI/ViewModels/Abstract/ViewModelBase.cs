@@ -2,7 +2,7 @@
 
 namespace WPFUI.ViewModels.Abstract
 {
-    public class ViewModelBase : ReactiveObject
+    public abstract class ViewModelBase : ReactiveObject
     {
     }
 }

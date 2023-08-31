@@ -13,7 +13,8 @@ namespace WPFUI.Repositories
         Task Add(AccountInput input);
         Task AddRange(List<AccountsInput> inputs);
         Task Delete(int accountId);
-
+        Task Edit(int accountId, AccountInput input);
         Task<List<Account>> Get();
+        Task<Account> Get(int accountId);
     }
 }

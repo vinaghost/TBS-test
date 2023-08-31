@@ -23,6 +23,15 @@ namespace WPFUI.Models.Input
             ProxyPassword = other.ProxyPassword;
         }
 
+        public AccessInput(Access other)
+        {
+            Password = other.Password;
+            ProxyHost = other.ProxyHost;
+            ProxyPort = other.ProxyPort;
+            ProxyUsername = other.ProxyUsername;
+            ProxyPassword = other.ProxyPassword;
+        }
+
         public Access GetAccess()
         {
             return new()
@@ -33,6 +42,24 @@ namespace WPFUI.Models.Input
                 ProxyUsername = ProxyUsername,
                 ProxyPassword = ProxyPassword
             };
+        }
+
+        public void CopyTo(AccessInput other)
+        {
+            other.Password = Password;
+            other.ProxyHost = ProxyHost;
+            other.ProxyPort = ProxyPort;
+            other.ProxyUsername = ProxyUsername;
+            other.ProxyPassword = ProxyPassword;
+        }
+
+        public void CopyFrom(AccessInput other)
+        {
+            Password = other.Password;
+            ProxyHost = other.ProxyHost;
+            ProxyPort = other.ProxyPort;
+            ProxyUsername = other.ProxyUsername;
+            ProxyPassword = other.ProxyPassword;
         }
 
         public void Clear()

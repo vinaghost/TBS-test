@@ -10,19 +10,22 @@ namespace WPFUI.Stores
         private readonly bool[] _tabVisibility = new bool[4];
         private TabType _currentTabType;
 
+        private bool _isNoAccountTabVisible = true;
+        private bool _isAddAccountTabVisible;
+        private bool _isAddAccountsTabVisible;
+        private bool _isNormalTabVisible;
+
         private readonly NoAccountViewModel _noAccountViewModel;
         private readonly AddAccountViewModel _addAccountViewModel;
         private readonly AddAccountsViewModel _addAccountsViewModel;
-        private readonly EditAccountViewModel _normalAccountViewModel;
+        private readonly EditAccountViewModel _editAccountViewModel;
 
-        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel normalAccountViewModel)
+        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel)
         {
             _noAccountViewModel = noAccountViewModel;
             _addAccountViewModel = addAccountViewModel;
             _addAccountsViewModel = addAccountsViewModel;
-            _normalAccountViewModel = normalAccountViewModel;
-
-            SetTabType(TabType.NoAccount);
+            _editAccountViewModel = editAccountViewModel;
         }
 
         public void SetTabType(TabType tabType)
@@ -48,7 +51,7 @@ namespace WPFUI.Stores
                     break;
 
                 case TabType.Normal:
-                    _normalAccountViewModel.IsActive = true;
+                    _editAccountViewModel.IsActive = true;
                     break;
 
                 case TabType.AddAccount:
@@ -64,15 +67,11 @@ namespace WPFUI.Stores
             }
         }
 
-        private bool _isNoAccountTabVisible = true;
-
         public bool IsNoAccountTabVisible
         {
             get => _isNoAccountTabVisible;
             set => this.RaiseAndSetIfChanged(ref _isNoAccountTabVisible, value);
         }
-
-        private bool _isAddAccountTabVisible;
 
         public bool IsAddAccountTabVisible
         {
@@ -80,20 +79,21 @@ namespace WPFUI.Stores
             set => this.RaiseAndSetIfChanged(ref _isAddAccountTabVisible, value);
         }
 
-        private bool _isAddAccountsTabVisible;
-
         public bool IsAddAccountsTabVisible
         {
             get => _isAddAccountsTabVisible;
             set => this.RaiseAndSetIfChanged(ref _isAddAccountsTabVisible, value);
         }
 
-        private bool _isNormalTabVisible;
-
         public bool IsNormalTabVisible
         {
             get => _isNormalTabVisible;
             set => this.RaiseAndSetIfChanged(ref _isNormalTabVisible, value);
         }
+
+        public NoAccountViewModel NoAccountViewModel => _noAccountViewModel;
+        public AddAccountViewModel AddAccountViewModel => _addAccountViewModel;
+        public AddAccountsViewModel AddAccountsViewModel => _addAccountsViewModel;
+        public EditAccountViewModel EditAccountViewModel => _editAccountViewModel;
     }
 }

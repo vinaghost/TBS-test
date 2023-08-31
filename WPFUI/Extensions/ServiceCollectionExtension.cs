@@ -31,6 +31,7 @@ namespace WPFUI.Extensions
             services.AddSingleton<IMessageService, MessageService>();
 
             // Stores
+            services.AddSingleton<SelectedItemStore>();
             services.AddSingleton<AccountTabStore>();
 
             return services;

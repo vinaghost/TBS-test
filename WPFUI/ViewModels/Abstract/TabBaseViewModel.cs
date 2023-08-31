@@ -1,26 +1,35 @@
 ﻿using ReactiveUI;
 using System;
+using System.Diagnostics;
+using System.Reactive;
+using System.Threading.Tasks;
 
 namespace WPFUI.ViewModels.Abstract
 {
-    public class TabBaseViewModel : ViewModelBase
+    public abstract class TabBaseViewModel : ViewModelBase
     {
         private bool _isActive;
+        public ReactiveCommand<bool, Unit> IsActiveHandleCommand { get; }
 
         public TabBaseViewModel()
         {
-            this.WhenAnyValue(x => x.IsActive)
-                .Subscribe(isActive =>
-                {
-                    if (isActive)
-                    {
-                        OnActive();
-                    }
-                    else
-                    {
-                        OnDeactive();
-                    }
-                });
+            IsActiveHandleCommand = ReactiveCommand.CreateFromTask<bool, Unit>(IsActiveHandleTask);
+            IsActiveHandleCommand.ThrownExceptions.Subscribe(x => Debug.WriteLine("{0} {1}", new[] { x.Message, x.StackTrace }));
+
+            this.WhenAnyValue(x => x.IsActive).InvokeCommand(IsActiveHandleCommand);
+        }
+
+        private async Task<Unit> IsActiveHandleTask(bool isActive)
+        {
+            if (isActive)
+            {
+                await OnActive();
+            }
+            else
+            {
+                await OnDeactive();
+            }
+            return Unit.Default;
         }
 
         public bool IsActive
@@ -29,12 +38,14 @@ namespace WPFUI.ViewModels.Abstract
             set => this.RaiseAndSetIfChanged(ref _isActive, value);
         }
 
-        protected virtual void OnActive()
+        protected virtual Task OnActive()
         {
+            return Task.CompletedTask;
         }
 
-        protected virtual void OnDeactive()
+        protected virtual Task OnDeactive()
         {
+            return Task.CompletedTask;
         }
     }
 }
