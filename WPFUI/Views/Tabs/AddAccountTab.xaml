@@ -33,39 +33,51 @@
             </Grid>
         </Border>
         <Border Style="{DynamicResource Box}"  Grid.Row="1">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="10" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="10" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="10" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="5*" />
-                </Grid.ColumnDefinitions>
-                <Label                                  Grid.Column="0" Grid.Row="0" Content="Password (*):"        HorizontalContentAlignment="Right" />
-                <TextBox x:Name="PasswordTextBox"       Grid.Column="1" Grid.Row="0" />
-                <Label                                  Grid.Column="0" Grid.Row="2" Content="Proxy's host:"        HorizontalContentAlignment="Right" />
-                <TextBox x:Name="ProxyHostTextBox"      Grid.Column="1" Grid.Row="2" />
-                <Label                                  Grid.Column="3" Grid.Row="2" Content="Proxy's port:"        HorizontalContentAlignment="Right" />
-                <TextBox x:Name="ProxyPortTextBox"      Grid.Column="4" Grid.Row="2" />
-                <Label                                  Grid.Column="0" Grid.Row="4" Content="Proxy's username:"    HorizontalContentAlignment="Right" />
-                <TextBox x:Name="ProxyUsernameTextBox"  Grid.Column="1" Grid.Row="4" />
-                <Label                                  Grid.Column="3" Grid.Row="4" Content="Proxy's password:"    HorizontalContentAlignment="Right" />
-                <TextBox x:Name="ProxyPasswordTextBox"  Grid.Column="4" Grid.Row="4" />
-                <Button  x:Name="AddAccessButton"   Grid.ColumnSpan="5" Grid.Row="6" Content="Add access" />
-            </Grid>
+            <StackPanel Orientation="Vertical">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="3*" />
+                        <ColumnDefinition Width="5*" />
+                    </Grid.ColumnDefinitions>
+                    <Label                                  Grid.Column="0" Grid.Row="0" Content="Password (*):"        HorizontalContentAlignment="Right" />
+                    <TextBox x:Name="PasswordTextBox"       Grid.Column="1" Grid.Row="0" />
+                    <Label                                  Grid.Column="0" Grid.Row="2" Content="Proxy's host:"        HorizontalContentAlignment="Right" />
+                    <TextBox x:Name="ProxyHostTextBox"      Grid.Column="1" Grid.Row="2" />
+                    <Label                                  Grid.Column="3" Grid.Row="2" Content="Proxy's port:"        HorizontalContentAlignment="Right" />
+                    <TextBox x:Name="ProxyPortTextBox"      Grid.Column="4" Grid.Row="2" />
+                    <Label                                  Grid.Column="0" Grid.Row="4" Content="Proxy's username:"    HorizontalContentAlignment="Right" />
+                    <TextBox x:Name="ProxyUsernameTextBox"  Grid.Column="1" Grid.Row="4" />
+                    <Label                                  Grid.Column="3" Grid.Row="4" Content="Proxy's password:"    HorizontalContentAlignment="Right" />
+                    <TextBox x:Name="ProxyPasswordTextBox"  Grid.Column="4" Grid.Row="4" />
+                </Grid>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="4*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="4*" />
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="4*" />
+                    </Grid.ColumnDefinitions>
+                    <Button  x:Name="AddAccessButton"       Grid.Column="0" Content="Add access" />
+                    <Button  x:Name="EditAccessButton"      Grid.Column="2" Content="Edit access" />
+                    <Button  x:Name="DeleteAccessButton"    Grid.Column="4" Content="Delete access" />
+                </Grid>
+            </StackPanel>
         </Border>
         <Border Style="{DynamicResource Box}"  Grid.Row="2">
-            <DataGrid x:Name="ProxiesDataGrid" d:ItemsSource="{d:SampleData ItemCount=5}" CanUserDeleteRows="True" AutoGenerateColumns="False">
+            <DataGrid x:Name="ProxiesDataGrid" IsReadOnly="True" AutoGenerateColumns="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Password" Binding="{Binding Password}" />
                     <DataGridTextColumn Header="Proxy's host" Binding="{Binding ProxyHost}" />

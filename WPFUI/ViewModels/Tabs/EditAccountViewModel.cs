@@ -1,6 +1,8 @@
-﻿using ReactiveUI;
+﻿using MainCore.Models.Database;
+using ReactiveUI;
 using System;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using WPFUI.Models.Input;
 using WPFUI.Repositories;
@@ -16,8 +18,11 @@ namespace WPFUI.ViewModels.Tabs
 
         private AccessInput _selectedAcess;
 
+        private Account _account;
+
         public ReactiveCommand<Unit, Unit> AddAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccessCommand { get; }
+        public ReactiveCommand<Unit, Unit> DeleteAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccountCommand { get; }
 
         private readonly IAccountRepository _accountRepository;
@@ -30,6 +35,7 @@ namespace WPFUI.ViewModels.Tabs
 
             AddAccessCommand = ReactiveCommand.CreateFromTask(AddAccessTask);
             EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
+            DeleteAccessCommand = ReactiveCommand.CreateFromTask(DeleteAccessTask);
             EditAccountCommand = ReactiveCommand.CreateFromTask(EditAccountTask);
 
             this.WhenAnyValue(vm => vm.SelectedAcess)
@@ -39,8 +45,8 @@ namespace WPFUI.ViewModels.Tabs
 
         protected override async Task Load(int accountId)
         {
-            var account = await _accountRepository.Get(accountId);
-            AccountInput.CopyFrom(account);
+            _account = await _accountRepository.Get(accountId);
+            AccountInput.CopyFrom(_account);
         }
 
         private Task AddAccessTask()
@@ -55,13 +61,18 @@ namespace WPFUI.ViewModels.Tabs
             return Task.CompletedTask;
         }
 
+        private Task DeleteAccessTask()
+        {
+            AccountInput.Accesses.Remove(SelectedAcess);
+            SelectedAcess = null;
+            return Task.CompletedTask;
+        }
+
         private async Task EditAccountTask()
         {
             _waitingOverlayViewModel.Show("editting account ...");
-            //await Observable.StartAsync(() => _accountRepository.Add(AccountInput), RxApp.TaskpoolScheduler);
-            await Task.Delay(200);
-            AccountInput.Clear();
-            AccessInput.Clear();
+            AccountInput.CopyTo(_account);
+            await _accountRepository.Edit(_account);
             _waitingOverlayViewModel.Close();
         }
 

@@ -74,13 +74,24 @@ namespace WPFUI.Repositories
             return account;
         }
 
-        public async Task Edit(int accountId, AccountInput input)
+        public async Task Edit(Account account)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var account = input.GetAccount();
-            account.Id = accountId;
-            context.Update(account);
-            await context.SaveChangesAsync();
+            using (var context = await _contextFactory.CreateDbContextAsync())
+            {
+                foreach (var access in account.Accesses)
+                {
+                    if (string.IsNullOrEmpty(access.Useragent))
+                    {
+                        access.Useragent = _useragentManager.Get();
+                    }
+                }
+
+                //context.UpdateRange(account.Accesses);
+                //account.Accesses = null;
+                context.Update(account);
+                await context.SaveChangesAsync();
+            }
+            await AccountTableChanged?.Invoke();
         }
 
         public async Task Delete(int accountId)

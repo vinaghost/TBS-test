@@ -21,6 +21,7 @@ namespace WPFUI.Views.Tabs
             {
                 this.BindCommand(ViewModel, vm => vm.AddAccessCommand, v => v.AddAccessButton).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.EditAccessCommand, v => v.EditAccessButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.DeleteAccessCommand, v => v.DeleteAccessButton).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.EditAccountCommand, v => v.EditAccountButton).DisposeWith(d);
 
                 this.Bind(ViewModel, vm => vm.AccountInput.Username, v => v.UsernameTextBox.Text).DisposeWith(d);
