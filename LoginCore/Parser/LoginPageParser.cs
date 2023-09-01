@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 
-namespace ParserCore.Parser
+namespace LoginCore.Parser
 {
     public class LoginPageParser : ILoginPageParser
     {

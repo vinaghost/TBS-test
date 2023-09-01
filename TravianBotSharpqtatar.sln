@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WPFUI", "WPFUI\WPFUI.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MainCore", "MainCore\MainCore.csproj", "{C7A7FD14-E885-4515-9E75-C0B4098A319A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParserCore", "ParserCore\ParserCore.csproj", "{D61AB4B6-D2BF-48AB-8329-3B44901DA8E6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginCore", "LoginCore\LoginCore.csproj", "{17021447-FF30-416B-8725-D54698D963A9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{C7A7FD14-E885-4515-9E75-C0B4098A319A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7A7FD14-E885-4515-9E75-C0B4098A319A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7A7FD14-E885-4515-9E75-C0B4098A319A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D61AB4B6-D2BF-48AB-8329-3B44901DA8E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D61AB4B6-D2BF-48AB-8329-3B44901DA8E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D61AB4B6-D2BF-48AB-8329-3B44901DA8E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D61AB4B6-D2BF-48AB-8329-3B44901DA8E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17021447-FF30-416B-8725-D54698D963A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17021447-FF30-416B-8725-D54698D963A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17021447-FF30-416B-8725-D54698D963A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17021447-FF30-416B-8725-D54698D963A9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

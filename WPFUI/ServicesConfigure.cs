@@ -6,9 +6,9 @@ using WPFUI.ViewModels;
 using WPFUI.ViewModels.Tabs;
 using WPFUI.ViewModels.UserControls;
 
-namespace WPFUI.Extensions
+namespace WPFUI
 {
-    public static class ServiceCollectionExtension
+    public static class ServicesConfigure
     {
         public static IServiceCollection AddUIServices(this IServiceCollection services)
         {

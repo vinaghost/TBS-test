@@ -1,6 +1,6 @@
 ﻿namespace MainCore.Commands
 {
-    public interface IAccountCommand
+    public interface IOpenBrowserCommand
     {
         Task Execute(int accountId);
     }

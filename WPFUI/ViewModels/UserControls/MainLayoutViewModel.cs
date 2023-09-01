@@ -1,4 +1,5 @@
-﻿using MainCore.Commands;
+﻿using LoginCore.Commands;
+using MainCore.Commands;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
@@ -19,8 +20,9 @@ namespace WPFUI.ViewModels.UserControls
         private readonly IMessageService _messageService;
         private readonly IAccountRepository _accountRepository;
 
+        private readonly IOpenBrowserCommand _openBrowserCommand;
+        private readonly ICloseBrowserCommand _closeBrowserCommand;
         private readonly ILoginCommand _loginCommand;
-        private readonly ILogoutCommand _logoutCommand;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
@@ -29,7 +31,7 @@ namespace WPFUI.ViewModels.UserControls
 
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, ILoginCommand loginCommand, ILogoutCommand logoutCommand, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore)
+        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ILoginCommand loginCommand)
         {
             _messageService = messageService;
             _accountTabStore = accountTabStore;
@@ -38,7 +40,8 @@ namespace WPFUI.ViewModels.UserControls
 
             _accountRepository = accountRepository;
 
-            _logoutCommand = logoutCommand;
+            _openBrowserCommand = openBrowserCommand;
+            _closeBrowserCommand = closeBrowserCommand;
             _loginCommand = loginCommand;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
@@ -107,7 +110,12 @@ namespace WPFUI.ViewModels.UserControls
                 return;
             }
 
-            await Observable.StartAsync(() => _loginCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
+            var accountId = SelectedAccount.Id;
+            await Task.Run(async () =>
+            {
+                await _openBrowserCommand.Execute(accountId);
+                await _loginCommand.Execute(accountId);
+            });
         }
 
         private async Task LogoutTask()
@@ -117,7 +125,7 @@ namespace WPFUI.ViewModels.UserControls
                 _messageService.Show("Warning", "No account selected");
                 return;
             }
-            await Observable.StartAsync(() => _logoutCommand.Execute(SelectedAccount.Id), RxApp.TaskpoolScheduler);
+            await _closeBrowserCommand.Execute(SelectedAccount.Id);
         }
 
         private Task PauseTask()

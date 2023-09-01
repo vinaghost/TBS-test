@@ -1,13 +1,12 @@
-﻿using MainCore.Extensions;
+﻿using LoginCore;
+using MainCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ParserCore.Extensions;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
-using WPFUI.Extensions;
 using WPFUI.ViewModels;
 using WPFUI.Views;
 
@@ -33,10 +32,8 @@ namespace WPFUI
                     resolver.InitializeReactiveUI();
 
                     services
-                        .AddLogicServices()
-                        .AddCoreSerivce()
-                        .AddCommand()
-                        .AddParser()
+                        .AddCoreServices()
+                        .AddLoginServices()
                         .AddUIServices();
                 })
                 .Build();

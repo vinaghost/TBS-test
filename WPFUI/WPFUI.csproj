@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LoginCore\LoginCore.csproj" />
     <ProjectReference Include="..\MainCore\MainCore.csproj" />
   </ItemGroup>
 

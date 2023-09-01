@@ -1,9 +1,11 @@
-﻿using MainCore.Services;
+﻿using LoginCore.Parser;
+using MainCore;
+using MainCore.Commands;
+using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using OpenQA.Selenium;
-using ParserCore.Parser;
 
-namespace MainCore.Commands
+namespace LoginCore.Commands
 {
     public class LoginCommand : ILoginCommand
     {
@@ -30,24 +32,15 @@ namespace MainCore.Commands
             var account = await context.Accounts.FindAsync(accountId);
             var access = await context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
             var chromeBrowser = _chromeManager.Get(accountId);
-            try
-            {
-                chromeBrowser.Setup(access);
-                chromeBrowser.Navigate(account.Server);
 
-                var html = chromeBrowser.Html;
-                var usernameNode = _loginPageParser.GetUsernameNode(html);
-                var passwordNode = _loginPageParser.GetPasswordNode(html);
-                var buttonNode = _loginPageParser.GetLoginButton(html);
+            var html = chromeBrowser.Html;
+            var usernameNode = _loginPageParser.GetUsernameNode(html);
+            var passwordNode = _loginPageParser.GetPasswordNode(html);
+            var buttonNode = _loginPageParser.GetLoginButton(html);
 
-                await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(usernameNode.XPath), account.Username);
-                await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(passwordNode.XPath), access.Password);
-                await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
-            }
-            catch (Exception)
-            {
-                return;
-            }
+            await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(usernameNode.XPath), account.Username);
+            await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(passwordNode.XPath), access.Password);
+            await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
         }
     }
 }

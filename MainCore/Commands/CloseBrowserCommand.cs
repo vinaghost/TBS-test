@@ -2,11 +2,11 @@
 
 namespace MainCore.Commands
 {
-    public class LogoutCommand : ILogoutCommand
+    public class CloseBrowserCommand : ICloseBrowserCommand
     {
         private readonly IChromeManager _chromeManager;
 
-        public LogoutCommand(IChromeManager chromeManager)
+        public CloseBrowserCommand(IChromeManager chromeManager)
         {
             _chromeManager = chromeManager;
         }
