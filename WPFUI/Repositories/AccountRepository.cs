@@ -1,5 +1,5 @@
 ﻿using MainCore;
-using MainCore.Models.Database;
+using MainCore.Models;
 using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using System;

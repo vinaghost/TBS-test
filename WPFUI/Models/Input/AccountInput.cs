@@ -1,5 +1,5 @@
 ﻿using DynamicData;
-using MainCore.Models.Database;
+using MainCore.Models;
 using ReactiveUI;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

@@ -1,5 +1,5 @@
 ﻿using HtmlAgilityPack;
-using MainCore.Models.Database;
+using MainCore.Models;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 

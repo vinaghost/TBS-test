@@ -1,4 +1,4 @@
-﻿using MainCore.Models.Database;
+﻿using MainCore.Models;
 using ReactiveUI;
 using System;
 using System.Reactive;

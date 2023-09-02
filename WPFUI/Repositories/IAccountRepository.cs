@@ -1,4 +1,4 @@
-﻿using MainCore.Models.Database;
+﻿using MainCore.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

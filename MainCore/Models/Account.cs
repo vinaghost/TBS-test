@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace MainCore.Models.Database
+namespace MainCore.Models
 {
     [Index(nameof(Username), nameof(Server), IsUnique = true)]
     public class Account

@@ -1,6 +1,6 @@
 ﻿using MainCore.Enums;
 
-namespace MainCore.Models.Database
+namespace MainCore.Models
 {
     public class AccountInfo
     {

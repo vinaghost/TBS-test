@@ -1,4 +1,4 @@
-﻿namespace MainCore.Models.Database
+﻿namespace MainCore.Models
 {
     public class Access
     {
