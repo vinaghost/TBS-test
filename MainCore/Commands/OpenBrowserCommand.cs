@@ -20,15 +20,18 @@ namespace MainCore.Commands
             var chromeBrowser = _chromeManager.Get(accountId);
             var account = await context.Accounts.FindAsync(accountId);
             var access = await context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
-            try
+            await Task.Run(() =>
             {
-                chromeBrowser.Setup(access);
-                chromeBrowser.Navigate(account.Server);
-            }
-            catch (Exception)
-            {
-                return;
-            }
+                try
+                {
+                    chromeBrowser.Setup(access);
+                    chromeBrowser.Navigate(account.Server);
+                }
+                catch
+                {
+                    return;
+                }
+            });
         }
     }
 }

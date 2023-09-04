@@ -10,5 +10,7 @@ namespace MainCore.Tasks
         public CancellationToken CancellationToken { get; set; }
 
         public abstract Task<Result> Execute();
+
+        public abstract string GetName();
     }
 }

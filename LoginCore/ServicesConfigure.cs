@@ -1,5 +1,6 @@
 ﻿using LoginCore.Commands;
 using LoginCore.Parser;
+using LoginCore.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LoginCore
@@ -9,7 +10,9 @@ namespace LoginCore
         public static IServiceCollection AddLoginServices(this IServiceCollection services)
         {
             services.AddSingleton<ILoginPageParser, LoginPageParser>();
-            services.AddSingleton<ILoginCommand, LoginCommand>();
+            services.AddTransient<ILoginCommand, LoginCommand>();
+            services.AddTransient<LoginTask>();
+
             return services;
         }
     }

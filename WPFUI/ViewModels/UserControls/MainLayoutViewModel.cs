@@ -1,5 +1,7 @@
-﻿using LoginCore.Commands;
+﻿using LoginCore.Tasks;
 using MainCore.Commands;
+using MainCore.Enums;
+using MainCore.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
@@ -22,7 +24,9 @@ namespace WPFUI.ViewModels.UserControls
 
         private readonly IOpenBrowserCommand _openBrowserCommand;
         private readonly ICloseBrowserCommand _closeBrowserCommand;
-        private readonly ILoginCommand _loginCommand;
+
+        private readonly ITaskManager _taskManager;
+        private readonly ITimerManager _timerManager;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
@@ -31,7 +35,7 @@ namespace WPFUI.ViewModels.UserControls
 
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ILoginCommand loginCommand)
+        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, ITimerManager timerManager)
         {
             _messageService = messageService;
             _accountTabStore = accountTabStore;
@@ -42,7 +46,7 @@ namespace WPFUI.ViewModels.UserControls
 
             _openBrowserCommand = openBrowserCommand;
             _closeBrowserCommand = closeBrowserCommand;
-            _loginCommand = loginCommand;
+            _taskManager = taskManager;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
             AddAccountsCommand = ReactiveCommand.CreateFromTask(AddAccountsTask);
@@ -64,6 +68,7 @@ namespace WPFUI.ViewModels.UserControls
                 if (x is null) tabType = TabType.NoAccount;
                 _accountTabStore.SetTabType(tabType);
             });
+            _timerManager = timerManager;
         }
 
         public async Task Load()
@@ -111,11 +116,14 @@ namespace WPFUI.ViewModels.UserControls
             }
 
             var accountId = SelectedAccount.Id;
-            await Task.Run(async () =>
-            {
-                await _openBrowserCommand.Execute(accountId);
-                await _loginCommand.Execute(accountId);
-            });
+            var taskInfo = _taskManager.GetTaskInfo(accountId);
+            taskInfo.Status = StatusEnums.Starting;
+            await _openBrowserCommand.Execute(accountId);
+
+            _taskManager.Add<LoginTask>(accountId);
+            _timerManager.Start(accountId);
+
+            taskInfo.Status = StatusEnums.Online;
         }
 
         private async Task LogoutTask()

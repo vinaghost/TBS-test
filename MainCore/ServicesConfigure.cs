@@ -2,6 +2,7 @@
 using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Serilog.Core;
 
 namespace MainCore
 {
@@ -17,12 +18,17 @@ namespace MainCore
             services.AddSingleton<IChromeDriverInstaller, ChromeDriverInstaller>();
             services.AddSingleton<IChromeManager, ChromeManager>();
             services.AddSingleton<IUseragentManager, UseragentManager>();
+            services.AddSingleton<ITimerManager, TimerManager>();
+            services.AddSingleton<ITaskManager, TaskManager>();
+            services.AddSingleton<ILogService, LogService>();
+
+            services.AddSingleton<ILogEventSink, LogSink>();
 
             // commands
-            services.AddSingleton<IOpenBrowserCommand, OpenBrowserCommand>();
-            services.AddSingleton<ICloseBrowserCommand, CloseBrowserCommand>();
-            services.AddSingleton<IInputTextboxCommand, InputTextboxCommand>();
-            services.AddSingleton<IClickButtonCommand, ClickButtonCommand>();
+            services.AddTransient<IOpenBrowserCommand, OpenBrowserCommand>();
+            services.AddTransient<ICloseBrowserCommand, CloseBrowserCommand>();
+            services.AddTransient<IInputTextboxCommand, InputTextboxCommand>();
+            services.AddTransient<IClickButtonCommand, ClickButtonCommand>();
             return services;
         }
     }

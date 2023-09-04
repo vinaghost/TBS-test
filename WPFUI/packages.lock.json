@@ -460,6 +460,11 @@
           "Selenium.WebDriver": "3.141.0"
         }
       },
+      "Polly": {
+        "type": "Transitive",
+        "resolved": "7.2.4",
+        "contentHash": "bw00Ck5sh6ekduDE3mnCo1ohzuad946uslCDEENu3091+6UKnBuKLo4e+yaNcCzXxOZCXWY2gV4a35+K1d4LDA=="
+      },
       "ReactiveUI": {
         "type": "Transitive",
         "resolved": "18.4.1",
@@ -485,6 +490,48 @@
           "Microsoft.IdentityModel.Tokens": "6.19.0",
           "Newtonsoft.Json": "13.0.1",
           "System.Drawing.Common": "7.0.0"
+        }
+      },
+      "Serilog": {
+        "type": "Transitive",
+        "resolved": "3.0.1",
+        "contentHash": "E4UmOQ++eNJax1laE+lws7E3zbhKgHsGJbO7ra0yE5smUh+5FfUPIKKBxM3MO1tK4sgpQke6/pLReDxIc/ggNw=="
+      },
+      "Serilog.Extensions.Hosting": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "AWsDTs6TeCtyXYDWakzLXCOZA3/IdIfBWBwkYAF0ZvVktVr3E15oYP9pfI7GzKaGVmHaJF9TgFQnFEfcnzEkcw==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Hosting.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.0",
+          "Serilog": "2.12.0",
+          "Serilog.Extensions.Logging": "7.0.0"
+        }
+      },
+      "Serilog.Extensions.Logging": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "9faU0zNQqU7I6soVhLUMYaGNpgWv6cKlKb2S5AnS8gXxzW/em5Ladm/6FMrWTnX41cdbdGPOWNAo6adi4WaJ6A==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging": "7.0.0",
+          "Serilog": "2.12.0"
+        }
+      },
+      "Serilog.Sinks.File": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "uwV5hdhWPwUH1szhO8PJpFiahqXmzPzJT/sOijH/kFgUx+cyoDTMM8MHD0adw9+Iem6itoibbUXHYslzXsLEAg==",
+        "dependencies": {
+          "Serilog": "2.10.0"
+        }
+      },
+      "Serilog.Sinks.Map": {
+        "type": "Transitive",
+        "resolved": "1.0.2",
+        "contentHash": "JbPBAeD5hxUQw8TZg3FlOnqVsSu1269nvqFm5DQ7hc+AmsB+hItl+zMSDphMbPJXjL8KdpMRSWNkGi7zTKRmCA==",
+        "dependencies": {
+          "Serilog": "2.8.0"
         }
       },
       "Splat": {
@@ -598,8 +645,13 @@
           "HtmlAgilityPack": "[1.11.52, )",
           "Microsoft.EntityFrameworkCore.Sqlite": "[7.0.10, )",
           "OpenQA.Selenium.Chrome.ChromeDriverExtensions": "[1.2.0, )",
+          "Polly": "[7.2.4, )",
           "Selenium.Support": "[4.12.2, )",
           "Selenium.WebDriver": "[4.12.2, )",
+          "Serilog": "[3.0.1, )",
+          "Serilog.Extensions.Hosting": "[7.0.0, )",
+          "Serilog.Sinks.File": "[5.0.0, )",
+          "Serilog.Sinks.Map": "[1.0.2, )",
           "Splat": "[14.7.1, )"
         }
       }

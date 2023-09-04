@@ -21,8 +21,9 @@ namespace WPFUI.ViewModels
         private readonly IChromeDriverInstaller _chromeDriverInstaller;
         private readonly IChromeManager _chromeManager;
         private readonly IUseragentManager _useragentManager;
+        private readonly ILogService _logService;
 
-        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IMessageService messageService, IUseragentManager useragentManager)
+        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IMessageService messageService, IUseragentManager useragentManager, ILogService logService)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _contextFactory = contextFactory;
@@ -30,6 +31,7 @@ namespace WPFUI.ViewModels
             _chromeManager = chromeManager;
             _messageService = messageService;
             _useragentManager = useragentManager;
+            _logService = logService;
         }
 
         public async Task Load()
@@ -57,6 +59,9 @@ namespace WPFUI.ViewModels
             using var context = await _contextFactory.CreateDbContextAsync();
             //await context.Database.EnsureDeletedAsync();
             await context.Database.EnsureCreatedAsync();
+            //========================================//
+            _waitingOverlayViewModel.Show("loading log system");
+            _logService.Init();
             //========================================//
             _waitingOverlayViewModel.Show("loading user interface");
             MainLayoutViewModel = Locator.Current.GetService<MainLayoutViewModel>();

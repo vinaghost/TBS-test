@@ -5,7 +5,7 @@ using Splat;
 
 namespace LoginCore.Tasks
 {
-    public class LoginTask : AccountTask
+    public sealed class LoginTask : AccountTask
     {
         public override async Task<Result> Execute()
         {
@@ -13,6 +13,11 @@ namespace LoginCore.Tasks
             var loginCommand = Locator.Current.GetService<ILoginCommand>();
             await loginCommand.Execute(AccountId);
             return Result.Ok();
+        }
+
+        public override string GetName()
+        {
+            return "Login task";
         }
     }
 }
