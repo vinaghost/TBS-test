@@ -1,7 +1,6 @@
 ﻿using DynamicData;
 using MainCore.Models;
 using ReactiveUI;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -38,38 +37,12 @@ namespace WPFUI.Models.Input
             Accesses.AddRange(accesses);
         }
 
-        public void CopyTo(Account other)
-        {
-            other.Id = _id;
-            other.Username = Username;
-            other.Server = Server;
-
-            var accessAdded = new List<int>();
-            foreach (var access in Accesses)
-            {
-                var accountAccess = other.Accesses.FirstOrDefault(x => x.Id == access.Id);
-                if (accountAccess is null)
-                {
-                    other.Accesses.Add(access.GetAccess());
-                }
-                else
-                {
-                    access.CopyTo(accountAccess);
-                }
-
-                accessAdded.Add(access.Id);
-            }
-            var accessRemove = other.Accesses.Where(x => !accessAdded.Contains(x.Id)).ToList();
-            foreach (var access in accessRemove)
-            {
-                other.Accesses.Remove(access);
-            }
-        }
-
         private int _id;
         private string _username;
         private string _server;
         public ObservableCollection<AccessInput> Accesses = new();
+
+        public int Id => _id;
 
         public string Username
         {

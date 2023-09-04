@@ -16,7 +16,7 @@ namespace WPFUI.Repositories
 
         Task Delete(int accountId);
 
-        Task Edit(Account account);
+        Task Edit(AccountInput account);
 
         Task<List<Account>> Get();
 

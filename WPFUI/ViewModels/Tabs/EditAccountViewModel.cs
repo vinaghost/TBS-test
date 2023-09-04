@@ -1,5 +1,4 @@
-﻿using MainCore.Models;
-using ReactiveUI;
+﻿using ReactiveUI;
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -17,9 +16,6 @@ namespace WPFUI.ViewModels.Tabs
         public AccountInput AccountInput { get; } = new();
 
         private AccessInput _selectedAcess;
-
-        private Account _account;
-
         public ReactiveCommand<Unit, Unit> AddAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteAccessCommand { get; }
@@ -45,8 +41,8 @@ namespace WPFUI.ViewModels.Tabs
 
         protected override async Task Load(int accountId)
         {
-            _account = await _accountRepository.Get(accountId);
-            AccountInput.CopyFrom(_account);
+            var account = await _accountRepository.Get(accountId);
+            AccountInput.CopyFrom(account);
         }
 
         private Task AddAccessTask()
@@ -71,8 +67,7 @@ namespace WPFUI.ViewModels.Tabs
         private async Task EditAccountTask()
         {
             _waitingOverlayViewModel.Show("editting account ...");
-            AccountInput.CopyTo(_account);
-            await _accountRepository.Edit(_account);
+            await _accountRepository.Edit(AccountInput);
             _waitingOverlayViewModel.Close();
         }
 

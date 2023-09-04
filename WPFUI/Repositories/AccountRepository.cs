@@ -74,20 +74,38 @@ namespace WPFUI.Repositories
             return account;
         }
 
-        public async Task Edit(Account account)
+        public async Task Edit(AccountInput input)
         {
             using (var context = await _contextFactory.CreateDbContextAsync())
             {
-                foreach (var access in account.Accesses)
-                {
-                    if (string.IsNullOrEmpty(access.Useragent))
-                    {
-                        access.Useragent = _useragentManager.Get();
-                    }
-                }
+                var account = await context.Accounts.FindAsync(input.Id);
+                await context.Entry(account).Collection(x => x.Accesses).LoadAsync();
 
-                //context.UpdateRange(account.Accesses);
-                //account.Accesses = null;
+                account.Username = input.Username;
+                account.Server = input.Server;
+
+                var accessAdded = new List<int>();
+                foreach (var access in input.Accesses)
+                {
+                    var accountAccess = account.Accesses.FirstOrDefault(x => x.Id == access.Id);
+                    if (accountAccess is null)
+                    {
+                        accountAccess = access.GetAccess();
+                        accountAccess.Useragent = _useragentManager.Get();
+                        account.Accesses.Add(accountAccess);
+                    }
+                    else
+                    {
+                        access.CopyTo(accountAccess);
+                    }
+
+                    accessAdded.Add(access.Id);
+                }
+                var accessRemove = account.Accesses.Where(x => !accessAdded.Contains(x.Id)).ToList();
+                foreach (var access in accessRemove)
+                {
+                    account.Accesses.Remove(access);
+                }
                 context.Update(account);
                 await context.SaveChangesAsync();
             }
