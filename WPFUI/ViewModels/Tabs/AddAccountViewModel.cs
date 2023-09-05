@@ -1,6 +1,5 @@
 ﻿using ReactiveUI;
 using System;
-using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -35,7 +34,6 @@ namespace WPFUI.ViewModels.Tabs
             EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
             DeleteAccessCommand = ReactiveCommand.CreateFromTask(DeleteAccessTask);
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
-            AddAccountCommand.ThrownExceptions.Subscribe(x => Debug.WriteLine("{0} {1}", x.Message, x.StackTrace));
             this.WhenAnyValue(vm => vm.SelectedAcess)
                 .WhereNotNull()
                 .Subscribe(x => x.CopyTo(AccessInput));
@@ -43,7 +41,7 @@ namespace WPFUI.ViewModels.Tabs
 
         private Task AddAccessTask()
         {
-            AccountInput.Accesses.Add(new(AccessInput));
+            AccountInput.Accesses.Add(AccessInput.Clone());
             return Task.CompletedTask;
         }
 

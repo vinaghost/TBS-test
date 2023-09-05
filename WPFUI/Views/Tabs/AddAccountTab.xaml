@@ -5,6 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:tabs="clr-namespace:WPFUI.ViewModels.Tabs"
+    d:DataContext="{d:DesignInstance Type=tabs:AddAccountViewModel}"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="#FFE5E5E5">
@@ -27,9 +29,9 @@
                     <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
                 <Label                              Grid.Column="0" Grid.Row="0" Content="Server url:"  HorizontalContentAlignment="Right" />
-                <TextBox x:Name="ServerTextBox"     Grid.Column="1" Grid.Row="0" />
+                <TextBox Text="{Binding AccountInput.Server}"  Grid.Column="1" Grid.Row="0" />
                 <Label                              Grid.Column="0" Grid.Row="2" Content="Username:"    HorizontalContentAlignment="Right" />
-                <TextBox x:Name="UsernameTextBox"   Grid.Column="1" Grid.Row="2" />
+                <TextBox Text="{Binding AccountInput.Username}"  Grid.Column="1" Grid.Row="2" />
             </Grid>
         </Border>
         <Border Style="{DynamicResource Box}"  Grid.Row="1">
@@ -52,15 +54,15 @@
                         <ColumnDefinition Width="5*" />
                     </Grid.ColumnDefinitions>
                     <Label                                  Grid.Column="0" Grid.Row="0" Content="Password (*):"        HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="PasswordTextBox"       Grid.Column="1" Grid.Row="0" />
+                    <TextBox Text="{Binding AccessInput.Password}"       Grid.Column="1" Grid.Row="0" />
                     <Label                                  Grid.Column="0" Grid.Row="2" Content="Proxy's host:"        HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyHostTextBox"      Grid.Column="1" Grid.Row="2" />
+                    <TextBox Text="{Binding AccessInput.ProxyHost}"      Grid.Column="1" Grid.Row="2" />
                     <Label                                  Grid.Column="3" Grid.Row="2" Content="Proxy's port:"        HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyPortTextBox"      Grid.Column="4" Grid.Row="2" />
+                    <TextBox Text="{Binding AccessInput.ProxyPort}"      Grid.Column="4" Grid.Row="2" />
                     <Label                                  Grid.Column="0" Grid.Row="4" Content="Proxy's username:"    HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyUsernameTextBox"  Grid.Column="1" Grid.Row="4" />
+                    <TextBox Text="{Binding AccessInput.ProxyUsername}"  Grid.Column="1" Grid.Row="4" />
                     <Label                                  Grid.Column="3" Grid.Row="4" Content="Proxy's password:"    HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyPasswordTextBox"  Grid.Column="4" Grid.Row="4" />
+                    <TextBox Text="{Binding AccessInput.ProxyPassword}"  Grid.Column="4" Grid.Row="4" />
                 </Grid>
                 <Grid>
                     <Grid.ColumnDefinitions>
