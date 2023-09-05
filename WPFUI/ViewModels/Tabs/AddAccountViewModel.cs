@@ -1,10 +1,12 @@
-﻿using ReactiveUI;
+﻿using FluentValidation;
+using ReactiveUI;
 using System;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using WPFUI.Models.Input;
 using WPFUI.Repositories;
+using WPFUI.Services;
 using WPFUI.ViewModels.Abstract;
 using WPFUI.ViewModels.UserControls;
 
@@ -13,7 +15,9 @@ namespace WPFUI.ViewModels.Tabs
     public class AddAccountViewModel : TabBaseViewModel
     {
         public AccessInput AccessInput { get; } = new();
+        private readonly IValidator<AccessInput> _accessInputValidator;
         public AccountInput AccountInput { get; } = new();
+        private readonly IValidator<AccountInput> _accountInputValidator;
 
         private AccessInput _selectedAcess;
 
@@ -24,11 +28,16 @@ namespace WPFUI.ViewModels.Tabs
 
         private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly IMessageService _messageService;
 
-        public AddAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel)
+        public AddAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IMessageService messageService)
         {
             _accountRepository = accountRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
+
+            _accessInputValidator = accessInputValidator;
+            _accountInputValidator = accountInputValidator;
+            _messageService = messageService;
 
             AddAccessCommand = ReactiveCommand.CreateFromTask(AddAccessTask);
             EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
@@ -41,13 +50,31 @@ namespace WPFUI.ViewModels.Tabs
 
         private Task AddAccessTask()
         {
-            AccountInput.Accesses.Add(new(AccessInput));
+            var results = _accessInputValidator.Validate(AccessInput);
+
+            if (!results.IsValid)
+            {
+                _messageService.Show("Error", results.ToString());
+            }
+            else
+            {
+                AccountInput.Accesses.Add(new(AccessInput));
+            }
             return Task.CompletedTask;
         }
 
         private Task EditAccessTask()
         {
-            AccessInput.CopyTo(SelectedAcess);
+            var results = _accessInputValidator.Validate(AccessInput);
+
+            if (!results.IsValid)
+            {
+                _messageService.Show("Error", results.ToString());
+            }
+            else
+            {
+                AccessInput.CopyTo(SelectedAcess);
+            }
             return Task.CompletedTask;
         }
 
@@ -60,10 +87,19 @@ namespace WPFUI.ViewModels.Tabs
 
         private async Task AddAccountTask()
         {
-            _waitingOverlayViewModel.Show("adding account ...");
-            await _accountRepository.Add(AccountInput);
-            AccountInput.Clear();
-            _waitingOverlayViewModel.Close();
+            var results = _accountInputValidator.Validate(AccountInput);
+
+            if (!results.IsValid)
+            {
+                _messageService.Show("Error", results.ToString());
+            }
+            else
+            {
+                _waitingOverlayViewModel.Show("adding account ...");
+                await _accountRepository.Add(AccountInput);
+                AccountInput.Clear();
+                _waitingOverlayViewModel.Close();
+            }
         }
 
         public AccessInput SelectedAcess

@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using WPFUI.Models.Input;
+using WPFUI.Models.Validators;
 using WPFUI.Repositories;
 using WPFUI.Services;
 using WPFUI.Stores;
@@ -33,6 +36,10 @@ namespace WPFUI
             // Stores
             services.AddSingleton<SelectedItemStore>();
             services.AddSingleton<AccountTabStore>();
+
+            // Validators
+            services.AddSingleton<IValidator<AccountInput>, AccountInputValidator>();
+            services.AddSingleton<IValidator<AccessInput>, AccessInputValidator>();
 
             return services;
         }
