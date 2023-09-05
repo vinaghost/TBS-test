@@ -42,15 +42,6 @@
           "System.Diagnostics.DiagnosticSource": "7.0.1"
         }
       },
-      "ReactiveUI.Validation": {
-        "type": "Direct",
-        "requested": "[3.1.7, )",
-        "resolved": "3.1.7",
-        "contentHash": "53LiqOIMzpoT5drTasXpU6BQWnXuR7rl/V9mWLnU3pKHY3oaZ5sqV3qWpQLlXzFPV2BYXxKVATz4/O0Mhjaf2g==",
-        "dependencies": {
-          "ReactiveUI": "18.4.20"
-        }
-      },
       "ReactiveUI.WPF": {
         "type": "Direct",
         "requested": "[18.4.1, )",
@@ -72,8 +63,8 @@
       },
       "DynamicData": {
         "type": "Transitive",
-        "resolved": "7.12.11",
-        "contentHash": "dcD3ygbFfvFWYX//MWG6P/m6Eenwf0Z5vGZbpa3218/l7tgg/ZdvP58qYF/smLBpu/qeX/xIohzeQAx/YJsqDg==",
+        "resolved": "7.12.8",
+        "contentHash": "MIOpDgdFF7GgbuIfu2o70KJxV9dqtTyTMFrdwupdjQ7I0MIkpvbmvdcrsM66T8rCFL0FGye7BmURFYgaDTw7/w==",
         "dependencies": {
           "System.Reactive": "5.0.0"
         }
@@ -476,11 +467,11 @@
       },
       "ReactiveUI": {
         "type": "Transitive",
-        "resolved": "18.4.20",
-        "contentHash": "+RcTUGCmwRQoUr9cFl4FrJn2/Sr74UjNv2676q+o7OGsl843nWwIXcjfDsX8IEgeUDC3o4qN4qbS1ZI7v3VuEg==",
+        "resolved": "18.4.1",
+        "contentHash": "uMFeRHeLc7IQ9rzl0Z6GIh4Zq3NN6DP3o8oHklslE5ZdrQncCJBNgaTR7D2yiaefbiMwduggGHphqDqfuIzz2A==",
         "dependencies": {
-          "DynamicData": "7.12.11",
-          "Splat": "14.6.8"
+          "DynamicData": "7.12.8",
+          "Splat": "14.5.1"
         }
       },
       "Selenium.Support": {

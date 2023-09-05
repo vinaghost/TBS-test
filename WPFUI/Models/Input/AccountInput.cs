@@ -1,30 +1,13 @@
 ﻿using DynamicData;
 using MainCore.Models;
 using ReactiveUI;
-using ReactiveUI.Validation.Extensions;
-using ReactiveUI.Validation.Helpers;
 using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace WPFUI.Models.Input
 {
-    public class AccountInput : ReactiveValidationObject
+    public class AccountInput : ReactiveObject
     {
-        public AccountInput()
-        {
-            SetupValidationRule();
-        }
-
-        public void SetupValidationRule()
-        {
-            this.ValidationRule(x => x.Username,
-                                x => !string.IsNullOrWhiteSpace(x),
-                                "Username is empty");
-            this.ValidationRule(x => x.Server,
-                                x => !string.IsNullOrWhiteSpace(x),
-                                "Server is empty");
-        }
-
         public void Clear()
         {
             _id = 0;

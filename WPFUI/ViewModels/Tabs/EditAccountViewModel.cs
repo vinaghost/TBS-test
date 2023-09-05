@@ -34,7 +34,7 @@ namespace WPFUI.ViewModels.Tabs
             DeleteAccessCommand = ReactiveCommand.CreateFromTask(DeleteAccessTask);
             EditAccountCommand = ReactiveCommand.CreateFromTask(EditAccountTask);
 
-            this.WhenAnyValue(vm => vm.SelectedAccess)
+            this.WhenAnyValue(vm => vm.SelectedAcess)
                 .WhereNotNull()
                 .Subscribe(x => x.CopyTo(AccessInput));
         }
@@ -47,20 +47,20 @@ namespace WPFUI.ViewModels.Tabs
 
         private Task AddAccessTask()
         {
-            AccountInput.Accesses.Add(AccessInput.Clone());
+            AccountInput.Accesses.Add(new(AccessInput));
             return Task.CompletedTask;
         }
 
         private Task EditAccessTask()
         {
-            AccessInput.CopyTo(SelectedAccess);
+            AccessInput.CopyTo(SelectedAcess);
             return Task.CompletedTask;
         }
 
         private Task DeleteAccessTask()
         {
-            AccountInput.Accesses.Remove(SelectedAccess);
-            SelectedAccess = null;
+            AccountInput.Accesses.Remove(SelectedAcess);
+            SelectedAcess = null;
             return Task.CompletedTask;
         }
 
@@ -71,7 +71,7 @@ namespace WPFUI.ViewModels.Tabs
             _waitingOverlayViewModel.Close();
         }
 
-        public AccessInput SelectedAccess
+        public AccessInput SelectedAcess
         {
             get => _selectedAcess;
             set => this.RaiseAndSetIfChanged(ref _selectedAcess, value);
