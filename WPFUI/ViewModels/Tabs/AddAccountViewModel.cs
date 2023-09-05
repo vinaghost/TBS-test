@@ -1,14 +1,4 @@
-﻿using FluentValidation;
-using ReactiveUI;
-using System;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
-using WPFUI.Models.Input;
-using WPFUI.Repositories;
-using WPFUI.Services;
-using WPFUI.ViewModels.Abstract;
-using WPFUI.ViewModels.UserControls;
+﻿using System.Threading.Tasks;
 
 namespace WPFUI.ViewModels.Tabs
 {

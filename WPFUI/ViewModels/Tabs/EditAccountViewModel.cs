@@ -1,14 +1,4 @@
-﻿using FluentValidation;
-using ReactiveUI;
-using System;
-using System.Reactive;
-using System.Reactive.Linq;
-using System.Threading.Tasks;
-using WPFUI.Models.Input;
-using WPFUI.Repositories;
-using WPFUI.Services;
-using WPFUI.ViewModels.Abstract;
-using WPFUI.ViewModels.UserControls;
+﻿using System.Threading.Tasks;
 
 namespace WPFUI.ViewModels.Tabs
 {
@@ -42,7 +32,7 @@ namespace WPFUI.ViewModels.Tabs
             DeleteAccessCommand = ReactiveCommand.CreateFromTask(DeleteAccessTask);
             EditAccountCommand = ReactiveCommand.CreateFromTask(EditAccountTask);
 
-            this.WhenAnyValue(vm => vm.SelectedAcess)
+            this.WhenAnyValue(vm => vm.SelectedAccess)
                 .WhereNotNull()
                 .Subscribe(x => x.CopyTo(AccessInput));
         }
@@ -70,23 +60,14 @@ namespace WPFUI.ViewModels.Tabs
 
         private Task EditAccessTask()
         {
-            var results = _accessInputValidator.Validate(AccessInput);
-
-            if (!results.IsValid)
-            {
-                _messageService.Show("Error", results.ToString());
-            }
-            else
-            {
-                AccessInput.CopyTo(SelectedAcess);
-            }
+            AccessInput.CopyTo(SelectedAcess);
             return Task.CompletedTask;
         }
 
         private Task DeleteAccessTask()
         {
-            AccountInput.Accesses.Remove(SelectedAcess);
-            SelectedAcess = null;
+            AccountInput.Accesses.Remove(SelectedAccess);
+            SelectedAccess = null;
             return Task.CompletedTask;
         }
 
@@ -106,7 +87,7 @@ namespace WPFUI.ViewModels.Tabs
             }
         }
 
-        public AccessInput SelectedAcess
+        public AccessInput SelectedAccess
         {
             get => _selectedAcess;
             set => this.RaiseAndSetIfChanged(ref _selectedAcess, value);
