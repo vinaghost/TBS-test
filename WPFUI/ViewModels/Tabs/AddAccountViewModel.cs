@@ -43,7 +43,7 @@ namespace WPFUI.ViewModels.Tabs
 
         private Task AddAccessTask()
         {
-            AccountInput.Accesses.Add(new(AccessInput));
+            AccountInput.Accesses.Add(AccessInput.Clone());
             return Task.CompletedTask;
         }
 

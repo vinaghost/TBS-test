@@ -1,30 +1,66 @@
 ﻿using MainCore.Models;
 using ReactiveUI;
+using ReactiveUI.Validation.Extensions;
+using ReactiveUI.Validation.Helpers;
 
 namespace WPFUI.Models.Input
 {
-    public class AccessInput : ReactiveObject
+    public class AccessInput : ReactiveValidationObject
     {
         public AccessInput()
         {
-            _id = 0;
-            Password = "";
-            ProxyHost = "";
-            ProxyPort = 0;
-            ProxyUsername = "";
-            ProxyPassword = "";
-            Useragent = "";
+            SetupValidationRule();
         }
 
-        public AccessInput(AccessInput other)
+        public void SetupValidationRule()
         {
-            _id = other._id;
-            Password = other.Password;
-            ProxyHost = other.ProxyHost;
-            ProxyPort = other.ProxyPort;
-            ProxyUsername = other.ProxyUsername;
-            ProxyPassword = other.ProxyPassword;
-            Useragent = other.Useragent;
+            this.ValidationRule(x => x.Password,
+                                x => !string.IsNullOrWhiteSpace(x),
+                                "Password is empty");
+
+            var proxyHostPortObservable = this.WhenAnyValue(x => x.ProxyHost,
+                                                            x => x.ProxyPort,
+                                                            (host, port) => new { Host = host, Port = port });
+            this.ValidationRule(x => x.ProxyHost,
+                                proxyHostPortObservable,
+                                x =>
+                                {
+                                    if (x.Port == 0) return true;
+                                    if (string.IsNullOrEmpty(x.Host)) return false;
+                                    return true;
+                                },
+                                x => "Proxy's port is specificted but proxy's host is empty");
+            this.ValidationRule(x => x.ProxyPort,
+                                proxyHostPortObservable,
+                                x =>
+                                {
+                                    if (string.IsNullOrEmpty(x.Host)) return true;
+                                    if (x.Port == 0) return false;
+                                    return true;
+                                },
+                                x => "Proxy's host is specificted but proxy's port is empty");
+
+            var proxyUsernamePasswordObservable = this.WhenAnyValue(x => x.ProxyUsername,
+                                                                    x => x.ProxyPassword,
+                                                                    (username, password) => new { Username = username, Password = password });
+            this.ValidationRule(x => x.ProxyUsername,
+                proxyUsernamePasswordObservable,
+                x =>
+                {
+                    if (string.IsNullOrEmpty(x.Password)) return true;
+                    if (string.IsNullOrEmpty(x.Username)) return false;
+                    return true;
+                },
+                x => "Proxy's password is specificted but proxy's username is empty");
+            this.ValidationRule(x => x.ProxyPassword,
+                proxyUsernamePasswordObservable,
+                x =>
+                {
+                    if (string.IsNullOrEmpty(x.Username)) return true;
+                    if (string.IsNullOrEmpty(x.Password)) return false;
+                    return true;
+                },
+                x => "Proxy's username is specificted but proxy's password is empty");
         }
 
         public AccessInput(Access other)
@@ -36,6 +72,20 @@ namespace WPFUI.Models.Input
             ProxyUsername = other.ProxyUsername;
             ProxyPassword = other.ProxyPassword;
             Useragent = other.Useragent;
+        }
+
+        public AccessInput Clone()
+        {
+            return new()
+            {
+                _id = _id,
+                Password = Password,
+                ProxyHost = ProxyHost,
+                ProxyPort = ProxyPort,
+                ProxyUsername = ProxyUsername,
+                ProxyPassword = ProxyPassword,
+                Useragent = Useragent,
+            };
         }
 
         public Access GetAccess()
