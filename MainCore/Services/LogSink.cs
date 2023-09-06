@@ -7,7 +7,7 @@ namespace MainCore.Services
     {
         private Dictionary<int, LinkedList<LogEvent>> Logs { get; } = new();
 
-        public event Action<LogEvent> LogEmitted;
+        public event Action<int, LogEvent> LogEmitted;
 
         public LinkedList<LogEvent> GetLogs(int accountId)
         {
@@ -35,7 +35,7 @@ namespace MainCore.Services
                 logs.RemoveLast();
             }
 
-            LogEmitted?.Invoke(logEvent);
+            LogEmitted?.Invoke(accountId, logEvent);
         }
     }
 }

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace WPFUI.ViewModels.Abstract
 {
-    public abstract class TabBaseViewModel : ViewModelBase
+    public abstract class TabViewModelBase : ViewModelBase
     {
         private bool _isActive;
         public ReactiveCommand<bool, Unit> IsActiveHandleCommand { get; }
 
-        public TabBaseViewModel()
+        public TabViewModelBase()
         {
             IsActiveHandleCommand = ReactiveCommand.CreateFromTask<bool, Unit>(IsActiveHandleTask);
             IsActiveHandleCommand.ThrownExceptions.Subscribe(x => Debug.WriteLine("{0} {1}", new[] { x.Message, x.StackTrace }));

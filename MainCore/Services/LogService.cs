@@ -18,8 +18,6 @@ namespace MainCore.Services
             _contextFactory = contextFactory;
             _serviceProvider = serviceProvider;
             _logSink = logSink as LogSink;
-
-            _logSink.LogEmitted += OnLogEmitted;
         }
 
         public void Init()
@@ -40,13 +38,8 @@ namespace MainCore.Services
 
         public LinkedList<LogEvent> GetLog(int accountId)
         {
-            var logs = _logSink.GetLogs(accountId); ;
+            var logs = _logSink.GetLogs(accountId);
             return logs;
-        }
-
-        private void OnLogEmitted(LogEvent logEvent)
-        {
-            _ = 2;
         }
 
         public ILogger GetLogger(int accountId)

@@ -1,8 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using FluentValidation;
+using ReactiveUI;
+using System;
+using System.Reactive;
+using System.Threading.Tasks;
+using WPFUI.Models.Input;
+using WPFUI.Repositories;
+using WPFUI.Services;
+using WPFUI.ViewModels.Abstract;
+using WPFUI.ViewModels.UserControls;
 
 namespace WPFUI.ViewModels.Tabs
 {
-    public class AddAccountViewModel : TabBaseViewModel
+    public class AddAccountViewModel : TabViewModelBase
     {
         public AccessInput AccessInput { get; } = new();
         private readonly IValidator<AccessInput> _accessInputValidator;
@@ -48,7 +57,7 @@ namespace WPFUI.ViewModels.Tabs
             }
             else
             {
-                AccountInput.Accesses.Add(new(AccessInput));
+                AccountInput.Accesses.Add(AccessInput.Clone());
             }
             return Task.CompletedTask;
         }

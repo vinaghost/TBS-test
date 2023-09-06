@@ -19,13 +19,15 @@ namespace WPFUI.Stores
         private readonly AddAccountViewModel _addAccountViewModel;
         private readonly AddAccountsViewModel _addAccountsViewModel;
         private readonly EditAccountViewModel _editAccountViewModel;
+        private readonly DebugViewModel _debugViewModel;
 
-        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel)
+        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel, DebugViewModel debugViewModel)
         {
             _noAccountViewModel = noAccountViewModel;
             _addAccountViewModel = addAccountViewModel;
             _addAccountsViewModel = addAccountsViewModel;
             _editAccountViewModel = editAccountViewModel;
+            _debugViewModel = debugViewModel;
         }
 
         public void SetTabType(TabType tabType)
@@ -95,5 +97,6 @@ namespace WPFUI.Stores
         public AddAccountViewModel AddAccountViewModel => _addAccountViewModel;
         public AddAccountsViewModel AddAccountsViewModel => _addAccountsViewModel;
         public EditAccountViewModel EditAccountViewModel => _editAccountViewModel;
+        public DebugViewModel DebugViewModel => _debugViewModel;
     }
 }

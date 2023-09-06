@@ -2,7 +2,7 @@
 
 namespace WPFUI.ViewModels.Tabs
 {
-    public class NoAccountViewModel : TabBaseViewModel
+    public class NoAccountViewModel : TabViewModelBase
     {
     }
 }

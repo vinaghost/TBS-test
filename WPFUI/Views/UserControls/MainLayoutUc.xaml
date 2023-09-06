@@ -55,6 +55,9 @@
             <TabItem x:Name="EditAccountTab" Header="Edit account">
                 <v_tab:EditAccountTab x:Name="EditAccount" />
             </TabItem>
+            <TabItem x:Name="DebugTab" Header="Debug">
+                <v_tab:DebugTag x:Name="Debug" />
+            </TabItem>
         </TabControl>
     </Grid>
 </v_uc:MainLayoutUcBase>

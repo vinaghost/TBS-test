@@ -17,6 +17,8 @@ namespace MainCore.Services
 
         private readonly Dictionary<int, TaskInfo> _tasks = new();
 
+        public event Action<int> TaskUpdated;
+
         public TaskInfo GetTaskInfo(int accountId)
         {
             var task = _tasks.GetValueOrDefault(accountId);
@@ -101,6 +103,7 @@ namespace MainCore.Services
         private void ReOrder(int accountId, List<TaskBase> tasks)
         {
             tasks.Sort((x, y) => DateTime.Compare(x.ExecuteAt, y.ExecuteAt));
+            TaskUpdated?.Invoke(accountId);
         }
     }
 }

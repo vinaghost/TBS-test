@@ -22,6 +22,7 @@ namespace WPFUI
             services.AddSingleton<AddAccountViewModel>();
             services.AddSingleton<AddAccountsViewModel>();
             services.AddSingleton<EditAccountViewModel>();
+            services.AddSingleton<DebugViewModel>();
 
             // UserControls
             services.AddSingleton<WaitingOverlayViewModel>();

@@ -14,7 +14,7 @@ using WPFUI.ViewModels.UserControls;
 
 namespace WPFUI.ViewModels.Tabs
 {
-    public class AddAccountsViewModel : TabBaseViewModel
+    public class AddAccountsViewModel : TabViewModelBase
     {
         private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;

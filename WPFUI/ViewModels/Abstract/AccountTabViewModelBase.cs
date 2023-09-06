@@ -7,7 +7,7 @@ using WPFUI.Stores;
 
 namespace WPFUI.ViewModels.Abstract
 {
-    public abstract class AccountTabBaseViewModel : TabBaseViewModel
+    public abstract class AccountTabViewModelBase : TabViewModelBase
     {
         protected readonly SelectedItemStore _selectedItemStore;
 
@@ -16,7 +16,7 @@ namespace WPFUI.ViewModels.Abstract
 
         public ReactiveCommand<int, Unit> AccountIdChangeHandleCommand { get; }
 
-        public AccountTabBaseViewModel()
+        public AccountTabViewModelBase()
         {
             _selectedItemStore = Locator.Current.GetService<SelectedItemStore>();
             AccountIdChangeHandleCommand = ReactiveCommand.CreateFromTask<int, Unit>(AccountIdChangeHandleTask);

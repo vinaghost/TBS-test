@@ -5,6 +5,8 @@ namespace MainCore.Services
 {
     public interface ITaskManager
     {
+        event Action<int> TaskUpdated;
+
         void Add<T>(int accountId, bool first = false) where T : AccountTask;
 
         void Add<T>(int accountId, int villageId, bool first = false) where T : VillageTask;
