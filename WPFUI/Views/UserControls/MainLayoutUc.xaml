@@ -39,25 +39,29 @@
                 <Button x:Name="RestartButton"      Content="Restart"           Grid.Column="1"     Grid.Row="4" Margin="1,0,0,2" />
             </Grid>
             <Grid Grid.Row="1">
-                <ListBox x:Name="AccountGrid" SelectionMode="Single" ItemTemplate="{DynamicResource ListBoxColorItem}" />
+                <Border Style="{DynamicResource Box}">
+                    <ListBox x:Name="AccountGrid" SelectionMode="Single" ItemTemplate="{DynamicResource ListBoxColorItem}" />
+                </Border>
             </Grid>
         </Grid>
-        <TabControl Grid.Column="1" Margin="10,0,0,0">
-            <TabItem x:Name="NoAccountTab" Header="No account">
-                <v_tab:NoAccountTab x:Name="NoAccount" />
-            </TabItem>
-            <TabItem x:Name="AddAccountTab" Header="Add account">
-                <v_tab:AddAccountTab x:Name="AddAccount" />
-            </TabItem>
-            <TabItem x:Name="AddAccountsTab" Header="Add accounts">
-                <v_tab:AddAccountsTab x:Name="AddAccounts" />
-            </TabItem>
-            <TabItem x:Name="EditAccountTab" Header="Edit account">
-                <v_tab:EditAccountTab x:Name="EditAccount" />
-            </TabItem>
-            <TabItem x:Name="DebugTab" Header="Debug">
-                <v_tab:DebugTag x:Name="Debug" />
-            </TabItem>
-        </TabControl>
+        <Border Style="{DynamicResource Box}" Grid.Column="1" Margin="10,0,0,0">
+            <TabControl>
+                <TabItem x:Name="NoAccountTab" Header="No account">
+                    <v_tab:NoAccountTab x:Name="NoAccount" />
+                </TabItem>
+                <TabItem x:Name="AddAccountTab" Header="Add account">
+                    <v_tab:AddAccountTab x:Name="AddAccount" />
+                </TabItem>
+                <TabItem x:Name="AddAccountsTab" Header="Add accounts">
+                    <v_tab:AddAccountsTab x:Name="AddAccounts" />
+                </TabItem>
+                <TabItem x:Name="EditAccountTab" Header="Edit account">
+                    <v_tab:EditAccountTab x:Name="EditAccount" />
+                </TabItem>
+                <TabItem x:Name="DebugTab" Header="Debug">
+                    <v_tab:DebugTag x:Name="Debug" />
+                </TabItem>
+            </TabControl>
+        </Border>
     </Grid>
 </v_uc:MainLayoutUcBase>
