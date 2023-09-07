@@ -1,4 +1,5 @@
 ﻿using MainCore.Commands;
+using MainCore.Repositories;
 using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,9 @@ namespace MainCore
             services.AddSingleton<ILogService, LogService>();
 
             services.AddSingleton<ILogEventSink, LogSink>();
+
+            // repositories
+            services.AddTransient<IAccountSettingRepository, AccountSettingRepository>();
 
             // commands
             services.AddTransient<IOpenBrowserCommand, OpenBrowserCommand>();

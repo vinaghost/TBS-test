@@ -1,6 +1,7 @@
 ﻿using LoginCore.Tasks;
 using MainCore.Commands;
 using MainCore.Enums;
+using MainCore.Repositories;
 using MainCore.Services;
 using ReactiveUI;
 using System;
@@ -21,6 +22,7 @@ namespace WPFUI.ViewModels.UserControls
     {
         private readonly IMessageService _messageService;
         private readonly IAccountRepository _accountRepository;
+        private readonly IAccountSettingRepository _accountSettingRepository;
 
         private readonly IOpenBrowserCommand _openBrowserCommand;
         private readonly ICloseBrowserCommand _closeBrowserCommand;
@@ -35,7 +37,7 @@ namespace WPFUI.ViewModels.UserControls
 
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, ITimerManager timerManager)
+        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, ITimerManager timerManager, IAccountSettingRepository accountSettingRepository)
         {
             _messageService = messageService;
             _accountTabStore = accountTabStore;
@@ -43,10 +45,12 @@ namespace WPFUI.ViewModels.UserControls
             _waitingOverlayViewModel = waitingOverlayViewModel;
 
             _accountRepository = accountRepository;
+            _accountSettingRepository = accountSettingRepository;
 
             _openBrowserCommand = openBrowserCommand;
             _closeBrowserCommand = closeBrowserCommand;
             _taskManager = taskManager;
+            _timerManager = timerManager;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
             AddAccountsCommand = ReactiveCommand.CreateFromTask(AddAccountsTask);
@@ -68,7 +72,6 @@ namespace WPFUI.ViewModels.UserControls
                 if (x is null) tabType = TabType.NoAccount;
                 _accountTabStore.SetTabType(tabType);
             });
-            _timerManager = timerManager;
         }
 
         public async Task Load()
@@ -118,6 +121,7 @@ namespace WPFUI.ViewModels.UserControls
             var accountId = SelectedAccount.Id;
             var taskInfo = _taskManager.GetTaskInfo(accountId);
             taskInfo.Status = StatusEnums.Starting;
+            await _accountSettingRepository.CheckSetting(accountId);
             await _openBrowserCommand.Execute(accountId);
 
             _taskManager.Add<LoginTask>(accountId);

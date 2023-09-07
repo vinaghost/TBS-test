@@ -12,5 +12,6 @@ namespace MainCore
         public DbSet<Account> Accounts { get; set; }
         public DbSet<AccountInfo> AccountsInfo { get; set; }
         public DbSet<Access> Accesses { get; set; }
+        public DbSet<AccountSetting> AccountsSetting { get; set; }
     }
 }

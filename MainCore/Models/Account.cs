@@ -11,5 +11,6 @@ namespace MainCore.Models
 
         public AccountInfo Info { get; set; }
         public ICollection<Access> Accesses { get; set; }
+        public ICollection<AccountSetting> Settings { get; set; }
     }
 }
