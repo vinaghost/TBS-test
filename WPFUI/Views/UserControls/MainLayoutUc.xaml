@@ -55,6 +55,9 @@
                 <TabItem x:Name="AddAccountsTab" Header="Add accounts">
                     <v_tab:AddAccountsTab x:Name="AddAccounts" />
                 </TabItem>
+                <TabItem x:Name="AccountSettingTab" Header="Settings">
+                    <v_tab:AccountSettingTab x:Name="AccountSetting" />
+                </TabItem>
                 <TabItem x:Name="EditAccountTab" Header="Edit account">
                     <v_tab:EditAccountTab x:Name="EditAccount" />
                 </TabItem>

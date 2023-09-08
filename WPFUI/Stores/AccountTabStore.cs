@@ -18,14 +18,16 @@ namespace WPFUI.Stores
         private readonly NoAccountViewModel _noAccountViewModel;
         private readonly AddAccountViewModel _addAccountViewModel;
         private readonly AddAccountsViewModel _addAccountsViewModel;
+        private readonly AccountSettingViewModel _accountSettingViewModel;
         private readonly EditAccountViewModel _editAccountViewModel;
         private readonly DebugViewModel _debugViewModel;
 
-        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel, DebugViewModel debugViewModel)
+        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel, DebugViewModel debugViewModel, AccountSettingViewModel accountSettingViewModel)
         {
             _noAccountViewModel = noAccountViewModel;
             _addAccountViewModel = addAccountViewModel;
             _addAccountsViewModel = addAccountsViewModel;
+            _accountSettingViewModel = accountSettingViewModel;
             _editAccountViewModel = editAccountViewModel;
             _debugViewModel = debugViewModel;
         }
@@ -53,7 +55,7 @@ namespace WPFUI.Stores
                     break;
 
                 case TabType.Normal:
-                    _editAccountViewModel.IsActive = true;
+                    _accountSettingViewModel.IsActive = true;
                     break;
 
                 case TabType.AddAccount:
@@ -96,6 +98,7 @@ namespace WPFUI.Stores
         public NoAccountViewModel NoAccountViewModel => _noAccountViewModel;
         public AddAccountViewModel AddAccountViewModel => _addAccountViewModel;
         public AddAccountsViewModel AddAccountsViewModel => _addAccountsViewModel;
+        public AccountSettingViewModel AccountSettingViewModel => _accountSettingViewModel;
         public EditAccountViewModel EditAccountViewModel => _editAccountViewModel;
         public DebugViewModel DebugViewModel => _debugViewModel;
     }

@@ -21,6 +21,7 @@ namespace WPFUI
             services.AddSingleton<NoAccountViewModel>();
             services.AddSingleton<AddAccountViewModel>();
             services.AddSingleton<AddAccountsViewModel>();
+            services.AddSingleton<AccountSettingViewModel>();
             services.AddSingleton<EditAccountViewModel>();
             services.AddSingleton<DebugViewModel>();
 
@@ -30,6 +31,7 @@ namespace WPFUI
 
             // Repositories
             services.AddSingleton<IAccountRepository, AccountRepository>();
+            services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
 
             // Services
             services.AddSingleton<IMessageService, MessageService>();

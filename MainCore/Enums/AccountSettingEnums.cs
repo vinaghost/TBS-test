@@ -3,6 +3,8 @@
     public enum AccountSettingEnums
     {
         ClickDelayMin = 1,
-        ClickDelayMax = 2,
+        ClickDelayMax,
+        TaskDelayMin,
+        TaskDelayMax,
     }
 }
