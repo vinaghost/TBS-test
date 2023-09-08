@@ -9,7 +9,7 @@ namespace LoginCore
     {
         public static IServiceCollection AddLoginServices(this IServiceCollection services)
         {
-            services.AddSingleton<ILoginPageParser, LoginPageParser>();
+            services.AddTransient<ILoginPageParser, LoginPageParser>();
             services.AddTransient<ILoginCommand, LoginCommand>();
             services.AddTransient<LoginTask>();
 

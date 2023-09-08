@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Enums;
 using MainCore.Errors;
+using MainCore.Repositories;
 using Polly;
 using Timer = System.Timers.Timer;
 
@@ -15,12 +16,14 @@ namespace MainCore.Services
         private readonly ITaskManager _taskManager;
         private readonly IChromeManager _chromeManager;
         private readonly ILogService _logService;
+        private readonly IAccountSettingRepository _accountSettingRepository;
 
-        public TimerManager(ITaskManager taskManager, IChromeManager chromeManager, ILogService logService)
+        public TimerManager(ITaskManager taskManager, IChromeManager chromeManager, ILogService logService, IAccountSettingRepository accountSettingRepository)
         {
             _taskManager = taskManager;
             _chromeManager = chromeManager;
             _logService = logService;
+            _accountSettingRepository = accountSettingRepository;
         }
 
         public async Task Execute(int accountId)
@@ -98,6 +101,9 @@ namespace MainCore.Services
             taskInfo.IsExecuting = false;
             cts.Dispose();
             taskInfo.CancellationTokenSource = null;
+
+            var taskDelayTime = await _accountSettingRepository.GetSetting(accountId, AccountSettingEnums.TaskDelayMin, AccountSettingEnums.TaskDelayMax);
+            await Task.Delay(taskDelayTime);
         }
 
         public void Shutdown()
