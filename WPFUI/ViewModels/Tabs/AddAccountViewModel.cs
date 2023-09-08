@@ -49,11 +49,11 @@ namespace WPFUI.ViewModels.Tabs
 
         private Task AddAccessTask()
         {
-            var results = _accessInputValidator.Validate(AccessInput);
+            var result = _accessInputValidator.Validate(AccessInput);
 
-            if (!results.IsValid)
+            if (!result.IsValid)
             {
-                _messageService.Show("Error", results.ToString());
+                _messageService.Show("Error", result.ToString());
             }
             else
             {
@@ -64,11 +64,11 @@ namespace WPFUI.ViewModels.Tabs
 
         private Task EditAccessTask()
         {
-            var results = _accessInputValidator.Validate(AccessInput);
+            var result = _accessInputValidator.Validate(AccessInput);
 
-            if (!results.IsValid)
+            if (!result.IsValid)
             {
-                _messageService.Show("Error", results.ToString());
+                _messageService.Show("Error", result.ToString());
             }
             else
             {

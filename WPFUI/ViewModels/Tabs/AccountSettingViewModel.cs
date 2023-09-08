@@ -1,4 +1,5 @@
-﻿using MainCore.Enums;
+﻿using FluentValidation;
+using MainCore.Enums;
 using Microsoft.Win32;
 using ReactiveUI;
 using System;
@@ -18,6 +19,8 @@ namespace WPFUI.ViewModels.Tabs
     public class AccountSettingViewModel : AccountTabViewModelBase
     {
         public AccountSettingInput AccountSettingInput { get; } = new();
+        private readonly IValidator<AccountSettingInput> _accountsettingInputValidator;
+
         private readonly IAccountSettingRepository _accountSettingRepository;
         private readonly IMessageService _messageService;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
@@ -26,11 +29,12 @@ namespace WPFUI.ViewModels.Tabs
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public AccountSettingViewModel(IAccountSettingRepository accountSettingRepository, IMessageService messageService, WaitingOverlayViewModel waitingOverlayViewModel)
+        public AccountSettingViewModel(IAccountSettingRepository accountSettingRepository, IMessageService messageService, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccountSettingInput> accountsettingInputValidator)
         {
             _accountSettingRepository = accountSettingRepository;
             _messageService = messageService;
             _waitingOverlayViewModel = waitingOverlayViewModel;
+            _accountsettingInputValidator = accountsettingInputValidator;
 
             SaveCommand = ReactiveCommand.CreateFromTask(SaveTask);
             ExportCommand = ReactiveCommand.CreateFromTask(ExportTask);
@@ -52,10 +56,18 @@ namespace WPFUI.ViewModels.Tabs
 
         private async Task SaveTask()
         {
-            _waitingOverlayViewModel.Show("saving settings ...");
-            await Save(AccountId);
-            _waitingOverlayViewModel.Close();
-            _messageService.Show("Information", "Settings saved");
+            var result = _accountsettingInputValidator.Validate(AccountSettingInput);
+            if (!result.IsValid)
+            {
+                _messageService.Show("Error", result.ToString());
+            }
+            else
+            {
+                _waitingOverlayViewModel.Show("saving settings ...");
+                await Save(AccountId);
+                _waitingOverlayViewModel.Close();
+                _messageService.Show("Information", "Settings saved");
+            }
         }
 
         private async Task ImportTask()
@@ -71,20 +83,32 @@ namespace WPFUI.ViewModels.Tabs
 
             if (ofd.ShowDialog() == true)
             {
+                Dictionary<AccountSettingEnums, int> settings;
                 try
                 {
-                    _waitingOverlayViewModel.Show("saving settings ...");
                     var jsonString = await File.ReadAllTextAsync(ofd.FileName);
-                    var settings = JsonSerializer.Deserialize<Dictionary<AccountSettingEnums, int>>(jsonString);
-                    await _accountSettingRepository.Set(AccountId, settings);
-                    AccountSettingInput.Set(settings);
-                    _messageService.Show("Information", "Settings imported");
+                    settings = JsonSerializer.Deserialize<Dictionary<AccountSettingEnums, int>>(jsonString);
                 }
                 catch
                 {
                     _messageService.Show("Warning", "Invalid file.");
+                    return;
                 }
-                _waitingOverlayViewModel.Close();
+
+                AccountSettingInput.Set(settings);
+                var result = _accountsettingInputValidator.Validate(AccountSettingInput);
+                if (!result.IsValid)
+                {
+                    _messageService.Show(title: "Error", result.ToString());
+                    return;
+                }
+                else
+                {
+                    _waitingOverlayViewModel.Show("importing settings ...");
+                    await _accountSettingRepository.Set(AccountId, settings);
+                    _messageService.Show("Information", "Settings imported");
+                    _waitingOverlayViewModel.Close();
+                }
             }
         }
 

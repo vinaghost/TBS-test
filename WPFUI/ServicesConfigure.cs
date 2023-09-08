@@ -43,6 +43,7 @@ namespace WPFUI
             // Validators
             services.AddSingleton<IValidator<AccountInput>, AccountInputValidator>();
             services.AddSingleton<IValidator<AccessInput>, AccessInputValidator>();
+            services.AddSingleton<IValidator<AccountSettingInput>, AccountSettingInputValidator>();
 
             return services;
         }
