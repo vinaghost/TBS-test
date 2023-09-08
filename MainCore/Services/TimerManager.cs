@@ -55,6 +55,7 @@ namespace MainCore.Services
                         logger.Error(exception, "{message}", exception.Message);
                     }
                     logger.Warning("Retry {retryCount} for {taskName}", retryCount, task.GetName());
+
                     var chromeBrowser = _chromeManager.Get(accountId);
                     chromeBrowser.Navigate();
                 });
@@ -86,7 +87,23 @@ namespace MainCore.Services
                 if (result.IsFailed)
                 {
                     var errors = result.Reasons.Select(x => x.Message).ToList();
-                    logger.Warning("{errors}", string.Join(Environment.NewLine, errors));
+                    logger.Warning(string.Join(Environment.NewLine, errors));
+
+                    if (result.HasError<Stop>())
+                    {
+                        // paused
+                    }
+                    else if (result.HasError<Skip>())
+                    {
+                        if (task.ExecuteAt == cacheExecuteTime)
+                        {
+                            _taskManager.Remove(accountId, task);
+                        }
+                    }
+                    else if (result.HasError<Cancel>())
+                    {
+                        // paused
+                    }
                 }
                 else
                 {
@@ -101,6 +118,7 @@ namespace MainCore.Services
             taskInfo.IsExecuting = false;
             cts.Dispose();
             taskInfo.CancellationTokenSource = null;
+            _taskManager.ReOrder(accountId);
 
             var taskDelayTime = await _accountSettingRepository.GetSetting(accountId, AccountSettingEnums.TaskDelayMin, AccountSettingEnums.TaskDelayMax);
             await Task.Delay(taskDelayTime);

@@ -8,9 +8,14 @@ namespace MainCore.Errors
         {
         }
 
-        public static Retry ElementCannotClick => new("Element cannot click");
-        public static Retry ElementNotFound => new("Element not found");
+        public static Retry NotFound(string name, string type) => new($"Cannot find {name} {type}");
 
-        public static Retry ButtonNotFound(string button) => new($"Button [{button}] not found");
+        public static Retry TextboxNotFound(string name) => NotFound(name, "textbox");
+
+        public static Retry ButtonNotFound(string name) => NotFound(name, "button");
+
+        public static Retry ElementNotFound() => new("Element not found");
+
+        public static Retry ElementNotClickable() => new("Element not clickable");
     }
 }

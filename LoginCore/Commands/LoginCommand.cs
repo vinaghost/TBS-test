@@ -1,6 +1,8 @@
-﻿using LoginCore.Parser;
+﻿using FluentResults;
+using LoginCore.Parser;
 using MainCore;
 using MainCore.Commands;
+using MainCore.Errors;
 using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using OpenQA.Selenium;
@@ -26,7 +28,7 @@ namespace LoginCore.Commands
             _loginPageParser = loginPageParser;
         }
 
-        public async Task Execute(int accountId)
+        public async Task<Result> Execute(int accountId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             var account = await context.Accounts.FindAsync(accountId);
@@ -35,12 +37,20 @@ namespace LoginCore.Commands
 
             var html = chromeBrowser.Html;
             var usernameNode = _loginPageParser.GetUsernameNode(html);
+            if (usernameNode is null) return Retry.TextboxNotFound("username");
             var passwordNode = _loginPageParser.GetPasswordNode(html);
+            if (usernameNode is null) return Retry.TextboxNotFound("password");
             var buttonNode = _loginPageParser.GetLoginButton(html);
+            if (buttonNode is null) return Retry.ButtonNotFound("login");
 
-            await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(usernameNode.XPath), account.Username);
-            await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(passwordNode.XPath), access.Password);
-            await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
+            Result result;
+            result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(usernameNode.XPath), account.Username);
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(passwordNode.XPath), access.Password);
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            result = await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            return Result.Ok();
         }
     }
 }

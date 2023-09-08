@@ -1,7 +1,9 @@
-﻿namespace LoginCore.Commands
+﻿using FluentResults;
+
+namespace LoginCore.Commands
 {
     public interface ILoginCommand
     {
-        Task Execute(int accountId);
+        Task<Result> Execute(int accountId);
     }
 }
