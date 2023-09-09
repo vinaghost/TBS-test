@@ -19,6 +19,7 @@ namespace WPFUI.ViewModels.Tabs
         private readonly ITaskManager _taskManager;
         private readonly MessageTemplateTextFormatter _formatter;
         public ObservableCollection<TaskItem> Tasks { get; } = new();
+        private string _cacheLog;
         public string _logs;
 
         public string Logs
@@ -53,10 +54,9 @@ namespace WPFUI.ViewModels.Tabs
             if (_isLogLoading) return;
             var buffer = new StringWriter(new StringBuilder());
             _formatter.Format(logEvent, buffer);
-
-            buffer.WriteLine(Logs);
-
-            Observable.Start(() => Logs = buffer.ToString(), RxApp.MainThreadScheduler);
+            buffer.WriteLine(_cacheLog);
+            _cacheLog = buffer.ToString();
+            Observable.Start(() => Logs = _cacheLog, RxApp.MainThreadScheduler);
         }
 
         protected override async Task Load(int accountId)
@@ -89,7 +89,8 @@ namespace WPFUI.ViewModels.Tabs
             {
                 _formatter.Format(log, buffer);
             }
-            Logs = buffer.ToString();
+            _cacheLog = buffer.ToString();
+            Logs = _cacheLog;
             _isLogLoading = false;
         }
     }
