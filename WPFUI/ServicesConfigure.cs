@@ -42,6 +42,8 @@ namespace WPFUI
             services.AddSingleton<AccountTabStore>();
 
             // Commands
+            services.AddTransient<ILoginCommand, LoginCommand>();
+            services.AddTransient<ILogoutCommand, LogoutCommand>();
             services.AddTransient<IPauseCommand, PauseCommand>();
             services.AddTransient<IRestartCommand, RestartCommand>();
 

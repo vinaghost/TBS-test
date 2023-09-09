@@ -1,10 +1,11 @@
-﻿using LoginCore.Tasks;
-using MainCore.Commands;
+﻿using MainCore.Commands;
 using MainCore.Enums;
 using MainCore.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
+using System.Drawing;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -22,15 +23,13 @@ namespace WPFUI.ViewModels.UserControls
     {
         private readonly IMessageService _messageService;
         private readonly IAccountRepository _accountRepository;
-        private readonly IAccountSettingRepository _accountSettingRepository;
 
-        private readonly IOpenBrowserCommand _openBrowserCommand;
-        private readonly ICloseBrowserCommand _closeBrowserCommand;
+        private readonly ILoginCommand _loginCommand;
+        private readonly ILogoutCommand _logoutCommand;
         private readonly IPauseCommand _pauseCommand;
         private readonly IRestartCommand _restartCommand;
 
         private readonly ITaskManager _taskManager;
-        private readonly ITimerManager _timerManager;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
@@ -39,7 +38,7 @@ namespace WPFUI.ViewModels.UserControls
 
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, ITimerManager timerManager, IAccountSettingRepository accountSettingRepository, IPauseCommand pauseCommand, IRestartCommand restartCommand)
+        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand)
         {
             _messageService = messageService;
             _accountTabStore = accountTabStore;
@@ -47,12 +46,12 @@ namespace WPFUI.ViewModels.UserControls
             _waitingOverlayViewModel = waitingOverlayViewModel;
 
             _accountRepository = accountRepository;
-            _accountSettingRepository = accountSettingRepository;
+            _pauseCommand = pauseCommand;
+            _restartCommand = restartCommand;
+            _loginCommand = loginCommand;
+            _logoutCommand = logoutCommand;
 
-            _openBrowserCommand = openBrowserCommand;
-            _closeBrowserCommand = closeBrowserCommand;
             _taskManager = taskManager;
-            _timerManager = timerManager;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
             AddAccountsCommand = ReactiveCommand.CreateFromTask(AddAccountsTask);
@@ -64,7 +63,7 @@ namespace WPFUI.ViewModels.UserControls
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
 
             _accountRepository.AccountTableChanged += LoadAccountList;
-
+            _taskManager.StatusUpdated += LoadStatusAccountItem;
             var accountObservable = this.WhenAnyValue(x => x.SelectedAccount);
             accountObservable.BindTo(_selectedItemStore, vm => vm.Account);
 
@@ -74,8 +73,6 @@ namespace WPFUI.ViewModels.UserControls
                 if (x is null) tabType = TabType.NoAccount;
                 _accountTabStore.SetTabType(tabType);
             });
-            _pauseCommand = pauseCommand;
-            _restartCommand = restartCommand;
         }
 
         public async Task Load()
@@ -121,16 +118,7 @@ namespace WPFUI.ViewModels.UserControls
                 _messageService.Show("Warning", "No account selected");
                 return;
             }
-
-            var accountId = SelectedAccount.Id;
-            _taskManager.SetStatus(accountId, StatusEnums.Starting);
-            await _accountSettingRepository.CheckSetting(accountId);
-            await _openBrowserCommand.Execute(accountId);
-
-            _taskManager.Add<LoginTask>(accountId);
-            _timerManager.Start(accountId);
-
-            _taskManager.SetStatus(accountId, StatusEnums.Online);
+            await _loginCommand.Execute(SelectedAccount.Id);
         }
 
         private async Task LogoutTask()
@@ -140,7 +128,7 @@ namespace WPFUI.ViewModels.UserControls
                 _messageService.Show("Warning", "No account selected");
                 return;
             }
-            await _closeBrowserCommand.Execute(SelectedAccount.Id);
+            await _logoutCommand.Execute(SelectedAccount.Id);
         }
 
         private async Task PauseTask()
@@ -163,6 +151,34 @@ namespace WPFUI.ViewModels.UserControls
             }
 
             await _restartCommand.Execute(SelectedAccount.Id);
+        }
+
+        private void LoadStatusAccountItem(int accountId, StatusEnums status)
+        {
+            Observable.Start(() =>
+            {
+                var account = Accounts.FirstOrDefault(x => x.Id == accountId);
+                switch (status)
+                {
+                    case StatusEnums.Online:
+                        account.Color = Color.Green.ToMediaColor();
+                        break;
+
+                    case StatusEnums.Starting:
+                    case StatusEnums.Pausing:
+                    case StatusEnums.Stopping:
+                        account.Color = Color.Orange.ToMediaColor();
+                        break;
+
+                    case StatusEnums.Offline:
+                        account.Color = Color.Black.ToMediaColor();
+                        break;
+
+                    case StatusEnums.Paused:
+                        account.Color = Color.Red.ToMediaColor();
+                        break;
+                }
+            }, RxApp.MainThreadScheduler);
         }
 
         private async Task LoadAccountList()

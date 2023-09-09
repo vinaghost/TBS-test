@@ -19,6 +19,8 @@ namespace MainCore.Services
 
         public event Action<int> TaskUpdated;
 
+        public event Action<int, StatusEnums> StatusUpdated;
+
         public TaskInfo GetTaskInfo(int accountId)
         {
             var task = _tasks.GetValueOrDefault(accountId);
@@ -46,6 +48,7 @@ namespace MainCore.Services
         {
             var taskInfo = GetTaskInfo(accountId);
             taskInfo.Status = status;
+            StatusUpdated?.Invoke(accountId, status);
         }
 
         public bool IsExecuting(int accountId)

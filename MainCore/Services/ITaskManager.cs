@@ -6,6 +6,7 @@ namespace MainCore.Services
     public interface ITaskManager
     {
         event Action<int> TaskUpdated;
+        event Action<int, StatusEnums> StatusUpdated;
 
         void Add<T>(int accountId, bool first = false) where T : AccountTask;
 
