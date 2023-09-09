@@ -42,6 +42,12 @@ namespace MainCore.Services
             return taskInfo.Status;
         }
 
+        public void SetStatus(int accountId, StatusEnums status)
+        {
+            var taskInfo = GetTaskInfo(accountId);
+            taskInfo.Status = status;
+        }
+
         public bool IsExecuting(int accountId)
         {
             var taskInfo = GetTaskInfo(accountId);
@@ -52,6 +58,12 @@ namespace MainCore.Services
         {
             var taskInfo = GetTaskInfo(accountId);
             return taskInfo.CancellationTokenSource;
+        }
+
+        public TaskBase GetCurrentTask(int accountId)
+        {
+            var tasks = GetTaskList(accountId);
+            return tasks.FirstOrDefault(x => x.Stage == StageEnums.Executing);
         }
 
         public void Add<T>(int accountId, bool first = false) where T : AccountTask
@@ -98,6 +110,13 @@ namespace MainCore.Services
             var tasks = GetTaskList(accountId);
             tasks.Remove(task);
             ReOrder(accountId, tasks);
+        }
+
+        public void Clear(int accountId)
+        {
+            var tasks = GetTaskList(accountId);
+            tasks.Clear();
+            TaskUpdated?.Invoke(accountId);
         }
 
         private void ReOrder(int accountId, List<TaskBase> tasks)

@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using WPFUI.Commands;
 using WPFUI.Enums;
 using WPFUI.Models.Output;
 using WPFUI.Repositories;
@@ -25,6 +26,8 @@ namespace WPFUI.ViewModels.UserControls
 
         private readonly IOpenBrowserCommand _openBrowserCommand;
         private readonly ICloseBrowserCommand _closeBrowserCommand;
+        private readonly IPauseCommand _pauseCommand;
+        private readonly IRestartCommand _restartCommand;
 
         private readonly ITaskManager _taskManager;
         private readonly ITimerManager _timerManager;
@@ -36,7 +39,7 @@ namespace WPFUI.ViewModels.UserControls
 
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, ITimerManager timerManager, IAccountSettingRepository accountSettingRepository)
+        public MainLayoutViewModel(IMessageService messageService, IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IOpenBrowserCommand openBrowserCommand, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, ITimerManager timerManager, IAccountSettingRepository accountSettingRepository, IPauseCommand pauseCommand, IRestartCommand restartCommand)
         {
             _messageService = messageService;
             _accountTabStore = accountTabStore;
@@ -71,6 +74,8 @@ namespace WPFUI.ViewModels.UserControls
                 if (x is null) tabType = TabType.NoAccount;
                 _accountTabStore.SetTabType(tabType);
             });
+            _pauseCommand = pauseCommand;
+            _restartCommand = restartCommand;
         }
 
         public async Task Load()
@@ -118,15 +123,14 @@ namespace WPFUI.ViewModels.UserControls
             }
 
             var accountId = SelectedAccount.Id;
-            var taskInfo = _taskManager.GetTaskInfo(accountId);
-            taskInfo.Status = StatusEnums.Starting;
+            _taskManager.SetStatus(accountId, StatusEnums.Starting);
             await _accountSettingRepository.CheckSetting(accountId);
             await _openBrowserCommand.Execute(accountId);
 
             _taskManager.Add<LoginTask>(accountId);
             _timerManager.Start(accountId);
 
-            taskInfo.Status = StatusEnums.Online;
+            _taskManager.SetStatus(accountId, StatusEnums.Online);
         }
 
         private async Task LogoutTask()
@@ -139,16 +143,26 @@ namespace WPFUI.ViewModels.UserControls
             await _closeBrowserCommand.Execute(SelectedAccount.Id);
         }
 
-        private Task PauseTask()
+        private async Task PauseTask()
         {
-            _messageService.Show("Info", "PauseTask");
-            return Task.CompletedTask;
+            if (SelectedAccount is null)
+            {
+                _messageService.Show("Warning", "No account selected");
+                return;
+            }
+
+            await _pauseCommand.Execute(SelectedAccount.Id);
         }
 
-        private Task RestartTask()
+        private async Task RestartTask()
         {
-            _messageService.Show("Info", "RestartTask");
-            return Task.CompletedTask;
+            if (SelectedAccount is null)
+            {
+                _messageService.Show("Warning", "No account selected");
+                return;
+            }
+
+            await _restartCommand.Execute(SelectedAccount.Id);
         }
 
         private async Task LoadAccountList()

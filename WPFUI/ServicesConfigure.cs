@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using WPFUI.Commands;
 using WPFUI.Models.Input;
 using WPFUI.Models.Validators;
 using WPFUI.Repositories;
@@ -30,8 +31,8 @@ namespace WPFUI
             services.AddSingleton<MainLayoutViewModel>();
 
             // Repositories
-            services.AddSingleton<IAccountRepository, AccountRepository>();
-            services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
+            services.AddTransient<IAccountRepository, AccountRepository>();
+            services.AddTransient<IAccountSettingRepository, AccountSettingRepository>();
 
             // Services
             services.AddSingleton<IMessageService, MessageService>();
@@ -40,10 +41,14 @@ namespace WPFUI
             services.AddSingleton<SelectedItemStore>();
             services.AddSingleton<AccountTabStore>();
 
+            // Commands
+            services.AddTransient<IPauseCommand, PauseCommand>();
+            services.AddTransient<IRestartCommand, RestartCommand>();
+
             // Validators
-            services.AddSingleton<IValidator<AccountInput>, AccountInputValidator>();
-            services.AddSingleton<IValidator<AccessInput>, AccessInputValidator>();
-            services.AddSingleton<IValidator<AccountSettingInput>, AccountSettingInputValidator>();
+            services.AddTransient<IValidator<AccountInput>, AccountInputValidator>();
+            services.AddTransient<IValidator<AccessInput>, AccessInputValidator>();
+            services.AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>();
 
             return services;
         }
