@@ -10,6 +10,5 @@ namespace MainCore.Models
         public int Silver { get; set; }
         public bool HasPlusAccount { get; set; }
         public int AccountId { get; set; }
-        public Account Account { get; set; }
     }
 }

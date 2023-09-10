@@ -660,7 +660,8 @@
       "logincore": {
         "type": "Project",
         "dependencies": {
-          "MainCore": "[1.0.0, )"
+          "MainCore": "[1.0.0, )",
+          "UpdateCore": "[1.0.0, )"
         }
       },
       "maincore": {
@@ -678,6 +679,12 @@
           "Serilog.Sinks.File": "[5.0.0, )",
           "Serilog.Sinks.Map": "[1.0.2, )",
           "Splat": "[14.7.1, )"
+        }
+      },
+      "updatecore": {
+        "type": "Project",
+        "dependencies": {
+          "MainCore": "[1.0.0, )"
         }
       }
     },

@@ -26,13 +26,15 @@ namespace MainCore
             services.AddSingleton<ILogEventSink, LogSink>();
 
             // repositories
-            services.AddTransient<IAccountSettingRepository, AccountSettingRepository>();
+            services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
+            services.AddSingleton<IVillageRepository, VillageRepository>();
 
             // commands
             services.AddTransient<IOpenBrowserCommand, OpenBrowserCommand>();
             services.AddTransient<ICloseBrowserCommand, CloseBrowserCommand>();
             services.AddTransient<IInputTextboxCommand, InputTextboxCommand>();
             services.AddTransient<IClickButtonCommand, ClickButtonCommand>();
+            services.AddTransient<IWaitCommand, WaitCommand>();
             return services;
         }
     }

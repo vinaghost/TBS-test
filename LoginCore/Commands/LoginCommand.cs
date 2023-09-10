@@ -1,5 +1,5 @@
 ﻿using FluentResults;
-using LoginCore.Parser;
+using LoginCore.Parsers;
 using MainCore;
 using MainCore.Commands;
 using MainCore.Errors;
@@ -16,16 +16,18 @@ namespace LoginCore.Commands
 
         private readonly IClickButtonCommand _clickButtonCommand;
         private readonly IInputTextboxCommand _inputTextboxCommand;
+        private readonly IWaitCommand _waitCommand;
 
         private readonly ILoginPageParser _loginPageParser;
 
-        public LoginCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager, IClickButtonCommand clickButtonCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser)
+        public LoginCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager, IClickButtonCommand clickButtonCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser, IWaitCommand waitCommand)
         {
             _contextFactory = contextFactory;
             _chromeManager = chromeManager;
             _clickButtonCommand = clickButtonCommand;
             _inputTextboxCommand = inputTextboxCommand;
             _loginPageParser = loginPageParser;
+            _waitCommand = waitCommand;
         }
 
         public async Task<Result> Execute(int accountId)
@@ -50,6 +52,10 @@ namespace LoginCore.Commands
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             result = await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+
+            result = await _waitCommand.Execute(accountId, WaitCommand.PageLoaded);
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+
             return Result.Ok();
         }
     }

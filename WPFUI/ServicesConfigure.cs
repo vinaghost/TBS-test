@@ -31,8 +31,8 @@ namespace WPFUI
             services.AddSingleton<MainLayoutViewModel>();
 
             // Repositories
-            services.AddTransient<IAccountRepository, AccountRepository>();
-            services.AddTransient<IAccountSettingRepository, AccountSettingRepository>();
+            services.AddSingleton<IAccountRepository, AccountRepository>();
+            services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
 
             // Services
             services.AddSingleton<IMessageService, MessageService>();

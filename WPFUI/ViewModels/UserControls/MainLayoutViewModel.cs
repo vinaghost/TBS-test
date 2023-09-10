@@ -4,6 +4,7 @@ using MainCore.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive;
@@ -58,6 +59,7 @@ namespace WPFUI.ViewModels.UserControls
 
             DeleteAccountCommand = ReactiveCommand.CreateFromTask(DeleteAccountTask);
             LoginCommand = ReactiveCommand.CreateFromTask(LoginTask);
+            LoginCommand.ThrownExceptions.Subscribe(x => Debug.WriteLine($"{x.Message} {x.StackTrace}"));
             LogoutCommand = ReactiveCommand.CreateFromTask(LogoutTask);
             PauseCommand = ReactiveCommand.CreateFromTask(PauseTask);
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);

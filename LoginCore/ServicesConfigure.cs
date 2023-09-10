@@ -1,5 +1,5 @@
 ﻿using LoginCore.Commands;
-using LoginCore.Parser;
+using LoginCore.Parsers;
 using LoginCore.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 

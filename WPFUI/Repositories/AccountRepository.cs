@@ -57,7 +57,10 @@ namespace WPFUI.Repositories
                 await context.AddRangeAsync(accounts);
                 await context.SaveChangesAsync();
             }
-            await AccountTableChanged?.Invoke();
+            if (AccountTableChanged is not null)
+            {
+                await AccountTableChanged();
+            }
         }
 
         public async Task<List<Account>> Get()
@@ -109,7 +112,10 @@ namespace WPFUI.Repositories
                 context.Update(account);
                 await context.SaveChangesAsync();
             }
-            await AccountTableChanged?.Invoke();
+            if (AccountTableChanged is not null)
+            {
+                await AccountTableChanged();
+            }
         }
 
         public async Task Delete(int accountId)
@@ -118,7 +124,10 @@ namespace WPFUI.Repositories
             {
                 await context.Accounts.Where(x => x.Id == accountId).ExecuteDeleteAsync();
             }
-            await AccountTableChanged?.Invoke();
+            if (AccountTableChanged is not null)
+            {
+                await AccountTableChanged();
+            }
         }
     }
 }
