@@ -33,8 +33,10 @@ namespace WPFUI.Commands
                 var currentTask = _taskManager.GetCurrentTask(accountId);
                 if (currentTask is not null)
                 {
+                    var cts = _taskManager.GetCancellationTokenSource(accountId);
                     _taskManager.SetStatus(accountId, StatusEnums.Pausing);
                     _waitingOverlayViewModel.Show("waiting current task stops");
+                    cts.Cancel();
                     await Task.Run(async () =>
                     {
                         while (currentTask.Stage != StageEnums.Waiting)

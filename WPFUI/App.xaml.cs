@@ -2,6 +2,7 @@
 using MainCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NavigateCore;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,7 @@ namespace WPFUI
                         .AddCoreServices()
                         .AddLoginServices()
                         .AddUpdateServices()
+                        .AddNavigateServices()
                         .AddUIServices();
                 })
                 .Build();

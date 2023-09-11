@@ -53,6 +53,8 @@ namespace LoginCore.Commands
             result = await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
+            result = await _waitCommand.Execute(accountId, WaitCommand.PageChanged("dorf"));
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             result = await _waitCommand.Execute(accountId, WaitCommand.PageLoaded);
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 

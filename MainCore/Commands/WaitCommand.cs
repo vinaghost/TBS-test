@@ -16,6 +16,8 @@ namespace MainCore.Commands
 
         public static Func<IWebDriver, bool> PageLoaded => driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
 
+        public static Func<IWebDriver, bool> PageChanged(string part) => driver => driver.Url.Contains(part);
+
         public async Task<Result> Execute(int accountId, Func<IWebDriver, bool> condition)
         {
             return await Task.Run(() => ExecuteSync(accountId, condition));

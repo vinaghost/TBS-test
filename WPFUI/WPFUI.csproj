@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\LoginCore\LoginCore.csproj" />
     <ProjectReference Include="..\MainCore\MainCore.csproj" />
+    <ProjectReference Include="..\NavigateCore\NavigateCore.csproj" />
     <ProjectReference Include="..\UpdateCore\UpdateCore.csproj" />
   </ItemGroup>
 
