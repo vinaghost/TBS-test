@@ -16,25 +16,26 @@ namespace MainCore
             services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(_connectionString));
 
             // services
-            services.AddSingleton<IChromeDriverInstaller, ChromeDriverInstaller>();
-            services.AddSingleton<IChromeManager, ChromeManager>();
-            services.AddSingleton<IUseragentManager, UseragentManager>();
-            services.AddSingleton<ITimerManager, TimerManager>();
-            services.AddSingleton<ITaskManager, TaskManager>();
-            services.AddSingleton<ILogService, LogService>();
+            services.AddSingleton<IChromeDriverInstaller, ChromeDriverInstaller>()
+                    .AddSingleton<IChromeManager, ChromeManager>()
+                    .AddSingleton<IUseragentManager, UseragentManager>()
+                    .AddSingleton<ITimerManager, TimerManager>()
+                    .AddSingleton<ITaskManager, TaskManager>()
+                    .AddSingleton<ILogService, LogService>();
 
             services.AddSingleton<ILogEventSink, LogSink>();
 
             // repositories
-            services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
-            services.AddSingleton<IVillageRepository, VillageRepository>();
+            services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>()
+                    .AddSingleton<IVillageRepository, VillageRepository>()
+                    .AddSingleton<IBuildingRepository, BuildingRepository>();
 
             // commands
-            services.AddTransient<IOpenBrowserCommand, OpenBrowserCommand>();
-            services.AddTransient<ICloseBrowserCommand, CloseBrowserCommand>();
-            services.AddTransient<IInputTextboxCommand, InputTextboxCommand>();
-            services.AddTransient<IClickButtonCommand, ClickButtonCommand>();
-            services.AddTransient<IWaitCommand, WaitCommand>();
+            services.AddTransient<IOpenBrowserCommand, OpenBrowserCommand>()
+                    .AddTransient<ICloseBrowserCommand, CloseBrowserCommand>()
+                    .AddTransient<IInputTextboxCommand, InputTextboxCommand>()
+                    .AddTransient<IClickButtonCommand, ClickButtonCommand>()
+                    .AddTransient<IWaitCommand, WaitCommand>();
             return services;
         }
     }

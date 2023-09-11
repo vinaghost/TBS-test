@@ -13,6 +13,7 @@ namespace MainCore.Models
         public bool IsLoaded { get; set; }
 
         public int AccountId { get; set; }
+        public ICollection<Building> Buildings { get; set; }
 
         public bool Equals(Village other)
         {

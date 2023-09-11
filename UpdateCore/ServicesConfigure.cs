@@ -8,8 +8,14 @@ namespace UpdateCore
     {
         public static IServiceCollection AddUpdateServices(this IServiceCollection services)
         {
-            services.AddTransient<IVillageListParser, VillageListParser>();
-            services.AddTransient<IUpdateVillageListCommand, UpdateVillageListCommand>();
+            services.AddTransient<IVillageListParser, VillageListParser>()
+                    .AddTransient<IUpdateVillageListCommand, UpdateVillageListCommand>();
+
+            services.AddTransient<IFieldParser, FieldParser>()
+                    .AddTransient<IUpdateFieldCommand, UpdateFieldCommand>();
+
+            services.AddTransient<IInfrastructureParser, InfrastructureParser>()
+                    .AddTransient<IUpdateInfrastructureCommand, UpdateInfrastructureCommand>();
             return services;
         }
     }

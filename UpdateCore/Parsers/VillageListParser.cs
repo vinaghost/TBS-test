@@ -7,7 +7,7 @@ namespace UpdateCore.Parsers
         public List<HtmlNode> GetVillages(HtmlDocument doc)
         {
             var villsNode = doc.GetElementbyId("sidebarBoxVillagelist");
-            if (villsNode is null) return new List<HtmlNode>();
+            if (villsNode is null) return new();
             return villsNode.Descendants("div").Where(x => x.HasClass("listEntry")).ToList();
         }
 
