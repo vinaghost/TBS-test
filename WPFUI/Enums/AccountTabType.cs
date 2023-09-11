@@ -1,6 +1,6 @@
 ﻿namespace WPFUI.Enums
 {
-    public enum TabType
+    public enum AccountTabType
     {
         NoAccount = 0,
         AddAccount,

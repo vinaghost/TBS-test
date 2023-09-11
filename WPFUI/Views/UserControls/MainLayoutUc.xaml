@@ -58,6 +58,9 @@
                 <TabItem x:Name="AccountSettingTab" Header="Settings">
                     <v_tab:AccountSettingTab x:Name="AccountSetting" />
                 </TabItem>
+                <TabItem x:Name="VillageTab" Header="Villages">
+                    <v_tab:VillageTab x:Name="Village" />
+                </TabItem>
                 <TabItem x:Name="EditAccountTab" Header="Edit account">
                     <v_tab:EditAccountTab x:Name="EditAccount" />
                 </TabItem>

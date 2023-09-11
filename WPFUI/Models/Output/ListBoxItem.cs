@@ -30,9 +30,9 @@ namespace WPFUI.Models.Output
             Color = Color.FromRgb(0, 0, 0);
         }
 
-        public ListBoxItem(int id, string villageName, int x, int y) : this(id)
+        public ListBoxItem(Village village) : this(village.Id)
         {
-            Content = $"{villageName}{Environment.NewLine}({x}|{y})";
+            Content = $"{village.Name}{Environment.NewLine}({village.X}|{village.Y})";
             Color = Color.FromRgb(0, 0, 0);
         }
 

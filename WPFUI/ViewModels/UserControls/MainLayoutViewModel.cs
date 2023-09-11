@@ -4,7 +4,6 @@ using MainCore.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive;
@@ -59,7 +58,6 @@ namespace WPFUI.ViewModels.UserControls
 
             DeleteAccountCommand = ReactiveCommand.CreateFromTask(DeleteAccountTask);
             LoginCommand = ReactiveCommand.CreateFromTask(LoginTask);
-            LoginCommand.ThrownExceptions.Subscribe(x => Debug.WriteLine($"{x.Message} {x.StackTrace}"));
             LogoutCommand = ReactiveCommand.CreateFromTask(LogoutTask);
             PauseCommand = ReactiveCommand.CreateFromTask(PauseTask);
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
@@ -71,8 +69,8 @@ namespace WPFUI.ViewModels.UserControls
 
             accountObservable.Subscribe(x =>
             {
-                var tabType = TabType.Normal;
-                if (x is null) tabType = TabType.NoAccount;
+                var tabType = AccountTabType.Normal;
+                if (x is null) tabType = AccountTabType.NoAccount;
                 _accountTabStore.SetTabType(tabType);
             });
         }
@@ -85,14 +83,14 @@ namespace WPFUI.ViewModels.UserControls
         private Task AddAccountTask()
         {
             SelectedAccount = null;
-            AccountTabStore.SetTabType(TabType.AddAccount);
+            AccountTabStore.SetTabType(AccountTabType.AddAccount);
             return Task.CompletedTask;
         }
 
         private Task AddAccountsTask()
         {
             SelectedAccount = null;
-            AccountTabStore.SetTabType(TabType.AddAccounts);
+            AccountTabStore.SetTabType(AccountTabType.AddAccounts);
             return Task.CompletedTask;
         }
 
@@ -108,7 +106,7 @@ namespace WPFUI.ViewModels.UserControls
             if (!result) return;
 
             _waitingOverlayViewModel.Show("deleting account ...");
-            await Observable.StartAsync(() => _accountRepository.Delete(SelectedAccount.Id), RxApp.TaskpoolScheduler);
+            await _accountRepository.Delete(SelectedAccount.Id);
 
             _waitingOverlayViewModel.Close();
         }
@@ -185,7 +183,7 @@ namespace WPFUI.ViewModels.UserControls
 
         private async Task LoadAccountList()
         {
-            var accounts = await Observable.StartAsync(_accountRepository.Get, RxApp.TaskpoolScheduler);
+            var accounts = await _accountRepository.Get();
             Accounts.Clear();
             foreach (var account in accounts)
             {

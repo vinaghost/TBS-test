@@ -8,7 +8,7 @@ namespace WPFUI.Stores
     public class AccountTabStore : ViewModelBase
     {
         private readonly bool[] _tabVisibility = new bool[4];
-        private TabType _currentTabType;
+        private AccountTabType _currentTabType;
 
         private bool _isNoAccountTabVisible = true;
         private bool _isAddAccountTabVisible;
@@ -19,10 +19,11 @@ namespace WPFUI.Stores
         private readonly AddAccountViewModel _addAccountViewModel;
         private readonly AddAccountsViewModel _addAccountsViewModel;
         private readonly AccountSettingViewModel _accountSettingViewModel;
+        private readonly VillageViewModel _villageViewModel;
         private readonly EditAccountViewModel _editAccountViewModel;
         private readonly DebugViewModel _debugViewModel;
 
-        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel, DebugViewModel debugViewModel, AccountSettingViewModel accountSettingViewModel)
+        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel, DebugViewModel debugViewModel, AccountSettingViewModel accountSettingViewModel, VillageViewModel villageViewModel)
         {
             _noAccountViewModel = noAccountViewModel;
             _addAccountViewModel = addAccountViewModel;
@@ -30,9 +31,10 @@ namespace WPFUI.Stores
             _accountSettingViewModel = accountSettingViewModel;
             _editAccountViewModel = editAccountViewModel;
             _debugViewModel = debugViewModel;
+            _villageViewModel = villageViewModel;
         }
 
-        public void SetTabType(TabType tabType)
+        public void SetTabType(AccountTabType tabType)
         {
             if (tabType == _currentTabType) return;
             _currentTabType = tabType;
@@ -43,26 +45,26 @@ namespace WPFUI.Stores
             }
             _tabVisibility[(int)tabType] = true;
 
-            IsNoAccountTabVisible = _tabVisibility[(int)TabType.NoAccount];
-            IsAddAccountTabVisible = _tabVisibility[(int)TabType.AddAccount];
-            IsAddAccountsTabVisible = _tabVisibility[(int)TabType.AddAccounts];
-            IsNormalTabVisible = _tabVisibility[(int)TabType.Normal];
+            IsNoAccountTabVisible = _tabVisibility[(int)AccountTabType.NoAccount];
+            IsAddAccountTabVisible = _tabVisibility[(int)AccountTabType.AddAccount];
+            IsAddAccountsTabVisible = _tabVisibility[(int)AccountTabType.AddAccounts];
+            IsNormalTabVisible = _tabVisibility[(int)AccountTabType.Normal];
 
             switch (tabType)
             {
-                case TabType.NoAccount:
+                case AccountTabType.NoAccount:
                     _noAccountViewModel.IsActive = true;
                     break;
 
-                case TabType.Normal:
+                case AccountTabType.Normal:
                     _accountSettingViewModel.IsActive = true;
                     break;
 
-                case TabType.AddAccount:
+                case AccountTabType.AddAccount:
                     _addAccountViewModel.IsActive = true;
                     break;
 
-                case TabType.AddAccounts:
+                case AccountTabType.AddAccounts:
                     _addAccountsViewModel.IsActive = true;
                     break;
 
@@ -99,6 +101,7 @@ namespace WPFUI.Stores
         public AddAccountViewModel AddAccountViewModel => _addAccountViewModel;
         public AddAccountsViewModel AddAccountsViewModel => _addAccountsViewModel;
         public AccountSettingViewModel AccountSettingViewModel => _accountSettingViewModel;
+        public VillageViewModel VillageViewModel => _villageViewModel;
         public EditAccountViewModel EditAccountViewModel => _editAccountViewModel;
         public DebugViewModel DebugViewModel => _debugViewModel;
     }

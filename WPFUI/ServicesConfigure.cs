@@ -8,6 +8,7 @@ using WPFUI.Services;
 using WPFUI.Stores;
 using WPFUI.ViewModels;
 using WPFUI.ViewModels.Tabs;
+using WPFUI.ViewModels.Tabs.Villages;
 using WPFUI.ViewModels.UserControls;
 
 namespace WPFUI
@@ -19,38 +20,43 @@ namespace WPFUI
             services.AddSingleton<MainViewModel>();
 
             // Tabs
-            services.AddSingleton<NoAccountViewModel>();
-            services.AddSingleton<AddAccountViewModel>();
-            services.AddSingleton<AddAccountsViewModel>();
-            services.AddSingleton<AccountSettingViewModel>();
-            services.AddSingleton<EditAccountViewModel>();
-            services.AddSingleton<DebugViewModel>();
+            services.AddSingleton<NoAccountViewModel>()
+                    .AddSingleton<AddAccountViewModel>()
+                    .AddSingleton<AddAccountsViewModel>()
+                    .AddSingleton<AccountSettingViewModel>()
+                    .AddSingleton<VillageViewModel>()
+                    .AddSingleton<EditAccountViewModel>()
+                    .AddSingleton<DebugViewModel>();
+
+            services.AddSingleton<NoVillageViewModel>()
+                    .AddSingleton<InfoViewModel>();
 
             // UserControls
-            services.AddSingleton<WaitingOverlayViewModel>();
-            services.AddSingleton<MainLayoutViewModel>();
+            services.AddSingleton<WaitingOverlayViewModel>()
+                    .AddSingleton<MainLayoutViewModel>();
 
             // Repositories
-            services.AddSingleton<IAccountRepository, AccountRepository>();
-            services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
+            services.AddSingleton<IAccountRepository, AccountRepository>()
+                    .AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
 
             // Services
             services.AddSingleton<IMessageService, MessageService>();
 
             // Stores
-            services.AddSingleton<SelectedItemStore>();
-            services.AddSingleton<AccountTabStore>();
+            services.AddSingleton<SelectedItemStore>()
+                    .AddSingleton<AccountTabStore>()
+                    .AddSingleton<VillageTabStore>();
 
             // Commands
-            services.AddTransient<ILoginCommand, LoginCommand>();
-            services.AddTransient<ILogoutCommand, LogoutCommand>();
-            services.AddTransient<IPauseCommand, PauseCommand>();
-            services.AddTransient<IRestartCommand, RestartCommand>();
+            services.AddTransient<ILoginCommand, LoginCommand>()
+                    .AddTransient<ILogoutCommand, LogoutCommand>()
+                    .AddTransient<IPauseCommand, PauseCommand>()
+                    .AddTransient<IRestartCommand, RestartCommand>();
 
             // Validators
-            services.AddTransient<IValidator<AccountInput>, AccountInputValidator>();
-            services.AddTransient<IValidator<AccessInput>, AccessInputValidator>();
-            services.AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>();
+            services.AddTransient<IValidator<AccountInput>, AccountInputValidator>()
+                    .AddTransient<IValidator<AccessInput>, AccessInputValidator>()
+                    .AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>();
 
             return services;
         }

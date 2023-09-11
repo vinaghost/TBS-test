@@ -15,7 +15,7 @@ namespace MainCore.Repositories
         public async Task<List<Village>> Get(int accountId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Villages.Where(x => x.AccountId == accountId).ToListAsync();
+            return await context.Villages.Where(x => x.AccountId == accountId).OrderBy(x => x.Name).ToListAsync();
         }
 
         public async Task Update(int accountId, List<Village> villages)
