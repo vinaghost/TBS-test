@@ -1,8 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace MainCore.Models
+﻿namespace MainCore.Models
 {
-    [Index(nameof(Username), nameof(Server), IsUnique = true)]
     public class Account
     {
         public int Id { get; set; }

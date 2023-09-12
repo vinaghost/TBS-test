@@ -6,5 +6,6 @@
         ClickDelayMax,
         TaskDelayMin,
         TaskDelayMax,
+        IsAutoLoadVillage,
     }
 }

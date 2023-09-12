@@ -45,7 +45,6 @@ namespace UpdateCore.Commands
                     Name = name,
                     X = x,
                     Y = y,
-                    IsLoaded = false,
                 });
             }
 

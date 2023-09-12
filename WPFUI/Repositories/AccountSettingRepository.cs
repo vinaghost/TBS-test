@@ -19,6 +19,7 @@ namespace WPFUI.Repositories
             { AccountSettingEnums.ClickDelayMax , 900 },
             { AccountSettingEnums.TaskDelayMin , 1000},
             { AccountSettingEnums.TaskDelayMax , 1400 },
+            { AccountSettingEnums.IsAutoLoadVillage , 0 },
         };
 
         public AccountSettingRepository(IDbContextFactory<AppDbContext> contextFactory)

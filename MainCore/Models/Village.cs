@@ -10,7 +10,6 @@ namespace MainCore.Models
         public string Name { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
-        public bool IsLoaded { get; set; }
 
         public int AccountId { get; set; }
         public ICollection<Building> Buildings { get; set; }

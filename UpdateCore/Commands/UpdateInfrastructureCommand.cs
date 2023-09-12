@@ -25,14 +25,16 @@ namespace UpdateCore.Commands
             var html = chromeBrowser.Html;
 
             var fields = _infrastructureParser.GetNodes(html);
-            var buildings = fields.Select(x => new Building()
-            {
-                VillageId = villageId,
-                Id = _infrastructureParser.GetId(x),
-                Level = _infrastructureParser.GetLevel(x),
-                Type = _infrastructureParser.GetBuildingType(x),
-                IsUnderConstruction = _infrastructureParser.IsUnderConstruction(x),
-            }).ToList();
+            var buildings = fields
+                .Select(x => new Building()
+                {
+                    VillageId = villageId,
+                    Id = _infrastructureParser.GetId(x),
+                    Level = _infrastructureParser.GetLevel(x),
+                    Type = _infrastructureParser.GetBuildingType(x),
+                    IsUnderConstruction = _infrastructureParser.IsUnderConstruction(x),
+                })
+                .ToList();
 
             await _buildingRepository.Update(villageId, buildings);
             return Result.Ok();

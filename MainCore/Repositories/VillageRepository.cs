@@ -7,6 +7,8 @@ namespace MainCore.Repositories
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
+        public event Func<int, Task> VillageListChanged;
+
         public VillageRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
@@ -30,7 +32,7 @@ namespace MainCore.Repositories
             var villages = await context.Villages
                 .Where(x => x.AccountId == accountId)
                 .Include(x => x.Buildings)
-                .Where(x => x.Buildings.Count < 36)
+                .Where(x => x.Buildings.Count < 38)
                 .OrderBy(x => x.Name)
                 .ToListAsync();
             return villages;
@@ -38,25 +40,31 @@ namespace MainCore.Repositories
 
         public async Task Update(int accountId, List<Village> villages)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var villagesOnDb = await context.Villages.Where(x => x.AccountId == accountId).ToListAsync();
-
-            var newVillages = villages.Except(villagesOnDb).ToList();
-            var oldVillages = villagesOnDb.Except(villages).ToList();
-            var updateVillages = villagesOnDb.Where(x => !oldVillages.Contains(x)).ToList();
-
-            await context.AddRangeAsync(newVillages);
-            context.RemoveRange(oldVillages);
-            foreach (var village in updateVillages)
+            using (var context = await _contextFactory.CreateDbContextAsync())
             {
-                var vill = villages.FirstOrDefault(x => x.Id == village.Id);
-                if (vill is null) break;
+                var villagesOnDb = await context.Villages.Where(x => x.AccountId == accountId).ToListAsync();
 
-                village.Name = vill.Name;
+                var newVillages = villages.Except(villagesOnDb).ToList();
+                var oldVillages = villagesOnDb.Except(villages).ToList();
+                var updateVillages = villagesOnDb.Where(x => !oldVillages.Contains(x)).ToList();
+
+                await context.AddRangeAsync(newVillages);
+                context.RemoveRange(oldVillages);
+                foreach (var village in updateVillages)
+                {
+                    var vill = villages.FirstOrDefault(x => x.Id == village.Id);
+                    if (vill is null) break;
+
+                    village.Name = vill.Name;
+                }
+                context.UpdateRange(updateVillages);
+
+                await context.SaveChangesAsync();
             }
-            context.UpdateRange(updateVillages);
-
-            await context.SaveChangesAsync();
+            if (VillageListChanged is not null)
+            {
+                await VillageListChanged(accountId);
+            }
         }
     }
 }

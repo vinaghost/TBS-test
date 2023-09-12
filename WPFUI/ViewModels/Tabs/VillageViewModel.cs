@@ -4,6 +4,7 @@ using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using UpdateCore.Tasks;
 using WPFUI.Enums;
@@ -32,6 +33,8 @@ namespace WPFUI.ViewModels.Tabs
             LoadUnloadCommand = ReactiveCommand.CreateFromTask(LoadUnloadTask);
             LoadAllCommand = ReactiveCommand.CreateFromTask(LoadAllTask);
 
+            _villageRepository.VillageListChanged += VillageListChanged;
+
             var villageObservable = this.WhenAnyValue(x => x.SelectedVillage);
             villageObservable.BindTo(_selectedItemStore, vm => vm.Village);
             villageObservable.Subscribe(x =>
@@ -40,6 +43,14 @@ namespace WPFUI.ViewModels.Tabs
                 if (x is null) tabType = VillageTabType.NoVillage;
                 _villageTabStore.SetTabType(tabType);
             });
+        }
+
+        private async Task VillageListChanged(int accountId)
+        {
+            await Observable.StartAsync(async () =>
+            {
+                await LoadVillageList(accountId);
+            }, RxApp.MainThreadScheduler);
         }
 
         private async Task LoadCurrentTask()
