@@ -16,11 +16,6 @@ namespace UpdateCore.Parsers
             return node.HasClass("attack");
         }
 
-        public bool IsActive(HtmlNode node)
-        {
-            return node.HasClass("active");
-        }
-
         public int GetId(HtmlNode node)
         {
             var dataDid = node.GetAttributeValue("data-did", 0);

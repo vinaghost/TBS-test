@@ -14,11 +14,13 @@ namespace WPFUI.Stores
         private bool _isNormalTabVisible;
 
         private readonly NoVillageViewModel _noVillageViewModel;
+        private readonly BuildViewModel _buildViewModel;
         private readonly InfoViewModel _infoViewModel;
 
-        public VillageTabStore(NoVillageViewModel noVillageViewModel, InfoViewModel infoViewModel)
+        public VillageTabStore(NoVillageViewModel noVillageViewModel, InfoViewModel infoViewModel, BuildViewModel buildViewModel)
         {
             _noVillageViewModel = noVillageViewModel;
+            _buildViewModel = buildViewModel;
             _infoViewModel = infoViewModel;
         }
 
@@ -43,7 +45,7 @@ namespace WPFUI.Stores
                     break;
 
                 case VillageTabType.Normal:
-                    _infoViewModel.IsActive = true;
+                    _buildViewModel.IsActive = true;
                     break;
 
                 default:
@@ -64,6 +66,7 @@ namespace WPFUI.Stores
         }
 
         public NoVillageViewModel NoVillageViewModel => _noVillageViewModel;
+        public BuildViewModel BuildViewModel => _buildViewModel;
         public InfoViewModel InfoViewModel => _infoViewModel;
     }
 }

@@ -691,7 +691,8 @@
       "updatecore": {
         "type": "Project",
         "dependencies": {
-          "MainCore": "[1.0.0, )"
+          "MainCore": "[1.0.0, )",
+          "NavigateCore": "[1.0.0, )"
         }
       }
     },

@@ -102,7 +102,7 @@ namespace WPFUI.ViewModels.UserControls
                 return;
             }
 
-            var result = _messageService.ShowYesNo("Info", $"Are you sure want to delete \n {SelectedAccount.Content}");
+            var result = _messageService.ShowYesNo("Information", $"Are you sure want to delete \n {SelectedAccount.Content}");
             if (!result) return;
 
             _waitingOverlayViewModel.Show("deleting account ...");

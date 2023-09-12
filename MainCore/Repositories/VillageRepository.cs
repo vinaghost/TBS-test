@@ -12,10 +12,28 @@ namespace MainCore.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task<List<Village>> Get(int accountId)
+        public async Task<Village> Get(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Villages.FindAsync(villageId);
+        }
+
+        public async Task<List<Village>> GetList(int accountId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             return await context.Villages.Where(x => x.AccountId == accountId).OrderBy(x => x.Name).ToListAsync();
+        }
+
+        public async Task<List<Village>> GetUnloadList(int accountId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var villages = await context.Villages
+                .Where(x => x.AccountId == accountId)
+                .Include(x => x.Buildings)
+                .Where(x => x.Buildings.Count < 36)
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+            return villages;
         }
 
         public async Task Update(int accountId, List<Village> villages)

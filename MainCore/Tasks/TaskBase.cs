@@ -11,6 +11,17 @@ namespace MainCore.Tasks
 
         public abstract Task<Result> Execute();
 
-        public abstract string GetName();
+        public string GetName()
+        {
+            if (string.IsNullOrWhiteSpace(_name))
+            {
+                SetName().Wait();
+            }
+            return _name;
+        }
+
+        protected string _name;
+
+        protected abstract Task SetName();
     }
 }

@@ -28,9 +28,10 @@ namespace LoginCore.Tasks
             return Result.Ok();
         }
 
-        public override string GetName()
+        protected override Task SetName()
         {
-            return "Login task";
+            _name = "Login task";
+            return Task.CompletedTask;
         }
     }
 }

@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MainCore\MainCore.csproj" />
+    <ProjectReference Include="..\NavigateCore\NavigateCore.csproj" />
   </ItemGroup>
 
 </Project>

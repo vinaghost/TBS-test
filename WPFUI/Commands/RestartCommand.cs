@@ -28,11 +28,11 @@ namespace WPFUI.Commands
                 case StatusEnums.Starting:
                 case StatusEnums.Pausing:
                 case StatusEnums.Stopping:
-                    _messageService.Show("Info", $"Account is {status}");
+                    _messageService.Show("Information", $"Account is {status}");
                     return;
 
                 case StatusEnums.Online:
-                    _messageService.Show("Info", $"Account should be paused first");
+                    _messageService.Show("Information", $"Account should be paused first");
                     return;
 
                 case StatusEnums.Paused:

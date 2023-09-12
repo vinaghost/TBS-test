@@ -21,7 +21,7 @@ namespace MainCore.Repositories
             foreach (var building in buildings)
             {
                 var dbBuilding = dbBuildings.FirstOrDefault(x => x.Id == building.Id);
-                if (dbBuilding is not null)
+                if (dbBuilding is null)
                 {
                     await context.AddAsync(building);
                 }

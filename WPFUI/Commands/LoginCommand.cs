@@ -28,7 +28,7 @@ namespace WPFUI.Commands
             await _accountSettingRepository.CheckSetting(accountId);
             await _openBrowserCommand.Execute(accountId);
 
-            _taskManager.Add<LoginTask>(accountId);
+            _taskManager.Add<LoginTask>(accountId, first: true);
             _timerManager.Start(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Online);
         }

@@ -53,7 +53,7 @@ namespace WPFUI.Commands
                 return;
             }
 
-            _messageService.Show("Info", $"Account is {status}");
+            _messageService.Show("Information", $"Account is {status}");
         }
     }
 }

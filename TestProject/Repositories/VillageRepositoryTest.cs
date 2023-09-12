@@ -1,4 +1,5 @@
-﻿using MainCore.Models;
+﻿using MainCore.Enums;
+using MainCore.Models;
 using MainCore.Repositories;
 using TestProject.Mock;
 
@@ -15,6 +16,36 @@ namespace TestProject.Repositories
         }
 
         [TestMethod]
+        public async Task GetUnloadList()
+        {
+            var villageRepository = new VillageRepository(_contextFactory);
+            var buildingRepository = new BuildingRepository(_contextFactory);
+            var sampleVillages = new List<Village>()
+            {
+                new Village(){Id = 1, Name = "Abc", AccountId = 1},
+                new Village(){Id = 2, Name = "xyz", AccountId = 1},
+                new Village(){Id = 3, Name = "asd", AccountId = 1},
+                new Village(){Id = 4, Name = "qwe", AccountId = 1},
+            };
+            var sampleBuildings = new List<Building>();
+            for (var i = 0; i < 37; i++)
+            {
+                sampleBuildings.Add(new Building()
+                {
+                    VillageId = 1,
+                    Id = i + 1,
+                    IsUnderConstruction = false,
+                    Level = 1,
+                    Type = BuildingEnums.Site,
+                });
+            }
+            await villageRepository.Update(1, sampleVillages);
+            await buildingRepository.Update(1, sampleBuildings);
+            var villages = await villageRepository.GetUnloadList(1);
+            Assert.AreEqual(3, villages.Count);
+        }
+
+        [TestMethod]
         public async Task UpdateTest_AddOnly()
         {
             var villageRepository = new VillageRepository(_contextFactory);
@@ -26,7 +57,7 @@ namespace TestProject.Repositories
                 new Village(){Id = 4, Name = "qwe", AccountId = 1},
             };
             await villageRepository.Update(1, sampleVillages);
-            var villages = await villageRepository.Get(1);
+            var villages = await villageRepository.GetList(1);
             Assert.AreEqual(4, villages.Count);
         }
 
@@ -48,7 +79,7 @@ namespace TestProject.Repositories
                 new Village(){Id = 1, Name = "Abc", AccountId = 1},
             };
             await villageRepository.Update(1, sampleVillages);
-            var villages = await villageRepository.Get(1);
+            var villages = await villageRepository.GetList(1);
             Assert.AreEqual(1, villages.Count);
         }
 
@@ -73,7 +104,7 @@ namespace TestProject.Repositories
                 new Village(){Id = 5, Name = "qwer", AccountId = 1},
             };
             await villageRepository.Update(1, sampleVillages);
-            var villages = await villageRepository.Get(1);
+            var villages = await villageRepository.GetList(1);
             Assert.AreEqual(4, villages.Count);
         }
 
