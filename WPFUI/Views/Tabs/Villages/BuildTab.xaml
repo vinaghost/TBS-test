@@ -9,5 +9,18 @@
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Border Style="{DynamicResource Box}" Grid.Column="0">
+            <ListBox x:Name="BuildingsGrid" SelectionMode="Single" ItemTemplate="{DynamicResource ListBoxColorItem}" />
+        </Border>
+        <Border Style="{DynamicResource Box}" Grid.Column="4">
+            <ListBox x:Name="JobsGrid" SelectionMode="Single" ItemTemplate="{DynamicResource ListBoxColorItem}" />
+        </Border>
     </Grid>
 </v:BuildTabBase>

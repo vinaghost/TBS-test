@@ -15,5 +15,6 @@ namespace MainCore
         public DbSet<AccountSetting> AccountsSetting { get; set; }
         public DbSet<Village> Villages { get; set; }
         public DbSet<Building> Buildings { get; set; }
+        public DbSet<Job> Jobs { get; set; }
     }
 }

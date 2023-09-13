@@ -16,7 +16,7 @@ namespace TestProject.Repositories
         }
 
         [TestMethod]
-        public async Task GetUnloadList()
+        public async Task GetUnloadListTest()
         {
             var villageRepository = new VillageRepository(_contextFactory);
             var buildingRepository = new BuildingRepository(_contextFactory);

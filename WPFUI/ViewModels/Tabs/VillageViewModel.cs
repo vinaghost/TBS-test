@@ -47,10 +47,9 @@ namespace WPFUI.ViewModels.Tabs
 
         private async Task VillageListChanged(int accountId)
         {
-            await Observable.StartAsync(async () =>
-            {
-                await LoadVillageList(accountId);
-            }, RxApp.MainThreadScheduler);
+            if (!IsActive) return;
+            if (accountId != AccountId) return;
+            await Observable.StartAsync(() => LoadVillageList(accountId), RxApp.MainThreadScheduler);
         }
 
         private async Task LoadCurrentTask()

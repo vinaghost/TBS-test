@@ -28,7 +28,8 @@ namespace MainCore
             // repositories
             services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>()
                     .AddSingleton<IVillageRepository, VillageRepository>()
-                    .AddSingleton<IBuildingRepository, BuildingRepository>();
+                    .AddSingleton<IBuildingRepository, BuildingRepository>()
+                    .AddSingleton<IJobRepository, JobRepository>();
 
             // commands
             services.AddTransient<IOpenBrowserCommand, OpenBrowserCommand>()
