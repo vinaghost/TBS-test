@@ -11,19 +11,9 @@ namespace WPFUI.Models.Output
 {
     public class ListBoxItem : ReactiveObject
     {
-        public ListBoxItem()
-        {
-        }
-
         public ListBoxItem(int id)
         {
             Id = id;
-        }
-
-        public ListBoxItem(int id, string content, Color color) : this(id)
-        {
-            Content = content;
-            Color = color;
         }
 
         public ListBoxItem(Account account) : this(account.Id)
@@ -67,10 +57,6 @@ namespace WPFUI.Models.Output
             }
 
             Color = Color.FromRgb(0, 0, 0);
-        }
-
-        public ListBoxItem(int id, string content, System.Drawing.Color color) : this(id, content, color.ToMediaColor())
-        {
         }
 
         public void CopyFrom(ListBoxItem source)

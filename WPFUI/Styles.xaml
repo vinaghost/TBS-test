@@ -17,4 +17,14 @@
             </TextBlock.Foreground>
         </TextBlock>
     </DataTemplate>
+    <DataTemplate x:Key="ListBoxBlackColorItem">
+        <TextBlock Text="{Binding Content}">
+            <TextBlock.Foreground>
+                <SolidColorBrush Color="{Binding Color}" />
+            </TextBlock.Foreground>
+            <TextBlock.Background>
+                <SolidColorBrush Color="Black" />
+            </TextBlock.Background>
+        </TextBlock>
+    </DataTemplate>
 </ResourceDictionary>
