@@ -31,7 +31,7 @@ namespace WPFUI.Models.Output
 
         public ListBoxItem(Building building) : this(building.Id)
         {
-            Content = $"[{building.Id}] {building.Type} | lvl {building.Level}";
+            Content = $"[{building.Location}] {building.Type} | lvl {building.Level}";
             Color = building.Type.GetColor();
         }
 

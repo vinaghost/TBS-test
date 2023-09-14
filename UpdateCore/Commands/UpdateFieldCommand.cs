@@ -28,7 +28,7 @@ namespace UpdateCore.Commands
             var buildings = fields.Select(x => new Building()
             {
                 VillageId = villageId,
-                Id = _fieldParser.GetId(x),
+                Location = _fieldParser.GetId(x),
                 Level = _fieldParser.GetLevel(x),
                 Type = _fieldParser.GetBuildingType(x),
                 IsUnderConstruction = _fieldParser.IsUnderConstruction(x),

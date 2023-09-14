@@ -22,7 +22,7 @@ namespace MainCore.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task Add<T>(int villageId, T content)
+        public async Task<Job> Add<T>(int villageId, T content)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             var count = await context.Jobs.Where(x => x.VillageId == villageId).CountAsync();
@@ -35,6 +35,8 @@ namespace MainCore.Repositories
             };
             await context.AddAsync(job);
             await context.SaveChangesAsync();
+
+            return job;
         }
 
         public async Task<List<Job>> GetList(int villageId)

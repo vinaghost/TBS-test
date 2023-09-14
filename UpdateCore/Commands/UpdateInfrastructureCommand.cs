@@ -29,7 +29,7 @@ namespace UpdateCore.Commands
                 .Select(x => new Building()
                 {
                     VillageId = villageId,
-                    Id = _infrastructureParser.GetId(x),
+                    Location = _infrastructureParser.GetId(x),
                     Level = _infrastructureParser.GetLevel(x),
                     Type = _infrastructureParser.GetBuildingType(x),
                     IsUnderConstruction = _infrastructureParser.IsUnderConstruction(x),

@@ -4,7 +4,8 @@ namespace MainCore.Repositories
 {
     public interface IJobRepository
     {
-        Task Add<T>(int villageId, T content);
+        Task<Job> Add<T>(int villageId, T content);
+
         Task<List<Job>> GetList(int villageId);
     }
 }

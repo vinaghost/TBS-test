@@ -33,7 +33,7 @@ namespace TestProject.Repositories
                 sampleBuildings.Add(new Building()
                 {
                     VillageId = 1,
-                    Id = i + 1,
+                    Location = i + 1,
                     IsUnderConstruction = false,
                     Level = 1,
                     Type = BuildingEnums.Site,

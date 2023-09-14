@@ -49,7 +49,7 @@ namespace WPFUI.ViewModels.Tabs
         {
             if (!IsActive) return;
             if (accountId != AccountId) return;
-            await Observable.StartAsync(() => LoadVillageList(accountId), RxApp.MainThreadScheduler);
+            await Observable.Start(async () => await LoadVillageList(accountId), RxApp.MainThreadScheduler);
         }
 
         private async Task LoadCurrentTask()

@@ -43,7 +43,8 @@ namespace WPFUI
             // Repositories
             services
                 .AddSingleton<IAccountRepository, AccountRepository>()
-                .AddSingleton<IAccountSettingRepository, AccountSettingRepository>();
+                .AddSingleton<IAccountSettingRepository, AccountSettingRepository>()
+                .AddSingleton<IBuildRepository, BuildRepository>();
 
             // Services
             services
@@ -66,7 +67,8 @@ namespace WPFUI
             services
                 .AddTransient<IValidator<AccountInput>, AccountInputValidator>()
                 .AddTransient<IValidator<AccessInput>, AccessInputValidator>()
-                .AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>();
+                .AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>()
+                .AddTransient<IValidator<NormalBuildInput>, NormalBuildInputValidator>();
 
             return services;
         }

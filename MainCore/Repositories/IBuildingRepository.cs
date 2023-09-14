@@ -6,6 +6,7 @@ namespace MainCore.Repositories
     {
         event Func<int, Task> BuildingUpdated;
 
+        Task<Building> Get(int buildingId);
         Task<List<Building>> GetList(int villageId);
         Task Update(int villageId, List<Building> buildings);
     }

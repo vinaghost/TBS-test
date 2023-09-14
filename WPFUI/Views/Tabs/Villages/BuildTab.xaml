@@ -40,9 +40,9 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Label Grid.Row="0" Grid.Column="0" Content="Building" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                    <Label Grid.Row="1" Grid.Column="0" Content="Level"  VerticalAlignment="Center" HorizontalAlignment="Center" />
                     <ComboBox x:Name="NormalBuildings" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center"  HorizontalAlignment="Stretch" DisplayMemberPath="Name" />
 
+                    <Label Grid.Row="1" Grid.Column="0" Content="Level"  VerticalAlignment="Center" HorizontalAlignment="Center" />
                     <TextBox x:Name="NormalLevel" Grid.Row="1"  Grid.Column="1" />
                     <Button x:Name="NormalBuild" Grid.Row="3" Grid.ColumnSpan="2" Style="{DynamicResource MaterialDesignFloatingActionMiniDarkButton}" ToolTip="Build">
                         <materialDesign:PackIcon Width="30" Height="30" Kind="Hammer" />
