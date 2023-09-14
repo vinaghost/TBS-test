@@ -39,6 +39,13 @@ namespace WPFUI.ViewModels.Tabs.Villages
 
             NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
 
+            UpCommand = ReactiveCommand.CreateFromTask(UpTask);
+            DownCommand = ReactiveCommand.CreateFromTask(DownTask);
+            TopCommand = ReactiveCommand.CreateFromTask(TopTask);
+            BottomCommand = ReactiveCommand.CreateFromTask(BottomTask);
+            DeleteCommand = ReactiveCommand.CreateFromTask(DeleteTask);
+            DeleteAllCommand = ReactiveCommand.CreateFromTask(DeleteAllTask);
+
             this.WhenAnyValue(vm => vm.SelectedBuilding)
                 .Subscribe(async x => await LoadNormalBuild());
         }
@@ -129,6 +136,92 @@ namespace WPFUI.ViewModels.Tabs.Villages
             }
         }
 
+        private async Task UpTask()
+        {
+            if (SelectedJob is null) return;
+
+            var oldIndex = SelectedJobIndex;
+
+            if (oldIndex == 0) return;
+            var newIndex = oldIndex - 1;
+
+            var oldJob = Jobs[oldIndex];
+            var newJob = Jobs[newIndex];
+
+            Jobs.Move(oldIndex, newIndex);
+            SelectedJobIndex = newIndex;
+
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
+        }
+
+        private async Task DownTask()
+        {
+            if (SelectedJob is null) return;
+
+            var oldIndex = SelectedJobIndex;
+
+            if (oldIndex == Jobs.Count - 1) return;
+            var newIndex = oldIndex + 1;
+
+            var oldJob = Jobs[oldIndex];
+            var newJob = Jobs[newIndex];
+
+            Jobs.Move(oldIndex, newIndex);
+            SelectedJobIndex = newIndex;
+
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
+        }
+
+        private async Task TopTask()
+        {
+            if (SelectedJob is null) return;
+
+            var oldIndex = SelectedJobIndex;
+
+            if (oldIndex == 0) return;
+            var newIndex = 0;
+
+            var oldJob = Jobs[oldIndex];
+            var newJob = Jobs[newIndex];
+
+            Jobs.Move(oldIndex, newIndex);
+            SelectedJobIndex = newIndex;
+
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
+        }
+
+        private async Task BottomTask()
+        {
+            if (SelectedJob is null) return;
+
+            var oldIndex = SelectedJobIndex;
+
+            if (oldIndex == Jobs.Count - 1) return;
+            var newIndex = Jobs.Count - 1;
+
+            var oldJob = Jobs[oldIndex];
+            var newJob = Jobs[newIndex];
+
+            Jobs.Move(oldIndex, newIndex);
+            SelectedJobIndex = newIndex;
+
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
+        }
+
+        private async Task DeleteTask()
+        {
+            if (SelectedJob is null) return;
+            var jobId = SelectedJob.Id;
+            Jobs.RemoveAt(SelectedJobIndex);
+            await _jobRepository.Delete(jobId);
+        }
+
+        private async Task DeleteAllTask()
+        {
+            Jobs.Clear();
+            await _jobRepository.Clear(VillageId);
+        }
+
         private async Task NormalBuild(int villageId)
         {
             var building = await _buildingRepository.Get(SelectedBuilding.Id);
@@ -145,6 +238,14 @@ namespace WPFUI.ViewModels.Tabs.Villages
         }
 
         public ReactiveCommand<Unit, Unit> NormalBuildCommand { get; }
+
+        public ReactiveCommand<Unit, Unit> UpCommand { get; }
+        public ReactiveCommand<Unit, Unit> DownCommand { get; }
+        public ReactiveCommand<Unit, Unit> TopCommand { get; }
+        public ReactiveCommand<Unit, Unit> BottomCommand { get; }
+        public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
+        public ReactiveCommand<Unit, Unit> DeleteAllCommand { get; }
+
         public NormalBuildInput NormalBuildInput { get; } = new();
         private readonly IValidator<NormalBuildInput> _normalBuildInputValidator;
 
@@ -172,6 +273,14 @@ namespace WPFUI.ViewModels.Tabs.Villages
         {
             get => _selectedJob;
             set => this.RaiseAndSetIfChanged(ref _selectedJob, value);
+        }
+
+        private int _selectedJobIndex;
+
+        public int SelectedJobIndex
+        {
+            get => _selectedJobIndex;
+            set => this.RaiseAndSetIfChanged(ref _selectedJobIndex, value);
         }
     }
 }

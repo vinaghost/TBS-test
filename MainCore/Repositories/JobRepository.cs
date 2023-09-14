@@ -45,5 +45,37 @@ namespace MainCore.Repositories
             var jobs = await context.Jobs.Where(x => x.VillageId == villageId).OrderBy(x => x.Position).ToListAsync();
             return jobs;
         }
+
+        public async Task<Job> Get(int jobId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var job = await context.Jobs.FindAsync(jobId);
+            return job;
+        }
+
+        public async Task Move(int jobOldId, int jobNewId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var jobOld = await context.Jobs.FindAsync(jobOldId);
+            var jobNew = await context.Jobs.FindAsync(jobNewId);
+
+            (jobNew.Position, jobOld.Position) = (jobOld.Position, jobNew.Position);
+            context.Update(jobOld);
+            context.Update(jobNew);
+
+            await context.SaveChangesAsync();
+        }
+
+        public async Task Delete(int jobId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            await context.Jobs.Where(x => x.Id == jobId).ExecuteDeleteAsync();
+        }
+
+        public async Task Clear(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            await context.Jobs.Where(x => x.VillageId == villageId).ExecuteDeleteAsync();
+        }
     }
 }

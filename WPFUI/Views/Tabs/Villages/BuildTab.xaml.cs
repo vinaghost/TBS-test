@@ -23,6 +23,14 @@ namespace WPFUI.Views.Tabs.Villages
 
                 this.OneWayBind(ViewModel, vm => vm.Jobs, v => v.JobsGrid.ItemsSource).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.SelectedJob, v => v.JobsGrid.SelectedItem).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.SelectedJobIndex, v => v.JobsGrid.SelectedIndex).DisposeWith(d);
+
+                this.BindCommand(ViewModel, vm => vm.UpCommand, v => v.UpButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.DownCommand, v => v.DownButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.TopCommand, v => v.TopButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.BottomCommand, v => v.BottomButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.DeleteCommand, v => v.DeleteButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.DeleteAllCommand, v => v.DeleteAllButton).DisposeWith(d);
 
                 this.BindCommand(ViewModel, vm => vm.NormalBuildCommand, v => v.NormalBuild).DisposeWith(d);
                 this.OneWayBind(ViewModel, vm => vm.NormalBuildInput.Buildings, v => v.NormalBuildings.ItemsSource).DisposeWith(d);
