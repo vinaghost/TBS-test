@@ -1,4 +1,5 @@
-﻿using MainCore.Enums;
+﻿using Humanizer;
+using MainCore.Enums;
 using MainCore.Models;
 using MainCore.Models.Plans;
 using ReactiveUI;
@@ -31,7 +32,7 @@ namespace WPFUI.Models.Output
 
         public ListBoxItem(Building building) : this(building.Id)
         {
-            Content = $"[{building.Location}] {building.Type} | lvl {building.Level}";
+            Content = $"[{building.Location}] {building.Type.Humanize()} | lvl {building.Level}";
             Color = building.Type.GetColor();
         }
 
@@ -42,13 +43,13 @@ namespace WPFUI.Models.Output
                 case JobTypeEnums.NormalBuild:
                     {
                         var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-                        Content = $"Build {plan.Building} to level {plan.Level} at location {plan.Location}";
+                        Content = $"Build {plan.Building.Humanize()} to level {plan.Level} at location {plan.Location}";
                         break;
                     }
                 case JobTypeEnums.ResourceBuild:
                     {
                         var plan = JsonSerializer.Deserialize<ResourceBuildPlan>(job.Content);
-                        Content = $"Build {plan.Plan} to level {plan.Level}";
+                        Content = $"Build {plan.Plan.Humanize()} to level {plan.Level}";
                         break;
                     }
                 default:

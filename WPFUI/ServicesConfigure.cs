@@ -68,7 +68,8 @@ namespace WPFUI
                 .AddTransient<IValidator<AccountInput>, AccountInputValidator>()
                 .AddTransient<IValidator<AccessInput>, AccessInputValidator>()
                 .AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>()
-                .AddTransient<IValidator<NormalBuildInput>, NormalBuildInputValidator>();
+                .AddTransient<IValidator<NormalBuildInput>, NormalBuildInputValidator>()
+                .AddTransient<IValidator<ResourceBuildInput>, ResourceBuildInputValidator>();
 
             return services;
         }

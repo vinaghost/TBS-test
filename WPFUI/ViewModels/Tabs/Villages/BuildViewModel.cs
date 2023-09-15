@@ -26,18 +26,20 @@ namespace WPFUI.ViewModels.Tabs.Villages
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
-        public BuildViewModel(IBuildingRepository buildingRepository, IJobRepository jobRepository, IBuildRepository buildRepository, IValidator<NormalBuildInput> normalBuildInputValidator, IMessageService messageService, WaitingOverlayViewModel waitingOverlayViewModel)
+        public BuildViewModel(IBuildingRepository buildingRepository, IJobRepository jobRepository, IBuildRepository buildRepository, IValidator<NormalBuildInput> normalBuildInputValidator, IMessageService messageService, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<ResourceBuildInput> resourceBuildInputValidator)
         {
             _buildingRepository = buildingRepository;
             _jobRepository = jobRepository;
             _buildRepository = buildRepository;
             _normalBuildInputValidator = normalBuildInputValidator;
+            _resourceBuildInputValidator = resourceBuildInputValidator;
             _messageService = messageService;
             _waitingOverlayViewModel = waitingOverlayViewModel;
 
             _buildingRepository.BuildingUpdated += BuildingUpdated;
 
             NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
+            ResourceBuildCommand = ReactiveCommand.CreateFromTask(ResourceBuildTask);
 
             UpCommand = ReactiveCommand.CreateFromTask(UpTask);
             DownCommand = ReactiveCommand.CreateFromTask(DownTask);
@@ -133,6 +135,19 @@ namespace WPFUI.ViewModels.Tabs.Villages
             else
             {
                 await NormalBuild(VillageId);
+            }
+        }
+
+        private async Task ResourceBuildTask()
+        {
+            var result = _resourceBuildInputValidator.Validate(ResourceBuildInput);
+            if (!result.IsValid)
+            {
+                _messageService.Show("Error", result.ToString());
+            }
+            else
+            {
+                await ResourceBuild(VillageId);
             }
         }
 
@@ -237,7 +252,21 @@ namespace WPFUI.ViewModels.Tabs.Villages
             Jobs.Add(new(job));
         }
 
+        private async Task ResourceBuild(int villageId)
+        {
+            var (type, level) = ResourceBuildInput.Get();
+            var plan = new ResourceBuildPlan()
+            {
+                Plan = type,
+                Level = level,
+            };
+            var job = await _jobRepository.Add(villageId, plan);
+
+            Jobs.Add(new(job));
+        }
+
         public ReactiveCommand<Unit, Unit> NormalBuildCommand { get; }
+        public ReactiveCommand<Unit, Unit> ResourceBuildCommand { get; }
 
         public ReactiveCommand<Unit, Unit> UpCommand { get; }
         public ReactiveCommand<Unit, Unit> DownCommand { get; }
@@ -245,6 +274,8 @@ namespace WPFUI.ViewModels.Tabs.Villages
         public ReactiveCommand<Unit, Unit> BottomCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteAllCommand { get; }
+
+        #region Normal build input
 
         public NormalBuildInput NormalBuildInput { get; } = new();
         private readonly IValidator<NormalBuildInput> _normalBuildInputValidator;
@@ -256,6 +287,15 @@ namespace WPFUI.ViewModels.Tabs.Villages
             get => _isEnableNormalBuild;
             set => this.RaiseAndSetIfChanged(ref _isEnableNormalBuild, value);
         }
+
+        #endregion Normal build input
+
+        #region Resource build input
+
+        public ResourceBuildInput ResourceBuildInput { get; } = new();
+        private readonly IValidator<ResourceBuildInput> _resourceBuildInputValidator;
+
+        #endregion Resource build input
 
         public ObservableCollection<ListBoxItem> Buildings { get; } = new();
         private ListBoxItem _selectedBuilding;
