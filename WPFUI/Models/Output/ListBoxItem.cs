@@ -43,7 +43,7 @@ namespace WPFUI.Models.Output
                 case JobTypeEnums.NormalBuild:
                     {
                         var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-                        Content = $"Build {plan.Building.Humanize()} to level {plan.Level} at location {plan.Location}";
+                        Content = $"Build {plan.Type.Humanize()} to level {plan.Level} at location {plan.Location}";
                         break;
                     }
                 case JobTypeEnums.ResourceBuild:

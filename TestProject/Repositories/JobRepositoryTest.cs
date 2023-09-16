@@ -24,7 +24,7 @@ namespace TestProject.Repositories
 
             var plan = new NormalBuildPlan()
             {
-                Building = BuildingEnums.Woodcutter,
+                Type = BuildingEnums.Woodcutter,
                 Level = 1,
                 Location = 2
             };
@@ -38,7 +38,7 @@ namespace TestProject.Repositories
 
             var instance = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
             Assert.IsNotNull(instance);
-            Assert.AreEqual(BuildingEnums.Woodcutter, instance.Building);
+            Assert.AreEqual(BuildingEnums.Woodcutter, instance.Type);
             Assert.AreEqual(1, instance.Level);
             Assert.AreEqual(2, instance.Location);
         }
@@ -50,7 +50,7 @@ namespace TestProject.Repositories
 
             var planA = new NormalBuildPlan()
             {
-                Building = BuildingEnums.Woodcutter,
+                Type = BuildingEnums.Woodcutter,
                 Level = 1,
                 Location = 2
             };
@@ -59,7 +59,7 @@ namespace TestProject.Repositories
 
             var planB = new NormalBuildPlan()
             {
-                Building = BuildingEnums.Woodcutter,
+                Type = BuildingEnums.Woodcutter,
                 Level = 1,
                 Location = 2
             };

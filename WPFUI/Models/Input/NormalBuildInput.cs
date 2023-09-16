@@ -2,17 +2,27 @@
 using Humanizer;
 using MainCore.Enums;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using WPFUI.Models.Output;
+using WPFUI.Repositories;
 using WPFUI.ViewModels.Abstract;
 
 namespace WPFUI.Models.Input
 {
     public class NormalBuildInput : ViewModelBase
     {
-        public void Set(List<BuildingEnums> buildings, int level)
+        public NormalBuildInput()
+        {
+            this.WhenAnyValue(vm => vm.SelectedBuilding)
+                .WhereNotNull()
+                .Subscribe((x) => Level = x.Content.GetMaxLevel());
+        }
+
+        public void Set(List<BuildingEnums> buildings, int level = -1)
         {
             Buildings.Clear();
             var comboboxItems = buildings.Select(x => new ComboBoxItem<BuildingEnums>(x, x.Humanize())).ToList();
@@ -26,8 +36,10 @@ namespace WPFUI.Models.Input
             {
                 SelectedBuilding = null;
             }
-
-            Level = level;
+            if (level != -1)
+            {
+                Level = level;
+            }
         }
 
         public (BuildingEnums, int) Get()

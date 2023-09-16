@@ -6,6 +6,6 @@ namespace MainCore.Models.Plans
     {
         public int Location { get; set; }
         public int Level { get; set; }
-        public BuildingEnums Building { get; set; }
+        public BuildingEnums Type { get; set; }
     }
 }

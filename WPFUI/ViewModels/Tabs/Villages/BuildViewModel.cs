@@ -5,6 +5,7 @@ using MainCore.Repositories;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -39,14 +40,16 @@ namespace WPFUI.ViewModels.Tabs.Villages
             _buildingRepository.BuildingUpdated += BuildingUpdated;
 
             NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
+            NormalBuildCommand.ThrownExceptions.Subscribe(x => Debug.WriteLine($"{x.Message} {x.StackTrace}"));
             ResourceBuildCommand = ReactiveCommand.CreateFromTask(ResourceBuildTask);
 
-            UpCommand = ReactiveCommand.CreateFromTask(UpTask);
-            DownCommand = ReactiveCommand.CreateFromTask(DownTask);
-            TopCommand = ReactiveCommand.CreateFromTask(TopTask);
-            BottomCommand = ReactiveCommand.CreateFromTask(BottomTask);
-            DeleteCommand = ReactiveCommand.CreateFromTask(DeleteTask);
-            DeleteAllCommand = ReactiveCommand.CreateFromTask(DeleteAllTask);
+            var jobObservable = this.WhenAnyValue(vm => vm.IsEnableJob);
+            UpCommand = ReactiveCommand.CreateFromTask(UpTask, jobObservable);
+            DownCommand = ReactiveCommand.CreateFromTask(DownTask, jobObservable);
+            TopCommand = ReactiveCommand.CreateFromTask(TopTask, jobObservable);
+            BottomCommand = ReactiveCommand.CreateFromTask(BottomTask, jobObservable);
+            DeleteCommand = ReactiveCommand.CreateFromTask(DeleteTask, jobObservable);
+            DeleteAllCommand = ReactiveCommand.CreateFromTask(DeleteAllTask, jobObservable);
 
             this.WhenAnyValue(vm => vm.SelectedBuilding)
                 .Subscribe(async x => await LoadNormalBuild());
@@ -63,6 +66,7 @@ namespace WPFUI.ViewModels.Tabs.Villages
         {
             await LoadBuildings(villageId);
             await LoadJobs(villageId);
+            LoadResourceBuild();
         }
 
         private async Task LoadBuildings(int villageId)
@@ -86,6 +90,7 @@ namespace WPFUI.ViewModels.Tabs.Villages
 
         private async Task LoadJobs(int villageId)
         {
+            IsEnableJob = true;
             var jobs = await _jobRepository.GetList(villageId);
             Jobs.Clear();
             foreach (var job in jobs)
@@ -103,7 +108,7 @@ namespace WPFUI.ViewModels.Tabs.Villages
             }
         }
 
-        public async Task LoadNormalBuild()
+        private async Task LoadNormalBuild()
         {
             if (SelectedBuilding is null)
             {
@@ -117,12 +122,22 @@ namespace WPFUI.ViewModels.Tabs.Villages
             if (building.Type == BuildingEnums.Site)
             {
                 var buildings = _buildRepository.GetAvailableBuildings();
-                NormalBuildInput.Set(buildings, 20);
+                NormalBuildInput.Set(buildings);
             }
             else
             {
-                NormalBuildInput.Set(new() { building.Type }, 20);
+                NormalBuildInput.Set(new() { building.Type }, building.Level + 1);
             }
+        }
+
+        private void LoadResourceBuild()
+        {
+            if (Buildings.Count == 0)
+            {
+                IsEnableResourceBuild = false;
+                return;
+            }
+            IsEnableResourceBuild = true;
         }
 
         private async Task NormalBuildTask()
@@ -244,11 +259,11 @@ namespace WPFUI.ViewModels.Tabs.Villages
             var plan = new NormalBuildPlan()
             {
                 Location = building.Location,
-                Building = type,
+                Type = type,
                 Level = level,
             };
+            await _buildRepository.Validate(VillageId, plan);
             var job = await _jobRepository.Add(villageId, plan);
-
             Jobs.Add(new(job));
         }
 
@@ -294,6 +309,13 @@ namespace WPFUI.ViewModels.Tabs.Villages
 
         public ResourceBuildInput ResourceBuildInput { get; } = new();
         private readonly IValidator<ResourceBuildInput> _resourceBuildInputValidator;
+        private bool _isEnableResourceBuild;
+
+        public bool IsEnableResourceBuild
+        {
+            get => _isEnableResourceBuild;
+            set => this.RaiseAndSetIfChanged(ref _isEnableResourceBuild, value);
+        }
 
         #endregion Resource build input
 
@@ -321,6 +343,14 @@ namespace WPFUI.ViewModels.Tabs.Villages
         {
             get => _selectedJobIndex;
             set => this.RaiseAndSetIfChanged(ref _selectedJobIndex, value);
+        }
+
+        private bool _isEnableJob;
+
+        public bool IsEnableJob
+        {
+            get => _isEnableJob;
+            set => this.RaiseAndSetIfChanged(ref _isEnableJob, value);
         }
     }
 }
