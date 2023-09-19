@@ -38,13 +38,14 @@ namespace MainCore.Repositories
             return villages;
         }
 
-        public async Task Update(int accountId, List<Village> villages)
+        public async Task<List<Village>> Update(int accountId, List<Village> villages)
         {
+            List<Village> newVillages;
             using (var context = await _contextFactory.CreateDbContextAsync())
             {
                 var villagesOnDb = await context.Villages.Where(x => x.AccountId == accountId).ToListAsync();
 
-                var newVillages = villages.Except(villagesOnDb).ToList();
+                newVillages = villages.Except(villagesOnDb).ToList();
                 var oldVillages = villagesOnDb.Except(villages).ToList();
                 var updateVillages = villagesOnDb.Where(x => !oldVillages.Contains(x)).ToList();
 
@@ -65,6 +66,7 @@ namespace MainCore.Repositories
             {
                 await VillageListChanged(accountId);
             }
+            return newVillages;
         }
     }
 }

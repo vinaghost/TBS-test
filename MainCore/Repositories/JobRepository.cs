@@ -13,13 +13,37 @@ namespace MainCore.Repositories
         private readonly Dictionary<Type, JobTypeEnums> _jobTypes = new()
         {
             { typeof(NormalBuildPlan),JobTypeEnums.NormalBuild  },
-            {  typeof(ResourceBuildPlan),JobTypeEnums.ResourceBuild },
+            { typeof(ResourceBuildPlan),JobTypeEnums.ResourceBuild },
         };
+
+        public event Func<int, Task> Locked;
+
+        public event Func<int, Job, Task> AddActionCompleted;
+
+        public event Func<int, Job, Task> DeleteActionCompleted;
 
         public JobRepository(IDbContextFactory<AppDbContext> contextFactory)
 
         {
             _contextFactory = contextFactory;
+        }
+
+        public async Task Lock(int villageId)
+        {
+            if (Locked is null) return;
+            await Locked(villageId);
+        }
+
+        public async Task CompleteAdd(int villageId, Job job)
+        {
+            if (AddActionCompleted is null) return;
+            await AddActionCompleted(villageId, job);
+        }
+
+        public async Task CompleteDelete(int villageId, Job job)
+        {
+            if (DeleteActionCompleted is null) return;
+            await DeleteActionCompleted(villageId, job);
         }
 
         public async Task<Job> Add<T>(int villageId, T content)
@@ -29,6 +53,28 @@ namespace MainCore.Repositories
             var job = new Job()
             {
                 Position = count,
+                VillageId = villageId,
+                Type = _jobTypes[typeof(T)],
+                Content = JsonSerializer.Serialize(content),
+            };
+            await context.AddAsync(job);
+            await context.SaveChangesAsync();
+
+            return job;
+        }
+
+        public async Task<Job> AddToTop<T>(int villageId, T content)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+
+            await context.Jobs
+                .Where(x => x.VillageId == villageId)
+                .ExecuteUpdateAsync(x =>
+                    x.SetProperty(x => x.Position, x => x.Position + 1));
+
+            var job = new Job()
+            {
+                Position = 0,
                 VillageId = villageId,
                 Type = _jobTypes[typeof(T)],
                 Content = JsonSerializer.Serialize(content),
@@ -51,6 +97,15 @@ namespace MainCore.Repositories
             using var context = await _contextFactory.CreateDbContextAsync();
             var job = await context.Jobs.FindAsync(jobId);
             return job;
+        }
+
+        public async Task<int> CountBuildingJob(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var count = await context.Jobs
+                .Where(x => x.VillageId == villageId && (x.Type == JobTypeEnums.NormalBuild || x.Type == JobTypeEnums.ResourceBuild))
+                .CountAsync();
+            return count;
         }
 
         public async Task Move(int jobOldId, int jobNewId)
@@ -76,6 +131,16 @@ namespace MainCore.Repositories
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             await context.Jobs.Where(x => x.VillageId == villageId).ExecuteDeleteAsync();
+        }
+
+        public async Task<Job> GetFirstJob(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var job = await context.Jobs
+                .Where(x => x.VillageId == villageId)
+                .OrderBy(x => x.Position)
+                .FirstOrDefaultAsync();
+            return job;
         }
     }
 }

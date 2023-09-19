@@ -31,6 +31,7 @@
     <ProjectReference Include="..\MainCore\MainCore.csproj" />
     <ProjectReference Include="..\NavigateCore\NavigateCore.csproj" />
     <ProjectReference Include="..\UpdateCore\UpdateCore.csproj" />
+    <ProjectReference Include="..\UpgradeBuildingCore\UpgradeBuildingCore.csproj" />
   </ItemGroup>
 
 </Project>

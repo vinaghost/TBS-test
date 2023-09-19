@@ -39,6 +39,12 @@
                         <uc:RangeInputUc x:Name="TaskDelay" Text="Task delay" Unit="ms" />
                     </StackPanel>
                 </Border>
+                <Border Style="{DynamicResource Box}">
+                    <StackPanel>
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Update settings" VerticalAlignment="Center" FontWeight="Bold" />
+                        <CheckBox x:Name="IsAutoLoadVillage" Content="Auto load village" />
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </ScrollViewer>
     </Grid>

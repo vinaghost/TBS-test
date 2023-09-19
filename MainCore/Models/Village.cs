@@ -15,6 +15,7 @@ namespace MainCore.Models
         public ICollection<Building> Buildings { get; set; }
         public ICollection<QueueBuilding> QueueBuildings { get; set; }
         public ICollection<Job> Jobs { get; set; }
+        public Storage Storage { get; set; }
 
         public bool Equals(Village other)
         {

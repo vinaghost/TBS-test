@@ -5,7 +5,7 @@ using OpenQA.Selenium;
 
 namespace MainCore.Commands
 {
-    public class ClickButtonCommand : IClickButtonCommand
+    public class ClickCommand : IClickCommand
     {
         public async Task<Result> Execute(IChromeBrowser browser, By by)
         {

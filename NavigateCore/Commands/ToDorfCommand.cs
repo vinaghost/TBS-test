@@ -13,15 +13,15 @@ namespace NavigateCore.Commands
         private readonly INavigationBarParser _navigationBarParser;
         private readonly IChromeManager _chromeManager;
 
-        private readonly IClickButtonCommand _clickButtonCommand;
+        private readonly IClickCommand _clickCommand;
         private readonly IWaitCommand _waitCommand;
 
-        public ToDorfCommand(INavigationBarParser navigationBarParser, IChromeManager chromeManager, IClickButtonCommand clickButtonCommand, IWaitCommand waitCommand)
+        public ToDorfCommand(INavigationBarParser navigationBarParser, IChromeManager chromeManager, IClickCommand clickCommand, IWaitCommand waitCommand)
 
         {
             _navigationBarParser = navigationBarParser;
             _chromeManager = chromeManager;
-            _clickButtonCommand = clickButtonCommand;
+            _clickCommand = clickCommand;
             _waitCommand = waitCommand;
         }
 
@@ -34,11 +34,11 @@ namespace NavigateCore.Commands
             if (button is null) return Retry.ButtonNotFound($"dorf{dorf}");
 
             Result result;
-            result = await _clickButtonCommand.Execute(chromeBrowser, By.XPath(button.XPath));
+            result = await _clickCommand.Execute(chromeBrowser, By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            result = await _waitCommand.Execute(accountId, WaitCommand.PageChanged($"dorf{dorf}"));
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged($"dorf{dorf}"));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            result = await _waitCommand.Execute(accountId, WaitCommand.PageLoaded);
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
             return Result.Ok();

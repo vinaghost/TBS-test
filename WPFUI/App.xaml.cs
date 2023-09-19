@@ -9,6 +9,7 @@ using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
 using UpdateCore;
+using UpgradeBuildingCore;
 using WPFUI.ViewModels;
 using WPFUI.Views;
 
@@ -38,6 +39,7 @@ namespace WPFUI
                         .AddLoginServices()
                         .AddUpdateServices()
                         .AddNavigateServices()
+                        .AddUpgradeBuildingServices()
                         .AddUIServices();
                 })
                 .Build();

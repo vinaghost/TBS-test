@@ -4,7 +4,7 @@ using OpenQA.Selenium;
 
 namespace MainCore.Commands
 {
-    public interface IClickButtonCommand
+    public interface IClickCommand
     {
         Task<Result> Execute(IChromeBrowser browser, By by);
     }

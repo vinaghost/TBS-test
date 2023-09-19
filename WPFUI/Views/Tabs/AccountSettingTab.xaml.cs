@@ -24,6 +24,7 @@ namespace WPFUI.Views.Tabs
 
                 this.Bind(ViewModel, vm => vm.AccountSettingInput.ClickDelay, v => v.ClickDelay.ViewModel).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.AccountSettingInput.TaskDelay, v => v.TaskDelay.ViewModel).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.AccountSettingInput.IsAutoLoadVillage, v => v.IsAutoLoadVillage.IsChecked).DisposeWith(d);
             });
         }
     }

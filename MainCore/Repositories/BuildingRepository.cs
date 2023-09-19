@@ -1,4 +1,6 @@
-﻿using MainCore.Models;
+﻿using MainCore.Enums;
+using MainCore.Models;
+using MainCore.Models.Plans;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Repositories
@@ -28,6 +30,22 @@ namespace MainCore.Repositories
             return building;
         }
 
+        public async Task<Building> GetBasedOnLocation(int villageId, int location)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var building = await context.Buildings
+                .Where(x => x.VillageId == villageId && x.Location == location)
+                .FirstOrDefaultAsync();
+            return building;
+        }
+
+        public async Task<int> CountQueueBuilding(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var count = await context.QueueBuildings.Where(x => x.VillageId == villageId).CountAsync();
+            return count;
+        }
+
         public async Task Update(int villageId, List<Building> buildings)
         {
             using (var context = await _contextFactory.CreateDbContextAsync())
@@ -54,6 +72,70 @@ namespace MainCore.Repositories
             {
                 await BuildingUpdated(villageId);
             }
+        }
+
+        public async Task<Building> GetCropland(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var building = await context.Buildings
+                .Where(x => x.VillageId == villageId
+                            && x.Type == BuildingEnums.Cropland)
+                .OrderByDescending(x => x.Level)
+                .FirstOrDefaultAsync();
+            return building;
+        }
+
+        public async Task<NormalBuildPlan> GetNormalBuildPlan(int villageId, ResourceBuildPlan plan)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var query = context.Buildings.Where(x => x.VillageId == villageId);
+            switch (plan.Plan)
+            {
+                case ResourcePlanEnums.AllResources:
+                    query = query.Where(x =>
+                    x.Type == BuildingEnums.Woodcutter ||
+                    x.Type == BuildingEnums.ClayPit ||
+                    x.Type == BuildingEnums.IronMine ||
+                    x.Type == BuildingEnums.Cropland);
+                    break;
+
+                case ResourcePlanEnums.ExcludeCrop:
+                    query = query.Where(x =>
+                    x.Type == BuildingEnums.Woodcutter ||
+                    x.Type == BuildingEnums.ClayPit ||
+                    x.Type == BuildingEnums.IronMine);
+                    break;
+
+                case ResourcePlanEnums.OnlyCrop:
+                    query = query.Where(x =>
+                    x.Type == BuildingEnums.Cropland);
+                    break;
+
+                default:
+                    break;
+            }
+
+            var buildings = query.AsEnumerable();
+            foreach (var building in buildings)
+            {
+                if (building.IsUnderConstruction)
+                {
+                    var levelUpgrading = await context.QueueBuildings.Where(x => x.VillageId == villageId && x.Location == building.Location).CountAsync();
+                    building.Level += levelUpgrading;
+                }
+            }
+
+            buildings = buildings.Where(x => x.Level < plan.Level);
+            if (!buildings.Any()) return null;
+            var chosenOne = buildings.OrderBy(x => x.Level).FirstOrDefault();
+
+            var normalBuildPlan = new NormalBuildPlan()
+            {
+                Type = chosenOne.Type,
+                Level = chosenOne.Level + 1,
+                Location = chosenOne.Location,
+            };
+            return normalBuildPlan;
         }
     }
 }

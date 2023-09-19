@@ -29,13 +29,14 @@ namespace MainCore
             services.AddSingleton<IAccountSettingRepository, AccountSettingRepository>()
                     .AddSingleton<IVillageRepository, VillageRepository>()
                     .AddSingleton<IBuildingRepository, BuildingRepository>()
-                    .AddSingleton<IJobRepository, JobRepository>();
+                    .AddSingleton<IJobRepository, JobRepository>()
+                    .AddSingleton<IStorageRepository, StorageRepository>();
 
             // commands
             services.AddTransient<IOpenBrowserCommand, OpenBrowserCommand>()
                     .AddTransient<ICloseBrowserCommand, CloseBrowserCommand>()
                     .AddTransient<IInputTextboxCommand, InputTextboxCommand>()
-                    .AddTransient<IClickButtonCommand, ClickButtonCommand>()
+                    .AddTransient<IClickCommand, ClickCommand>()
                     .AddTransient<IWaitCommand, WaitCommand>();
             return services;
         }

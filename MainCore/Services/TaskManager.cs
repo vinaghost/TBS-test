@@ -84,6 +84,22 @@ namespace MainCore.Services
             Add(accountId, task, first);
         }
 
+        public AccountTask Get<T>(int accountId) where T : AccountTask
+        {
+            var tasks = GetTaskList(accountId);
+            var filteredTasks = tasks.OfType<T>();
+            var task = filteredTasks.FirstOrDefault(x => x.AccountId == accountId);
+            return task;
+        }
+
+        public VillageTask Get<T>(int accountId, int villageId) where T : VillageTask
+        {
+            var tasks = GetTaskList(accountId);
+            var filteredTasks = tasks.OfType<T>();
+            var task = filteredTasks.FirstOrDefault(x => x.AccountId == accountId && x.VillageId == villageId);
+            return task;
+        }
+
         private void Add(int accountId, TaskBase task, bool first = false)
         {
             var tasks = GetTaskList(accountId);

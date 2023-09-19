@@ -7,25 +7,17 @@ namespace MainCore.Commands
 {
     public class WaitCommand : IWaitCommand
     {
-        private readonly IChromeManager _chromeManager;
-
-        public WaitCommand(IChromeManager chromeManager)
-        {
-            _chromeManager = chromeManager;
-        }
-
         public static Func<IWebDriver, bool> PageLoaded => driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
 
         public static Func<IWebDriver, bool> PageChanged(string part) => driver => driver.Url.Contains(part);
 
-        public async Task<Result> Execute(int accountId, Func<IWebDriver, bool> condition)
+        public async Task<Result> Execute(IChromeBrowser chromeBrowser, Func<IWebDriver, bool> condition)
         {
-            return await Task.Run(() => ExecuteSync(accountId, condition));
+            return await Task.Run(() => ExecuteSync(chromeBrowser, condition));
         }
 
-        private Result ExecuteSync(int accountId, Func<IWebDriver, bool> condition)
+        private Result ExecuteSync(IChromeBrowser chromeBrowser, Func<IWebDriver, bool> condition)
         {
-            var chromeBrowser = _chromeManager.Get(accountId);
             var wait = chromeBrowser.Wait;
             try
             {

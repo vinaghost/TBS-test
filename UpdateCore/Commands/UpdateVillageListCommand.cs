@@ -1,9 +1,11 @@
 ﻿using FluentResults;
+using MainCore.Enums;
 using MainCore.Errors;
 using MainCore.Models;
 using MainCore.Repositories;
 using MainCore.Services;
 using UpdateCore.Parsers;
+using UpdateCore.Tasks;
 
 namespace UpdateCore.Commands
 {
@@ -12,20 +14,19 @@ namespace UpdateCore.Commands
         private readonly IChromeManager _chromeManager;
         private readonly IVillageListParser _villageListParser;
         private readonly IVillageRepository _villageRepository;
+        private readonly IAccountSettingRepository _accountSettingRepository;
+        private readonly ITaskManager _taskManager;
 
-        public UpdateVillageListCommand(IChromeManager chromeManager, IVillageListParser villageListParser, IVillageRepository villageRepository)
+        public UpdateVillageListCommand(IChromeManager chromeManager, IVillageListParser villageListParser, IVillageRepository villageRepository, IAccountSettingRepository accountSettingRepository, ITaskManager taskManager)
         {
             _chromeManager = chromeManager;
             _villageListParser = villageListParser;
             _villageRepository = villageRepository;
+            _accountSettingRepository = accountSettingRepository;
+            _taskManager = taskManager;
         }
 
         public async Task<Result> Execute(int accountId)
-        {
-            return await Task.Run(() => ExecuteSync(accountId));
-        }
-
-        private Result ExecuteSync(int accountId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -48,7 +49,18 @@ namespace UpdateCore.Commands
                 });
             }
 
-            _villageRepository.Update(accountId, foundVills);
+            var newVillages = await _villageRepository.Update(accountId, foundVills);
+            if (newVillages.Count > 0)
+            {
+                var isLoadNewVillage = await _accountSettingRepository.GetBoolSetting(accountId, AccountSettingEnums.IsAutoLoadVillage);
+                if (isLoadNewVillage)
+                {
+                    foreach (var village in newVillages)
+                    {
+                        _taskManager.Add<UpdateVillageTask>(accountId, village.Id);
+                    }
+                }
+            }
             return Result.Ok();
         }
     }

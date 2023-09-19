@@ -13,15 +13,15 @@ namespace NavigateCore.Commands
         private readonly IVillageRepository _villageRepository;
         private readonly IChromeManager _chromeManager;
         private readonly IVillageItemParser _villageItemParser;
-        private readonly IClickButtonCommand _clickButtonCommand;
+        private readonly IClickCommand _clickCommand;
         private readonly IWaitCommand _waitCommand;
 
-        public SwitchVillageCommand(IVillageRepository villageRepository, IChromeManager chromeManager, IVillageItemParser villageItemParser, IClickButtonCommand clickButtonCommand, IWaitCommand waitCommand)
+        public SwitchVillageCommand(IVillageRepository villageRepository, IChromeManager chromeManager, IVillageItemParser villageItemParser, IClickCommand clickCommand, IWaitCommand waitCommand)
         {
             _villageRepository = villageRepository;
             _chromeManager = chromeManager;
             _villageItemParser = villageItemParser;
-            _clickButtonCommand = clickButtonCommand;
+            _clickCommand = clickCommand;
             _waitCommand = waitCommand;
         }
 
@@ -38,12 +38,12 @@ namespace NavigateCore.Commands
             if (_villageItemParser.IsActive(node)) return Result.Ok();
 
             Result result;
-            result = await _clickButtonCommand.Execute(chromeBrowser, By.XPath(node.XPath));
+            result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
-            result = await _waitCommand.Execute(accountId, WaitCommand.PageChanged($"{villageId}"));
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged($"{villageId}"));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            result = await _waitCommand.Execute(accountId, WaitCommand.PageLoaded);
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             return Result.Ok();
         }

@@ -1,7 +1,6 @@
-﻿using LoginCore.Commands;
-using LoginCore.Parsers;
-using LoginCore.Tasks;
+﻿using LoginCore.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using NetCore.AutoRegisterDi;
 
 namespace LoginCore
 {
@@ -9,9 +8,11 @@ namespace LoginCore
     {
         public static IServiceCollection AddLoginServices(this IServiceCollection services)
         {
-            services.AddTransient<ILoginPageParser, LoginPageParser>();
-            services.AddTransient<ILoginCommand, LoginCommand>();
-            services.AddTransient<LoginTask>();
+            services
+                .RegisterAssemblyPublicNonGenericClasses()
+                .AsPublicImplementedInterfaces(ServiceLifetime.Transient);
+            services
+                .AddTransient<LoginTask>();
 
             return services;
         }

@@ -8,7 +8,7 @@ namespace MainCore.Errors
         {
         }
 
-        public static Retry NotFound(string name, string type) => new($"Cannot find {name} {type}");
+        public static Retry NotFound(string name, string type) => new($"Cannot find {type} [{name}] ");
 
         public static Retry TextboxNotFound(string name) => NotFound(name, "textbox");
 

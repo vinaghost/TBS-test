@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using NavigateCore.Commands;
-using NavigateCore.Parsers;
+using NetCore.AutoRegisterDi;
 
 namespace NavigateCore
 {
@@ -9,11 +8,8 @@ namespace NavigateCore
         public static IServiceCollection AddNavigateServices(this IServiceCollection services)
         {
             services
-                .AddTransient<INavigationBarParser, NavigationBarParser>()
-                .AddTransient<IToDorfCommand, ToDorfCommand>();
-            services
-                .AddTransient<IVillageItemParser, VillageItemParser>()
-                .AddTransient<ISwitchVillageCommand, SwitchVillageCommand>();
+                .RegisterAssemblyPublicNonGenericClasses()
+                .AsPublicImplementedInterfaces(ServiceLifetime.Transient);
             return services;
         }
     }

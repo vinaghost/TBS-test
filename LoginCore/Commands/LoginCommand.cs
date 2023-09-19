@@ -14,17 +14,17 @@ namespace LoginCore.Commands
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IChromeManager _chromeManager;
 
-        private readonly IClickButtonCommand _clickButtonCommand;
+        private readonly IClickCommand _clickCommand;
         private readonly IInputTextboxCommand _inputTextboxCommand;
         private readonly IWaitCommand _waitCommand;
 
         private readonly ILoginPageParser _loginPageParser;
 
-        public LoginCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager, IClickButtonCommand clickButtonCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser, IWaitCommand waitCommand)
+        public LoginCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager, IClickCommand clickCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser, IWaitCommand waitCommand)
         {
             _contextFactory = contextFactory;
             _chromeManager = chromeManager;
-            _clickButtonCommand = clickButtonCommand;
+            _clickCommand = clickCommand;
             _inputTextboxCommand = inputTextboxCommand;
             _loginPageParser = loginPageParser;
             _waitCommand = waitCommand;
@@ -50,12 +50,12 @@ namespace LoginCore.Commands
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(passwordNode.XPath), access.Password);
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            result = await _clickButtonCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
+            result = await _clickCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
-            result = await _waitCommand.Execute(accountId, WaitCommand.PageChanged("dorf"));
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged("dorf"));
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            result = await _waitCommand.Execute(accountId, WaitCommand.PageLoaded);
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
             return Result.Ok();

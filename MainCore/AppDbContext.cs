@@ -17,5 +17,6 @@ namespace MainCore
         public DbSet<Building> Buildings { get; set; }
         public DbSet<QueueBuilding> QueueBuildings { get; set; }
         public DbSet<Job> Jobs { get; set; }
+        public DbSet<Storage> Storages { get; set; }
     }
 }

@@ -16,8 +16,9 @@ namespace UpdateCore.Tasks
         private readonly IUpdateFieldCommand _updateFieldCommand;
         private readonly IUpdateInfrastructureCommand _updateInfrastructureCommand;
         private readonly IChromeManager _chromeManager;
+        private readonly IUpdateStorageCommand _updateStorageCommand;
 
-        public UpdateVillageTask(IVillageRepository villageRepository, ISwitchVillageCommand switchVillageCommand, IToDorfCommand toDorfCommand, IUpdateFieldCommand updateFieldCommand, IUpdateInfrastructureCommand updateInfrastructureCommand, IChromeManager chromeManager)
+        public UpdateVillageTask(IVillageRepository villageRepository, ISwitchVillageCommand switchVillageCommand, IToDorfCommand toDorfCommand, IUpdateFieldCommand updateFieldCommand, IUpdateInfrastructureCommand updateInfrastructureCommand, IChromeManager chromeManager, IUpdateStorageCommand updateStorageCommand)
         {
             _villageRepository = villageRepository;
             _switchVillageCommand = switchVillageCommand;
@@ -25,6 +26,7 @@ namespace UpdateCore.Tasks
             _updateFieldCommand = updateFieldCommand;
             _updateInfrastructureCommand = updateInfrastructureCommand;
             _chromeManager = chromeManager;
+            _updateStorageCommand = updateStorageCommand;
         }
 
         public override async Task<Result> Execute()
@@ -65,6 +67,9 @@ namespace UpdateCore.Tasks
                 result = await _updateFieldCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             }
+
+            result = await _updateStorageCommand.Execute(AccountId, VillageId);
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
             return Result.Ok();
         }

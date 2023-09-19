@@ -1,14 +1,17 @@
 ﻿using FluentValidation;
 using MainCore.Enums;
+using MainCore.Models;
 using MainCore.Models.Plans;
 using MainCore.Repositories;
+using MainCore.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using UpgradeBuildingCore.Tasks;
 using WPFUI.Models.Input;
 using WPFUI.Models.Output;
 using WPFUI.Repositories;
@@ -24,10 +27,11 @@ namespace WPFUI.ViewModels.Tabs.Villages
         private readonly IJobRepository _jobRepository;
         private readonly IBuildRepository _buildRepository;
         private readonly IMessageService _messageService;
+        private readonly ITaskManager _taskManager;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
-        public BuildViewModel(IBuildingRepository buildingRepository, IJobRepository jobRepository, IBuildRepository buildRepository, IValidator<NormalBuildInput> normalBuildInputValidator, IMessageService messageService, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<ResourceBuildInput> resourceBuildInputValidator)
+        public BuildViewModel(IBuildingRepository buildingRepository, IJobRepository jobRepository, IBuildRepository buildRepository, IValidator<NormalBuildInput> normalBuildInputValidator, IMessageService messageService, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager)
         {
             _buildingRepository = buildingRepository;
             _jobRepository = jobRepository;
@@ -36,11 +40,14 @@ namespace WPFUI.ViewModels.Tabs.Villages
             _resourceBuildInputValidator = resourceBuildInputValidator;
             _messageService = messageService;
             _waitingOverlayViewModel = waitingOverlayViewModel;
+            _taskManager = taskManager;
 
             _buildingRepository.BuildingUpdated += BuildingUpdated;
+            _jobRepository.Locked += Locked;
+            _jobRepository.AddActionCompleted += AddActionCompleted;
+            _jobRepository.DeleteActionCompleted += DeleteActionCompleted;
 
             NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
-            NormalBuildCommand.ThrownExceptions.Subscribe(x => Debug.WriteLine($"{x.Message} {x.StackTrace}"));
             ResourceBuildCommand = ReactiveCommand.CreateFromTask(ResourceBuildTask);
 
             var jobObservable = this.WhenAnyValue(vm => vm.IsEnableJob);
@@ -55,6 +62,47 @@ namespace WPFUI.ViewModels.Tabs.Villages
                 .Subscribe(async x => await LoadNormalBuild());
         }
 
+        private async Task DeleteActionCompleted(int villageId, Job job)
+        {
+            if (!IsActive) return;
+            if (villageId != VillageId) return;
+            await Observable.Start(async () =>
+            {
+                var uiJob = Jobs.FirstOrDefault(x => x.Id == job.Id);
+                Jobs.Remove(uiJob);
+                SelectedJob = Jobs[0];
+
+                IsEnableNormalBuild = true;
+                IsEnableResourceBuild = true;
+                IsEnableJob = true;
+                await LoadBuildings(VillageId);
+            }, RxApp.MainThreadScheduler);
+        }
+
+        private async Task AddActionCompleted(int villageId, Job job)
+        {
+            if (!IsActive) return;
+            if (villageId != VillageId) return;
+            await Observable.Start(async () =>
+            {
+                Jobs.Insert(0, new(job));
+                CheckBuildings();
+                IsEnableJob = true;
+                await LoadBuildings(VillageId);
+            }, RxApp.MainThreadScheduler);
+        }
+
+        private async Task Locked(int villageId)
+        {
+            if (!IsActive) return;
+            if (villageId != VillageId) return;
+            await Observable.Start(() =>
+            {
+                CheckBuildings();
+                IsEnableJob = false;
+            }, RxApp.MainThreadScheduler);
+        }
+
         private async Task BuildingUpdated(int villageId)
         {
             if (!IsActive) return;
@@ -67,11 +115,26 @@ namespace WPFUI.ViewModels.Tabs.Villages
             await LoadBuildings(villageId);
             await LoadJobs(villageId);
             LoadResourceBuild();
+            CheckBuildings();
+        }
+
+        private void CheckBuildings()
+        {
+            if (Buildings.Count == 40)
+            {
+                IsEnableNormalBuild = true;
+                IsEnableResourceBuild = true;
+            }
+            else
+            {
+                IsEnableNormalBuild = false;
+                IsEnableResourceBuild = false;
+            }
         }
 
         private async Task LoadBuildings(int villageId)
         {
-            var buildings = await _buildingRepository.GetList(villageId);
+            var buildings = await _buildRepository.GetBuildingItems(villageId);
             Buildings.Clear();
             foreach (var building in buildings)
             {
@@ -150,6 +213,7 @@ namespace WPFUI.ViewModels.Tabs.Villages
             else
             {
                 await NormalBuild(VillageId);
+                AddTask();
             }
         }
 
@@ -163,6 +227,20 @@ namespace WPFUI.ViewModels.Tabs.Villages
             else
             {
                 await ResourceBuild(VillageId);
+                AddTask();
+            }
+        }
+
+        private void AddTask()
+        {
+            var task = _taskManager.Get<NormalUpgradeBuildingTask>(AccountId, VillageId);
+            if (task is null)
+            {
+                _taskManager.Add<NormalUpgradeBuildingTask>(AccountId, VillageId);
+            }
+            else
+            {
+                task.ExecuteAt = DateTime.Now;
             }
         }
 
@@ -242,14 +320,26 @@ namespace WPFUI.ViewModels.Tabs.Villages
         {
             if (SelectedJob is null) return;
             var jobId = SelectedJob.Id;
-            Jobs.RemoveAt(SelectedJobIndex);
+            var oldIndex = SelectedJobIndex;
+            Jobs.RemoveAt(oldIndex);
             await _jobRepository.Delete(jobId);
+            if (Jobs.Count > 0)
+            {
+                if (oldIndex == Jobs.Count)
+                {
+                    oldIndex = Jobs.Count - 1;
+                }
+
+                SelectedJobIndex = oldIndex;
+            }
+            await LoadBuildings(VillageId);
         }
 
         private async Task DeleteAllTask()
         {
             Jobs.Clear();
             await _jobRepository.Clear(VillageId);
+            await LoadBuildings(VillageId);
         }
 
         private async Task NormalBuild(int villageId)
@@ -262,9 +352,16 @@ namespace WPFUI.ViewModels.Tabs.Villages
                 Type = type,
                 Level = level,
             };
+            var result = await _buildRepository.CheckRequirements(VillageId, plan);
+            if (result.IsFailed)
+            {
+                _messageService.Show("Error", result.Errors.First().Message);
+                return;
+            }
             await _buildRepository.Validate(VillageId, plan);
             var job = await _jobRepository.Add(villageId, plan);
             Jobs.Add(new(job));
+            await LoadBuildings(VillageId);
         }
 
         private async Task ResourceBuild(int villageId)
@@ -278,6 +375,7 @@ namespace WPFUI.ViewModels.Tabs.Villages
             var job = await _jobRepository.Add(villageId, plan);
 
             Jobs.Add(new(job));
+            await LoadBuildings(VillageId);
         }
 
         public ReactiveCommand<Unit, Unit> NormalBuildCommand { get; }

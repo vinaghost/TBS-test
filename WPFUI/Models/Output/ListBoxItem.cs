@@ -5,6 +5,7 @@ using MainCore.Models.Plans;
 using ReactiveUI;
 using System;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json;
 using System.Windows.Media;
 
@@ -30,9 +31,22 @@ namespace WPFUI.Models.Output
             Color = Color.FromRgb(0, 0, 0);
         }
 
-        public ListBoxItem(Building building) : this(building.Id)
+        public ListBoxItem(BuildingItem building) : this(building.Id)
         {
-            Content = $"[{building.Location}] {building.Type.Humanize()} | lvl {building.Level}";
+            const string arrow = " -> ";
+            var sb = new StringBuilder();
+            sb.Append(building.Level);
+            if (building.QueueLevel != 0)
+            {
+                var content = $"{arrow}({building.QueueLevel})";
+                sb.Append(content);
+            }
+            if (building.JobLevel != 0)
+            {
+                var content = $"{arrow}[{building.JobLevel}]";
+                sb.Append(content);
+            }
+            Content = $"[{building.Location}] {building.Type.Humanize()} | lvl {sb} ";
             Color = building.Type.GetColor();
         }
 
