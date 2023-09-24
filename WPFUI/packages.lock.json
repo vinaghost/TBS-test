@@ -714,7 +714,8 @@
         "type": "Project",
         "dependencies": {
           "MainCore": "[1.0.0, )",
-          "NavigateCore": "[1.0.0, )"
+          "NavigateCore": "[1.0.0, )",
+          "UpdateCore": "[1.0.0, )"
         }
       }
     },

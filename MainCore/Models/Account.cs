@@ -10,5 +10,6 @@
         public ICollection<Access> Accesses { get; set; }
         public ICollection<AccountSetting> Settings { get; set; }
         public ICollection<Village> Villages { get; set; }
+        public ICollection<HeroItem> HeroItems { get; set; }
     }
 }

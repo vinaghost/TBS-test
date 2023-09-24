@@ -11,17 +11,18 @@ namespace UpdateCore.Commands
         private readonly IChromeManager _chromeManager;
         private readonly IFieldParser _fieldParser;
         private readonly IBuildingRepository _buildingRepository;
+        private readonly IQueueBuildingRepository _queueBuildingRepository;
 
-        public UpdateFieldCommand(IChromeManager chromeManager, IFieldParser fieldParser, IBuildingRepository buildingRepository)
+        public UpdateFieldCommand(IChromeManager chromeManager, IFieldParser fieldParser, IBuildingRepository buildingRepository, IQueueBuildingRepository queueBuildingRepository)
         {
             _chromeManager = chromeManager;
             _fieldParser = fieldParser;
             _buildingRepository = buildingRepository;
+            _queueBuildingRepository = queueBuildingRepository;
         }
 
-        public async Task<Result> Execute(int accountId, int villageId)
+        public async Task<Result> Execute(IChromeBrowser chromeBrowser, int villageId)
         {
-            var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
             var fields = _fieldParser.GetNodes(html);
@@ -35,7 +36,18 @@ namespace UpdateCore.Commands
             }).ToList();
 
             await _buildingRepository.Update(villageId, buildings);
+            var isUnderConstructionList = buildings.Where(x => x.IsUnderConstruction).ToList();
+            if (isUnderConstructionList.Count > 0)
+            {
+                await _queueBuildingRepository.Update(villageId, isUnderConstructionList);
+            }
             return Result.Ok();
+        }
+
+        public async Task<Result> Execute(int accountId, int villageId)
+        {
+            var chromeBrowser = _chromeManager.Get(accountId);
+            return await Execute(chromeBrowser, villageId);
         }
     }
 }

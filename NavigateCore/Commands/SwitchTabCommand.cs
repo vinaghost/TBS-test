@@ -20,9 +20,8 @@ namespace NavigateCore.Commands
             _waitCommand = waitCommand;
         }
 
-        public async Task<Result> Execute(int accountId, int index)
+        public async Task<Result> Execute(IChromeBrowser chromeBrowser, int index)
         {
-            var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
             var navigationBar = html.DocumentNode
                 .Descendants("div")
@@ -59,6 +58,12 @@ namespace NavigateCore.Commands
             });
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             return Result.Ok();
+        }
+
+        public async Task<Result> Execute(int accountId, int index)
+        {
+            var chromeBrowser = _chromeManager.Get(accountId);
+            return await Execute(chromeBrowser, index);
         }
 
         private bool IsTabActive(HtmlNode node)

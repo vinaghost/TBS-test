@@ -16,15 +16,15 @@ namespace MainCore.Repositories
         public async Task<int> GetSetting(int accountId, AccountSettingEnums setting)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            var settingEntity = await context.AccountsSetting.FindAsync(accountId, setting);
+            var settingEntity = await context.AccountsSetting.FirstOrDefaultAsync(x => x.AccountId == accountId && x.Setting == setting);
             return settingEntity.Value;
         }
 
         public async Task<int> GetSetting(int accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            var settingEntityMin = await context.AccountsSetting.FindAsync(accountId, settingMin);
-            var settingEntityMax = await context.AccountsSetting.FindAsync(accountId, settingMax);
+            var settingEntityMin = await context.AccountsSetting.FirstOrDefaultAsync(x => x.AccountId == accountId && x.Setting == settingMin);
+            var settingEntityMax = await context.AccountsSetting.FirstOrDefaultAsync(x => x.AccountId == accountId && x.Setting == settingMax);
             return Random.Shared.Next(settingEntityMin.Value, settingEntityMax.Value);
         }
 

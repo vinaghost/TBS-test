@@ -7,6 +7,7 @@ using MainCore.Models.Plans;
 using MainCore.Repositories;
 using MainCore.Services;
 using MainCore.Tasks;
+using NavigateCore.Commands;
 using System.Text.Json;
 using UpgradeBuildingCore.Commands;
 
@@ -23,8 +24,13 @@ namespace UpgradeBuildingCore.Tasks
         private readonly ICheckResourceCommand _checkResourceCommand;
         private readonly IAddCroplandCommand _addCroplandCommand;
         private readonly IChromeManager _chromeManager;
+        private readonly IUseHeroResourceCommand _useHeroResourceCommand;
+        private readonly IStorageRepository _storageRepository;
+        private readonly IUpdateBuildingCommand _updateBuildingCommand;
+        private readonly IQueueBuildingRepository _queueBuildingRepository;
+        private readonly ISwitchVillageCommand _switchVillageCommand;
 
-        public NormalUpgradeBuildingTask(IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IGoToBuildingPageCommand goToBuildingPageCommand, IUpgradeCommand upgradeCommand, IBuildingRepository buildingRepository, IConstructCommand constructCommand, IChromeManager chromeManager, ICheckResourceCommand checkResourceCommand, IAddCroplandCommand addCroplandCommand)
+        public NormalUpgradeBuildingTask(IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IGoToBuildingPageCommand goToBuildingPageCommand, IUpgradeCommand upgradeCommand, IBuildingRepository buildingRepository, IConstructCommand constructCommand, IChromeManager chromeManager, ICheckResourceCommand checkResourceCommand, IAddCroplandCommand addCroplandCommand, IUseHeroResourceCommand useHeroResourceCommand, IStorageRepository storageRepository, IUpdateBuildingCommand updateBuildingCommand, IQueueBuildingRepository queueBuildingRepository, ISwitchVillageCommand switchVillageCommand)
         {
             _chooseBuildingJobCommand = chooseBuildingJobCommand;
             _extractResourceFieldCommand = extractResourceFieldCommand;
@@ -35,15 +41,34 @@ namespace UpgradeBuildingCore.Tasks
             _chromeManager = chromeManager;
             _checkResourceCommand = checkResourceCommand;
             _addCroplandCommand = addCroplandCommand;
+            _useHeroResourceCommand = useHeroResourceCommand;
+            _storageRepository = storageRepository;
+            _updateBuildingCommand = updateBuildingCommand;
+            _queueBuildingRepository = queueBuildingRepository;
+            _switchVillageCommand = switchVillageCommand;
         }
 
         public override async Task<Result> Execute()
         {
+            Result result;
+
+            result = await _switchVillageCommand.Execute(AccountId, VillageId);
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             while (true)
             {
                 if (CancellationToken.IsCancellationRequested) return new Cancel();
-                var result = await _chooseBuildingJobCommand.Execute(VillageId);
+                result = await _updateBuildingCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+
+                result = await _chooseBuildingJobCommand.Execute(VillageId);
+                if (result.IsFailed)
+                {
+                    if (result.HasError<BuildingQueue>())
+                    {
+                        await SetTimeQueueBuildingComplete(VillageId);
+                    }
+                    return result.WithError(new Trace(Trace.TraceMessage()));
+                }
                 var job = _chooseBuildingJobCommand.Value;
                 if (job.Type == JobTypeEnums.ResourceBuild)
                 {
@@ -73,12 +98,22 @@ namespace UpgradeBuildingCore.Tasks
                     {
                         return result.WithError(new Stop("Please take a look on building job queue")).WithError(new Trace(Trace.TraceMessage()));
                     }
-                    var timeResult = await GetEnoughResourcesTime(AccountId, VillageId, plan);
-                    if (timeResult.IsFailed)
+
+                    var missingResource = await _storageRepository.GetMissingResource(VillageId, _checkResourceCommand.Value);
+                    var heroResourceResult = await _useHeroResourceCommand.Execute(AccountId, missingResource);
+                    if (heroResourceResult.IsFailed)
                     {
-                        return timeResult.WithError(new Trace(Trace.TraceMessage()));
+                        if (!heroResourceResult.HasError<Retry>())
+                        {
+                            var timeResult = await SetEnoughResourcesTime(AccountId, VillageId, plan);
+                            if (timeResult.IsFailed)
+                            {
+                                return timeResult.WithError(new Trace(Trace.TraceMessage()));
+                            }
+                        }
+
+                        return heroResourceResult.WithError(new Trace(Trace.TraceMessage()));
                     }
-                    return result.WithError(new Trace(Trace.TraceMessage()));
                 }
 
                 if (await IsUpgradeable(plan))
@@ -91,6 +126,8 @@ namespace UpgradeBuildingCore.Tasks
                     result = await _constructCommand.Execute(AccountId, plan);
                     if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
                 }
+                result = await _updateBuildingCommand.Execute(AccountId, VillageId);
+                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             }
         }
 
@@ -107,7 +144,7 @@ namespace UpgradeBuildingCore.Tasks
             return true;
         }
 
-        private async Task<Result> GetEnoughResourcesTime(int accountId, int villageId, NormalBuildPlan plan)
+        private async Task<Result> SetEnoughResourcesTime(int accountId, int villageId, NormalBuildPlan plan)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -132,6 +169,18 @@ namespace UpgradeBuildingCore.Tasks
             var time = node.GetAttributeValue("value", 0);
             ExecuteAt = DateTime.Now.Add(TimeSpan.FromSeconds(time + 10));
             return Result.Ok();
+        }
+
+        private async Task SetTimeQueueBuildingComplete(int villageId)
+        {
+            var buildingQueue = await _queueBuildingRepository.GetFirst(villageId);
+            if (buildingQueue is null)
+            {
+                ExecuteAt = DateTime.Now.AddSeconds(1);
+                return;
+            }
+
+            ExecuteAt = buildingQueue.CompleteTime.AddSeconds(1);
         }
     }
 }

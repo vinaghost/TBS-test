@@ -14,7 +14,7 @@ namespace UpgradeBuildingCore.Commands
         private readonly IBuildingRepository _buildingRepository;
         private readonly IStorageRepository _storageRepository;
 
-        private long[] _buildingResource;
+        public long[] Value { get; private set; }
 
         public CheckResourceCommand(IChromeManager chromeManager, IBuildingRepository buildingRepository, IStorageRepository storageRepository)
         {
@@ -28,7 +28,7 @@ namespace UpgradeBuildingCore.Commands
             Result result;
             result = await GetBuildingResource(accountId, villageId, plan);
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            result = await _storageRepository.IsEnoughResource(villageId, _buildingResource);
+            result = await _storageRepository.IsEnoughResource(villageId, Value);
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
             return Result.Ok();
@@ -63,7 +63,7 @@ namespace UpgradeBuildingCore.Commands
                 else resourceBuilding[i] = long.Parse(strResult);
             }
 
-            _buildingResource = resourceBuilding;
+            Value = resourceBuilding;
             return Result.Ok();
         }
     }

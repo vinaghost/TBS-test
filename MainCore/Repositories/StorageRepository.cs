@@ -53,5 +53,18 @@ namespace MainCore.Repositories
             if (storage.Granary < requiredResource[3]) result.WithError(new GranaryLimit(storage.Granary, requiredResource[3]));
             return result;
         }
+
+        public async Task<long[]> GetMissingResource(int villageId, long[] requiredResource)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var storage = await context.Storages.FirstOrDefaultAsync(x => x.VillageId == villageId);
+
+            var resource = new long[4];
+            if (storage.Wood < requiredResource[0]) resource[0] = requiredResource[0] - storage.Wood;
+            if (storage.Clay < requiredResource[1]) resource[1] = requiredResource[1] - storage.Clay;
+            if (storage.Iron < requiredResource[2]) resource[2] = requiredResource[2] - storage.Iron;
+            if (storage.Crop < requiredResource[3]) resource[3] = requiredResource[3] - storage.Crop;
+            return resource;
+        }
     }
 }

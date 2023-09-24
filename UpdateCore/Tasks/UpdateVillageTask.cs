@@ -17,8 +17,9 @@ namespace UpdateCore.Tasks
         private readonly IUpdateInfrastructureCommand _updateInfrastructureCommand;
         private readonly IChromeManager _chromeManager;
         private readonly IUpdateStorageCommand _updateStorageCommand;
+        private readonly IUpdateQueueBuildingCommand _updateQueueBuildingCommand;
 
-        public UpdateVillageTask(IVillageRepository villageRepository, ISwitchVillageCommand switchVillageCommand, IToDorfCommand toDorfCommand, IUpdateFieldCommand updateFieldCommand, IUpdateInfrastructureCommand updateInfrastructureCommand, IChromeManager chromeManager, IUpdateStorageCommand updateStorageCommand)
+        public UpdateVillageTask(IVillageRepository villageRepository, ISwitchVillageCommand switchVillageCommand, IToDorfCommand toDorfCommand, IUpdateFieldCommand updateFieldCommand, IUpdateInfrastructureCommand updateInfrastructureCommand, IChromeManager chromeManager, IUpdateStorageCommand updateStorageCommand, IUpdateQueueBuildingCommand updateQueueBuildingCommand)
         {
             _villageRepository = villageRepository;
             _switchVillageCommand = switchVillageCommand;
@@ -27,6 +28,7 @@ namespace UpdateCore.Tasks
             _updateInfrastructureCommand = updateInfrastructureCommand;
             _chromeManager = chromeManager;
             _updateStorageCommand = updateStorageCommand;
+            _updateQueueBuildingCommand = updateQueueBuildingCommand;
         }
 
         public override async Task<Result> Execute()
@@ -40,6 +42,8 @@ namespace UpdateCore.Tasks
             var url = chromeBrowser.CurrentUrl;
             if (url.Contains("dorf1"))
             {
+                result = await _updateQueueBuildingCommand.Execute(AccountId, VillageId);
+                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
                 result = await _updateFieldCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
                 result = await _toDorfCommand.Execute(AccountId, 2);
@@ -49,6 +53,8 @@ namespace UpdateCore.Tasks
             }
             else if (url.Contains("dorf2"))
             {
+                result = await _updateQueueBuildingCommand.Execute(AccountId, VillageId);
+                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
                 result = await _updateInfrastructureCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
                 result = await _toDorfCommand.Execute(AccountId, 1);

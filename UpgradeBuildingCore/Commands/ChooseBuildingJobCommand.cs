@@ -31,7 +31,7 @@ namespace UpgradeBuildingCore.Commands
 
             if (countQueueBuilding > 1)
             {
-                return Result.Fail(Skip.BuildingQueueFull);
+                return Result.Fail(BuildingQueue.Full);
             }
             var job = await _jobRepository.GetFirstJob(villageId);
             Value = job;
