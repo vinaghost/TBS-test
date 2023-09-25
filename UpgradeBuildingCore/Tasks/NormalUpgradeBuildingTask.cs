@@ -60,7 +60,7 @@ namespace UpgradeBuildingCore.Tasks
                 result = await _updateBuildingCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
-                result = await _chooseBuildingJobCommand.Execute(VillageId);
+                result = await _chooseBuildingJobCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed)
                 {
                     if (result.HasError<BuildingQueue>())

@@ -7,7 +7,9 @@ namespace MainCore.Repositories
     {
         event Func<int, Task> BuildingUpdated;
 
+        Task<int> CountInfrastructureQueueBuilding(int villageId);
         Task<int> CountQueueBuilding(int villageId);
+        Task<int> CountResourceQueueBuilding(int villageId);
         Task<Building> Get(int buildingId);
         Task<Building> GetBasedOnLocation(int villageId, int location);
         Task<Building> GetCropland(int villageId);

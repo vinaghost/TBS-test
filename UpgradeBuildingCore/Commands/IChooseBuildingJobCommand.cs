@@ -7,6 +7,6 @@ namespace UpgradeBuildingCore.Commands
     {
         Job Value { get; }
 
-        Task<Result> Execute(int villageId);
+        Task<Result> Execute(int accountId, int villageId);
     }
 }

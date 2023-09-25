@@ -46,6 +46,34 @@ namespace MainCore.Repositories
             return count;
         }
 
+        public async Task<int> CountResourceQueueBuilding(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var count = await context.QueueBuildings
+                .Where(x => x.VillageId == villageId)
+                .Where(x =>
+                    x.Type == BuildingEnums.Woodcutter ||
+                    x.Type == BuildingEnums.ClayPit ||
+                    x.Type == BuildingEnums.IronMine ||
+                    x.Type == BuildingEnums.Cropland)
+                .CountAsync();
+            return count;
+        }
+
+        public async Task<int> CountInfrastructureQueueBuilding(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var count = await context.QueueBuildings
+                .Where(x => x.VillageId == villageId)
+                .Where(x =>
+                    x.Type != BuildingEnums.Woodcutter &&
+                    x.Type != BuildingEnums.ClayPit &&
+                    x.Type != BuildingEnums.IronMine &&
+                    x.Type != BuildingEnums.Cropland)
+                .CountAsync();
+            return count;
+        }
+
         public async Task Update(int villageId, List<Building> buildings)
         {
             using (var context = await _contextFactory.CreateDbContextAsync())

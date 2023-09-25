@@ -108,6 +108,56 @@ namespace MainCore.Repositories
             return count;
         }
 
+        public async Task<Job> GetResourceBuildingJob(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var job = context.Jobs
+                .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
+                .AsEnumerable()
+                .Select(x => new
+                {
+                    Job = x,
+                    Content = JsonSerializer.Deserialize<NormalBuildPlan>(x.Content)
+                })
+                .Where(x =>
+                    x.Content.Type == BuildingEnums.Woodcutter ||
+                    x.Content.Type == BuildingEnums.ClayPit ||
+                    x.Content.Type == BuildingEnums.IronMine ||
+                    x.Content.Type == BuildingEnums.Cropland)
+                .Select(x => x.Job)
+                .FirstOrDefault();
+
+            var resourceBuildJob = await context.Jobs
+                .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.ResourceBuild)
+                .FirstOrDefaultAsync();
+
+            if (job is null) return resourceBuildJob;
+            if (resourceBuildJob is null) return job;
+            if (job.Position < resourceBuildJob.Position) return job;
+            return resourceBuildJob;
+        }
+
+        public async Task<Job> GetInfrastructureBuildingJob(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var job = context.Jobs
+                .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
+                .AsEnumerable()
+                .Select(x => new
+                {
+                    Job = x,
+                    Content = JsonSerializer.Deserialize<NormalBuildPlan>(x.Content)
+                })
+                .Where(x =>
+                    x.Content.Type != BuildingEnums.Woodcutter &&
+                    x.Content.Type != BuildingEnums.ClayPit &&
+                    x.Content.Type != BuildingEnums.IronMine &&
+                    x.Content.Type != BuildingEnums.Cropland)
+                .Select(x => x.Job)
+                .FirstOrDefault();
+            return job;
+        }
+
         public async Task Move(int jobOldId, int jobNewId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();

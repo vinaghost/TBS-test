@@ -27,9 +27,9 @@ namespace MainCore.Repositories
         Task<Job> Get(int jobId);
 
         Task<Job> GetFirstJob(int villageId);
-
+        Task<Job> GetInfrastructureBuildingJob(int villageId);
         Task<List<Job>> GetList(int villageId);
-
+        Task<Job> GetResourceBuildingJob(int villageId);
         Task Lock(int villageId);
 
         Task Move(int jobOldId, int jobNewId);

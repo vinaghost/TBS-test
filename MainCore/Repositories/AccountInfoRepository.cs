@@ -12,6 +12,13 @@ namespace MainCore.Repositories
             _contextFactory = contextFactory;
         }
 
+        public async Task<bool> IsPlusActive(int accountId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var accountInfo = await context.AccountsInfo.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            return accountInfo?.HasPlusAccount ?? false;
+        }
+
         public async Task Update(int accountId, AccountInfo accountInfo)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
