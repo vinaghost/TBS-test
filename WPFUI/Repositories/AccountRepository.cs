@@ -66,7 +66,9 @@ namespace WPFUI.Repositories
         public async Task<List<Account>> Get()
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Accounts.ToListAsync();
+
+            var accounts = await context.Accounts.ToListAsync();
+            return accounts;
         }
 
         public async Task<Account> Get(int accountId)

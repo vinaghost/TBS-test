@@ -6,9 +6,11 @@ using Splat;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using WPFUI.Repositories;
 using WPFUI.Services;
 using WPFUI.ViewModels.Abstract;
 using WPFUI.ViewModels.UserControls;
+using IVillageSettingRepository = MainCore.Repositories.IVillageSettingRepository;
 
 namespace WPFUI.ViewModels
 {
@@ -23,7 +25,10 @@ namespace WPFUI.ViewModels
         private readonly IUseragentManager _useragentManager;
         private readonly ILogService _logService;
 
-        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IMessageService messageService, IUseragentManager useragentManager, ILogService logService)
+        private readonly IAccountSettingRepository _accountSettingRepository;
+        private readonly IVillageSettingRepository _villageSettingRepository;
+
+        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IMessageService messageService, IUseragentManager useragentManager, ILogService logService, IAccountSettingRepository accountSettingRepository, IVillageSettingRepository villageSettingRepository)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _contextFactory = contextFactory;
@@ -32,6 +37,8 @@ namespace WPFUI.ViewModels
             _messageService = messageService;
             _useragentManager = useragentManager;
             _logService = logService;
+            _accountSettingRepository = accountSettingRepository;
+            _villageSettingRepository = villageSettingRepository;
         }
 
         public async Task Load()
@@ -58,7 +65,20 @@ namespace WPFUI.ViewModels
             _waitingOverlayViewModel.Show("loading database");
             using var context = await _contextFactory.CreateDbContextAsync();
             //await context.Database.EnsureDeletedAsync();
-            await context.Database.EnsureCreatedAsync();
+            if (!await context.Database.EnsureCreatedAsync())
+            {
+                var accounts = context.Accounts.AsAsyncEnumerable();
+                await foreach (var account in accounts)
+                {
+                    await _accountSettingRepository.CheckSetting(account.Id, context);
+                    await context.Entry(account).Collection(x => x.Villages).LoadAsync();
+                    foreach (var village in account.Villages)
+                    {
+                        await _villageSettingRepository.CheckSetting(village.Id, context);
+                    }
+                }
+            }
+
             //========================================//
             _waitingOverlayViewModel.Show("loading log system");
             _logService.Init();

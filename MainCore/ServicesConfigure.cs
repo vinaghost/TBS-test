@@ -33,6 +33,7 @@ namespace MainCore
                     .AddSingleton<IJobRepository, JobRepository>()
                     .AddSingleton<IStorageRepository, StorageRepository>()
                     .AddSingleton<IAccountInfoRepository, AccountInfoRepository>()
+                    .AddSingleton<IVillageSettingRepository, VillageSettingRepository>()
                     .AddSingleton<IHeroItemRepository, HeroItemRepository>();
 
             // commands

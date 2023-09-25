@@ -9,16 +9,18 @@ namespace TestProject.Repositories
     public class VillageRepositoryTest
     {
         private readonly TestDbContextFactory _contextFactory;
+        private readonly VillageSettingRepository _settingRepository;
 
         public VillageRepositoryTest()
         {
             _contextFactory = new TestDbContextFactory();
+            _settingRepository = new VillageSettingRepository(_contextFactory);
         }
 
         [TestMethod]
         public async Task GetUnloadListTest()
         {
-            var villageRepository = new VillageRepository(_contextFactory);
+            var villageRepository = new VillageRepository(_contextFactory, _settingRepository);
             var buildingRepository = new BuildingRepository(_contextFactory);
             var sampleVillages = new List<Village>()
             {
@@ -48,7 +50,7 @@ namespace TestProject.Repositories
         [TestMethod]
         public async Task UpdateTest_AddOnly()
         {
-            var villageRepository = new VillageRepository(_contextFactory);
+            var villageRepository = new VillageRepository(_contextFactory, _settingRepository);
             var sampleVillages = new List<Village>()
             {
                 new Village(){Id = 1, Name = "Abc", AccountId = 1},
@@ -64,7 +66,7 @@ namespace TestProject.Repositories
         [TestMethod]
         public async Task UpdateTest_DeleteOnly()
         {
-            var villageRepository = new VillageRepository(_contextFactory);
+            var villageRepository = new VillageRepository(_contextFactory, _settingRepository);
             var sampleVillages = new List<Village>()
             {
                 new Village(){Id = 1, Name = "Abc", AccountId = 1},
@@ -86,7 +88,7 @@ namespace TestProject.Repositories
         [TestMethod]
         public async Task UpdateTest_AddDelete()
         {
-            var villageRepository = new VillageRepository(_contextFactory);
+            var villageRepository = new VillageRepository(_contextFactory, _settingRepository);
             var sampleVillages = new List<Village>()
             {
                 new Village(){Id = 1, Name = "Abc", AccountId = 1},

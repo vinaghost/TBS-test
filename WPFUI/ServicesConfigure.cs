@@ -44,6 +44,7 @@ namespace WPFUI
             services
                 .AddSingleton<IAccountRepository, AccountRepository>()
                 .AddSingleton<IAccountSettingRepository, AccountSettingRepository>()
+                .AddSingleton<IVillageSettingRepository, VillageSettingRepository>()
                 .AddSingleton<IBuildRepository, BuildRepository>();
 
             // Services

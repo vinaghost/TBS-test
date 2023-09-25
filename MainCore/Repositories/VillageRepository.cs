@@ -9,9 +9,12 @@ namespace MainCore.Repositories
 
         public event Func<int, Task> VillageListChanged;
 
-        public VillageRepository(IDbContextFactory<AppDbContext> contextFactory)
+        private readonly IVillageSettingRepository _villageSettingRepository;
+
+        public VillageRepository(IDbContextFactory<AppDbContext> contextFactory, IVillageSettingRepository villageSettingRepository)
         {
             _contextFactory = contextFactory;
+            _villageSettingRepository = villageSettingRepository;
         }
 
         public async Task<Village> Get(int villageId)
@@ -61,6 +64,11 @@ namespace MainCore.Repositories
                 context.UpdateRange(updateVillages);
 
                 await context.SaveChangesAsync();
+
+                foreach (var village in newVillages)
+                {
+                    await _villageSettingRepository.CheckSetting(village.Id, context);
+                }
             }
             if (VillageListChanged is not null)
             {

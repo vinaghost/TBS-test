@@ -43,7 +43,6 @@ namespace WPFUI.ViewModels.Tabs
 
         protected override async Task Load(int accountId)
         {
-            await _accountSettingRepository.CheckSetting(accountId);
             var settings = await _accountSettingRepository.Get(accountId);
             AccountSettingInput.Set(settings);
         }

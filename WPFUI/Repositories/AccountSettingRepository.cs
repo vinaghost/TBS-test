@@ -45,14 +45,12 @@ namespace WPFUI.Repositories
             }
         }
 
-        public async Task CheckSetting(int accountId)
+        public async Task CheckSetting(int accountId, AppDbContext context)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-
-            var settingEntities = await context.AccountsSetting.Where(x => x.AccountId == accountId).ToListAsync();
+            var query = context.AccountsSetting.Where(x => x.AccountId == accountId);
             foreach (AccountSettingEnums setting in Enum.GetValues(typeof(AccountSettingEnums)))
             {
-                var settingEntity = settingEntities.FirstOrDefault(x => x.Setting == setting);
+                var settingEntity = query.FirstOrDefault(x => x.Setting == setting);
                 if (settingEntity is null)
                 {
                     settingEntity = new AccountSetting()

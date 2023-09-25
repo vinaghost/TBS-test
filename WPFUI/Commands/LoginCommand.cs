@@ -25,7 +25,6 @@ namespace WPFUI.Commands
         public async Task Execute(int accountId)
         {
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
-            await _accountSettingRepository.CheckSetting(accountId);
             await _openBrowserCommand.Execute(accountId);
 
             _taskManager.Add<LoginTask>(accountId, first: true);
