@@ -4,5 +4,6 @@
     {
         UseHeroResourceForBuilding = 1,
         ApplyRomanQueueLogicWhenBuilding,
+        UseSpecialUpgrade,
     }
 }

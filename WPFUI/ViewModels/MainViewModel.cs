@@ -1,4 +1,5 @@
 ﻿using MainCore;
+using MainCore.Repositories;
 using MainCore.Services;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
@@ -6,11 +7,9 @@ using Splat;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using WPFUI.Repositories;
 using WPFUI.Services;
 using WPFUI.ViewModels.Abstract;
 using WPFUI.ViewModels.UserControls;
-using IVillageSettingRepository = MainCore.Repositories.IVillageSettingRepository;
 
 namespace WPFUI.ViewModels
 {
@@ -63,18 +62,20 @@ namespace WPFUI.ViewModels
             await _useragentManager.Load();
             //========================================//
             _waitingOverlayViewModel.Show("loading database");
-            using var context = await _contextFactory.CreateDbContextAsync();
-            //await context.Database.EnsureDeletedAsync();
-            if (!await context.Database.EnsureCreatedAsync())
+            using (var context = await _contextFactory.CreateDbContextAsync())
             {
-                var accounts = context.Accounts.AsAsyncEnumerable();
-                await foreach (var account in accounts)
+                //await context.Database.EnsureDeletedAsync();
+                if (!await context.Database.EnsureCreatedAsync())
                 {
-                    await _accountSettingRepository.CheckSetting(account.Id, context);
-                    await context.Entry(account).Collection(x => x.Villages).LoadAsync();
-                    foreach (var village in account.Villages)
+                    var accounts = context.Accounts.AsAsyncEnumerable();
+                    await foreach (var account in accounts)
                     {
-                        await _villageSettingRepository.CheckSetting(village.Id, context);
+                        await _accountSettingRepository.CheckSetting(account.Id, context);
+                        await context.Entry(account).Collection(x => x.Villages).LoadAsync();
+                        foreach (var village in account.Villages)
+                        {
+                            await _villageSettingRepository.CheckSetting(village.Id, context);
+                        }
                     }
                 }
             }

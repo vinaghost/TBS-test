@@ -12,6 +12,7 @@ namespace MainCore.Repositories
         {
             { VillageSettingEnums.UseHeroResourceForBuilding , 0},
             { VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding , 0 },
+            { VillageSettingEnums.UseSpecialUpgrade , 0 },
         };
 
         public VillageSettingRepository(IDbContextFactory<AppDbContext> contextFactory)
@@ -44,7 +45,7 @@ namespace MainCore.Repositories
         public async Task CheckSetting(int villageId, AppDbContext context)
         {
             var query = context.VillagesSetting.Where(x => x.VillageId == villageId);
-            foreach (VillageSettingEnums setting in Enum.GetValues(typeof(VillageSettingEnums)))
+            foreach (var setting in _defaultSettings.Keys)
             {
                 var settingEntity = query.FirstOrDefault(x => x.Setting == setting);
                 if (settingEntity is null)

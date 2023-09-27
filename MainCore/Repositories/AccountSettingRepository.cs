@@ -1,4 +1,5 @@
 ﻿using MainCore.Enums;
+using MainCore.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Repositories
@@ -7,8 +8,16 @@ namespace MainCore.Repositories
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public AccountSettingRepository(IDbContextFactory<AppDbContext> contextFactory)
+        private readonly Dictionary<AccountSettingEnums, int> _defaultSettings = new()
+        {
+            { AccountSettingEnums.ClickDelayMin , 500},
+            { AccountSettingEnums.ClickDelayMax , 900 },
+            { AccountSettingEnums.TaskDelayMin , 1000},
+            { AccountSettingEnums.TaskDelayMax , 1400 },
+            { AccountSettingEnums.IsAutoLoadVillage , 0 },
+        };
 
+        public AccountSettingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
@@ -33,6 +42,27 @@ namespace MainCore.Repositories
             var settingEntity = await GetSetting(accountId, setting);
             //return settingEntity == 0 ? false : true;
             return settingEntity != 0;
+        }
+
+        public async Task CheckSetting(int accountId, AppDbContext context)
+        {
+            var query = context.AccountsSetting.Where(x => x.AccountId == accountId);
+            foreach (var setting in _defaultSettings.Keys)
+            {
+                var settingEntity = query.FirstOrDefault(x => x.Setting == setting);
+                if (settingEntity is null)
+                {
+                    settingEntity = new AccountSetting()
+                    {
+                        AccountId = accountId,
+                        Setting = setting,
+                        Value = _defaultSettings[setting],
+                    };
+
+                    await context.AddAsync(settingEntity);
+                }
+            }
+            await context.SaveChangesAsync();
         }
     }
 }

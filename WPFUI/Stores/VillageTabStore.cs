@@ -14,14 +14,16 @@ namespace WPFUI.Stores
         private bool _isNormalTabVisible;
 
         private readonly NoVillageViewModel _noVillageViewModel;
+        private readonly VillageSettingViewModel _villageSettingViewModel;
         private readonly BuildViewModel _buildViewModel;
         private readonly InfoViewModel _infoViewModel;
 
-        public VillageTabStore(NoVillageViewModel noVillageViewModel, InfoViewModel infoViewModel, BuildViewModel buildViewModel)
+        public VillageTabStore(NoVillageViewModel noVillageViewModel, InfoViewModel infoViewModel, BuildViewModel buildViewModel, VillageSettingViewModel villageSettingViewModel)
         {
             _noVillageViewModel = noVillageViewModel;
             _buildViewModel = buildViewModel;
             _infoViewModel = infoViewModel;
+            _villageSettingViewModel = villageSettingViewModel;
         }
 
         public void SetTabType(VillageTabType tabType)
@@ -67,6 +69,7 @@ namespace WPFUI.Stores
 
         public NoVillageViewModel NoVillageViewModel => _noVillageViewModel;
         public BuildViewModel BuildViewModel => _buildViewModel;
+        public VillageSettingViewModel VillageSettingViewModel => _villageSettingViewModel;
         public InfoViewModel InfoViewModel => _infoViewModel;
     }
 }

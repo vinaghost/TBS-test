@@ -33,6 +33,7 @@ namespace WPFUI
             services
                 .AddSingleton<NoVillageViewModel>()
                 .AddSingleton<BuildViewModel>()
+                .AddSingleton<VillageSettingViewModel>()
                 .AddSingleton<InfoViewModel>();
 
             // UserControls
@@ -69,6 +70,7 @@ namespace WPFUI
                 .AddTransient<IValidator<AccountInput>, AccountInputValidator>()
                 .AddTransient<IValidator<AccessInput>, AccessInputValidator>()
                 .AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>()
+                .AddTransient<IValidator<VillageSettingInput>, VillageSettingInputValidator>()
                 .AddTransient<IValidator<NormalBuildInput>, NormalBuildInputValidator>()
                 .AddTransient<IValidator<ResourceBuildInput>, ResourceBuildInputValidator>();
 

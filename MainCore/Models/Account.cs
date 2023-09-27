@@ -7,9 +7,11 @@
         public string Server { get; set; }
 
         public AccountInfo Info { get; set; }
-        public ICollection<Access> Accesses { get; set; }
+
         public ICollection<AccountSetting> Settings { get; set; }
+        public ICollection<Access> Accesses { get; set; }
         public ICollection<Village> Villages { get; set; }
+
         public ICollection<HeroItem> HeroItems { get; set; }
     }
 }

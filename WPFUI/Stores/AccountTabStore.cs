@@ -36,7 +36,14 @@ namespace WPFUI.Stores
 
         public void SetTabType(AccountTabType tabType)
         {
-            if (tabType == _currentTabType) return;
+            if (tabType == _currentTabType)
+            {
+                if (tabType == AccountTabType.NoAccount)
+                {
+                    if (!_noAccountViewModel.IsActive) _noAccountViewModel.IsActive = true;
+                }
+                return;
+            }
             _currentTabType = tabType;
 
             for (int i = 0; i < _tabVisibility.Length; i++)

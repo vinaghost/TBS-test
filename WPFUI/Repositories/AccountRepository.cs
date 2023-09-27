@@ -14,13 +14,15 @@ namespace WPFUI.Repositories
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IUseragentManager _useragentManager;
+        private readonly MainCore.Repositories.IAccountSettingRepository _accountSettingRepository;
 
         public event Func<Task> AccountTableChanged;
 
-        public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager)
+        public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager, MainCore.Repositories.IAccountSettingRepository accountSettingRepository)
         {
             _contextFactory = contextFactory;
             _useragentManager = useragentManager;
+            _accountSettingRepository = accountSettingRepository;
         }
 
         public async Task Add(AccountInput input)
@@ -35,8 +37,13 @@ namespace WPFUI.Repositories
 
                 await context.AddAsync(account);
                 await context.SaveChangesAsync();
+
+                await _accountSettingRepository.CheckSetting(account.Id, context);
             }
-            await AccountTableChanged?.Invoke();
+            if (AccountTableChanged is not null)
+            {
+                await AccountTableChanged();
+            }
         }
 
         public async Task AddRange(List<AccountsInput> inputs)
@@ -56,6 +63,10 @@ namespace WPFUI.Repositories
 
                 await context.AddRangeAsync(accounts);
                 await context.SaveChangesAsync();
+                foreach (var account in accounts)
+                {
+                    await _accountSettingRepository.CheckSetting(account.Id, context);
+                }
             }
             if (AccountTableChanged is not null)
             {
@@ -66,7 +77,6 @@ namespace WPFUI.Repositories
         public async Task<List<Account>> Get()
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-
             var accounts = await context.Accounts.ToListAsync();
             return accounts;
         }
