@@ -21,9 +21,10 @@ namespace WPFUI.Stores
         private readonly AccountSettingViewModel _accountSettingViewModel;
         private readonly VillageViewModel _villageViewModel;
         private readonly EditAccountViewModel _editAccountViewModel;
+        private readonly FarmingViewModel _farmingViewModel;
         private readonly DebugViewModel _debugViewModel;
 
-        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel, DebugViewModel debugViewModel, AccountSettingViewModel accountSettingViewModel, VillageViewModel villageViewModel)
+        public AccountTabStore(NoAccountViewModel noAccountViewModel, AddAccountViewModel addAccountViewModel, AddAccountsViewModel addAccountsViewModel, EditAccountViewModel editAccountViewModel, DebugViewModel debugViewModel, AccountSettingViewModel accountSettingViewModel, VillageViewModel villageViewModel, FarmingViewModel farmingViewModel)
         {
             _noAccountViewModel = noAccountViewModel;
             _addAccountViewModel = addAccountViewModel;
@@ -32,6 +33,7 @@ namespace WPFUI.Stores
             _editAccountViewModel = editAccountViewModel;
             _debugViewModel = debugViewModel;
             _villageViewModel = villageViewModel;
+            _farmingViewModel = farmingViewModel;
         }
 
         public void SetTabType(AccountTabType tabType)
@@ -111,5 +113,6 @@ namespace WPFUI.Stores
         public VillageViewModel VillageViewModel => _villageViewModel;
         public EditAccountViewModel EditAccountViewModel => _editAccountViewModel;
         public DebugViewModel DebugViewModel => _debugViewModel;
+        public FarmingViewModel FarmingViewModel => _farmingViewModel;
     }
 }

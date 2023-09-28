@@ -62,6 +62,9 @@
                 <TabItem x:Name="VillageTab" Header="Villages">
                     <v_tab:VillageTab x:Name="Village" />
                 </TabItem>
+                <TabItem x:Name="FarmingTab" Header="Farming">
+                    <v_tab:FarmingTab x:Name="Farming" />
+                </TabItem>
                 <TabItem x:Name="EditAccountTab" Header="Edit account">
                     <v_tab:EditAccountTab x:Name="EditAccount" />
                 </TabItem>
