@@ -2,6 +2,7 @@
 using MainCore.Models;
 using MainCore.Models.Plans;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace MainCore.Repositories
 {
@@ -42,7 +43,9 @@ namespace MainCore.Repositories
         public async Task<int> CountQueueBuilding(int villageId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            var count = await context.QueueBuildings.Where(x => x.VillageId == villageId).CountAsync();
+            var count = await context.QueueBuildings
+                .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
+                .CountAsync();
             return count;
         }
 
@@ -64,7 +67,7 @@ namespace MainCore.Repositories
         {
             using var context = await _contextFactory.CreateDbContextAsync();
             var count = await context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .Where(x =>
                     x.Type != BuildingEnums.Woodcutter &&
                     x.Type != BuildingEnums.ClayPit &&
@@ -72,6 +75,24 @@ namespace MainCore.Repositories
                     x.Type != BuildingEnums.Cropland)
                 .CountAsync();
             return count;
+        }
+
+        public async Task<bool> IsValid(int villageId, Job job)
+        {
+            if (job.Type == JobTypeEnums.ResourceBuild) return true;
+            var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var building = await context.Buildings.FirstOrDefaultAsync(x => x.VillageId == villageId && x.Location == plan.Location);
+            if (building is null) return true;
+            if (building.Level >= plan.Level) return false;
+
+            var queueBuilding = await context.QueueBuildings
+                .Where(x => x.VillageId == villageId && x.Location == plan.Location)
+                .OrderByDescending(x => x.Level)
+                .FirstOrDefaultAsync();
+            if (queueBuilding is null) return true;
+            if (queueBuilding.Level >= plan.Level) return false;
+            return true;
         }
 
         public async Task Update(int villageId, List<Building> buildings)

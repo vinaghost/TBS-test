@@ -233,10 +233,10 @@ namespace WPFUI.ViewModels.Tabs.Villages
 
         private void AddTask()
         {
-            var task = _taskManager.Get<NormalUpgradeBuildingTask>(AccountId, VillageId);
+            var task = _taskManager.Get<UpgradeBuildingTask>(AccountId, VillageId);
             if (task is null)
             {
-                _taskManager.Add<NormalUpgradeBuildingTask>(AccountId, VillageId);
+                _taskManager.Add<UpgradeBuildingTask>(AccountId, VillageId);
             }
             else
             {

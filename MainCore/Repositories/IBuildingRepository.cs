@@ -15,6 +15,7 @@ namespace MainCore.Repositories
         Task<Building> GetCropland(int villageId);
         Task<List<Building>> GetList(int villageId);
         Task<NormalBuildPlan> GetNormalBuildPlan(int villageId, ResourceBuildPlan plan);
+        Task<bool> IsValid(int villageId, Job job);
         Task Update(int villageId, List<Building> buildings);
     }
 }

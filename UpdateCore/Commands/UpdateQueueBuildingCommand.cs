@@ -26,7 +26,6 @@ namespace UpdateCore.Commands
             var html = chromeBrowser.Html;
 
             var nodes = _queueBuildingParser.GetNodes(html);
-            if (nodes.Count == 0) return Result.Ok();
 
             var queueBuildings = new List<QueueBuilding>();
             for (int i = 0; i < nodes.Count; i++)

@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using HtmlAgilityPack;
 using MainCore.Commands;
 using MainCore.Errors;
 using MainCore.Models.Plans;
@@ -11,11 +12,13 @@ namespace UpgradeBuildingCore.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IClickCommand _clickCommand;
+        private readonly IWaitCommand _waitCommand;
 
-        public UpgradeAdsCommand(IChromeManager chromeManager, IClickCommand clickCommand)
+        public UpgradeAdsCommand(IChromeManager chromeManager, IClickCommand clickCommand, IWaitCommand waitCommand)
         {
             _chromeManager = chromeManager;
             _clickCommand = clickCommand;
+            _waitCommand = waitCommand;
         }
 
         public async Task<Result> Execute(int accountId, NormalBuildPlan plan)
@@ -45,6 +48,17 @@ namespace UpgradeBuildingCore.Commands
                 driver.Close();
                 driver.SwitchTo().Window(current);
             }
+
+            result = await _waitCommand.Execute(chromeBrowser, driver =>
+            {
+                var doc = new HtmlDocument();
+                doc.LoadHtml(driver.PageSource);
+                return doc.GetElementbyId("videoFeature") is not null;
+            });
+
+            await Task.Delay(Random.Shared.Next(20000, 25000));
+
+            html = chromeBrowser.Html;
             node = html.GetElementbyId("videoFeature");
             if (node is null) return Result.Fail(Retry.ButtonNotFound($"play ads"));
 
@@ -53,7 +67,6 @@ namespace UpgradeBuildingCore.Commands
 
             driver.SwitchTo().DefaultContent();
 
-            await Task.Delay(Random.Shared.Next(1300, 2000));
             // close if bot click on playing ads
             // chrome will open new tab & pause ads
             do
@@ -73,6 +86,11 @@ namespace UpgradeBuildingCore.Commands
                 driver.SwitchTo().DefaultContent();
             }
             while (true);
+
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged("dorf"));
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
+            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
             return Result.Ok();
         }

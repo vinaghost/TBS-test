@@ -24,55 +24,75 @@ namespace UpgradeBuildingCore.Commands
 
         public async Task<Result> Execute(int accountId, int villageId)
         {
-            var countJob = await _jobRepository.CountBuildingJob(villageId);
-
-            if (countJob == 0)
+            do
             {
-                return Result.Fail(Skip.BuildingJobQueueEmpty);
-            }
+                var countJob = await _jobRepository.CountBuildingJob(villageId);
 
-            var countQueueBuilding = await _buildingRepository.CountQueueBuilding(villageId);
+                if (countJob == 0)
+                {
+                    return Result.Fail(Skip.BuildingJobQueueEmpty);
+                }
 
-            if (countQueueBuilding == 0)
-            {
-                var job = await _jobRepository.GetFirstJob(villageId);
-                Value = job;
-                return Result.Ok();
-            }
+                var countQueueBuilding = await _buildingRepository.CountQueueBuilding(villageId);
 
-            var isPlusActive = await _accountInfoRepository.IsPlusActive(accountId);
-            var isApplyRomanQueueLogic = await _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
-
-            if (countQueueBuilding == 1)
-            {
-                if (isPlusActive)
+                if (countQueueBuilding == 0)
                 {
                     var job = await _jobRepository.GetFirstJob(villageId);
+                    if (!await Validate(villageId, job)) continue;
                     Value = job;
                     return Result.Ok();
                 }
-                if (isApplyRomanQueueLogic)
-                {
-                    var job = await GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
-                    if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
-                    Value = job;
-                    return Result.Ok();
-                }
-                return Result.Fail(BuildingQueue.Full);
-            }
 
-            if (countQueueBuilding == 2)
-            {
-                if (isApplyRomanQueueLogic)
+                var isPlusActive = await _accountInfoRepository.IsPlusActive(accountId);
+                var isApplyRomanQueueLogic = await _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
+
+                if (countQueueBuilding == 1)
                 {
-                    var job = await GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
-                    if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
-                    Value = job;
-                    return Result.Ok();
+                    if (isPlusActive)
+                    {
+                        var job = await _jobRepository.GetFirstJob(villageId);
+                        if (!await Validate(villageId, job)) continue;
+                        Value = job;
+                        return Result.Ok();
+                    }
+                    if (isApplyRomanQueueLogic)
+                    {
+                        var job = await GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
+                        if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
+                        if (!await Validate(villageId, job)) continue;
+                        Value = job;
+                        return Result.Ok();
+                    }
+                    return Result.Fail(BuildingQueue.Full);
+                }
+
+                if (countQueueBuilding == 2)
+                {
+                    if (isApplyRomanQueueLogic)
+                    {
+                        var job = await GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
+                        if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
+                        if (!await Validate(villageId, job)) continue;
+                        Value = job;
+                        return Result.Ok();
+                    }
+                    return Result.Fail(BuildingQueue.Full);
                 }
                 return Result.Fail(BuildingQueue.Full);
             }
-            return Result.Fail(BuildingQueue.Full);
+            while (true);
+        }
+
+        private async Task<bool> Validate(int villageId, Job job)
+        {
+            if (!await _buildingRepository.IsValid(villageId, job))
+            {
+                await _jobRepository.Lock(villageId);
+                await _jobRepository.Delete(job.Id);
+                await _jobRepository.CompleteDelete(villageId, job);
+                return false;
+            }
+            return true;
         }
 
         private async Task<Job> GetJobBasedOnRomanLogic(int villageId, int countQueueBuilding)

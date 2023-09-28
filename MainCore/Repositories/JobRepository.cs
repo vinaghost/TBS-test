@@ -125,6 +125,7 @@ namespace MainCore.Repositories
                     x.Content.Type == BuildingEnums.IronMine ||
                     x.Content.Type == BuildingEnums.Cropland)
                 .Select(x => x.Job)
+                .OrderBy(x => x.Position)
                 .FirstOrDefault();
 
             var resourceBuildJob = await context.Jobs
@@ -154,6 +155,7 @@ namespace MainCore.Repositories
                     x.Content.Type != BuildingEnums.IronMine &&
                     x.Content.Type != BuildingEnums.Cropland)
                 .Select(x => x.Job)
+                .OrderBy(x => x.Position)
                 .FirstOrDefault();
             return job;
         }

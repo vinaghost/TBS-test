@@ -97,7 +97,7 @@ namespace WPFUI.Repositories
                 .ToList();
 
             var queueBuildings = context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .GroupBy(x => x.Location)
                 .AsEnumerable()
                 .Select(x => new Building()
@@ -190,7 +190,7 @@ namespace WPFUI.Repositories
                 .AsEnumerable();
 
             var queueBuildings = context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .GroupBy(x => x.Location)
                 .AsEnumerable()
                 .Select(x => new Building()
@@ -262,24 +262,6 @@ namespace WPFUI.Repositories
             }
 
             return buildings;
-        }
-
-        private async Task<Dictionary<ResourcePlanEnums, int>> GetResourcePlans(int villageId)
-        {
-            using var context = await _contextFactory.CreateDbContextAsync();
-
-            var resourceJobs = context.Jobs
-               .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.ResourceBuild)
-               .AsEnumerable()
-               .Select(x => JsonSerializer.Deserialize<ResourceBuildPlan>(x.Content))
-               .GroupBy(x => x.Plan)
-               .Select(x => new ResourceBuildPlan
-               {
-                   Plan = x.Key,
-                   Level = x.MaxBy(x => x.Level).Level,
-               })
-               .ToDictionary(x => x.Plan, x => x.Level);
-            return resourceJobs;
         }
 
         private class Building

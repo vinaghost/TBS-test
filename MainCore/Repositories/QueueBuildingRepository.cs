@@ -88,6 +88,7 @@ namespace MainCore.Repositories
                         dbQueueBuilding.Type = queueBuilding.Type;
                         dbQueueBuilding.Level = queueBuilding.Level;
                         dbQueueBuilding.CompleteTime = queueBuilding.CompleteTime;
+                        context.Update(dbQueueBuilding);
                     }
                 }
                 await context.SaveChangesAsync();

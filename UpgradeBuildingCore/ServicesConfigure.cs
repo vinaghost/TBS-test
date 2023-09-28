@@ -13,7 +13,7 @@ namespace UpgradeBuildingCore
                 .AsPublicImplementedInterfaces(ServiceLifetime.Transient);
 
             services
-                .AddTransient<NormalUpgradeBuildingTask>();
+                .AddTransient<UpgradeBuildingTask>();
             return services;
         }
     }
