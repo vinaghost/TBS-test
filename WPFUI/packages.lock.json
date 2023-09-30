@@ -671,6 +671,14 @@
         "resolved": "4.5.4",
         "contentHash": "zteT+G8xuGu6mS+mzDzYXbzS7rd3K6Fjb9RiZlYlJPam2/hU7JCBZBVEcywNuR+oZ1ncTvc/cq0faRr3P01OVg=="
       },
+      "farmingcore": {
+        "type": "Project",
+        "dependencies": {
+          "MainCore": "[1.0.0, )",
+          "NavigateCore": "[1.0.0, )",
+          "UpdateCore": "[1.0.0, )"
+        }
+      },
       "logincore": {
         "type": "Project",
         "dependencies": {

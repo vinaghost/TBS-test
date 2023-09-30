@@ -74,6 +74,19 @@ namespace WPFUI.Models.Output
             Color = Color.FromRgb(0, 0, 0);
         }
 
+        public ListBoxItem(FarmList farmList) : this(farmList.Id)
+        {
+            Content = farmList.Name;
+            if (farmList.IsActive)
+            {
+                Color = Color.FromRgb(0, 255, 0);
+            }
+            else
+            {
+                Color = Color.FromRgb(255, 0, 0);
+            }
+        }
+
         public void CopyFrom(ListBoxItem source)
         {
             Id = source.Id;

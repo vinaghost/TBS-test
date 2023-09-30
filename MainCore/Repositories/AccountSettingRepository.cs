@@ -10,11 +10,14 @@ namespace MainCore.Repositories
 
         private readonly Dictionary<AccountSettingEnums, int> _defaultSettings = new()
         {
-            { AccountSettingEnums.ClickDelayMin , 500},
-            { AccountSettingEnums.ClickDelayMax , 900 },
-            { AccountSettingEnums.TaskDelayMin , 1000},
-            { AccountSettingEnums.TaskDelayMax , 1400 },
+            { AccountSettingEnums.ClickDelayMin , 500}, // ms
+            { AccountSettingEnums.ClickDelayMax , 900 }, // ms
+            { AccountSettingEnums.TaskDelayMin , 1000}, // ms
+            { AccountSettingEnums.TaskDelayMax , 1400 }, // ms
             { AccountSettingEnums.IsAutoLoadVillage , 0 },
+            { AccountSettingEnums.FarmIntervalMin , 600 }, // s
+            { AccountSettingEnums.FarmIntervalMax , 900 }, // s
+            { AccountSettingEnums.UseStartAllButton , 0 },
         };
 
         public AccountSettingRepository(IDbContextFactory<AppDbContext> contextFactory)

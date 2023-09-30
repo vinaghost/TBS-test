@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FarmingCore\FarmingCore.csproj" />
     <ProjectReference Include="..\LoginCore\LoginCore.csproj" />
     <ProjectReference Include="..\MainCore\MainCore.csproj" />
     <ProjectReference Include="..\NavigateCore\NavigateCore.csproj" />

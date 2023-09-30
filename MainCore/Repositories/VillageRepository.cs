@@ -17,6 +17,24 @@ namespace MainCore.Repositories
             _villageSettingRepository = villageSettingRepository;
         }
 
+        public async Task<Village> GetActive(int accountId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var village = await context.Villages
+                                        .FirstOrDefaultAsync(x => x.AccountId == accountId && x.IsActive);
+            return village;
+        }
+
+        public async Task<List<Village>> GetInactive(int accountId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            var villages = await context.Villages
+                                        .Where(x => x.AccountId == accountId && !x.IsActive)
+                                        .OrderBy(x => x.Name)
+                                        .ToListAsync();
+            return villages;
+        }
+
         public async Task<Village> Get(int villageId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
@@ -26,7 +44,10 @@ namespace MainCore.Repositories
         public async Task<List<Village>> GetList(int accountId)
         {
             using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Villages.Where(x => x.AccountId == accountId).OrderBy(x => x.Name).ToListAsync();
+            return await context.Villages
+                .Where(x => x.AccountId == accountId)
+                .OrderBy(x => x.Name)
+                .ToListAsync();
         }
 
         public async Task<List<Village>> GetUnloadList(int accountId)
@@ -60,6 +81,8 @@ namespace MainCore.Repositories
                     if (vill is null) break;
 
                     village.Name = vill.Name;
+                    village.IsActive = vill.IsActive;
+                    village.IsUnderAttack = vill.IsUnderAttack;
                 }
                 context.UpdateRange(updateVillages);
 

@@ -73,6 +73,7 @@ namespace WPFUI
                 .AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>()
                 .AddTransient<IValidator<VillageSettingInput>, VillageSettingInputValidator>()
                 .AddTransient<IValidator<NormalBuildInput>, NormalBuildInputValidator>()
+                .AddTransient<IValidator<FarmListSettingInput>, FarmListSettingInputValidator>()
                 .AddTransient<IValidator<ResourceBuildInput>, ResourceBuildInputValidator>();
 
             return services;

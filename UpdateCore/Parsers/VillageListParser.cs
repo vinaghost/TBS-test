@@ -51,5 +51,10 @@ namespace UpdateCore.Parsers
             if (string.IsNullOrEmpty(yStr)) return 0;
             return int.Parse(yStr);
         }
+
+        public bool IsActive(HtmlNode node)
+        {
+            return node.HasClass("active");
+        }
     }
 }

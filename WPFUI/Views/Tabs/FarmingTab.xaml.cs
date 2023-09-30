@@ -1,4 +1,5 @@
 ﻿using ReactiveUI;
+using System.Reactive.Disposables;
 using WPFUI.ViewModels.Tabs;
 
 namespace WPFUI.Views.Tabs
@@ -15,6 +16,20 @@ namespace WPFUI.Views.Tabs
         public FarmingTab()
         {
             InitializeComponent();
+            this.WhenActivated(d =>
+            {
+                this.BindCommand(ViewModel, vm => vm.SaveCommand, v => v.SaveButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.StartCommand, v => v.StartButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.StopCommand, v => v.StopButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.ActiveFarmListCommand, v => v.ActiveButton).DisposeWith(d);
+                this.BindCommand(ViewModel, vm => vm.LoadFarmListCommand, v => v.Load).DisposeWith(d);
+
+                this.OneWayBind(ViewModel, vm => vm.FarmLists, v => v.FarmlistGrid.ItemsSource).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.SelectedFarmList, v => v.FarmlistGrid.SelectedItem).DisposeWith(d);
+
+                this.Bind(ViewModel, vm => vm.FarmListSettingInput.UseStartAllButton, v => v.UseStartAllCheckbox.IsChecked).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.FarmListSettingInput.FarmInterval, v => v.FarmInterval.ViewModel).DisposeWith(d);
+            });
         }
     }
 }

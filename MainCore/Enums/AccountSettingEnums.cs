@@ -7,5 +7,8 @@
         TaskDelayMin,
         TaskDelayMax,
         IsAutoLoadVillage,
+        UseStartAllButton,
+        FarmIntervalMin,
+        FarmIntervalMax,
     }
 }

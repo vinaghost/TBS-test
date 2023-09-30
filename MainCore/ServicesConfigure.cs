@@ -34,6 +34,7 @@ namespace MainCore
                     .AddSingleton<IStorageRepository, StorageRepository>()
                     .AddSingleton<IAccountInfoRepository, AccountInfoRepository>()
                     .AddSingleton<IVillageSettingRepository, VillageSettingRepository>()
+                    .AddSingleton<IFarmListRepository, FarmListRepository>()
                     .AddSingleton<IHeroItemRepository, HeroItemRepository>();
 
             // commands

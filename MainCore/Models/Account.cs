@@ -13,5 +13,6 @@
         public ICollection<Village> Villages { get; set; }
 
         public ICollection<HeroItem> HeroItems { get; set; }
+        public ICollection<FarmList> FarmLists { get; set; }
     }
 }

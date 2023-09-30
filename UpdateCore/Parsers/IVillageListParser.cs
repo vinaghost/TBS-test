@@ -13,7 +13,7 @@ namespace UpdateCore.Parsers
         int GetX(HtmlNode node);
 
         int GetY(HtmlNode node);
-
+        bool IsActive(HtmlNode node);
         bool IsUnderAttack(HtmlNode node);
     }
 }

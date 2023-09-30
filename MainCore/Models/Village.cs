@@ -11,6 +11,9 @@ namespace MainCore.Models
         public int X { get; set; }
         public int Y { get; set; }
 
+        public bool IsActive { get; set; }
+        public bool IsUnderAttack { get; set; }
+
         public int AccountId { get; set; }
         public ICollection<Building> Buildings { get; set; }
         public ICollection<QueueBuilding> QueueBuildings { get; set; }

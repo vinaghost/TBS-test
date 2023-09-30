@@ -77,6 +77,14 @@ namespace MainCore.Repositories
             return count;
         }
 
+        public async Task<bool> HasRallyPoint(int villageId)
+        {
+            using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.Buildings
+                        .Where(x => x.VillageId == villageId && x.Level > 0 && x.Type == BuildingEnums.RallyPoint)
+                        .AnyAsync();
+        }
+
         public async Task<bool> IsValid(int villageId, Job job)
         {
             if (job.Type == JobTypeEnums.ResourceBuild) return true;

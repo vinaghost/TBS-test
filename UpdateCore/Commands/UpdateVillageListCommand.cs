@@ -39,6 +39,8 @@ namespace UpdateCore.Commands
                 var name = _villageListParser.GetName(node);
                 var x = _villageListParser.GetX(node);
                 var y = _villageListParser.GetY(node);
+                var isActive = _villageListParser.IsActive(node);
+                var isUnderAttack = _villageListParser.IsUnderAttack(node);
                 foundVills.Add(new()
                 {
                     AccountId = accountId,
@@ -46,6 +48,8 @@ namespace UpdateCore.Commands
                     Name = name,
                     X = x,
                     Y = y,
+                    IsActive = isActive,
+                    IsUnderAttack = isUnderAttack,
                 });
             }
 

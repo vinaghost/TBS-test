@@ -128,12 +128,12 @@ namespace WPFUI.ViewModels.Tabs
         }
 
         public ObservableCollection<ListBoxItem> Villages { get; } = new();
-        private ListBoxItem _selectedVIllage;
+        private ListBoxItem _selectedVillage;
 
         public ListBoxItem SelectedVillage
         {
-            get => _selectedVIllage;
-            set => this.RaiseAndSetIfChanged(ref _selectedVIllage, value);
+            get => _selectedVillage;
+            set => this.RaiseAndSetIfChanged(ref _selectedVillage, value);
         }
 
         public VillageTabStore VillageTabStore => _villageTabStore;

@@ -1,4 +1,5 @@
-﻿using LoginCore;
+﻿using FarmingCore;
+using LoginCore;
 using MainCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -40,6 +41,7 @@ namespace WPFUI
                         .AddUpdateServices()
                         .AddNavigateServices()
                         .AddUpgradeBuildingServices()
+                        .AddFarmingServices()
                         .AddUIServices();
                 })
                 .Build();
