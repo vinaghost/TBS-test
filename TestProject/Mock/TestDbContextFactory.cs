@@ -1,4 +1,4 @@
-﻿using MainCore;
+﻿using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace TestProject.Mock

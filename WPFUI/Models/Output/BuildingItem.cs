@@ -1,4 +1,4 @@
-﻿using MainCore.Enums;
+﻿using MainCore.Common.Enums;
 
 namespace WPFUI.Models.Output
 {

@@ -1,4 +1,4 @@
-﻿using MainCore.Models;
+﻿using MainCore.Entities;
 using System.Collections.Generic;
 
 namespace WPFUI.Models.Input

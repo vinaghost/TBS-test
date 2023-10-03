@@ -1,4 +1,4 @@
-﻿using MainCore.Enums;
+﻿using MainCore.Common.Enums;
 using ReactiveUI;
 using System.Collections.Generic;
 using WPFUI.ViewModels.Abstract;

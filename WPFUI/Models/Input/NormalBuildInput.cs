@@ -1,6 +1,6 @@
 ﻿using DynamicData;
 using Humanizer;
-using MainCore.Enums;
+using MainCore.Common.Enums;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;

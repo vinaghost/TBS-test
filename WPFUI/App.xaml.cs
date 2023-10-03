@@ -1,16 +1,11 @@
-﻿using FarmingCore;
-using LoginCore;
-using MainCore;
+﻿using MainCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NavigateCore;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
-using UpdateCore;
-using UpgradeBuildingCore;
 using WPFUI.ViewModels;
 using WPFUI.Views;
 
@@ -37,11 +32,6 @@ namespace WPFUI
 
                     services
                         .AddCoreServices()
-                        .AddLoginServices()
-                        .AddUpdateServices()
-                        .AddNavigateServices()
-                        .AddUpgradeBuildingServices()
-                        .AddFarmingServices()
                         .AddUIServices();
                 })
                 .Build();

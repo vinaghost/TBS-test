@@ -1,8 +1,8 @@
 ﻿using FluentResults;
 using Humanizer;
-using MainCore;
-using MainCore.Enums;
-using MainCore.Models.Plans;
+using MainCore.Common.Enums;
+using MainCore.Common.Models;
+using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;

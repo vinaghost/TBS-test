@@ -478,14 +478,6 @@
         "resolved": "1.1.39",
         "contentHash": "8PZKqw9QOcu42xk8puY4P1+EXHL9YGOR9b7qhaYx5cILHul456H073tj99vyPcCt0W0781T9RwHqkx507ZyUpQ=="
       },
-      "NetCore.AutoRegisterDi": {
-        "type": "Transitive",
-        "resolved": "2.1.0",
-        "contentHash": "loGy3NdGb0NT/ufvdFRRstQrtiEoA8XhD0iwrV/egRlB00v/t5wbty6sBgaTgEUsz5da2a/5yGRTxnrNpli9KQ==",
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection": "2.1.0"
-        }
-      },
       "Newtonsoft.Json": {
         "type": "Transitive",
         "resolved": "13.0.1",
@@ -671,29 +663,12 @@
         "resolved": "4.5.4",
         "contentHash": "zteT+G8xuGu6mS+mzDzYXbzS7rd3K6Fjb9RiZlYlJPam2/hU7JCBZBVEcywNuR+oZ1ncTvc/cq0faRr3P01OVg=="
       },
-      "farmingcore": {
-        "type": "Project",
-        "dependencies": {
-          "MainCore": "[1.0.0, )",
-          "NavigateCore": "[1.0.0, )",
-          "UpdateCore": "[1.0.0, )"
-        }
-      },
-      "logincore": {
-        "type": "Project",
-        "dependencies": {
-          "MainCore": "[1.0.0, )",
-          "NavigateCore": "[1.0.0, )",
-          "UpdateCore": "[1.0.0, )"
-        }
-      },
       "maincore": {
         "type": "Project",
         "dependencies": {
           "FluentResults": "[3.15.2, )",
           "HtmlAgilityPack": "[1.11.52, )",
           "Microsoft.EntityFrameworkCore.Sqlite": "[7.0.10, )",
-          "NetCore.AutoRegisterDi": "[2.1.0, )",
           "OpenQA.Selenium.Chrome.ChromeDriverExtensions": "[1.2.0, )",
           "Polly": "[7.2.4, )",
           "Selenium.Support": "[4.12.2, )",
@@ -703,27 +678,6 @@
           "Serilog.Sinks.File": "[5.0.0, )",
           "Serilog.Sinks.Map": "[1.0.2, )",
           "Splat": "[14.7.1, )"
-        }
-      },
-      "navigatecore": {
-        "type": "Project",
-        "dependencies": {
-          "MainCore": "[1.0.0, )"
-        }
-      },
-      "updatecore": {
-        "type": "Project",
-        "dependencies": {
-          "MainCore": "[1.0.0, )",
-          "NavigateCore": "[1.0.0, )"
-        }
-      },
-      "upgradebuildingcore": {
-        "type": "Project",
-        "dependencies": {
-          "MainCore": "[1.0.0, )",
-          "NavigateCore": "[1.0.0, )",
-          "UpdateCore": "[1.0.0, )"
         }
       }
     },

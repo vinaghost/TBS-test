@@ -1,6 +1,6 @@
-﻿using FarmingCore.Tasks;
-using FluentValidation;
-using MainCore.Services;
+﻿using FluentValidation;
+using MainCore.Features.Farming.Tasks;
+using MainCore.Infrasturecture.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
@@ -14,7 +14,7 @@ using WPFUI.Repositories;
 using WPFUI.Services;
 using WPFUI.ViewModels.Abstract;
 using WPFUI.ViewModels.UserControls;
-using IFarmListRepository = MainCore.Repositories.IFarmListRepository;
+using IFarmListRepository = MainCore.Common.Repositories.IFarmListRepository;
 
 namespace WPFUI.ViewModels.Tabs
 {

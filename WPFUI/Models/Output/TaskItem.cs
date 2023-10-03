@@ -1,5 +1,5 @@
-﻿using MainCore.Enums;
-using MainCore.Tasks;
+﻿using MainCore.Common.Enums;
+using MainCore.Common.Tasks;
 using System;
 
 namespace WPFUI.Models.Output

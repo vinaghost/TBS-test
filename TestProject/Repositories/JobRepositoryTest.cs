@@ -1,7 +1,7 @@
-﻿using MainCore.Enums;
-using MainCore.Models;
-using MainCore.Models.Plans;
-using MainCore.Repositories;
+﻿using MainCore.Common.Enums;
+using MainCore.Common.Models;
+using MainCore.Common.Repositories;
+using MainCore.Entities;
 using System.Text.Json;
 using TestProject.Mock;
 

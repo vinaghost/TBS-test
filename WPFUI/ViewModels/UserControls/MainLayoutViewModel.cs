@@ -1,6 +1,6 @@
-﻿using MainCore.Commands;
-using MainCore.Enums;
-using MainCore.Services;
+﻿using MainCore.Common.Commands;
+using MainCore.Common.Enums;
+using MainCore.Infrasturecture.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;

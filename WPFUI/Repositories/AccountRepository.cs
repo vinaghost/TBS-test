@@ -1,6 +1,6 @@
-﻿using MainCore;
-using MainCore.Models;
-using MainCore.Services;
+﻿using MainCore.Entities;
+using MainCore.Infrasturecture.Persistence;
+using MainCore.Infrasturecture.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,11 +14,11 @@ namespace WPFUI.Repositories
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IUseragentManager _useragentManager;
-        private readonly MainCore.Repositories.IAccountSettingRepository _accountSettingRepository;
+        private readonly MainCore.Common.Repositories.IAccountSettingRepository _accountSettingRepository;
 
         public event Func<Task> AccountTableChanged;
 
-        public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager, MainCore.Repositories.IAccountSettingRepository accountSettingRepository)
+        public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager, MainCore.Common.Repositories.IAccountSettingRepository accountSettingRepository)
         {
             _contextFactory = contextFactory;
             _useragentManager = useragentManager;

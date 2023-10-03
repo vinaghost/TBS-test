@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using MainCore.Enums;
+using MainCore.Common.Enums;
 using Microsoft.Win32;
 using ReactiveUI;
 using System;

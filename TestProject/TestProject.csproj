@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ImplicitUsings>enable</ImplicitUsings>
 
     <IsPackable>false</IsPackable>
@@ -16,9 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LoginCore\LoginCore.csproj" />
     <ProjectReference Include="..\MainCore\MainCore.csproj" />
-    <ProjectReference Include="..\UpdateCore\UpdateCore.csproj" />
+    <ProjectReference Include="..\WPFUI\WPFUI.csproj" />
   </ItemGroup>
 
 </Project>

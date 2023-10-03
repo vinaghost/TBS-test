@@ -1,11 +1,11 @@
-﻿using LoginCore.Tasks;
-using MainCore.Commands;
-using MainCore.Enums;
-using MainCore.Repositories;
-using MainCore.Services;
+﻿using MainCore.Common.Commands;
+using MainCore.Common.Enums;
+using MainCore.Common.Repositories;
+using MainCore.Features.Login.Tasks;
+using MainCore.Features.UpgradeBuilding.Tasks;
+using MainCore.Infrasturecture.Services;
 using System;
 using System.Threading.Tasks;
-using UpgradeBuildingCore.Tasks;
 using IAccountSettingRepository = WPFUI.Repositories.IAccountSettingRepository;
 
 namespace WPFUI.Commands

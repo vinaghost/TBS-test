@@ -1,6 +1,6 @@
-﻿using MainCore.Enums;
-using MainCore.Models;
-using MainCore.Repositories;
+﻿using MainCore.Common.Enums;
+using MainCore.Common.Repositories;
+using MainCore.Entities;
 using TestProject.Mock;
 
 namespace TestProject.Repositories

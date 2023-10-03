@@ -1,7 +1,7 @@
 ﻿using Humanizer;
-using MainCore.Enums;
-using MainCore.Models;
-using MainCore.Models.Plans;
+using MainCore.Common.Enums;
+using MainCore.Common.Models;
+using MainCore.Entities;
 using ReactiveUI;
 using System;
 using System.Runtime.CompilerServices;

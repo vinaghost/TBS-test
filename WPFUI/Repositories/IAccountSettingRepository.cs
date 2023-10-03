@@ -1,4 +1,4 @@
-﻿using MainCore.Enums;
+﻿using MainCore.Common.Enums;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

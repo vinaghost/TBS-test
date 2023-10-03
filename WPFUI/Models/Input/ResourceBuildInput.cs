@@ -1,5 +1,5 @@
 ﻿using Humanizer;
-using MainCore.Enums;
+using MainCore.Common.Enums;
 using ReactiveUI;
 using System.Collections.ObjectModel;
 using WPFUI.Models.Output;

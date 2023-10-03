@@ -1,6 +1,6 @@
 ﻿using FluentResults;
-using MainCore.Enums;
-using MainCore.Models.Plans;
+using MainCore.Common.Enums;
+using MainCore.Common.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WPFUI.Models.Output;

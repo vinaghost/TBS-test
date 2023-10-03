@@ -1,12 +1,12 @@
-﻿using MainCore.Repositories;
-using MainCore.Services;
+﻿using MainCore.Common.Repositories;
+using MainCore.Features.Update.Tasks;
+using MainCore.Infrasturecture.Services;
 using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using UpdateCore.Tasks;
 using WPFUI.Enums;
 using WPFUI.Models.Output;
 using WPFUI.Services;

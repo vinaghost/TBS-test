@@ -1,4 +1,4 @@
-﻿using MainCore.Models;
+﻿using MainCore.Entities;
 using ReactiveUI;
 
 namespace WPFUI.Models.Input

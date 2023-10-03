@@ -1,5 +1,5 @@
-﻿using MainCore.Enums;
-using MainCore.Services;
+﻿using MainCore.Common.Enums;
+using MainCore.Infrasturecture.Services;
 using System.Threading.Tasks;
 using WPFUI.Services;
 using WPFUI.ViewModels.UserControls;

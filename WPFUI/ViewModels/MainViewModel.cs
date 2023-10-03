@@ -1,6 +1,6 @@
-﻿using MainCore;
-using MainCore.Repositories;
-using MainCore.Services;
+﻿using MainCore.Common.Repositories;
+using MainCore.Infrasturecture.Persistence;
+using MainCore.Infrasturecture.Services;
 using Microsoft.EntityFrameworkCore;
 using ReactiveUI;
 using Splat;

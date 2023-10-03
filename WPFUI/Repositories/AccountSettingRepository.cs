@@ -1,5 +1,5 @@
-﻿using MainCore;
-using MainCore.Enums;
+﻿using MainCore.Common.Enums;
+using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
