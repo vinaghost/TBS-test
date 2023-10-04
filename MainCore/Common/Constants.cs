@@ -12,7 +12,7 @@ namespace MainCore.Common
                 return ServerEnums.TravianOfficial;
 #endif
 #if TTWARS
-                return ServerEnums.TTWARS;
+                return ServerEnums.TTWars;
 #endif
             }
         }

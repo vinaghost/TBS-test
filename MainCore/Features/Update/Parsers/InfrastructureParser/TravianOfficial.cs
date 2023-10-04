@@ -2,10 +2,10 @@
 using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Update.Parsers
+namespace MainCore.Features.Update.Parsers.InfrastructureParser
 {
-    [RegisterAsTransient]
-    public class InfrastructureParser : IInfrastructureParser
+    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    public class TravianOfficial : IInfrastructureParser
     {
         public List<HtmlNode> GetNodes(HtmlDocument doc)
         {

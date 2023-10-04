@@ -45,7 +45,7 @@ namespace MainCore.Features.Login.Commands
             var usernameNode = _loginPageParser.GetUsernameNode(html);
             if (usernameNode is null) return Retry.TextboxNotFound("username");
             var passwordNode = _loginPageParser.GetPasswordNode(html);
-            if (usernameNode is null) return Retry.TextboxNotFound("password");
+            if (passwordNode is null) return Retry.TextboxNotFound("password");
 
             Result result;
             result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(usernameNode.XPath), account.Username);

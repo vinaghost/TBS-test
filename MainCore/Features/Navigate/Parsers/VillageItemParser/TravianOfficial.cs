@@ -1,10 +1,11 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Navigate.Parsers
+namespace MainCore.Features.Navigate.Parsers.VillageItemParser
 {
-    [RegisterAsTransient]
-    public class VillageItemParser : IVillageItemParser
+    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    public class TravianOfficial : IVillageItemParser
     {
         public HtmlNode GetVillageNode(HtmlDocument doc, int villageId)
         {

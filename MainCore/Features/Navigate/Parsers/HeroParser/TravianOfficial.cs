@@ -1,9 +1,11 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
+using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Navigate.Parsers
+namespace MainCore.Features.Navigate.Parsers.HeroParser
 {
-    public class HeroParser : IHeroParser
+    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    public class TravianOfficial : IHeroParser
     {
         public HtmlNode GetHeroTab(HtmlDocument doc, int index)
         {

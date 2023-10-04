@@ -1,10 +1,11 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Navigate.Parsers
+namespace MainCore.Features.Navigate.Parsers.NavigationBarParser
 {
-    [RegisterAsTransient]
-    public class NavigationBarParser : INavigationBarParser
+    [RegisterAsTransient(ServerEnums.TTWars)]
+    public class TTWars : INavigationBarParser
     {
         private static HtmlNode GetButton(HtmlDocument doc, int key)
         {

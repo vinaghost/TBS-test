@@ -2,10 +2,10 @@
 using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Login.Parsers
+namespace MainCore.Features.Login.Parsers.LoginPageParser
 {
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
-    public class TravianOfficialLoginPageParser : ILoginPageParser
+    public class TravianOfficial : ILoginPageParser
     {
         public HtmlNode GetUsernameNode(HtmlDocument doc)
         {

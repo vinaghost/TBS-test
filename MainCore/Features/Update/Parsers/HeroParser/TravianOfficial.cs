@@ -3,10 +3,10 @@ using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Update.Parsers
+namespace MainCore.Features.Update.Parsers.HeroParser
 {
-    [RegisterAsTransient]
-    public class HeroParser : IHeroParser
+    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    public class TravianOfficial : IHeroParser
     {
         public List<HeroItem> GetItems(HtmlDocument doc)
         {

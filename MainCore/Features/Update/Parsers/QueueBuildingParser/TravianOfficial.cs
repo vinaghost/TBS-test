@@ -1,10 +1,11 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Update.Parsers
+namespace MainCore.Features.Update.Parsers.QueueBuildingParser
 {
-    [RegisterAsTransient]
-    public class QueueBuildingParser : IQueueBuildingParser
+    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    public class TravianOfficial : IQueueBuildingParser
     {
         public List<HtmlNode> GetNodes(HtmlDocument doc)
         {

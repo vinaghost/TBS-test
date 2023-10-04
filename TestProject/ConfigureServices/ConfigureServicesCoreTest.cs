@@ -3,7 +3,6 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace TestProject.ConfigureServices
 {
@@ -17,22 +16,17 @@ namespace TestProject.ConfigureServices
         [DataRow(ServerEnums.TTWars)]
         public void ConfigureServicesTest(ServerEnums server)
         {
-            IList<AutoRegisteredResult> results = null;
-            var host = Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
-                {
-                    services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(_connectionString));
+            var services = new ServiceCollection();
+            services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(_connectionString));
 
-                    results = services
-                        .RegisterAssemblyPublicNonGenericClasses()
-                        .AsPublicImplementedInterfaces(server);
-                })
-                .Build();
-
+            var results = services
+                .RegisterAssemblyPublicNonGenericClasses(typeof(AppDbContext).Assembly)
+                .AsPublicImplementedInterfaces(server);
+            var provider = services.BuildServiceProvider();
             foreach (var item in results)
             {
                 if (item.Class is null) continue;
-                var result = host.Services.GetRequiredService(item.Interface);
+                var result = provider.GetRequiredService(item.Interface);
                 Assert.IsNotNull(result);
             }
         }

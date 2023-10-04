@@ -1,10 +1,11 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Update.Parsers
+namespace MainCore.Features.Update.Parsers.FarmListParser
 {
-    [RegisterAsTransient]
-    public class FarmListParser : IFarmListParser
+    [RegisterAsTransient(ServerEnums.TTWars)]
+    public class TTWars : IFarmListParser
     {
         public HtmlNode GetStartButton(HtmlDocument doc, int raidId)
         {
@@ -28,22 +29,21 @@ namespace MainCore.Features.Update.Parsers
         {
             var flName = node.Descendants("div").FirstOrDefault(x => x.HasClass("listName"));
             if (flName is null) return null;
-            return flName.InnerText.Trim();
+            var name = flName.Descendants("span").FirstOrDefault(x => x.HasClass("value"));
+            if (name is null) return null;
+            return name.InnerText.Trim();
         }
 
         public int GetId(HtmlNode node)
         {
-            var id = node.GetAttributeValue("data-listid", "0");
+            var id = node.Id;
             var value = new string(id.Where(c => char.IsDigit(c)).ToArray());
             return int.Parse(value);
         }
 
         public HtmlNode GetStartAllButton(HtmlDocument doc)
         {
-            var raidList = doc.GetElementbyId("raidList");
-            if (raidList is null) return null;
-            var startAll = raidList.Descendants("button").FirstOrDefault(x => x.HasClass("startAll"));
-            return startAll;
+            return null;
         }
     }
 }

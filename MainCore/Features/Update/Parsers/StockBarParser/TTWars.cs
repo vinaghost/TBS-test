@@ -1,12 +1,13 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using System.Net;
 
-namespace MainCore.Features.Update.Parsers
+namespace MainCore.Features.Update.Parsers.StockBarParser
 {
-    [RegisterAsTransient]
-    public class StockBarParser : IStockBarParser
+    [RegisterAsTransient(ServerEnums.TTWars)]
+    public class TTWars : IStockBarParser
     {
         public Storage GetStorage(HtmlDocument doc)
         {

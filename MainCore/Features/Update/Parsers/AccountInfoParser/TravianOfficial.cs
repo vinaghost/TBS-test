@@ -1,11 +1,12 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using System.Net;
 
-namespace MainCore.Features.Update.Parsers
+namespace MainCore.Features.Update.Parsers.AccountInfoParser
 {
-    [RegisterAsTransient]
-    public class AccountInfoParser : IAccountInfoParser
+    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    public class TravianOfficial : IAccountInfoParser
     {
         public int GetGold(HtmlDocument doc)
         {

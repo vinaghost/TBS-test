@@ -505,6 +505,11 @@
           "Splat": "14.6.8"
         }
       },
+      "Riok.Mapperly": {
+        "type": "Transitive",
+        "resolved": "3.2.0",
+        "contentHash": "EChq4G7PmEXhaPH4Ztw/CiHQ9iVg30Ir58vTA2MgGLsI+ciza5H4boLNK+mk+ik3eStwuA+ZeAxb4mhXVeDgFQ=="
+      },
       "Selenium.Support": {
         "type": "Transitive",
         "resolved": "4.12.2",
@@ -671,6 +676,7 @@
           "Microsoft.EntityFrameworkCore.Sqlite": "[7.0.10, )",
           "OpenQA.Selenium.Chrome.ChromeDriverExtensions": "[1.2.0, )",
           "Polly": "[7.2.4, )",
+          "Riok.Mapperly": "[3.2.0, )",
           "Selenium.Support": "[4.12.2, )",
           "Selenium.WebDriver": "[4.12.2, )",
           "Serilog": "[3.0.1, )",
