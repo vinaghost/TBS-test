@@ -59,7 +59,7 @@ namespace MainCore.Common.Repositories
             var villages = await context.Villages
                 .Where(x => x.AccountId == accountId)
                 .Include(x => x.Buildings)
-                .Where(x => x.Buildings.Count < 38)
+                .Where(x => x.Buildings.Count < 19)
                 .OrderBy(x => x.Name)
                 .ToListAsync();
             return villages;

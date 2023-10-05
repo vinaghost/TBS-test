@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
@@ -19,6 +19,20 @@
   <ItemGroup>
     <ProjectReference Include="..\MainCore\MainCore.csproj" />
     <ProjectReference Include="..\WPFUI\WPFUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="**\*.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Update\Parsers\FieldParser\" />
+    <Folder Include="Features\Update\Parsers\InfrastructureParser\" />
+    <Folder Include="Features\Update\Parsers\VillageListParser\" />
+    <Folder Include="Features\Update\Parsers\StockBarParser\" />
+    <Folder Include="Features\Update\Parsers\QueueBuildingParser\" />
   </ItemGroup>
 
 </Project>
