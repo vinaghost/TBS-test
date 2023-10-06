@@ -25,8 +25,17 @@ namespace MainCore.Features.Navigate.Parsers.VillageItemParser
 
         private static int GetId(HtmlNode node)
         {
-            var dataDid = node.GetAttributeValue("data-did", 0);
-            return dataDid;
+            var hrefNode = node.Descendants("a").FirstOrDefault();
+            if (hrefNode is null) return -1;
+            var href = System.Net.WebUtility.HtmlDecode(hrefNode.GetAttributeValue("href", ""));
+            if (string.IsNullOrEmpty(href)) return -1;
+            if (!href.Contains('=')) return -1;
+            var value = href.Split('=')[1];
+            if (value.Contains('&'))
+            {
+                value = value.Split('&')[0];
+            }
+            return int.Parse(value);
         }
     }
 }

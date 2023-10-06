@@ -1,4 +1,5 @@
-﻿using MainCore.Common.Enums;
+﻿using FluentAssertions;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -22,12 +23,12 @@ namespace TestProject.ConfigureServices
             var results = services
                 .RegisterAssemblyPublicNonGenericClasses(typeof(AppDbContext).Assembly)
                 .AsPublicImplementedInterfaces(server);
-            var provider = services.BuildServiceProvider();
+            using var provider = services.BuildServiceProvider();
             foreach (var item in results)
             {
                 if (item.Class is null) continue;
                 var result = provider.GetRequiredService(item.Interface);
-                Assert.IsNotNull(result);
+                result.Should().NotBeNull();
             }
         }
     }

@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
-using MainCore.Features.Navigate.Parsers.VillageItemParser;
+using MainCore.Features.Farming.Parsers.FarmListParser;
 
-namespace TestProject.Features.Navigate.Parsers.VillageItemParser
+namespace TestProject.Features.Farming.FarmListParser
 {
     [TestClass]
     public class TTWarsTest
@@ -15,31 +15,28 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             parts = Helper.GetParts<TTWarsTest>();
         }
 
-        [DataTestMethod]
-        [DataRow(255_147)]
-        public void GetVillageNode_NotNull(int villageId)
+        [TestMethod]
+        public void GetStartButton_NotNull()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
-            var node = parser.GetVillageNode(html, villageId);
+            var node = parser.GetStartButton(html, 54);
             node.Should().NotBeNull();
         }
 
-        [DataTestMethod]
-        [DataRow(255147, true)]
-        public void IsActive_NotNull(int villageId, bool expected)
+        [TestMethod]
+        public void GetStartAllButton_Null()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
-            var node = parser.GetVillageNode(html, villageId);
-            var result = parser.IsActive(node);
-            result.Should().Be(expected);
+            var node = parser.GetStartAllButton(html);
+            node.Should().BeNull();
         }
     }
 }

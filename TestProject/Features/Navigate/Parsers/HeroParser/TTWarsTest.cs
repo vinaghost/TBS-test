@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using FluentAssertions;
+using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Features.Navigate.Parsers.HeroParser;
 
@@ -10,13 +11,13 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
         private static string[] parts;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
+        public static void ClassInitialize(TestContext _)
         {
             parts = Helper.GetParts<TTWarsTest>();
         }
 
         [TestMethod]
-        public void GetAmountBox_Vailidate_NotNull()
+        public void GetAmountBox_NotNull()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
@@ -24,11 +25,11 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
             html.Load(path);
 
             var node = parser.GetAmountBox(html);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
 
         [TestMethod]
-        public void GetConfirmButton_Vailidate_NotNull()
+        public void GetConfirmButton_NotNull()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
@@ -36,11 +37,11 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
             html.Load(path);
 
             var node = parser.GetConfirmButton(html);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
 
         [TestMethod]
-        public void GetHeroAvatar_Vailidate_NotNull()
+        public void GetHeroAvatar_NotNull()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
@@ -48,11 +49,11 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
             html.Load(path);
 
             var node = parser.GetHeroAvatar(html);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
 
         [TestMethod]
-        public void GetHeroTab_Index0_NotNull()
+        public void GetHeroTab_NotNull()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
@@ -60,13 +61,13 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
             html.Load(path);
 
             var node = parser.GetHeroTab(html, 0);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
 
         [DataTestMethod]
         [DataRow(1, true)]
         [DataRow(2, false)]
-        public void IsCurrentTab_Index_Boolean(int index, bool expected)
+        public void IsCurrentTab_Boolean(int index, bool expected)
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
@@ -75,7 +76,7 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
 
             var node = parser.GetHeroTab(html, index);
             var result = parser.IsCurrentTab(node);
-            Assert.AreEqual(expected, result);
+            result.Should().Be(expected);
         }
 
         [DataTestMethod]
@@ -89,7 +90,7 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
             html.Load(path);
 
             var node = parser.GetItemSlot(html, type);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
     }
 }

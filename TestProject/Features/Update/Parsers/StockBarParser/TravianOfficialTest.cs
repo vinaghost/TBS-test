@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
-using MainCore.Features.Update.Parsers.AccountInfoParser;
+using MainCore.Features.Update.Parsers.StockBarParser;
 
-namespace TestProject.Features.Update.Parsers.AccountInfoParser
+namespace TestProject.Features.Update.Parsers.StockBarParser
 {
     [TestClass]
     public class TravianOfficialTest
@@ -16,8 +16,7 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
         }
 
         [DataTestMethod]
-        [DataRow(37)]
-        public void GetGold_Vailidate_Number(int expected)
+        public void Get_Correct()
         {
             var parser = new TravianOfficial();
             var html = new HtmlDocument();
@@ -25,9 +24,13 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
             html.Load(path);
             var dto = parser.Get(html);
 
-            dto.Gold.Should().Be(37);
-            dto.Silver.Should().Be(562);
-            dto.HasPlusAccount.Should().Be(true);
+            dto.Wood.Should().Be(173_604);
+            dto.Clay.Should().Be(129);
+            dto.Iron.Should().Be(255_036);
+            dto.Crop.Should().Be(640_000);
+            dto.FreeCrop.Should().Be(74_061);
+            dto.Warehouse.Should().Be(320_000);
+            dto.Granary.Should().Be(640_000);
         }
     }
 }

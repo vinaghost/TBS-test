@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
-using MainCore.Features.Update.Parsers.AccountInfoParser;
+using MainCore.Features.Update.Parsers.QueueBuildingParser;
 
-namespace TestProject.Features.Update.Parsers.AccountInfoParser
+namespace TestProject.Features.Update.Parsers.QueueBuildingParser
 {
     [TestClass]
     public class TravianOfficialTest
@@ -16,18 +16,17 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
         }
 
         [DataTestMethod]
-        [DataRow(37)]
-        public void GetGold_Vailidate_Number(int expected)
+        public void Get_Correct()
         {
             var parser = new TravianOfficial();
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TravianOfficial.html");
             html.Load(path);
-            var dto = parser.Get(html);
+            var dto = parser.Get(html).ToList();
 
-            dto.Gold.Should().Be(37);
-            dto.Silver.Should().Be(562);
-            dto.HasPlusAccount.Should().Be(true);
+            dto.Count.Should().Be(4);
+            dto[0].Level.Should().Be(13);
+            dto[3].Level.Should().Be(-1);
         }
     }
 }

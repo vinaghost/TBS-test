@@ -28,12 +28,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Update\Parsers\FieldParser\" />
-    <Folder Include="Features\Update\Parsers\InfrastructureParser\" />
-    <Folder Include="Features\Update\Parsers\VillageListParser\" />
-    <Folder Include="Features\Update\Parsers\StockBarParser\" />
-    <Folder Include="Features\Update\Parsers\QueueBuildingParser\" />
-  </ItemGroup>
-
 </Project>

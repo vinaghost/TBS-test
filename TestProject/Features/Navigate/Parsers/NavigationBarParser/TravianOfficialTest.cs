@@ -9,7 +9,7 @@ namespace TestProject.Features.Navigate.Parsers.NavigationBarParser
         private static string[] parts;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
+        public static void ClassInitialize(TestContext _)
         {
             parts = Helper.GetParts<TravianOfficialTest>();
         }

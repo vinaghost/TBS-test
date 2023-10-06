@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using FluentAssertions;
+using HtmlAgilityPack;
 using MainCore.Features.Navigate.Parsers.VillageItemParser;
 
 namespace TestProject.Features.Navigate.Parsers.VillageItemParser
@@ -9,7 +10,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
         private static string[] parts;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
+        public static void ClassInitialize(TestContext _)
         {
             parts = Helper.GetParts<TravianOfficialTest>();
         }
@@ -17,7 +18,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
         [DataTestMethod]
         [DataRow(19501)]
         [DataRow(21180)]
-        public void GetVillageNode_Vailidate_NotNull(int villageId)
+        public void GetVillageNode_NotNull(int villageId)
         {
             var parser = new TravianOfficial();
             var html = new HtmlDocument();
@@ -25,7 +26,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             html.Load(path);
 
             var node = parser.GetVillageNode(html, villageId);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
 
         [DataTestMethod]

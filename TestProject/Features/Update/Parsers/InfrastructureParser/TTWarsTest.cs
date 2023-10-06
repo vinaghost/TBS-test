@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
-using MainCore.Features.Update.Parsers.AccountInfoParser;
+using MainCore.Features.Update.Parsers.InfrastructureParser;
 
-namespace TestProject.Features.Update.Parsers.AccountInfoParser
+namespace TestProject.Features.Update.Parsers.InfrastructureParser
 {
     [TestClass]
     public class TTWarsTest
@@ -16,18 +16,15 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
         }
 
         [DataTestMethod]
-        public void Get_ShouldReturnCorrect()
+        public void Get_Count_Correct()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
-
             var dto = parser.Get(html);
 
-            dto.Gold.Should().Be(210);
-            dto.Silver.Should().Be(0);
-            dto.HasPlusAccount.Should().Be(false);
+            dto.Count().Should().Be(22);
         }
     }
 }

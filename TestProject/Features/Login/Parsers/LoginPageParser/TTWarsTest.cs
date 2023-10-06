@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using FluentAssertions;
+using HtmlAgilityPack;
 using MainCore.Features.Login.Parsers.LoginPageParser;
 
 namespace TestProject.Features.Login.Parsers.LoginPageParser
@@ -9,7 +10,7 @@ namespace TestProject.Features.Login.Parsers.LoginPageParser
         private static string[] parts;
 
         [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
+        public static void ClassInitialize(TestContext _)
         {
             parts = Helper.GetParts<TravianOfficialTest>();
         }
@@ -19,11 +20,11 @@ namespace TestProject.Features.Login.Parsers.LoginPageParser
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
+            var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
             var node = parser.GetUsernameNode(html);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -31,11 +32,11 @@ namespace TestProject.Features.Login.Parsers.LoginPageParser
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
+            var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
             var node = parser.GetPasswordNode(html);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
 
         [TestMethod]
@@ -43,11 +44,11 @@ namespace TestProject.Features.Login.Parsers.LoginPageParser
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
+            var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
             var node = parser.GetLoginButton(html);
-            Assert.IsNotNull(node);
+            node.Should().NotBeNull();
         }
     }
 }

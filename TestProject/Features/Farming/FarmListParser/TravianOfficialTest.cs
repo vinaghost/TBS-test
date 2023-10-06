@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
-using MainCore.Features.Login.Parsers.LoginPageParser;
+using MainCore.Features.Farming.Parsers.FarmListParser;
 
-namespace TestProject.Features.Login.Parsers.LoginPageParser
+namespace TestProject.Features.Farming.FarmListParser
 {
     [TestClass]
     public class TravianOfficialTest
@@ -16,38 +16,26 @@ namespace TestProject.Features.Login.Parsers.LoginPageParser
         }
 
         [TestMethod]
-        public void GetUsernameNode_NotNull()
+        public void GetStartButton_NotNull()
         {
             var parser = new TravianOfficial();
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TravianOfficial.html");
             html.Load(path);
 
-            var node = parser.GetUsernameNode(html);
+            var node = parser.GetStartButton(html, 1233);
             node.Should().NotBeNull();
         }
 
         [TestMethod]
-        public void GetPasswordNode_NotNull()
+        public void GetStartAllButton_NotNull()
         {
             var parser = new TravianOfficial();
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TravianOfficial.html");
             html.Load(path);
 
-            var node = parser.GetPasswordNode(html);
-            node.Should().NotBeNull();
-        }
-
-        [TestMethod]
-        public void GetLoginButton_NotNull()
-        {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
-
-            var node = parser.GetLoginButton(html);
+            var node = parser.GetStartAllButton(html);
             node.Should().NotBeNull();
         }
     }
