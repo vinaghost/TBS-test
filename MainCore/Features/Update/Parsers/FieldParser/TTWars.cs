@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
+using MainCore.Features.Update.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Update.Parsers.FieldParser
@@ -7,20 +8,37 @@ namespace MainCore.Features.Update.Parsers.FieldParser
     [RegisterAsTransient(ServerEnums.TTWars)]
     public class TTWars : IFieldParser
     {
-        public List<HtmlNode> GetNodes(HtmlDocument doc)
+        public IEnumerable<BuildingDto> Get(HtmlDocument doc)
+        {
+            var nodes = GetNodes(doc);
+            foreach (var node in nodes)
+            {
+                var location = GetId(node);
+                var level = GetLevel(node);
+                var type = GetBuildingType(node);
+                var isUnderConstruction = IsUnderConstruction(node);
+                yield return new BuildingDto()
+                {
+                    Location = location,
+                    Level = level,
+                    Type = type,
+                    IsUnderConstruction = isUnderConstruction,
+                };
+            }
+        }
+
+        private static IEnumerable<HtmlNode> GetNodes(HtmlDocument doc)
         {
             var villageMapNode = doc.GetElementbyId("resourceFieldContainer");
-            if (villageMapNode is null) return new();
+            if (villageMapNode is null) return Enumerable.Empty<HtmlNode>();
 
-            return villageMapNode.Descendants("div").Where(x => x.HasClass("level")).ToList();
+            var nodes = villageMapNode
+                .Descendants("div")
+                .Where(x => x.HasClass("level"));
+            return nodes;
         }
 
-        public HtmlNode GetNode(HtmlDocument doc, int index)
-        {
-            return null;
-        }
-
-        public int GetId(HtmlNode node)
+        private static int GetId(HtmlNode node)
         {
             var classess = node.GetClasses();
             var needClass = classess.FirstOrDefault(x => x.StartsWith("buildingSlot"));
@@ -31,7 +49,7 @@ namespace MainCore.Features.Update.Parsers.FieldParser
             return int.Parse(strResult);
         }
 
-        public BuildingEnums GetBuildingType(HtmlNode node)
+        private static BuildingEnums GetBuildingType(HtmlNode node)
         {
             var classess = node.GetClasses();
             var needClass = classess.FirstOrDefault(x => x.StartsWith("gid"));
@@ -42,7 +60,7 @@ namespace MainCore.Features.Update.Parsers.FieldParser
             return (BuildingEnums)int.Parse(strResult);
         }
 
-        public int GetLevel(HtmlNode node)
+        private static int GetLevel(HtmlNode node)
         {
             var classess = node.GetClasses();
             var needClass = classess.FirstOrDefault(x => x.StartsWith("level") && !x.Equals("level"));
@@ -52,9 +70,10 @@ namespace MainCore.Features.Update.Parsers.FieldParser
             return int.Parse(strResult);
         }
 
-        public bool IsUnderConstruction(HtmlNode node)
+        private static bool IsUnderConstruction(HtmlNode node)
         {
-            return node.GetClasses().Contains("underConstruction");
+            return node.GetClasses()
+                .Contains("underConstruction");
         }
     }
 }

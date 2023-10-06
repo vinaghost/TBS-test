@@ -3,6 +3,7 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
 using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -27,40 +28,18 @@ namespace MainCore.Features.Update.Commands
         {
             var html = chromeBrowser.Html;
 
-            var nodes = _queueBuildingParser.GetNodes(html);
-
+            var dtos = _queueBuildingParser.Get(html);
+            var mapper = new QueueBuildingMapper();
             var queueBuildings = new List<QueueBuilding>();
-            for (int i = 0; i < nodes.Count; i++)
+
+            foreach (var dto in dtos)
             {
-                var node = nodes[i];
-                var strType = _queueBuildingParser.GetBuildingType(node);
+                var strType = dto.Type;
                 var resultParse = Enum.TryParse(strType, false, out BuildingEnums type);
                 if (!resultParse) return Result.Fail(Stop.EnglishRequired(strType));
-                var level = _queueBuildingParser.GetLevel(node);
-                var duration = _queueBuildingParser.GetDuration(node);
 
-                queueBuildings.Add(new()
-                {
-                    Position = i,
-                    VillageId = villageId,
-                    Type = type,
-                    Level = level,
-                    CompleteTime = DateTime.Now.Add(duration),
-                    Location = -1,
-                });
-            }
-
-            for (int i = nodes.Count; i < 4; i++) // we will save 3 slot for each village, Roman can build 3 building in one time
-            {
-                queueBuildings.Add(new()
-                {
-                    Position = i,
-                    VillageId = villageId,
-                    Type = BuildingEnums.Site,
-                    Level = -1,
-                    CompleteTime = DateTime.MaxValue,
-                    Location = -1,
-                });
+                var buildingQueue = mapper.Map(villageId, type, dto);
+                queueBuildings.Add(buildingQueue);
             }
 
             await _queueBuildingRepository.Update(villageId, queueBuildings);

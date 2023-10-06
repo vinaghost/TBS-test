@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Repositories;
 using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -27,15 +28,15 @@ namespace MainCore.Features.Update.Commands
         {
             var html = chromeBrowser.Html;
 
-            var fields = _fieldParser.GetNodes(html);
-            var buildings = fields.Select(x => new Building()
+            var dtos = _fieldParser.Get(html);
+
+            var mapper = new BuildingMapper();
+            var buildings = new List<Building>();
+            foreach (var dto in dtos)
             {
-                VillageId = villageId,
-                Location = _fieldParser.GetId(x),
-                Level = _fieldParser.GetLevel(x),
-                Type = _fieldParser.GetBuildingType(x),
-                IsUnderConstruction = _fieldParser.IsUnderConstruction(x),
-            }).ToList();
+                var field = mapper.Map(villageId, dto);
+                buildings.Add(field);
+            }
 
             await _buildingRepository.Update(villageId, buildings);
             var isUnderConstructionList = buildings.Where(x => x.IsUnderConstruction).ToList();

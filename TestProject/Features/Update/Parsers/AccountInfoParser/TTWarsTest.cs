@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using FluentAssertions;
+using HtmlAgilityPack;
 using MainCore.Features.Update.Parsers.AccountInfoParser;
 
 namespace TestProject.Features.Update.Parsers.AccountInfoParser
@@ -15,42 +16,18 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
         }
 
         [DataTestMethod]
-        [DataRow(37)]
-        public void GetGold_Vailidate_Number(int expected)
+        public void Get_ShouldReturnCorrect()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
-            var result = parser.GetGold(html);
-            Assert.AreEqual(expected, result);
-        }
+            var dto = parser.Get(html);
 
-        [DataTestMethod]
-        [DataRow(562)]
-        public void GetSilver_Vailidate_Number(int expected)
-        {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
-
-            var result = parser.GetSilver(html);
-            Assert.AreEqual(expected, result);
-        }
-
-        [DataTestMethod]
-        [DataRow(false)]
-        public void HasPlusAccount_Vailidate_Boolean(bool expected)
-        {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
-
-            var result = parser.HasPlusAccount(html);
-            Assert.AreEqual(expected, result);
+            dto.Gold.Should().Be(210);
+            dto.Silver.Should().Be(0);
+            dto.HasPlusAccount.Should().Be(false);
         }
     }
 }

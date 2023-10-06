@@ -1,7 +1,6 @@
 ﻿using FluentResults;
-using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
-using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -25,15 +24,11 @@ namespace MainCore.Features.Update.Commands
         public async Task<Result> Execute(int accountId, IChromeBrowser chromeBrowser)
         {
             var html = chromeBrowser.Html;
+            var dto = _accountInfoParser.Get(html);
+            var mapper = new AccountInfoMapper();
 
-            var accountInfo = new AccountInfo()
-            {
-                Tribe = TribeEnums.Any,
-                HasPlusAccount = _accountInfoParser.HasPlusAccount(html),
-                Gold = _accountInfoParser.GetGold(html),
-                Silver = _accountInfoParser.GetSilver(html),
-                AccountId = accountId,
-            };
+            var accountInfo = mapper.Map(accountId, dto);
+
             await _accountInfoRepository.Update(accountId, accountInfo);
             return Result.Ok();
         }

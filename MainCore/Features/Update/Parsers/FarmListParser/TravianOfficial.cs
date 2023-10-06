@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
+using MainCore.Features.Update.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Update.Parsers.FarmListParser
@@ -7,44 +8,45 @@ namespace MainCore.Features.Update.Parsers.FarmListParser
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
     public class TravianOfficial : IFarmListParser
     {
-        public HtmlNode GetStartButton(HtmlDocument doc, int raidId)
+        public IEnumerable<FarmListDto> Get(HtmlDocument doc)
         {
-            var farmNode = doc.GetElementbyId($"raidList{raidId}");
-            if (farmNode is null) return null;
-            var startNode = farmNode.Descendants("button")
-                                    .FirstOrDefault(x => x.HasClass("startButton"));
-            return startNode;
+            var nodes = GetFarmNodes(doc);
+            foreach (var node in nodes)
+            {
+                var id = GetId(node);
+                var name = GetName(node);
+                yield return new()
+                {
+                    Id = id,
+                    Name = name,
+                };
+            }
         }
 
-        public List<HtmlNode> GetFarmNodes(HtmlDocument doc)
+        private static IEnumerable<HtmlNode> GetFarmNodes(HtmlDocument doc)
         {
             var raidList = doc.GetElementbyId("raidList");
-            if (raidList is null) return new();
-            var fls = raidList.Descendants("div").Where(x => x.HasClass("raidList"));
-
-            return fls.ToList();
+            if (raidList is null) return Enumerable.Empty<HtmlNode>();
+            var fls = raidList
+                .Descendants("div")
+                .Where(x => x.HasClass("raidList"));
+            return fls;
         }
 
-        public string GetName(HtmlNode node)
+        private static string GetName(HtmlNode node)
         {
-            var flName = node.Descendants("div").FirstOrDefault(x => x.HasClass("listName"));
+            var flName = node
+                .Descendants("div")
+                .FirstOrDefault(x => x.HasClass("listName"));
             if (flName is null) return null;
             return flName.InnerText.Trim();
         }
 
-        public int GetId(HtmlNode node)
+        private static int GetId(HtmlNode node)
         {
             var id = node.GetAttributeValue("data-listid", "0");
             var value = new string(id.Where(c => char.IsDigit(c)).ToArray());
             return int.Parse(value);
-        }
-
-        public HtmlNode GetStartAllButton(HtmlDocument doc)
-        {
-            var raidList = doc.GetElementbyId("raidList");
-            if (raidList is null) return null;
-            var startAll = raidList.Descendants("button").FirstOrDefault(x => x.HasClass("startAll"));
-            return startAll;
         }
     }
 }

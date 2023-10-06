@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
+using MainCore.Features.Update.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using System.Net;
 
@@ -8,7 +9,19 @@ namespace MainCore.Features.Update.Parsers.AccountInfoParser
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
     public class TravianOfficial : IAccountInfoParser
     {
-        public int GetGold(HtmlDocument doc)
+        public AccountInfoDto Get(HtmlDocument doc)
+        {
+            var dto = new AccountInfoDto()
+            {
+                Gold = GetGold(doc),
+                Silver = GetSilver(doc),
+                HasPlusAccount = HasPlusAccount(doc),
+                Tribe = TribeEnums.Any,
+            };
+            return dto;
+        }
+
+        private static int GetGold(HtmlDocument doc)
         {
             var goldNode = doc.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("ajaxReplaceableGoldAmount"));
             if (goldNode is null) return -1;
@@ -19,7 +32,7 @@ namespace MainCore.Features.Update.Parsers.AccountInfoParser
             return int.Parse(valueStr);
         }
 
-        public int GetSilver(HtmlDocument doc)
+        private static int GetSilver(HtmlDocument doc)
         {
             var silverNode = doc.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("ajaxReplaceableSilverAmount"));
             if (silverNode is null) return -1;
@@ -30,7 +43,7 @@ namespace MainCore.Features.Update.Parsers.AccountInfoParser
             return int.Parse(valueStr);
         }
 
-        public bool HasPlusAccount(HtmlDocument doc)
+        private static bool HasPlusAccount(HtmlDocument doc)
         {
             var market = doc.DocumentNode.Descendants("a").FirstOrDefault(x => x.HasClass("market") && x.HasClass("round"));
             if (market is null) return false;

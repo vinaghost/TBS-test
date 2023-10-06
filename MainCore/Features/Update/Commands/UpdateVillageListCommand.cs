@@ -3,6 +3,7 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
 using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Features.Update.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -32,30 +33,18 @@ namespace MainCore.Features.Update.Commands
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-            var listNode = _villageListParser.GetVillages(html);
-            if (listNode.Count == 0) return Result.Fail(new Retry("Villages list is empty"));
-            var foundVills = new List<Village>();
-            foreach (var node in listNode)
-            {
-                var id = _villageListParser.GetId(node);
-                var name = _villageListParser.GetName(node);
-                var x = _villageListParser.GetX(node);
-                var y = _villageListParser.GetY(node);
-                var isActive = _villageListParser.IsActive(node);
-                var isUnderAttack = _villageListParser.IsUnderAttack(node);
-                foundVills.Add(new()
-                {
-                    AccountId = accountId,
-                    Id = id,
-                    Name = name,
-                    X = x,
-                    Y = y,
-                    IsActive = isActive,
-                    IsUnderAttack = isUnderAttack,
-                });
-            }
 
-            var newVillages = await _villageRepository.Update(accountId, foundVills);
+            var dtos = _villageListParser.Get(html);
+            var mapper = new VillageMapper();
+            var villages = new List<Village>();
+            foreach (var dto in dtos)
+            {
+                var village = mapper.Map(accountId, dto);
+                villages.Add(village);
+            }
+            if (villages.Count == 0) return Result.Fail(new Retry("Villages list is empty"));
+
+            var newVillages = await _villageRepository.Update(accountId, villages);
             if (newVillages.Count > 0)
             {
                 var isLoadNewVillage = await _accountSettingRepository.GetBoolSetting(accountId, AccountSettingEnums.IsAutoLoadVillage);

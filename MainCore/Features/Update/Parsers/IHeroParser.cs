@@ -1,10 +1,10 @@
 ﻿using HtmlAgilityPack;
-using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 
 namespace MainCore.Features.Update.Parsers
 {
     public interface IHeroParser
     {
-        List<HeroItem> GetItems(HtmlDocument doc);
+        IEnumerable<HeroItemDto> GetItems(HtmlDocument doc);
     }
 }

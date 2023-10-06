@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
-using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Update.Parsers.HeroParser
@@ -8,11 +8,10 @@ namespace MainCore.Features.Update.Parsers.HeroParser
     [RegisterAsTransient(ServerEnums.TTWars)]
     public class TTWars : IHeroParser
     {
-        public List<HeroItem> GetItems(HtmlDocument doc)
+        public IEnumerable<HeroItemDto> GetItems(HtmlDocument doc)
         {
-            var heroItems = new List<HeroItem>();
             var inventory = doc.GetElementbyId("itemsToSale");
-            if (inventory is null) return null;
+            if (inventory is null) yield break;
 
             foreach (var itemSlot in inventory.ChildNodes)
             {
@@ -29,31 +28,30 @@ namespace MainCore.Features.Update.Parsers.HeroParser
                 var amountValue = item.ChildNodes.FirstOrDefault(x => x.HasClass("amount"));
                 if (amountValue is null)
                 {
-                    heroItems.Add(new HeroItem()
+                    yield return new HeroItemDto()
                     {
-                        Id = int.Parse(itemValueStr),
+                        Type = (HeroItemEnums)int.Parse(itemValueStr),
                         Amount = 1,
-                    });
+                    };
                     continue;
                 }
 
                 var amountValueStr = new string(amountValue.InnerText.Where(c => char.IsDigit(c)).ToArray());
                 if (string.IsNullOrEmpty(itemValueStr))
                 {
-                    heroItems.Add(new HeroItem()
+                    yield return new HeroItemDto()
                     {
-                        Id = int.Parse(itemValueStr),
+                        Type = (HeroItemEnums)int.Parse(itemValueStr),
                         Amount = 1,
-                    });
+                    };
                     continue;
                 }
-                heroItems.Add(new HeroItem()
+                yield return new HeroItemDto()
                 {
-                    Id = int.Parse(itemValueStr),
+                    Type = (HeroItemEnums)int.Parse(itemValueStr),
                     Amount = int.Parse(amountValueStr),
-                });
+                };
             }
-            return heroItems;
         }
     }
 }

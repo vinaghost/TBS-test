@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Commands;
 using MainCore.Common.Errors;
-using MainCore.Features.Update.Parsers;
+using MainCore.Features.Farming.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using OpenQA.Selenium;

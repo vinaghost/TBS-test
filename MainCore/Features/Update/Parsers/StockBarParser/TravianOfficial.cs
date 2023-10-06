@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
-using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using System.Net;
 
@@ -9,9 +9,9 @@ namespace MainCore.Features.Update.Parsers.StockBarParser
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
     public class TravianOfficial : IStockBarParser
     {
-        public Storage GetStorage(HtmlDocument doc)
+        public StorageDto Get(HtmlDocument doc)
         {
-            var storage = new Storage()
+            var storage = new StorageDto()
             {
                 Wood = GetWood(doc),
                 Clay = GetClay(doc),
@@ -35,17 +35,17 @@ namespace MainCore.Features.Update.Parsers.StockBarParser
             return long.Parse(valueStr);
         }
 
-        public long GetWood(HtmlDocument doc) => GetResource(doc, "l1");
+        private static long GetWood(HtmlDocument doc) => GetResource(doc, "l1");
 
-        public long GetClay(HtmlDocument doc) => GetResource(doc, "l2");
+        private static long GetClay(HtmlDocument doc) => GetResource(doc, "l2");
 
-        public long GetIron(HtmlDocument doc) => GetResource(doc, "l3");
+        private static long GetIron(HtmlDocument doc) => GetResource(doc, "l3");
 
-        public long GetCrop(HtmlDocument doc) => GetResource(doc, "l4");
+        private static long GetCrop(HtmlDocument doc) => GetResource(doc, "l4");
 
-        public long GetFreeCrop(HtmlDocument doc) => GetResource(doc, "stockBarFreeCrop");
+        private static long GetFreeCrop(HtmlDocument doc) => GetResource(doc, "stockBarFreeCrop");
 
-        public long GetWarehouseCapacity(HtmlDocument doc)
+        private static long GetWarehouseCapacity(HtmlDocument doc)
         {
             var stockBarNode = doc.GetElementbyId("stockBar");
             if (stockBarNode is null) return -1;
@@ -62,7 +62,7 @@ namespace MainCore.Features.Update.Parsers.StockBarParser
             return long.Parse(valueStr);
         }
 
-        public long GetGranaryCapacity(HtmlDocument doc)
+        private static long GetGranaryCapacity(HtmlDocument doc)
         {
             var stockBarNode = doc.GetElementbyId("stockBar");
             if (stockBarNode is null) return -1;
@@ -77,28 +77,6 @@ namespace MainCore.Features.Update.Parsers.StockBarParser
             var valueStr = new string(valueStrFixed.Where(c => char.IsDigit(c)).ToArray());
             if (string.IsNullOrEmpty(valueStr)) return -1;
             return long.Parse(valueStr);
-        }
-
-        public int GetGold(HtmlDocument doc)
-        {
-            var goldNode = doc.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("ajaxReplaceableGoldAmount"));
-            if (goldNode is null) return -1;
-            var valueStrFixed = WebUtility.HtmlDecode(goldNode.InnerText);
-            if (string.IsNullOrEmpty(valueStrFixed)) return -1;
-            var valueStr = new string(valueStrFixed.Where(c => char.IsDigit(c)).ToArray());
-            if (string.IsNullOrEmpty(valueStr)) return -1;
-            return int.Parse(valueStr);
-        }
-
-        public int GetSilver(HtmlDocument doc)
-        {
-            var silverNode = doc.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("ajaxReplaceableSilverAmount"));
-            if (silverNode is null) return -1;
-            var valueStrFixed = WebUtility.HtmlDecode(silverNode.InnerText);
-            if (string.IsNullOrEmpty(valueStrFixed)) return -1;
-            var valueStr = new string(valueStrFixed.Where(c => char.IsDigit(c)).ToArray());
-            if (string.IsNullOrEmpty(valueStr)) return -1;
-            return int.Parse(valueStr);
         }
     }
 }

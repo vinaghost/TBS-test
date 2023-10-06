@@ -1,11 +1,10 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Features.Update.DTO;
 
 namespace MainCore.Features.Update.Parsers
 {
     public interface IAccountInfoParser
     {
-        int GetGold(HtmlDocument doc);
-        int GetSilver(HtmlDocument doc);
-        bool HasPlusAccount(HtmlDocument doc);
+        AccountInfoDto Get(HtmlDocument doc);
     }
 }

@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using FluentAssertions;
+using HtmlAgilityPack;
 using MainCore.Features.Update.Parsers.AccountInfoParser;
 
 namespace TestProject.Features.Update.Parsers.AccountInfoParser
@@ -22,35 +23,11 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
             var html = new HtmlDocument();
             var path = Helper.GetPath(parts, "TravianOfficial.html");
             html.Load(path);
+            var dto = parser.Get(html);
 
-            var result = parser.GetGold(html);
-            Assert.AreEqual(expected, result);
-        }
-
-        [DataTestMethod]
-        [DataRow(562)]
-        public void GetSilver_Vailidate_Number(int expected)
-        {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
-
-            var result = parser.GetSilver(html);
-            Assert.AreEqual(expected, result);
-        }
-
-        [DataTestMethod]
-        [DataRow(false)]
-        public void HasPlusAccount_Vailidate_Boolean(bool expected)
-        {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
-
-            var result = parser.HasPlusAccount(html);
-            Assert.AreEqual(expected, result);
+            dto.Gold.Should().Be(37);
+            dto.Silver.Should().Be(562);
+            dto.HasPlusAccount.Should().Be(true);
         }
     }
 }

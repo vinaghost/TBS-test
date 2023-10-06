@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Repositories;
 using MainCore.Entities;
+using MainCore.Features.Update.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -25,22 +26,19 @@ namespace MainCore.Features.Update.Commands
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-            var nodes = _farmListParser.GetFarmNodes(html);
-            var foundFarmLists = new List<FarmList>();
 
-            foreach (var node in nodes)
+            var dtos = _farmListParser.Get(html);
+            var mapper = new FarmListMapper();
+
+            var farmLists = new List<FarmList>();
+
+            foreach (var dto in dtos)
             {
-                var id = _farmListParser.GetId(node);
-                var name = _farmListParser.GetName(node);
-                foundFarmLists.Add(new()
-                {
-                    AccountId = accountId,
-                    Id = id,
-                    Name = name,
-                });
+                var farmList = mapper.Map(accountId, dto);
+                farmLists.Add(farmList);
             }
 
-            await _farmListRepository.Update(accountId, foundFarmLists);
+            await _farmListRepository.Update(accountId, farmLists);
             return Result.Ok();
         }
     }
