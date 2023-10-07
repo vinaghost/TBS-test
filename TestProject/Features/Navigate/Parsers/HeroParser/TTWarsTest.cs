@@ -64,7 +64,7 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
             node.Should().NotBeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(1, true)]
         [DataRow(2, false)]
         public void IsCurrentTab_Boolean(int index, bool expected)
@@ -79,7 +79,7 @@ namespace TestProject.Features.Navigate.Parsers.HeroParser
             result.Should().Be(expected);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(HeroItemEnums.Wood)]
         [DataRow(HeroItemEnums.Iron)]
         public void GetItemSlot_Type_NotNull(HeroItemEnums type)

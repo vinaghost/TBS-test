@@ -15,7 +15,7 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
             parts = Helper.GetParts<TravianOfficialTest>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(37)]
         public void GetGold_Vailidate_Number(int expected)
         {

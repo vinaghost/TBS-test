@@ -15,7 +15,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             parts = Helper.GetParts<TTWarsTest>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(255_147)]
         public void GetVillageNode_NotNull(int villageId)
         {
@@ -28,7 +28,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             node.Should().NotBeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(255147, true)]
         public void IsActive_NotNull(int villageId, bool expected)
         {

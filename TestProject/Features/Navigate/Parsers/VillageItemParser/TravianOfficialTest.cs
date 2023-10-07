@@ -15,7 +15,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             parts = Helper.GetParts<TravianOfficialTest>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(19501)]
         [DataRow(21180)]
         public void GetVillageNode_NotNull(int villageId)
@@ -29,7 +29,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             node.Should().NotBeNull();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(19501, true)]
         [DataRow(21180, false)]
         public void IsActive_Vailidate_NotNull(int villageId, bool expected)

@@ -12,7 +12,7 @@ namespace TestProject.ConfigureServices
     {
         private const string _connectionString = "DataSource=TBS.db;Cache=Shared";
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(ServerEnums.TravianOfficial)]
         [DataRow(ServerEnums.TTWars)]
         public void ConfigureServicesTest(ServerEnums server)

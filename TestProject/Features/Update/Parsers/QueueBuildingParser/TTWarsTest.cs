@@ -15,7 +15,7 @@ namespace TestProject.Features.Update.Parsers.QueueBuildingParser
             parts = Helper.GetParts<TTWarsTest>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public void Get_Correct()
         {
             var parser = new TTWars();
@@ -25,8 +25,21 @@ namespace TestProject.Features.Update.Parsers.QueueBuildingParser
             var dto = parser.Get(html).ToList();
 
             dto.Count.Should().Be(4);
-            dto[0].Level.Should().Be(8);
-            dto[3].Level.Should().Be(-1);
+        }
+
+        [TestMethod]
+        public void Get_Content_Correct()
+        {
+            var parser = new TTWars();
+            var html = new HtmlDocument();
+            var path = Helper.GetPath(parts, "TTWars.html");
+            html.Load(path);
+            var dto = parser.Get(html).FirstOrDefault();
+
+            dto.Position.Should().Be(0);
+            dto.Location.Should().Be(-1);
+            dto.Level.Should().Be(8);
+            dto.Type.Should().Be("MainBuilding");
         }
     }
 }

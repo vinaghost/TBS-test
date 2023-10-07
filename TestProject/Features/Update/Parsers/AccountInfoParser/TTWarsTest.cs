@@ -15,7 +15,7 @@ namespace TestProject.Features.Update.Parsers.AccountInfoParser
             parts = Helper.GetParts<TTWarsTest>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public void Get_ShouldReturnCorrect()
         {
             var parser = new TTWars();

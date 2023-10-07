@@ -15,7 +15,7 @@ namespace TestProject.Features.Update.Parsers.StockBarParser
             parts = Helper.GetParts<TTWarsTest>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public void Get_Correct()
         {
             var parser = new TTWars();

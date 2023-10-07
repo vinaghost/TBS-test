@@ -15,7 +15,7 @@ namespace TestProject.Features.Update.Parsers.FarmListParser
             parts = Helper.GetParts<TravianOfficialTest>();
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public void Get_Count_Correct()
         {
             var parser = new TravianOfficial();
@@ -25,6 +25,19 @@ namespace TestProject.Features.Update.Parsers.FarmListParser
             var dto = parser.Get(html);
 
             dto.Count().Should().Be(8);
+        }
+
+        [TestMethod]
+        public void Get_Content_Correct()
+        {
+            var parser = new TravianOfficial();
+            var html = new HtmlDocument();
+            var path = Helper.GetPath(parts, "TravianOfficial.html");
+            html.Load(path);
+            var dto = parser.Get(html).FirstOrDefault();
+
+            dto.Id.Should().Be(1233);
+            dto.Name.Should().Be("Inactive");
         }
     }
 }
