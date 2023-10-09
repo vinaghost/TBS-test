@@ -72,6 +72,34 @@ namespace MainCore.Infrasturecture.Services
             return tasks.FirstOrDefault(x => x.Stage == StageEnums.Executing);
         }
 
+        public void AddOrUpdate<T>(int accountId, bool first = false) where T : AccountTask
+        {
+            var task = Get<T>(accountId);
+            if (task is null)
+            {
+                Add<T>(accountId, first);
+            }
+            else
+            {
+                task.ExecuteAt = DateTime.Now;
+                ReOrder(accountId);
+            }
+        }
+
+        public void AddOrUpdate<T>(int accountId, int villageId, bool first = false) where T : VillageTask
+        {
+            var task = Get<T>(accountId, villageId);
+            if (task is null)
+            {
+                Add<T>(accountId, villageId, first);
+            }
+            else
+            {
+                task.ExecuteAt = DateTime.Now;
+                ReOrder(accountId);
+            }
+        }
+
         public void Add<T>(int accountId, bool first = false) where T : AccountTask
         {
             var task = Locator.Current.GetService<T>();

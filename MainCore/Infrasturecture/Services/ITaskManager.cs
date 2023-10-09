@@ -12,7 +12,8 @@ namespace MainCore.Infrasturecture.Services
         void Add<T>(int accountId, bool first = false) where T : AccountTask;
 
         void Add<T>(int accountId, int villageId, bool first = false) where T : VillageTask;
-
+        void AddOrUpdate<T>(int accountId, int villageId, bool first = false) where T : VillageTask;
+        void AddOrUpdate<T>(int accountId, bool first = false) where T : AccountTask;
         void Clear(int accountId);
 
         AccountTask Get<T>(int accountId) where T : AccountTask;

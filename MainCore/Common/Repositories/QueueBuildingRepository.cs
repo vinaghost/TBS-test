@@ -1,7 +1,9 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Entities;
+using MainCore.Features.InstantUpgrade.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using MainCore.Infrasturecture.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
@@ -10,12 +12,18 @@ namespace MainCore.Common.Repositories
     public class QueueBuildingRepository : IQueueBuildingRepository
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IVillageSettingRepository _villageSettingRepository;
+        private readonly IAccountInfoRepository _accountInfoRepository;
+        private readonly ITaskManager _taskManager;
 
         public event Func<int, Task> QueueBuildingUpdated;
 
-        public QueueBuildingRepository(IDbContextFactory<AppDbContext> contextFactory)
+        public QueueBuildingRepository(IDbContextFactory<AppDbContext> contextFactory, IVillageSettingRepository villageSettingRepository, IAccountInfoRepository accountInfoRepository, ITaskManager taskManager)
         {
             _contextFactory = contextFactory;
+            _villageSettingRepository = villageSettingRepository;
+            _accountInfoRepository = accountInfoRepository;
+            _taskManager = taskManager;
         }
 
         public async Task<QueueBuilding> GetFirst(int villageId)
@@ -66,10 +74,7 @@ namespace MainCore.Common.Repositories
                 }
                 await context.SaveChangesAsync();
             }
-            if (QueueBuildingUpdated is not null)
-            {
-                await QueueBuildingUpdated(villageId);
-            }
+            await TriggerCallback(villageId);
         }
 
         public async Task Update(int villageId, List<QueueBuilding> queueBuildings)
@@ -96,9 +101,47 @@ namespace MainCore.Common.Repositories
                 }
                 await context.SaveChangesAsync();
             }
+            await TriggerCallback(villageId);
+        }
+
+        private async Task TriggerCallback(int villageId)
+        {
             if (QueueBuildingUpdated is not null)
             {
                 await QueueBuildingUpdated(villageId);
+            }
+
+            await TriggerInstantUpgrade(villageId);
+        }
+
+        private async Task TriggerInstantUpgrade(int villageId)
+        {
+            var instantUpgrade = await _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.InstantUpgrade);
+            if (instantUpgrade)
+            {
+                var applyRomanQueueLogicWhenBuilding = await _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
+                int accountId, count;
+                using (var context = await _contextFactory.CreateDbContextAsync())
+                {
+                    var village = await context.Villages.FindAsync(villageId);
+                    accountId = village.AccountId;
+                    count = await context.QueueBuildings.Where(x => x.VillageId == villageId).CountAsync();
+                }
+
+                var isPlusActive = await _accountInfoRepository.IsPlusActive(accountId);
+                var needCount = 1;
+                if (applyRomanQueueLogicWhenBuilding)
+                {
+                    needCount++;
+                }
+                if (isPlusActive)
+                {
+                    needCount++;
+                }
+                if (count == needCount)
+                {
+                    _taskManager.AddOrUpdate<InstantUpgradeTask>(accountId, villageId);
+                }
             }
         }
     }

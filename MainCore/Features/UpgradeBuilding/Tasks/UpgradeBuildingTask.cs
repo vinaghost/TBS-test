@@ -147,9 +147,6 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
                     result = await _constructCommand.Execute(AccountId, plan);
                     if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
                 }
-
-                result = await _updateBuildingCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
             }
         }
 

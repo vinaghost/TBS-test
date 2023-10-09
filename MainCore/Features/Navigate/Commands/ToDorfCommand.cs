@@ -27,9 +27,8 @@ namespace MainCore.Features.Navigate.Commands
             _waitCommand = waitCommand;
         }
 
-        public async Task<Result> Execute(int accountId, int dorf)
+        public async Task<Result> Execute(IChromeBrowser chromeBrowser, int dorf)
         {
-            var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
             var button = GetButton(html, dorf);
@@ -44,6 +43,12 @@ namespace MainCore.Features.Navigate.Commands
             if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
 
             return Result.Ok();
+        }
+
+        public async Task<Result> Execute(int accountId, int dorf)
+        {
+            var chromeBrowser = _chromeManager.Get(accountId);
+            return await Execute(chromeBrowser, dorf);
         }
 
         private HtmlNode GetButton(HtmlDocument doc, int dorf)

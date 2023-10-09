@@ -21,9 +21,8 @@ namespace MainCore.Features.Update.Commands
             _stockBarParser = stockBarParser;
         }
 
-        public async Task<Result> Execute(int accountId, int villageId)
+        public async Task<Result> Execute(IChromeBrowser chromeBrowser, int villageId)
         {
-            var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
             var dto = _stockBarParser.Get(html);
@@ -31,6 +30,12 @@ namespace MainCore.Features.Update.Commands
             var storage = mapper.Map(villageId, dto);
             await _storageRepository.Update(villageId, storage);
             return Result.Ok();
+        }
+
+        public async Task<Result> Execute(int accountId, int villageId)
+        {
+            var chromeBrowser = _chromeManager.Get(accountId);
+            return await Execute(chromeBrowser, villageId);
         }
     }
 }
