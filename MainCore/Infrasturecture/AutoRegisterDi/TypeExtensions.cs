@@ -9,51 +9,35 @@ namespace MainCore.Infrasturecture.AutoRegisterDi
     /// </summary>
     internal static class TypeExtensions
     {
-        /// <summary>
-        /// Check if type marked by <see cref="DoNotAutoRegisterAttribute"/>
-        /// </summary>
-        /// <param name="type">type</param>
-        public static bool IsIgnoredType(this Type type)
-        {
-            var doNotAutoRegisterAttribute = type.GetCustomAttribute<DoNotAutoRegisterAttribute>();
-            return doNotAutoRegisterAttribute != null;
-        }
-
-        /// <summary>
-        /// Check if class marked by attributes
-        /// </summary>
-        /// <param name="type">type</param>
-        /// <returns></returns>
         public static bool HasAttribute(this Type type)
         {
-            return type.GetCustomAttributes(typeof(RegisterWithLifetimeAttribute), true).Length == 1;
+            return type
+                .GetCustomAttributes<RegisterWithLifetimeAttribute>(true)
+                .Any();
         }
 
-        /// <summary>
-        /// Returns service lifetime
-        /// </summary>
-        /// <param name="type">type</param>
-        /// <param name="lifetime">If no attribute then it returns the lifetime provided in the AsPublicImplementedInterfaces parameter</param>
-        /// <returns></returns>
-        public static ServiceLifetime GetLifetimeForClass(this Type type, ServiceLifetime lifetime)
+        public static ServiceLifetime GetLifetimeForClass(this Type type)
         {
-            return type.GetCustomAttribute<RegisterWithLifetimeAttribute>(true)?.RequiredLifetime ?? lifetime;
+            return type
+                .GetCustomAttribute<RegisterWithLifetimeAttribute>(true)
+                .RequiredLifetime;
         }
 
-        /// <summary>
-        /// Returns service server
-        /// </summary>
-        /// <param name="type">type</param>
-        /// <param name="server">If no attribute then it returns the server provided in the AsPublicImplementedInterfaces parameter</param>
-        /// <returns></returns>
-        public static ServerEnums GetServerForClass(this Type type)
+        public static bool IsServerCorrect(this Type type,
+            ServerEnums correctServer)
         {
-            return type.GetCustomAttribute<RegisterWithLifetimeAttribute>(true)?.RequiredServer ?? ServerEnums.NONE;
+            var server = type
+                .GetCustomAttribute<RegisterWithLifetimeAttribute>(true)
+                .RequiredServer;
+            if (server == ServerEnums.NONE) return true;
+            return correctServer == server;
         }
 
         public static bool WithoutInterface(this Type type)
         {
-            return type.GetCustomAttribute<RegisterWithLifetimeAttribute>(true)?.WithoutInterface ?? false;
+            return type
+                .GetCustomAttribute<RegisterWithLifetimeAttribute>(true)
+                .WithoutInterface;
         }
     }
 }

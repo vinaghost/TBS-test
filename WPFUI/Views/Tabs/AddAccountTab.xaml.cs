@@ -1,6 +1,6 @@
-﻿using ReactiveUI;
+﻿using MainCore.UI.ViewModels.Tabs;
+using ReactiveUI;
 using System.Reactive.Disposables;
-using WPFUI.ViewModels.Tabs;
 
 namespace WPFUI.Views.Tabs
 {
@@ -26,7 +26,7 @@ namespace WPFUI.Views.Tabs
                 this.Bind(ViewModel, vm => vm.AccountInput.Username, v => v.UsernameTextBox.Text).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.AccountInput.Server, v => v.ServerTextBox.Text).DisposeWith(d);
                 this.OneWayBind(ViewModel, vm => vm.AccountInput.Accesses, v => v.ProxiesDataGrid.ItemsSource).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.SelectedAcess, v => v.ProxiesDataGrid.SelectedItem).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.SelectedAccess, v => v.ProxiesDataGrid.SelectedItem).DisposeWith(d);
 
                 this.Bind(ViewModel, vm => vm.AccessInput.Password, v => v.PasswordTextBox.Text).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.AccessInput.ProxyHost, v => v.ProxyHostTextBox.Text).DisposeWith(d);

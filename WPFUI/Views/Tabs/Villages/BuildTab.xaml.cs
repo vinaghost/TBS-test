@@ -1,6 +1,6 @@
-﻿using ReactiveUI;
+﻿using MainCore.UI.ViewModels.Tabs.Villages;
+using ReactiveUI;
 using System.Reactive.Disposables;
-using WPFUI.ViewModels.Tabs.Villages;
 
 namespace WPFUI.Views.Tabs.Villages
 {

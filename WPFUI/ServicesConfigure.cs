@@ -1,82 +1,31 @@
-﻿using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
-using WPFUI.Commands;
-using WPFUI.Models.Input;
-using WPFUI.Models.Validators;
-using WPFUI.Repositories;
-using WPFUI.Services;
-using WPFUI.Stores;
-using WPFUI.ViewModels;
-using WPFUI.ViewModels.Tabs;
-using WPFUI.ViewModels.Tabs.Villages;
-using WPFUI.ViewModels.UserControls;
+﻿using MainCore;
+using Microsoft.Extensions.Hosting;
+using ReactiveUI;
+using Splat;
+using Splat.Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace WPFUI
 {
     public static class ServicesConfigure
     {
-        public static IServiceCollection AddUIServices(this IServiceCollection services)
+        public static IServiceProvider Setup()
         {
-            services
-                .AddSingleton<MainViewModel>();
+            var host = Host.CreateDefaultBuilder()
+               .ConfigureServices((context, services) =>
+               {
+                   services.UseMicrosoftDependencyResolver();
+                   var resolver = Locator.CurrentMutable;
+                   resolver.InitializeSplat();
+                   resolver.InitializeReactiveUI();
 
-            // Tabs
-            services
-                .AddSingleton<NoAccountViewModel>()
-                .AddSingleton<AddAccountViewModel>()
-                .AddSingleton<AddAccountsViewModel>()
-                .AddSingleton<AccountSettingViewModel>()
-                .AddSingleton<VillageViewModel>()
-                .AddSingleton<EditAccountViewModel>()
-                .AddSingleton<FarmingViewModel>()
-                .AddSingleton<DebugViewModel>();
-
-            services
-                .AddSingleton<NoVillageViewModel>()
-                .AddSingleton<BuildViewModel>()
-                .AddSingleton<VillageSettingViewModel>()
-                .AddSingleton<InfoViewModel>();
-
-            // UserControls
-            services
-                .AddSingleton<WaitingOverlayViewModel>()
-                .AddSingleton<MainLayoutViewModel>();
-
-            // Repositories
-            services
-                .AddSingleton<IAccountRepository, AccountRepository>()
-                .AddSingleton<IAccountSettingRepository, AccountSettingRepository>()
-                .AddSingleton<IVillageSettingRepository, VillageSettingRepository>()
-                .AddSingleton<IBuildRepository, BuildRepository>();
-
-            // Services
-            services
-                .AddSingleton<IMessageService, MessageService>();
-
-            // Stores
-            services
-                .AddSingleton<SelectedItemStore>()
-                .AddSingleton<AccountTabStore>()
-                .AddSingleton<VillageTabStore>();
-
-            // Commands
-            services
-                .AddTransient<ILoginCommand, LoginCommand>()
-                .AddTransient<ILogoutCommand, LogoutCommand>()
-                .AddTransient<IPauseCommand, PauseCommand>()
-                .AddTransient<IRestartCommand, RestartCommand>();
-
-            // Validators
-            services
-                .AddTransient<IValidator<AccountInput>, AccountInputValidator>()
-                .AddTransient<IValidator<AccessInput>, AccessInputValidator>()
-                .AddTransient<IValidator<AccountSettingInput>, AccountSettingInputValidator>()
-                .AddTransient<IValidator<VillageSettingInput>, VillageSettingInputValidator>()
-                .AddTransient<IValidator<NormalBuildInput>, NormalBuildInputValidator>()
-                .AddTransient<IValidator<FarmListSettingInput>, FarmListSettingInputValidator>()
-                .AddTransient<IValidator<ResourceBuildInput>, ResourceBuildInputValidator>();
-
-            return services;
+                   services
+                       .AddCoreServices();
+               })
+               .Build();
+            var container = host.Services;
+            container.UseMicrosoftDependencyResolver();
+            return container;
         }
     }
 }

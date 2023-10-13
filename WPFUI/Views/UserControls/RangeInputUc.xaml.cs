@@ -1,7 +1,7 @@
-﻿using ReactiveUI;
+﻿using MainCore.UI.ViewModels.UserControls;
+using ReactiveUI;
 using System.Reactive.Disposables;
 using System.Windows;
-using WPFUI.ViewModels.UserControls;
 
 namespace WPFUI.Views.UserControls
 {

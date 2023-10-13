@@ -1,6 +1,6 @@
-﻿using ReactiveUI;
+﻿using MainCore.UI.ViewModels.Tabs;
+using ReactiveUI;
 using System.Reactive.Disposables;
-using WPFUI.ViewModels.Tabs;
 
 namespace WPFUI.Views.Tabs
 {

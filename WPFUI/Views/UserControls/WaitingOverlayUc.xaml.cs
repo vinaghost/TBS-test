@@ -1,5 +1,5 @@
-﻿using ReactiveUI;
-using WPFUI.ViewModels.UserControls;
+﻿using MainCore.UI.ViewModels.UserControls;
+using ReactiveUI;
 
 namespace WPFUI.Views.UserControls
 {

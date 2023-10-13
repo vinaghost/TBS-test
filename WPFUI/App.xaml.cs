@@ -1,12 +1,8 @@
-﻿using MainCore;
+﻿using MainCore.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using ReactiveUI;
 using Splat;
-using Splat.Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows;
-using WPFUI.ViewModels;
 using WPFUI.Views;
 
 namespace WPFUI
@@ -22,21 +18,7 @@ namespace WPFUI
 
         public App()
         {
-            var host = Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
-                {
-                    services.UseMicrosoftDependencyResolver();
-                    var resolver = Locator.CurrentMutable;
-                    resolver.InitializeSplat();
-                    resolver.InitializeReactiveUI();
-
-                    services
-                        .AddCoreServices()
-                        .AddUIServices();
-                })
-                .Build();
-            Container = host.Services;
-            Container.UseMicrosoftDependencyResolver();
+            Container = ServicesConfigure.Setup();
 
             mainWindow = new MainWindow()
             {

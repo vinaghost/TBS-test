@@ -1,5 +1,5 @@
-﻿using ReactiveUI;
-using WPFUI.ViewModels.Tabs;
+﻿using MainCore.UI.ViewModels.Tabs;
+using ReactiveUI;
 
 namespace WPFUI.Views.Tabs
 {

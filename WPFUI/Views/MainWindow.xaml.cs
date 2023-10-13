@@ -1,9 +1,9 @@
-﻿using ReactiveUI;
+﻿using MainCore.UI.ViewModels;
+using ReactiveUI;
 using System;
 using System.ComponentModel;
 using System.Reactive.Disposables;
 using System.Windows;
-using WPFUI.ViewModels;
 
 namespace WPFUI.Views
 {

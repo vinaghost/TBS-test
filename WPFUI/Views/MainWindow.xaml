@@ -1,6 +1,6 @@
 ﻿<v:MainWindowBase x:Class="WPFUI.Views.MainWindow"
         xmlns:v="clr-namespace:WPFUI.Views"
-        xmlns:vm_uc="clr-namespace:WPFUI.ViewModels.UserControls"
+        xmlns:vm_uc="clr-namespace:MainCore.UI.ViewModels.UserControls;assembly=MainCore"
         xmlns:v_uc="clr-namespace:WPFUI.Views.UserControls"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
