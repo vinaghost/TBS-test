@@ -26,11 +26,11 @@ namespace MainCore.UI.Commands
                 case StatusEnums.Starting:
                 case StatusEnums.Pausing:
                 case StatusEnums.Stopping:
-                    ////_messageService.Show("Information", $"Account is {status}");
+                    //await _messageBoxViewModel.Show("Information", $"Account is {status}");
                     return;
 
                 case StatusEnums.Online:
-                    ////_messageService.Show("Information", $"Account should be paused first");
+                    //await _messageBoxViewModel.Show("Information", $"Account should be paused first");
                     return;
 
                 case StatusEnums.Paused:

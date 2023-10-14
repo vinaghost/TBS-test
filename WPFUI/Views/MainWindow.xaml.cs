@@ -30,6 +30,7 @@ namespace WPFUI.Views
             {
                 this.Bind(ViewModel, vm => vm.MainLayoutViewModel, v => v.MainLayout.Content).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.WaitingOverlayViewModel, v => v.WaitingOverlay.Content).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.MessageBoxViewModel, v => v.MessageBox.Content).DisposeWith(d);
             });
         }
 

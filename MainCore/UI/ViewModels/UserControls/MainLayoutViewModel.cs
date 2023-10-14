@@ -32,10 +32,11 @@ namespace MainCore.UI.ViewModels.UserControls
 
         private readonly AccountTabStore _accountTabStore;
         private readonly SelectedItemStore _selectedItemStore;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
 
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand)
+        public MainLayoutViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand, MessageBoxViewModel messageBoxViewModel)
         {
             _accountTabStore = accountTabStore;
             _selectedItemStore = selectedItemStore;
@@ -46,6 +47,7 @@ namespace MainCore.UI.ViewModels.UserControls
             _restartCommand = restartCommand;
             _loginCommand = loginCommand;
             _logoutCommand = logoutCommand;
+            _messageBoxViewModel = messageBoxViewModel;
 
             _taskManager = taskManager;
 
@@ -94,7 +96,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (SelectedAccount is null)
             {
-                //_messageService.Show("Warning", "No account selected");
+                await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
 
@@ -111,7 +113,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (SelectedAccount is null)
             {
-                //_messageService.Show("Warning", "No account selected");
+                await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
             await _loginCommand.Execute(SelectedAccount.Id);
@@ -121,7 +123,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (SelectedAccount is null)
             {
-                //_messageService.Show("Warning", "No account selected");
+                await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
             await _logoutCommand.Execute(SelectedAccount.Id);
@@ -131,7 +133,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (SelectedAccount is null)
             {
-                //_messageService.Show("Warning", "No account selected");
+                await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
 
@@ -142,7 +144,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (SelectedAccount is null)
             {
-                //_messageService.Show("Warning", "No account selected");
+                await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
 

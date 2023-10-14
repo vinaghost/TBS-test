@@ -15,6 +15,7 @@ namespace MainCore.UI.ViewModels
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
         private MainLayoutViewModel _mainLayoutViewModel;
         private readonly IChromeDriverInstaller _chromeDriverInstaller;
         private readonly IChromeManager _chromeManager;
@@ -24,7 +25,7 @@ namespace MainCore.UI.ViewModels
         private readonly IAccountSettingRepository _accountSettingRepository;
         private readonly IVillageSettingRepository _villageSettingRepository;
 
-        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IUseragentManager useragentManager, ILogService logService, IAccountSettingRepository accountSettingRepository, IVillageSettingRepository villageSettingRepository)
+        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IUseragentManager useragentManager, ILogService logService, IAccountSettingRepository accountSettingRepository, IVillageSettingRepository villageSettingRepository, MessageBoxViewModel messageBoxViewModel)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _contextFactory = contextFactory;
@@ -34,6 +35,7 @@ namespace MainCore.UI.ViewModels
             _logService = logService;
             _accountSettingRepository = accountSettingRepository;
             _villageSettingRepository = villageSettingRepository;
+            _messageBoxViewModel = messageBoxViewModel;
         }
 
         public async Task Load()
@@ -46,7 +48,7 @@ namespace MainCore.UI.ViewModels
             }
             catch (Exception)
             {
-                ////_messageService.Show("Error", e.Message);
+                //await _messageBoxViewModel.Show("Error", e.Message);
                 _waitingOverlayViewModel.Close();
                 return;
             }
@@ -105,6 +107,7 @@ namespace MainCore.UI.ViewModels
         }
 
         public WaitingOverlayViewModel WaitingOverlayViewModel => _waitingOverlayViewModel;
+        public MessageBoxViewModel MessageBoxViewModel => _messageBoxViewModel;
 
         public MainLayoutViewModel MainLayoutViewModel
         {

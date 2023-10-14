@@ -27,13 +27,15 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
 
-        public EditAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator)
+        public EditAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, MessageBoxViewModel messageBoxViewModel)
         {
             _accountRepository = accountRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _accessInputValidator = accessInputValidator;
             _accountInputValidator = accountInputValidator;
+            _messageBoxViewModel = messageBoxViewModel;
 
             AddAccessCommand = ReactiveCommand.CreateFromTask(AddAccessTask);
             EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
@@ -57,13 +59,13 @@ namespace MainCore.UI.ViewModels.Tabs
             AccountInput.SetAccesses(account.Accesses);
         }
 
-        private Task AddAccessTask()
+        private async Task AddAccessTask()
         {
             var results = _accessInputValidator.Validate(AccessInput);
 
             if (!results.IsValid)
             {
-                //_messageService.Show("Error", results.ToString());
+                await _messageBoxViewModel.Show("Error", results.ToString());
             }
             else
             {
@@ -71,23 +73,21 @@ namespace MainCore.UI.ViewModels.Tabs
                 var dto = mapper.Map(AccessInput);
                 AccountInput.Accesses.Add(dto);
             }
-            return Task.CompletedTask;
         }
 
-        private Task EditAccessTask()
+        private async Task EditAccessTask()
         {
             var result = _accessInputValidator.Validate(AccessInput);
 
             if (!result.IsValid)
             {
-                //_messageService.Show("Error", result.ToString());
+                await _messageBoxViewModel.Show("Error", result.ToString());
             }
             else
             {
                 var mapper = new AccessInputMapper();
                 mapper.Map(SelectedAccess, AccessInput);
             }
-            return Task.CompletedTask;
         }
 
         private Task DeleteAccessTask()
@@ -103,7 +103,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             if (!results.IsValid)
             {
-                //_messageService.Show("Error", results.ToString());
+                await _messageBoxViewModel.Show("Error", results.ToString());
             }
             else
             {
@@ -112,6 +112,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 var dto = mapper.Map(AccountInput);
                 await _accountRepository.Edit(dto);
                 _waitingOverlayViewModel.Close();
+                await _messageBoxViewModel.Show("Information", "Edited accounts");
             }
         }
 

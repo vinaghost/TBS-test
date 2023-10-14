@@ -26,8 +26,9 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private readonly ITaskManager _taskManager;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
 
-        public BuildViewModel(IJobRepository jobRepository, IBuildingRepository buildingRepository, IValidator<NormalBuildInput> normalBuildInputValidator, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager)
+        public BuildViewModel(IJobRepository jobRepository, IBuildingRepository buildingRepository, IValidator<NormalBuildInput> normalBuildInputValidator, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel)
         {
             _buildingRepository = buildingRepository;
             _jobRepository = jobRepository;
@@ -36,6 +37,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _taskManager = taskManager;
+            _messageBoxViewModel = messageBoxViewModel;
 
             _buildingRepository.BuildingUpdated += BuildingUpdated;
             _jobRepository.Locked += Locked;
@@ -203,7 +205,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var result = _normalBuildInputValidator.Validate(NormalBuildInput);
             if (!result.IsValid)
             {
-                //_messageService.Show("Error", result.ToString());
+                await _messageBoxViewModel.Show("Error", result.ToString());
             }
             else
             {
@@ -217,7 +219,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var result = _resourceBuildInputValidator.Validate(ResourceBuildInput);
             if (!result.IsValid)
             {
-                //_messageService.Show("Error", result.ToString());
+                await _messageBoxViewModel.Show("Error", result.ToString());
             }
             else
             {
@@ -350,7 +352,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var result = await _buildingRepository.CheckRequirements(VillageId, plan);
             if (result.IsFailed)
             {
-                //_messageService.Show("Error", result.Errors.First().Message);
+                await _messageBoxViewModel.Show("Error", result.Errors.First().Message);
                 return;
             }
             await _buildingRepository.Validate(VillageId, plan);

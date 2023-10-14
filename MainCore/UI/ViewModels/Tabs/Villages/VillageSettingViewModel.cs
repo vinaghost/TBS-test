@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.UI.Models.Input;
@@ -6,6 +7,7 @@ using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
 using System.Reactive;
+using System.Text.Json;
 
 namespace MainCore.UI.ViewModels.Tabs.Villages
 {
@@ -18,21 +20,25 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private readonly IVillageSettingRepository _villageSettingRepository;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly FileDialogViewModel _fileDialogViewModel;
 
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public VillageSettingViewModel(IVillageSettingRepository villageSettingRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<VillageSettingInput> villageSettingInputValidator)
+        public VillageSettingViewModel(IVillageSettingRepository villageSettingRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<VillageSettingInput> villageSettingInputValidator, MessageBoxViewModel messageBoxViewModel, FileDialogViewModel fileDialogViewModel)
         {
             _villageSettingRepository = villageSettingRepository;
 
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _villageSettingInputValidator = villageSettingInputValidator;
+            _messageBoxViewModel = messageBoxViewModel;
 
             SaveCommand = ReactiveCommand.CreateFromTask(SaveTask);
             ExportCommand = ReactiveCommand.CreateFromTask(ExportTask);
             ImportCommand = ReactiveCommand.CreateFromTask(ImportTask);
+            _fileDialogViewModel = fileDialogViewModel;
         }
 
         protected override async Task Load(int villageId)
@@ -52,85 +58,58 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var result = _villageSettingInputValidator.Validate(VillageSettingInput);
             if (!result.IsValid)
             {
-                //_messageService.Show("Error", result.ToString());
+                await _messageBoxViewModel.Show("Error", result.ToString());
             }
             else
             {
                 _waitingOverlayViewModel.Show("saving settings ...");
                 await Save(VillageId);
                 _waitingOverlayViewModel.Close();
-                //_messageService.Show("Information", "Settings saved");
+                await _messageBoxViewModel.Show("Information", "Settings saved");
             }
         }
 
         private async Task ImportTask()
         {
-            //var openFileDialogSettings = new OpenFileDialogSettings
-            //{
-            //    Title = "Import settings",
-            //    InitialDirectory = AppContext.BaseDirectory,
-            //    Filters = new List<FileFilter>()
-            //    {
-            //        new FileFilter("TBS files", "tbs"),
-            //        new FileFilter("All Files", "*")
-            //    },
-            //};
+            var path = _fileDialogViewModel.OpenFileDialog();
+            Dictionary<VillageSettingEnums, int> settings;
+            try
+            {
+                var jsonString = await File.ReadAllTextAsync(path);
+                settings = JsonSerializer.Deserialize<Dictionary<VillageSettingEnums, int>>(jsonString);
+            }
+            catch
+            {
+                await _messageBoxViewModel.Show("Warning", "Invalid file.");
+                return;
+            }
 
-            //var resultOfd = await _dialogService.ShowOpenFileDialogAsync(this, openFileDialogSettings);
-            //if (resultOfd is null) return;
-            //var path = resultOfd.LocalPath ?? "";
-            //Dictionary<VillageSettingEnums, int> settings;
-            //try
-            //{
-            //    var jsonString = await File.ReadAllTextAsync(path);
-            //    settings = JsonSerializer.Deserialize<Dictionary<VillageSettingEnums, int>>(jsonString);
-            //}
-            //catch
-            //{
-            //    //_messageService.Show("Warning", "Invalid file.");
-            //    return;
-            //}
-
-            //VillageSettingInput.Set(settings);
-            //var result = _villageSettingInputValidator.Validate(VillageSettingInput);
-            //if (!result.IsValid)
-            //{
-            //    //_messageService.Show(title: "Error", result.ToString());
-            //    return;
-            //}
-            //else
-            //{
-            //    _waitingOverlayViewModel.Show("importing settings ...");
-            //    await _villageSettingRepository.Set(VillageId, settings);
-            //    //_messageService.Show("Information", "Settings imported");
-            //    _waitingOverlayViewModel.Close();
-            //}
+            VillageSettingInput.Set(settings);
+            var result = _villageSettingInputValidator.Validate(VillageSettingInput);
+            if (!result.IsValid)
+            {
+                await _messageBoxViewModel.Show("Error", result.ToString());
+                return;
+            }
+            else
+            {
+                _waitingOverlayViewModel.Show("importing settings ...");
+                await _villageSettingRepository.Set(VillageId, settings);
+                _waitingOverlayViewModel.Close();
+                await _messageBoxViewModel.Show("Information", "Settings imported");
+            }
         }
 
         private async Task ExportTask()
         {
-            //var saveFileDialogSettings = new SaveFileDialogSettings
-            //{
-            //    Title = "Export settings",
-            //    InitialDirectory = AppContext.BaseDirectory,
-            //    Filters = new List<FileFilter>()
-            //    {
-            //        new FileFilter("TBS files", "tbs"),
-            //        new FileFilter("All Files", "*")
-            //    }
-            //};
-            //var resultOfd = await _dialogService.ShowSaveFileDialogAsync(this, saveFileDialogSettings);
-            //if (resultOfd is null) return;
-            //var path = resultOfd.LocalPath ?? "";
-            //_waitingOverlayViewModel.Show("exporting settings ...");
-            //var settings = await _villageSettingRepository.Get(VillageId);
-            //var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
-            //await File.WriteAllTextAsync(path, jsonString);
-            //_waitingOverlayViewModel.Close();
+            var path = _fileDialogViewModel.SaveFileDialog();
 
-            //await _dialogService.ShowMessageBoxAsync(this,
-            //    "Settings exported",
-            //    "Information");
+            _waitingOverlayViewModel.Show("exporting settings ...");
+            var settings = await _villageSettingRepository.Get(VillageId);
+            var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
+            await File.WriteAllTextAsync(path, jsonString);
+            _waitingOverlayViewModel.Close();
+            await _messageBoxViewModel.Show("Information", "Settings exported");
         }
     }
 }

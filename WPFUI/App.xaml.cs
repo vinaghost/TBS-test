@@ -1,5 +1,7 @@
 ﻿using MainCore.UI.ViewModels;
+using MainCore.UI.ViewModels.UserControls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Win32;
 using Splat;
 using System;
 using System.Windows;
@@ -24,6 +26,32 @@ namespace WPFUI
             {
                 ViewModel = Locator.Current.GetService<MainViewModel>(),
             };
+
+            var fileDialogViewModel = Locator.Current.GetService<FileDialogViewModel>();
+            fileDialogViewModel.SaveFileDialogFunc = SaveFileDialog;
+            fileDialogViewModel.OpenFileDialogFunc = OpenFileDialog;
+        }
+
+        private string SaveFileDialog()
+        {
+            var svd = new SaveFileDialog
+            {
+                InitialDirectory = AppContext.BaseDirectory,
+                Filter = "TBS files (*.tbs)|*.tbs|All files (*.*)|*.*",
+            };
+            if (svd.ShowDialog() != true) return "";
+            return svd.FileName;
+        }
+
+        private string OpenFileDialog()
+        {
+            var ofd = new OpenFileDialog
+            {
+                InitialDirectory = AppContext.BaseDirectory,
+                Filter = "TBS files (*.tbs)|*.tbs|All files (*.*)|*.*",
+            };
+            if (ofd.ShowDialog() != true) return "";
+            return ofd.FileName;
         }
 
         protected override void OnStartup(StartupEventArgs e)

@@ -51,7 +51,7 @@ namespace MainCore.UI.Commands
                 return;
             }
 
-            ////_messageService.Show("Information", $"Account is {status}");
+            //await _messageBoxViewModel.Show("Information", $"Account is {status}");
         }
     }
 }

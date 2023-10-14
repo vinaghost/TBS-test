@@ -16,6 +16,7 @@ namespace MainCore.UI.ViewModels.Tabs
     {
         private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
         public ReactiveCommand<string, Unit> UpdateTableCommand { get; }
 
@@ -28,7 +29,7 @@ namespace MainCore.UI.ViewModels.Tabs
             set => this.RaiseAndSetIfChanged(ref _input, value);
         }
 
-        public AddAccountsViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel)
+        public AddAccountsViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, MessageBoxViewModel messageBoxViewModel)
         {
             _accountRepository = accountRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
@@ -37,6 +38,7 @@ namespace MainCore.UI.ViewModels.Tabs
             UpdateTableCommand = ReactiveCommand.CreateFromTask<string>(UpdateTableTask);
 
             this.WhenAnyValue(x => x.Input).InvokeCommand(UpdateTableCommand);
+            _messageBoxViewModel = messageBoxViewModel;
         }
 
         private async Task UpdateTableTask(string input)
@@ -67,6 +69,7 @@ namespace MainCore.UI.ViewModels.Tabs
             Accounts.Clear();
             Input = "";
             _waitingOverlayViewModel.Close();
+            await _messageBoxViewModel.Show("Information", "Added accounts");
         }
 
         private static AccountsDto AccountParser(string input)
