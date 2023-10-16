@@ -5,28 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:usercontrol="clr-namespace:MainCore.UI.ViewModels.UserControls;assembly=MainCore"
-    d:DataContext="{d:DesignInstance Type=usercontrol:WaitingOverlayViewModel}"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid.Style>
-            <Style TargetType="Grid">
-                <Setter Property="Visibility"
-                        Value="Visible" />
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding BusyMessage}"
-                                 Value="{x:Null}">
-                        <Setter Property="Visibility"
-                                Value="Collapsed" />
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-        </Grid.Style>
-
+    <Grid x:Name="Grid">
         <Border Style="{DynamicResource Background}" />
         <Border Style="{DynamicResource Content}">
-            <TextBlock Text="{Binding BusyMessage}" Margin="10" />
+            <TextBlock x:Name="Message" Margin="10" />
         </Border>
     </Grid>
 </v:WaitingOverlayUcBase>

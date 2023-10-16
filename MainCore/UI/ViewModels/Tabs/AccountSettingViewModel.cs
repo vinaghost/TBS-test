@@ -59,9 +59,10 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             else
             {
-                _waitingOverlayViewModel.Show("saving settings ...");
-                await Save(AccountId);
-                _waitingOverlayViewModel.Close();
+                await _waitingOverlayViewModel.Show(
+                     "saving settings ...",
+                     () => Save(AccountId)
+                 );
 
                 await _messageBoxViewModel.Show("Information", "Settings saved");
             }
@@ -91,21 +92,24 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             else
             {
-                _waitingOverlayViewModel.Show("importing settings ...");
-                await _accountSettingRepository.Set(AccountId, settings);
+                await _waitingOverlayViewModel.Show(
+                    "importing settings ...",
+                    () => _accountSettingRepository.Set(AccountId, settings));
                 await _messageBoxViewModel.Show("Information", "Settings imported");
-                _waitingOverlayViewModel.Close();
             }
         }
 
         private async Task ExportTask()
         {
             var path = _fileDialogViewModel.SaveFileDialog();
-            _waitingOverlayViewModel.Show("exporting settings ...");
-            var settings = await _accountSettingRepository.Get(AccountId);
-            var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
-            await File.WriteAllTextAsync(path, jsonString);
-            _waitingOverlayViewModel.Close();
+            await _waitingOverlayViewModel.Show(
+                "exporting settings ...",
+                async () =>
+                {
+                    var settings = await _accountSettingRepository.Get(AccountId);
+                    var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
+                    await File.WriteAllTextAsync(path, jsonString);
+                });
 
             await _messageBoxViewModel.Show("Settings exported", "Information");
         }

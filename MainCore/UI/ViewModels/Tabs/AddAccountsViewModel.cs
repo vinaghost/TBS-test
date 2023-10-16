@@ -64,11 +64,15 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task AddAccountTask()
         {
-            _waitingOverlayViewModel.Show("adding accounts ...");
-            await Observable.StartAsync(() => _accountRepository.AddRange(Accounts.ToList()), RxApp.TaskpoolScheduler);
+            var success = await _waitingOverlayViewModel.Show(
+                "adding accounts ...",
+                () => _accountRepository.AddRange(Accounts.ToList())
+            );
+
+            if (!success) return;
+
             Accounts.Clear();
             Input = "";
-            _waitingOverlayViewModel.Close();
             await _messageBoxViewModel.Show("Information", "Added accounts");
         }
 

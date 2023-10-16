@@ -25,7 +25,7 @@
         <ContentControl x:Name="WaitingOverlay">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type vm_uc:WaitingOverlayViewModel}">
-                    <v_uc:WaitingOverlayUc DataContext="{Binding .}" />
+                    <v_uc:WaitingOverlayUc ViewModel="{Binding .}" />
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>

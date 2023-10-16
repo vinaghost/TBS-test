@@ -7,19 +7,42 @@ namespace MainCore.UI.ViewModels.UserControls
     [RegisterAsSingleton(withoutInterface: true)]
     public class WaitingOverlayViewModel : ViewModelBase
     {
-        public WaitingOverlayViewModel()
+        private readonly MessageBoxViewModel _messageBoxViewModel;
+
+        public WaitingOverlayViewModel(MessageBoxViewModel messageBoxViewModel)
         {
-            Show("is initializing");
+            _messageBoxViewModel = messageBoxViewModel;
+            BusyMessage = "is initializing";
         }
 
-        public void Show(string message)
+        public async Task<bool> Show(string message, Func<Task> func)
         {
-            BusyMessage = message;
+            try
+            {
+                BusyMessage = message;
+                Shown = true;
+                await func();
+                Shown = false;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _messageBoxViewModel.Show("Error", $"{ex.Message} \n {ex.StackTrace}");
+                return false;
+            }
         }
 
-        public void Close()
+        public async Task<bool> Show(string message, Action func)
         {
-            BusyMessage = null;
+            return await Show(message, () => Task.Run(func));
+        }
+
+        private bool _shown;
+
+        public bool Shown
+        {
+            get => _shown;
+            set => this.RaiseAndSetIfChanged(ref _shown, value);
         }
 
         private string _busyMessage;

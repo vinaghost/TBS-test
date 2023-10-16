@@ -128,9 +128,9 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             else
             {
-                _waitingOverlayViewModel.Show("saving settings ...");
-                await Save(AccountId);
-                _waitingOverlayViewModel.Close();
+                await _waitingOverlayViewModel.Show(
+                    "saving settings ...",
+                    () => Save(AccountId));
                 await _messageBoxViewModel.Show("Information", "Settings saved");
             }
         }

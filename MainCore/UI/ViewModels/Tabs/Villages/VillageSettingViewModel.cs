@@ -62,9 +62,10 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             else
             {
-                _waitingOverlayViewModel.Show("saving settings ...");
-                await Save(VillageId);
-                _waitingOverlayViewModel.Close();
+                await _waitingOverlayViewModel.Show(
+                    "saving settings ...",
+                    () => Save(VillageId)
+                );
                 await _messageBoxViewModel.Show("Information", "Settings saved");
             }
         }
@@ -93,9 +94,11 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             else
             {
-                _waitingOverlayViewModel.Show("importing settings ...");
-                await _villageSettingRepository.Set(VillageId, settings);
-                _waitingOverlayViewModel.Close();
+                await _waitingOverlayViewModel.Show(
+                    "importing settings ...",
+                    () => _villageSettingRepository.Set(VillageId, settings)
+                );
+
                 await _messageBoxViewModel.Show("Information", "Settings imported");
             }
         }
@@ -104,11 +107,15 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         {
             var path = _fileDialogViewModel.SaveFileDialog();
 
-            _waitingOverlayViewModel.Show("exporting settings ...");
-            var settings = await _villageSettingRepository.Get(VillageId);
-            var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
-            await File.WriteAllTextAsync(path, jsonString);
-            _waitingOverlayViewModel.Close();
+            await _waitingOverlayViewModel.Show(
+                "exporting settings ...",
+                async () =>
+                {
+                    var settings = await _villageSettingRepository.Get(VillageId);
+                    var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
+                    await File.WriteAllTextAsync(path, jsonString);
+                });
+
             await _messageBoxViewModel.Show("Information", "Settings exported");
         }
     }

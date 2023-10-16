@@ -107,11 +107,12 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             else
             {
-                _waitingOverlayViewModel.Show("editting account ...");
                 var mapper = new AccountInputMapper();
                 var dto = mapper.Map(AccountInput);
-                await _accountRepository.Edit(dto);
-                _waitingOverlayViewModel.Close();
+                await _waitingOverlayViewModel.Show(
+                    "editting account ...",
+                    () => _accountRepository.Edit(dto)
+                );
                 await _messageBoxViewModel.Show("Information", "Edited accounts");
             }
         }

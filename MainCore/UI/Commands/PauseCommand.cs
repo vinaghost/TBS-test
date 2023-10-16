@@ -10,11 +10,13 @@ namespace MainCore.UI.Commands
     {
         private readonly ITaskManager _taskManager;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
 
-        public PauseCommand(ITaskManager taskManager, WaitingOverlayViewModel waitingOverlayViewModel)
+        public PauseCommand(ITaskManager taskManager, WaitingOverlayViewModel waitingOverlayViewModel, MessageBoxViewModel messageBoxViewModel)
         {
             _taskManager = taskManager;
             _waitingOverlayViewModel = waitingOverlayViewModel;
+            _messageBoxViewModel = messageBoxViewModel;
         }
 
         public async Task Execute(int accountId)
@@ -31,27 +33,30 @@ namespace MainCore.UI.Commands
                 var currentTask = _taskManager.GetCurrentTask(accountId);
                 if (currentTask is not null)
                 {
-                    var cts = _taskManager.GetCancellationTokenSource(accountId);
                     _taskManager.SetStatus(accountId, StatusEnums.Pausing);
-                    _waitingOverlayViewModel.Show("waiting current task stops");
-                    cts.Cancel();
-                    await Task.Run(async () =>
-                    {
-                        while (currentTask.Stage != StageEnums.Waiting)
+                    await _waitingOverlayViewModel.Show(
+                        "waiting current task stops",
+                        async () =>
                         {
-                            currentTask = _taskManager.GetCurrentTask(accountId);
-                            if (currentTask is null) return;
-                            await Task.Delay(500);
-                        }
-                    });
-                    _waitingOverlayViewModel.Close();
+                            var cts = _taskManager.GetCancellationTokenSource(accountId);
+                            cts.Cancel();
+                            await Task.Run(async () =>
+                            {
+                                while (currentTask.Stage != StageEnums.Waiting)
+                                {
+                                    currentTask = _taskManager.GetCurrentTask(accountId);
+                                    if (currentTask is null) return;
+                                    await Task.Delay(500);
+                                }
+                            });
+                        });
                 }
 
                 _taskManager.SetStatus(accountId, StatusEnums.Paused);
                 return;
             }
 
-            //await _messageBoxViewModel.Show("Information", $"Account is {status}");
+            await _messageBoxViewModel.Show("Information", $"Account is {status}");
         }
     }
 }

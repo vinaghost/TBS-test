@@ -29,7 +29,6 @@ namespace MainCore.UI.ViewModels.UserControls
         private readonly ITaskManager _taskManager;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-
         private readonly AccountTabStore _accountTabStore;
         private readonly SelectedItemStore _selectedItemStore;
         private readonly MessageBoxViewModel _messageBoxViewModel;
@@ -100,13 +99,12 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            //var result = _messageService.ShowYesNo("Information", $"Are you sure want to delete \n {SelectedAccount.Content}");
-            //if (!result) return;
+            var result = await _messageBoxViewModel.ShowConfirm("Information", $"Are you sure want to delete \n {SelectedAccount.Content}");
+            if (!result) return;
 
-            _waitingOverlayViewModel.Show("deleting account ...");
-            await _accountRepository.Delete(SelectedAccount.Id);
-
-            _waitingOverlayViewModel.Close();
+            await _waitingOverlayViewModel.Show(
+                "deleting account ...",
+                () => _accountRepository.Delete(SelectedAccount.Id));
         }
 
         private async Task LoginTask()

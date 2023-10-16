@@ -25,20 +25,23 @@ namespace MainCore.UI.Commands
             var currentTask = _taskManager.GetCurrentTask(accountId);
             if (currentTask is not null)
             {
-                var cts = _taskManager.GetCancellationTokenSource(accountId);
                 _taskManager.SetStatus(accountId, StatusEnums.Stopping);
-                _waitingOverlayViewModel.Show("waiting current task stops");
-                cts.Cancel();
-                await Task.Run(async () =>
-                {
-                    while (currentTask.Stage != StageEnums.Waiting)
+                await _waitingOverlayViewModel.Show(
+                    "waiting current task stops",
+                    async () =>
                     {
-                        currentTask = _taskManager.GetCurrentTask(accountId);
-                        if (currentTask is null) return;
-                        await Task.Delay(500);
-                    }
-                });
-                _waitingOverlayViewModel.Close();
+                        var cts = _taskManager.GetCancellationTokenSource(accountId);
+                        cts.Cancel();
+                        await Task.Run(async () =>
+                        {
+                            while (currentTask.Stage != StageEnums.Waiting)
+                            {
+                                currentTask = _taskManager.GetCurrentTask(accountId);
+                                if (currentTask is null) return;
+                                await Task.Delay(500);
+                            }
+                        });
+                    });
             }
             await _closeBrowserCommand.Execute(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Offline);

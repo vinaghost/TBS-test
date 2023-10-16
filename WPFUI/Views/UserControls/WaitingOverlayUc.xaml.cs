@@ -1,5 +1,6 @@
 ﻿using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
+using System.Reactive.Disposables;
 
 namespace WPFUI.Views.UserControls
 {
@@ -15,6 +16,12 @@ namespace WPFUI.Views.UserControls
         public WaitingOverlayUc()
         {
             InitializeComponent();
+
+            this.WhenActivated(d =>
+            {
+                this.OneWayBind(ViewModel, vm => vm.Shown, v => v.Grid.Visibility).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.BusyMessage, v => v.Message.Text).DisposeWith(d);
+            });
         }
     }
 }

@@ -99,11 +99,12 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             else
             {
-                _waitingOverlayViewModel.Show("adding account ...");
                 var mapper = new AccountInputMapper();
                 var dto = mapper.Map(AccountInput);
-                await _accountRepository.Add(dto);
-                _waitingOverlayViewModel.Close();
+                await _waitingOverlayViewModel.Show(
+                    "adding account ...",
+                    () => _accountRepository.Add(dto)
+                );
                 await _messageBoxViewModel.Show("Information", "Added account");
             }
         }
