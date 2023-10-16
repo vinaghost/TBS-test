@@ -23,29 +23,35 @@ namespace MainCore.Common.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task<int> GetSetting(int villageId, VillageSettingEnums setting)
+        private int GetSetting(AppDbContext context, int villageId, VillageSettingEnums setting)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var settingEntity = await context.VillagesSetting.FirstOrDefaultAsync(x => x.VillageId == villageId && x.Setting == setting);
+            var settingEntity = context.VillagesSetting
+               .FirstOrDefault(x => x.VillageId == villageId && x.Setting == setting);
             return settingEntity.Value;
         }
 
-        public async Task<int> GetSetting(int villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax)
+        public int GetSetting(int villageId, VillageSettingEnums setting)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var settingEntityMin = await context.VillagesSetting.FirstOrDefaultAsync(x => x.VillageId == villageId && x.Setting == settingMin);
-            var settingEntityMax = await context.VillagesSetting.FirstOrDefaultAsync(x => x.VillageId == villageId && x.Setting == settingMax);
-            return Random.Shared.Next(settingEntityMin.Value, settingEntityMax.Value);
+            using var context = _contextFactory.CreateDbContext();
+            return GetSetting(context, villageId, setting);
         }
 
-        public async Task<bool> GetBoolSetting(int villageId, VillageSettingEnums setting)
+        public int GetSetting(int villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax)
         {
-            var settingEntity = await GetSetting(villageId, setting);
+            using var context = _contextFactory.CreateDbContext();
+            var settingValueMin = GetSetting(context, villageId, settingMin);
+            var settingValueMax = GetSetting(context, villageId, settingMax);
+            return Random.Shared.Next(settingValueMin, settingValueMax);
+        }
+
+        public bool GetBoolSetting(int villageId, VillageSettingEnums setting)
+        {
+            var settingEntity = GetSetting(villageId, setting);
             //return settingEntity == 0 ? false : true;
             return settingEntity != 0;
         }
 
-        public async Task CheckSetting(int villageId, AppDbContext context)
+        public void CheckSetting(AppDbContext context, int villageId)
         {
             var query = context.VillagesSetting.Where(x => x.VillageId == villageId);
             foreach (var setting in _defaultSettings.Keys)
@@ -60,27 +66,27 @@ namespace MainCore.Common.Repositories
                         Value = _defaultSettings[setting],
                     };
 
-                    await context.AddAsync(settingEntity);
+                    context.Add(settingEntity);
                 }
             }
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
 
-        public async Task<Dictionary<VillageSettingEnums, int>> Get(int villageId)
+        public Dictionary<VillageSettingEnums, int> Get(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var settings = await context.VillagesSetting.Where(x => x.VillageId == villageId).ToDictionaryAsync(x => x.Setting, x => x.Value);
+            using var context = _contextFactory.CreateDbContext();
+            var settings = context.VillagesSetting.Where(x => x.VillageId == villageId).ToDictionary(x => x.Setting, x => x.Value);
             return settings;
         }
 
-        public async Task Set(int villageId, Dictionary<VillageSettingEnums, int> settings)
+        public void Set(int villageId, Dictionary<VillageSettingEnums, int> settings)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            using var context = _contextFactory.CreateDbContext();
             var query = context.VillagesSetting.Where(x => x.VillageId == villageId);
 
             foreach (var setting in settings)
             {
-                await query.Where(x => x.Setting == setting.Key).ExecuteUpdateAsync(x => x.SetProperty(x => x.Value, setting.Value));
+                query.Where(x => x.Setting == setting.Key).ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
             }
         }
     }

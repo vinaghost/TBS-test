@@ -6,23 +6,24 @@ namespace MainCore.Common.Repositories
 {
     public interface IAccountRepository
     {
-        event Func<Task> AccountTableChanged;
+        Result Add(Account account);
 
-        Task<Result> Add(Account account);
+        Result Add(AccountDto dto);
 
-        Task Add(AccountDto dto);
+        void AddRange(List<Account> accounts);
 
-        Task AddRange(List<Account> accounts);
-        Task AddRange(List<AccountDto> dtos);
-        Task AddRange(List<AccountsDto> dtos);
-        Task Delete(int accountId);
+        void AddRange(List<AccountDto> dtos);
 
-        Task Edit(Account account);
+        void AddRange(List<AccountsDto> dtos);
 
-        Task Edit(AccountDto dto);
+        void Delete(int accountId);
 
-        Task<List<AccountDto>> Get();
+        void Edit(Account account);
 
-        Task<AccountDto> Get(int accountId);
+        void Edit(AccountDto dto);
+
+        List<AccountDto> Get();
+
+        AccountDto Get(int accountId);
     }
 }

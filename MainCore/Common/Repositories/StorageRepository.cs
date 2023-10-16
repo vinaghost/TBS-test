@@ -17,13 +17,13 @@ namespace MainCore.Common.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task Update(int villageId, Storage storage)
+        public void Update(int villageId, Storage storage)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var storageOnDb = await context.Storages.FirstOrDefaultAsync(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var storageOnDb = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             if (storageOnDb is null)
             {
-                await context.AddAsync(storage);
+                context.Add(storage);
             }
             else
             {
@@ -37,13 +37,13 @@ namespace MainCore.Common.Repositories
                 context.Update(storageOnDb);
             }
 
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
 
-        public async Task<Result> IsEnoughResource(int villageId, long[] requiredResource)
+        public Result IsEnoughResource(int villageId, long[] requiredResource)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var storage = await context.Storages.FirstOrDefaultAsync(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var storage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             var result = Result.Ok();
             if (storage.Wood < requiredResource[0]) result.WithError(new Resource("wood", storage.Wood, requiredResource[0]));
             if (storage.Clay < requiredResource[1]) result.WithError(new Resource("clay", storage.Clay, requiredResource[1]));
@@ -57,10 +57,10 @@ namespace MainCore.Common.Repositories
             return result;
         }
 
-        public async Task<long[]> GetMissingResource(int villageId, long[] requiredResource)
+        public long[] GetMissingResource(int villageId, long[] requiredResource)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var storage = await context.Storages.FirstOrDefaultAsync(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var storage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
 
             var resource = new long[4];
             if (storage.Wood < requiredResource[0]) resource[0] = requiredResource[0] - storage.Wood;

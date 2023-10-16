@@ -16,8 +16,6 @@ namespace MainCore.Common.Repositories
         private readonly IUseragentManager _useragentManager;
         private readonly IAccountSettingRepository _accountSettingRepository;
 
-        public event Func<Task> AccountTableChanged;
-
         public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager, MainCore.Common.Repositories.IAccountSettingRepository accountSettingRepository)
         {
             _contextFactory = contextFactory;
@@ -25,141 +23,123 @@ namespace MainCore.Common.Repositories
             _accountSettingRepository = accountSettingRepository;
         }
 
-        public async Task Add(AccountDto dto)
+        public Result Add(AccountDto dto)
         {
             var mapper = new AccountMapper();
             var account = mapper.Map(dto);
-            await Add(account);
+            return Add(account);
         }
 
-        public async Task<Result> Add(Account account)
+        public Result Add(Account account)
         {
-            using (var context = await _contextFactory.CreateDbContextAsync())
+            using var context = _contextFactory.CreateDbContext();
+
+            var query = context.Accounts
+                .Where(x => x.Username == account.Username
+                            && x.Server == account.Server);
+
+            if (query.Any()) return Result.Fail(new AccountExist(account.Username, account.Server));
+            foreach (var access in account.Accesses)
             {
-                var query = context.Accounts
-                    .Where(x => x.Username == account.Username
-                                && x.Server == account.Server);
-                if (query.Any()) return Result.Fail(new AccountExist(account.Username, account.Server));
+                access.Useragent = _useragentManager.Get();
+            }
+            context.Add(account);
+            context.SaveChanges();
+
+            _accountSettingRepository.CheckSetting(account.Id, context);
+
+            return Result.Ok();
+        }
+
+        public void AddRange(List<AccountDto> dtos)
+        {
+            var mapper = new AccountMapper();
+            var accounts = mapper.Map(dtos);
+            AddRange(accounts);
+        }
+
+        public void AddRange(List<AccountsDto> dtos)
+        {
+            var mapper = new AccountsMapper();
+            var accounts = mapper.Map(dtos);
+            AddRange(accounts);
+        }
+
+        public void AddRange(List<Account> accounts)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            foreach (var account in accounts)
+            {
                 foreach (var access in account.Accesses)
                 {
                     access.Useragent = _useragentManager.Get();
                 }
-                await context.AddAsync(account);
-                await context.SaveChangesAsync();
-
-                await _accountSettingRepository.CheckSetting(account.Id, context);
             }
-            if (AccountTableChanged is not null)
+            context.AddRange(accounts);
+            context.SaveChanges();
+            foreach (var account in accounts)
             {
-                await AccountTableChanged();
-            }
-            return Result.Ok();
-        }
-
-        public async Task AddRange(List<AccountDto> dtos)
-        {
-            var mapper = new AccountMapper();
-            var accounts = mapper.Map(dtos);
-            await AddRange(accounts);
-        }
-
-        public async Task AddRange(List<AccountsDto> dtos)
-        {
-            var mapper = new AccountsMapper();
-            var accounts = mapper.Map(dtos);
-            await AddRange(accounts);
-        }
-
-        public async Task AddRange(List<Account> accounts)
-        {
-            using (var context = await _contextFactory.CreateDbContextAsync())
-            {
-                foreach (var account in accounts)
-                {
-                    foreach (var access in account.Accesses)
-                    {
-                        access.Useragent = _useragentManager.Get();
-                    }
-                }
-                await context.AddRangeAsync(accounts);
-                await context.SaveChangesAsync();
-                foreach (var account in accounts)
-                {
-                    await _accountSettingRepository.CheckSetting(account.Id, context);
-                }
-            }
-            if (AccountTableChanged is not null)
-            {
-                await AccountTableChanged();
+                _accountSettingRepository.CheckSetting(account.Id, context);
             }
         }
 
-        public async Task<List<AccountDto>> Get()
+        public List<AccountDto> Get()
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var accounts = await context.Accounts
+            using var context = _contextFactory.CreateDbContext();
+            var accounts = context.Accounts
                 .AsQueryable()
                 .ProjectToDto()
-                .ToListAsync();
+                .ToList();
             return accounts;
         }
 
-        public async Task<AccountDto> Get(int accountId)
+        public AccountDto Get(int accountId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var account = await context.Accounts
-                .FindAsync(accountId);
-            await context.Entry(account)
-                .Collection(x => x.Accesses)
-                .LoadAsync();
+            using var context = _contextFactory.CreateDbContext();
+            var account = context.Accounts
+                .Find(accountId);
+            context.Entry(account)
+               .Collection(x => x.Accesses)
+               .Load();
             var mapper = new AccountMapper();
             return mapper.Map(account);
         }
 
-        public async Task Edit(AccountDto dto)
+        public void Edit(AccountDto dto)
         {
             var mapper = new AccountMapper();
             var account = mapper.Map(dto);
-            await Edit(account);
+            Edit(account);
         }
 
-        public async Task Edit(Account account)
+        public void Edit(Account account)
         {
-            using (var context = await _contextFactory.CreateDbContextAsync())
-            {
-                var accessIds = account.Accesses
-                    .Where(x => x.AccountId == account.Id)
-                    .Select(x => x.Id)
-                    .ToList();
+            using var context = _contextFactory.CreateDbContext();
 
-                var oldAccessIds = accessIds.Except(account.Accesses.Select(x => x.Id));
+            var accessIds = account.Accesses
+                .Where(x => x.AccountId == account.Id)
+                .Select(x => x.Id)
+                .ToList();
 
-                await context.Accesses
-                    .Where(x => oldAccessIds.Contains(x.Id))
-                    .ExecuteDeleteAsync();
+            var oldAccessIds = accessIds
+                .Except(account.Accesses.Select(x => x.Id));
 
-                context.Update(account);
-                await context.SaveChangesAsync();
-            }
-            if (AccountTableChanged is not null)
-            {
-                await AccountTableChanged();
-            }
+            context.Accesses
+               .Where(x => oldAccessIds.Contains(x.Id))
+               .ExecuteDelete();
+
+            context.Update(account);
+            context.SaveChanges();
         }
 
-        public async Task Delete(int accountId)
+        public void Delete(int accountId)
         {
-            using (var context = await _contextFactory.CreateDbContextAsync())
-            {
-                await context.Accounts
-                    .Where(x => x.Id == accountId)
-                    .ExecuteDeleteAsync();
-            }
+            using var context = _contextFactory.CreateDbContext();
 
-            if (AccountTableChanged is not null)
-            {
-                await AccountTableChanged();
-            }
+            context.Accounts
+               .Where(x => x.Id == accountId)
+               .ExecuteDelete();
         }
     }
 }

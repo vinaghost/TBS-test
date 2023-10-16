@@ -4,11 +4,12 @@ namespace MainCore.Common.Repositories
 {
     public interface IQueueBuildingRepository
     {
-        event Func<int, Task> QueueBuildingUpdated;
+        QueueBuilding GetFirst(int villageId);
 
-        Task<QueueBuilding> GetFirst(int villageId);
-        Task<List<QueueBuilding>> GetList(int villageId);
-        Task Update(int villageId, List<QueueBuilding> queueBuildings);
-        Task Update(int villageId, List<Building> buildings);
+        List<QueueBuilding> GetList(int villageId);
+
+        void Update(int villageId, List<Building> buildings);
+
+        void Update(int villageId, List<QueueBuilding> queueBuildings);
     }
 }

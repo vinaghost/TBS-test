@@ -10,78 +10,71 @@ namespace MainCore.Common.Repositories
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public event Func<int, Task> FarmListsUpdated;
-
         public FarmListRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
 
-        public async Task<List<FarmList>> GetList(int accountId)
+        public List<FarmList> GetList(int accountId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var farmListIds = await context.FarmLists
+            using var context = _contextFactory.CreateDbContext();
+            var farmLists = context.FarmLists
                     .Where(x => x.AccountId == accountId)
-                    .ToListAsync();
-            return farmListIds;
+                    .ToList();
+            return farmLists;
         }
 
-        public async Task ActiveFarmList(int farmListId)
+        public void ActiveFarmList(int farmListId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            await context.FarmLists
-                .Where(x => x.Id == farmListId)
-                .ExecuteUpdateAsync(x => x.SetProperty(x => x.IsActive, x => !x.IsActive));
+            using var context = _contextFactory.CreateDbContext();
+            context.FarmLists
+               .Where(x => x.Id == farmListId)
+               .ExecuteUpdate(x => x.SetProperty(x => x.IsActive, x => !x.IsActive));
         }
 
-        public async Task<int> CountActiveFarmLists(int accountId)
+        public int CountActiveFarmLists(int accountId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var count = await context.FarmLists
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .Where(x => x.IsActive)
-                    .CountAsync();
+                    .Count();
             return count;
         }
 
-        public async Task<List<int>> GetActiveFarmLists(int accountId)
+        public List<int> GetActiveFarmLists(int accountId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var farmListIds = await context.FarmLists
+            using var context = _contextFactory.CreateDbContext();
+            var farmListIds = context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .Where(x => x.IsActive)
                     .Select(x => x.Id)
-                    .ToListAsync();
+                    .ToList();
             return farmListIds;
         }
 
-        public async Task Update(int accountId, List<FarmList> farmLists)
+        public void Update(int accountId, List<FarmList> farmLists)
         {
-            using (var context = await _contextFactory.CreateDbContextAsync())
+            using var context = _contextFactory.CreateDbContext();
+
+            var dbFarmList = context.FarmLists.Where(x => x.AccountId == accountId).ToList();
+
+            var newFarmList = farmLists.Except(dbFarmList).ToList();
+            var oldFarmList = dbFarmList.Except(farmLists).ToList();
+            var updateFarmList = dbFarmList.Where(x => !oldFarmList.Contains(x)).ToList();
+
+            context.AddRange(newFarmList);
+            context.RemoveRange(oldFarmList);
+            foreach (var village in updateFarmList)
             {
-                var dbFarmList = await context.FarmLists.Where(x => x.AccountId == accountId).ToListAsync();
+                var vill = farmLists.FirstOrDefault(x => x.Id == village.Id);
+                if (vill is null) break;
 
-                var newFarmList = farmLists.Except(dbFarmList).ToList();
-                var oldFarmList = dbFarmList.Except(farmLists).ToList();
-                var updateFarmList = dbFarmList.Where(x => !oldFarmList.Contains(x)).ToList();
-
-                await context.AddRangeAsync(newFarmList);
-                context.RemoveRange(oldFarmList);
-                foreach (var village in updateFarmList)
-                {
-                    var vill = farmLists.FirstOrDefault(x => x.Id == village.Id);
-                    if (vill is null) break;
-
-                    village.Name = vill.Name;
-                }
-                context.UpdateRange(updateFarmList);
-
-                await context.SaveChangesAsync();
+                village.Name = vill.Name;
             }
-            if (FarmListsUpdated is not null)
-            {
-                await FarmListsUpdated(accountId);
-            }
+            context.UpdateRange(updateFarmList);
+
+            context.SaveChanges();
         }
     }
 }

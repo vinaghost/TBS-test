@@ -15,21 +15,24 @@ namespace MainCore.Common.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task<bool> IsPlusActive(int accountId)
+        public bool IsPlusActive(int accountId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var accountInfo = await context.AccountsInfo.FirstOrDefaultAsync(x => x.AccountId == accountId);
-            return accountInfo?.HasPlusAccount ?? false;
+            using var context = _contextFactory.CreateDbContext();
+            var accountInfo = context.AccountsInfo
+                .FirstOrDefault(x => x.AccountId == accountId);
+            if (accountInfo is null) return false;
+            return accountInfo.HasPlusAccount;
         }
 
-        public async Task Update(int accountId, AccountInfo accountInfo)
+        public void Update(int accountId, AccountInfo accountInfo)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            using var context = _contextFactory.CreateDbContext();
 
-            var dbAccountInfo = await context.AccountsInfo.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            var dbAccountInfo = context.AccountsInfo
+                .FirstOrDefault(x => x.AccountId == accountId);
             if (dbAccountInfo is null)
             {
-                await context.AddAsync(accountInfo);
+                context.Add(accountInfo);
             }
             else
             {
@@ -39,7 +42,7 @@ namespace MainCore.Common.Repositories
                 dbAccountInfo.HasPlusAccount = accountInfo.HasPlusAccount;
                 context.Update(dbAccountInfo);
             }
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
     }
 }

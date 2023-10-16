@@ -4,7 +4,8 @@ namespace MainCore.Common.Repositories
 {
     public interface IAccountInfoRepository
     {
-        Task<bool> IsPlusActive(int accountId);
-        Task Update(int accountId, AccountInfo accountInfo);
+        bool IsPlusActive(int accountId);
+
+        void Update(int accountId, AccountInfo accountInfo);
     }
 }

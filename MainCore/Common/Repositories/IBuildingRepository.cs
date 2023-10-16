@@ -8,22 +8,32 @@ namespace MainCore.Common.Repositories
 {
     public interface IBuildingRepository
     {
-        event Func<int, Task> BuildingUpdated;
+        List<BuildingEnums> AvailableBuildings { get; }
 
-        Task<Result> CheckRequirements(int villageId, NormalBuildPlan plan);
-        Task<int> CountInfrastructureQueueBuilding(int villageId);
-        Task<int> CountQueueBuilding(int villageId);
-        Task<int> CountResourceQueueBuilding(int villageId);
-        Task<Building> Get(int buildingId);
-        List<BuildingEnums> GetAvailableBuildings();
-        Task<Building> GetBasedOnLocation(int villageId, int location);
-        Task<List<BuildingItemDto>> GetBuildingItems(int villageId);
-        Task<Building> GetCropland(int villageId);
-        Task<List<Building>> GetList(int villageId);
-        Task<NormalBuildPlan> GetNormalBuildPlan(int villageId, ResourceBuildPlan plan);
-        Task<bool> HasRallyPoint(int villageId);
-        Task<bool> IsValid(int villageId, Job job);
-        Task Update(int villageId, List<Building> buildings);
-        Task Validate(int villageId, NormalBuildPlan plan);
+        Result CheckRequirements(int villageId, NormalBuildPlan plan);
+
+        int CountQueueBuilding(int villageId);
+
+        int CountResourceQueueBuilding(int villageId);
+
+        Building GetBuilding(int buildingId);
+
+        Building GetBuilding(int villageId, int location);
+
+        List<BuildingItemDto> GetBuildingItems(int villageId);
+
+        List<Building> GetBuildingList(int villageId);
+
+        Building GetCropland(int villageId);
+
+        NormalBuildPlan GetNormalBuildPlan(int villageId, ResourceBuildPlan plan);
+
+        bool HasRallyPoint(int villageId);
+
+        bool IsJobValid(int villageId, Job job);
+
+        void Update(int villageId, List<Building> buildings);
+
+        void Validate(int villageId, NormalBuildPlan plan);
     }
 }

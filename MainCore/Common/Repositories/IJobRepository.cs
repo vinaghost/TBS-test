@@ -4,34 +4,26 @@ namespace MainCore.Common.Repositories
 {
     public interface IJobRepository
     {
-        event Func<int, Job, Task> AddActionCompleted;
+        Job Add<T>(int villageId, T content);
 
-        event Func<int, Task> Locked;
+        Job AddToTop<T>(int villageId, T content);
 
-        event Func<int, Job, Task> DeleteActionCompleted;
+        void Clear(int villageId);
 
-        Task<Job> Add<T>(int villageId, T content);
+        int CountBuildingJob(int villageId);
 
-        Task<Job> AddToTop<T>(int villageId, T content);
+        void Delete(int jobId);
 
-        Task Clear(int villageId);
+        Job Get(int jobId);
 
-        Task CompleteAdd(int villageId, Job job);
+        Job GetFirstJob(int villageId);
 
-        Task CompleteDelete(int villageId, Job job);
+        Job GetInfrastructureBuildingJob(int villageId);
 
-        Task<int> CountBuildingJob(int villageId);
+        List<Job> GetList(int villageId);
 
-        Task Delete(int jobId);
+        Job GetResourceBuildingJob(int villageId);
 
-        Task<Job> Get(int jobId);
-
-        Task<Job> GetFirstJob(int villageId);
-        Task<Job> GetInfrastructureBuildingJob(int villageId);
-        Task<List<Job>> GetList(int villageId);
-        Task<Job> GetResourceBuildingJob(int villageId);
-        Task Lock(int villageId);
-
-        Task Move(int jobOldId, int jobNewId);
+        void Move(int jobOldId, int jobNewId);
     }
 }

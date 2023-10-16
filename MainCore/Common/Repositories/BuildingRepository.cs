@@ -17,154 +17,137 @@ namespace MainCore.Common.Repositories
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public event Func<int, Task> BuildingUpdated;
-
-        private readonly List<BuildingEnums> _availableBuildings;
+        private readonly List<BuildingEnums> _availableBuildings = new();
 
         public BuildingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
 
-            _availableBuildings = new();
             for (var i = BuildingEnums.Sawmill; i <= BuildingEnums.Hospital; i++)
             {
                 _availableBuildings.Add(i);
             }
         }
 
-        public List<BuildingEnums> GetAvailableBuildings()
-        {
-            return _availableBuildings;
-        }
+        public List<BuildingEnums> AvailableBuildings => _availableBuildings;
 
-        public async Task<List<Building>> GetList(int villageId)
+        public List<Building> GetBuildingList(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var buildings = await context.Buildings.Where(x => x.VillageId == villageId).OrderBy(x => x.Location).ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            var buildings = context.Buildings
+                .Where(x => x.VillageId == villageId)
+                .OrderBy(x => x.Location)
+                .ToList();
             return buildings;
         }
 
-        public async Task<Building> Get(int buildingId)
+        public Building GetBuilding(int buildingId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var building = await context.Buildings.FindAsync(buildingId);
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings
+                .Find(buildingId);
             return building;
         }
 
-        public async Task<Building> GetBasedOnLocation(int villageId, int location)
+        public Building GetBuilding(int villageId, int location)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var building = await context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings
                 .Where(x => x.VillageId == villageId && x.Location == location)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
             return building;
         }
 
-        public async Task<int> CountQueueBuilding(int villageId)
+        public int CountQueueBuilding(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var count = await context.QueueBuildings
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
-                .CountAsync();
+                .Count();
             return count;
         }
 
-        public async Task<int> CountResourceQueueBuilding(int villageId)
+        public int CountResourceQueueBuilding(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var count = await context.QueueBuildings
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.QueueBuildings
                 .Where(x => x.VillageId == villageId)
                 .Where(x =>
                     x.Type == BuildingEnums.Woodcutter ||
                     x.Type == BuildingEnums.ClayPit ||
                     x.Type == BuildingEnums.IronMine ||
                     x.Type == BuildingEnums.Cropland)
-                .CountAsync();
+                .Count();
             return count;
         }
 
-        public async Task<int> CountInfrastructureQueueBuilding(int villageId)
+        public bool HasRallyPoint(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var count = await context.QueueBuildings
-                .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
-                .Where(x =>
-                    x.Type != BuildingEnums.Woodcutter &&
-                    x.Type != BuildingEnums.ClayPit &&
-                    x.Type != BuildingEnums.IronMine &&
-                    x.Type != BuildingEnums.Cropland)
-                .CountAsync();
-            return count;
-        }
-
-        public async Task<bool> HasRallyPoint(int villageId)
-        {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            return await context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            return context.Buildings
                         .Where(x => x.VillageId == villageId && x.Level > 0 && x.Type == BuildingEnums.RallyPoint)
-                        .AnyAsync();
+                        .Any();
         }
 
-        public async Task<bool> IsValid(int villageId, Job job)
+        public bool IsJobValid(int villageId, Job job)
         {
             if (job.Type == JobTypeEnums.ResourceBuild) return true;
             var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var building = await context.Buildings.FirstOrDefaultAsync(x => x.VillageId == villageId && x.Location == plan.Location);
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings.FirstOrDefault(x => x.VillageId == villageId && x.Location == plan.Location);
             if (building is null) return true;
             if (building.Level >= plan.Level) return false;
 
-            var queueBuilding = await context.QueueBuildings
+            var queueBuilding = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Location == plan.Location)
                 .OrderByDescending(x => x.Level)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
             if (queueBuilding is null) return true;
             if (queueBuilding.Level >= plan.Level) return false;
             return true;
         }
 
-        public async Task Update(int villageId, List<Building> buildings)
+        public void Update(int villageId, List<Building> buildings)
         {
-            using (var context = await _contextFactory.CreateDbContextAsync())
+            using var context = _contextFactory.CreateDbContext();
+
+            var dbBuildings = context.Buildings
+                .Where(x => x.VillageId == villageId)
+                .OrderBy(x => x.Location)
+                .ToList();
+            foreach (var building in buildings)
             {
-                var dbBuildings = await context.Buildings.Where(x => x.VillageId == villageId).OrderBy(x => x.Location).ToListAsync();
-                foreach (var building in buildings)
+                var dbBuilding = dbBuildings
+                    .FirstOrDefault(x => x.Location == building.Location);
+                if (dbBuilding is null)
                 {
-                    var dbBuilding = dbBuildings.FirstOrDefault(x => x.Location == building.Location);
-                    if (dbBuilding is null)
-                    {
-                        await context.AddAsync(building);
-                    }
-                    else
-                    {
-                        dbBuilding.Level = building.Level;
-                        dbBuilding.Type = building.Type;
-                        dbBuilding.IsUnderConstruction = building.IsUnderConstruction;
-                        context.Update(dbBuilding);
-                    }
+                    context.Add(building);
                 }
-                await context.SaveChangesAsync();
+                else
+                {
+                    dbBuilding.Level = building.Level;
+                    dbBuilding.Type = building.Type;
+                    dbBuilding.IsUnderConstruction = building.IsUnderConstruction;
+                    context.Update(dbBuilding);
+                }
             }
-            if (BuildingUpdated is not null)
-            {
-                await BuildingUpdated(villageId);
-            }
+            context.SaveChanges();
         }
 
-        public async Task<Building> GetCropland(int villageId)
+        public Building GetCropland(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var building = await context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings
                 .Where(x => x.VillageId == villageId
                             && x.Type == BuildingEnums.Cropland)
                 .OrderByDescending(x => x.Level)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
             return building;
         }
 
-        public async Task<NormalBuildPlan> GetNormalBuildPlan(int villageId, ResourceBuildPlan plan)
+        public NormalBuildPlan GetNormalBuildPlan(int villageId, ResourceBuildPlan plan)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            using var context = _contextFactory.CreateDbContext();
             var query = context.Buildings.Where(x => x.VillageId == villageId);
             switch (plan.Plan)
             {
@@ -197,7 +180,7 @@ namespace MainCore.Common.Repositories
             {
                 if (building.IsUnderConstruction)
                 {
-                    var levelUpgrading = await context.QueueBuildings.Where(x => x.VillageId == villageId && x.Location == building.Location).CountAsync();
+                    var levelUpgrading = context.QueueBuildings.Where(x => x.VillageId == villageId && x.Location == building.Location).Count();
                     building.Level += levelUpgrading;
                 }
             }
@@ -215,11 +198,11 @@ namespace MainCore.Common.Repositories
             return normalBuildPlan;
         }
 
-        public async Task<Result> CheckRequirements(int villageId, NormalBuildPlan plan)
+        public Result CheckRequirements(int villageId, NormalBuildPlan plan)
         {
             var prerequisiteBuildings = plan.Type.GetPrerequisiteBuildings();
             if (prerequisiteBuildings.Count == 0) return Result.Ok();
-            var buildings = await GetBuildings(villageId);
+            var buildings = GetBuildings(villageId);
             foreach (var prerequisiteBuilding in prerequisiteBuildings)
             {
                 var building = buildings.FirstOrDefault(x => x.Type == prerequisiteBuilding.Type);
@@ -229,14 +212,14 @@ namespace MainCore.Common.Repositories
             return Result.Ok();
         }
 
-        public async Task Validate(int villageId, NormalBuildPlan plan)
+        public void Validate(int villageId, NormalBuildPlan plan)
         {
             if (plan.Type.IsWall())
             {
                 plan.Location = 40;
                 return;
             }
-            var buildings = await GetBuildings(villageId);
+            var buildings = GetBuildings(villageId);
             if (plan.Type.IsMultipleBuilding())
             {
                 var sameTypeBuildings = buildings.Where(x => x.Type == plan.Type);
@@ -263,9 +246,9 @@ namespace MainCore.Common.Repositories
             }
         }
 
-        public async Task<List<BuildingItemDto>> GetBuildingItems(int villageId)
+        public List<BuildingItemDto> GetBuildingItems(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            using var context = _contextFactory.CreateDbContext();
             var villageBuildings = context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
@@ -357,9 +340,9 @@ namespace MainCore.Common.Repositories
             return villageBuildings;
         }
 
-        private async Task<List<BuildingItem>> GetBuildings(int villageId)
+        private List<BuildingItem> GetBuildings(int villageId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            using var context = _contextFactory.CreateDbContext();
             var villageBuildings = context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)

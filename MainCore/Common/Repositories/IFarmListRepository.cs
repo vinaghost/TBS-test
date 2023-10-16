@@ -4,16 +4,14 @@ namespace MainCore.Common.Repositories
 {
     public interface IFarmListRepository
     {
-        event Func<int, Task> FarmListsUpdated;
+        void ActiveFarmList(int farmListId);
 
-        Task ActiveFarmList(int farmListId);
+        int CountActiveFarmLists(int accountId);
 
-        Task<int> CountActiveFarmLists(int accountId);
+        List<int> GetActiveFarmLists(int accountId);
 
-        Task<List<int>> GetActiveFarmLists(int accountId);
+        List<FarmList> GetList(int accountId);
 
-        Task<List<FarmList>> GetList(int accountId);
-
-        Task Update(int accountId, List<FarmList> farmLists);
+        void Update(int accountId, List<FarmList> farmLists);
     }
 }

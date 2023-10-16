@@ -18,37 +18,37 @@ namespace MainCore.Common.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task<Result> IsEnoughResource(int accountId, long[] requiredResource)
+        public Result IsEnoughResource(int accountId, long[] requiredResource)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            using var context = _contextFactory.CreateDbContext();
             var items = context.HeroItems.Where(x => x.AccountId == accountId);
 
             var result = Result.Ok();
-            var wood = await items.FirstOrDefaultAsync(x => x.Type == HeroItemEnums.Wood);
+            var wood = items.FirstOrDefault(x => x.Type == HeroItemEnums.Wood);
             var woodAmount = wood?.Amount ?? 0;
             if (woodAmount < requiredResource[0]) result.WithError(new Resource("wood", woodAmount, requiredResource[0]));
-            var clay = await items.FirstOrDefaultAsync(x => x.Type == HeroItemEnums.Clay);
+            var clay = items.FirstOrDefault(x => x.Type == HeroItemEnums.Clay);
             var clayAmount = clay?.Amount ?? 0;
             if (clayAmount < requiredResource[1]) result.WithError(new Resource("clay", clayAmount, requiredResource[1]));
-            var iron = await items.FirstOrDefaultAsync(x => x.Type == HeroItemEnums.Iron);
+            var iron = items.FirstOrDefault(x => x.Type == HeroItemEnums.Iron);
             var ironAmount = iron?.Amount ?? 0;
             if (ironAmount < requiredResource[2]) result.WithError(new Resource("iron", ironAmount, requiredResource[2]));
-            var crop = await items.FirstOrDefaultAsync(x => x.Type == HeroItemEnums.Crop);
+            var crop = items.FirstOrDefault(x => x.Type == HeroItemEnums.Crop);
             var cropAmount = crop?.Amount ?? 0;
             if (cropAmount < requiredResource[3]) result.WithError(new Resource("crop", cropAmount, requiredResource[3]));
             return result;
         }
 
-        public async Task Update(int accountId, IEnumerable<HeroItem> items)
+        public void Update(int accountId, IEnumerable<HeroItem> items)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var dbItems = await context.HeroItems.Where(x => x.AccountId == accountId).ToListAsync();
+            using var context = _contextFactory.CreateDbContext();
+            var dbItems = context.HeroItems.Where(x => x.AccountId == accountId).ToList();
             foreach (var item in items)
             {
                 var dbItem = dbItems.FirstOrDefault(x => x.Type == item.Type);
                 if (dbItem is null)
                 {
-                    await context.AddAsync(item);
+                    context.Add(item);
                 }
                 else
                 {
@@ -57,7 +57,7 @@ namespace MainCore.Common.Repositories
                     context.Update(dbItem);
                 }
             }
-            await context.SaveChangesAsync();
+            context.SaveChanges();
         }
     }
 }

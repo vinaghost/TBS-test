@@ -4,18 +4,16 @@ namespace MainCore.Common.Repositories
 {
     public interface IVillageRepository
     {
-        event Func<int, Task> VillageListChanged;
+        Village Get(int villageId);
 
-        Task<Village> Get(int villageId);
+        Village GetActive(int accountId);
 
-        Task<Village> GetActive(int accountId);
+        List<Village> GetInactive(int accountId);
 
-        Task<List<Village>> GetInactive(int accountId);
+        List<Village> GetList(int accountId);
 
-        Task<List<Village>> GetList(int accountId);
+        List<Village> GetUnloadList(int accountId);
 
-        Task<List<Village>> GetUnloadList(int accountId);
-
-        Task<List<Village>> Update(int accountId, List<Village> villages);
+        List<Village> Update(int accountId, List<Village> villages);
     }
 }
