@@ -24,8 +24,8 @@ namespace WPFUI.Views.Tabs
                 this.BindCommand(ViewModel, vm => vm.ActiveFarmListCommand, v => v.ActiveButton).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.LoadFarmListCommand, v => v.Load).DisposeWith(d);
 
-                this.OneWayBind(ViewModel, vm => vm.FarmLists, v => v.FarmlistGrid.ItemsSource).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.SelectedFarmList, v => v.FarmlistGrid.SelectedItem).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.FarmLists.Items, v => v.FarmlistGrid.ItemsSource).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.FarmLists.SelectedItem, v => v.FarmlistGrid.SelectedItem).DisposeWith(d);
 
                 this.Bind(ViewModel, vm => vm.FarmListSettingInput.UseStartAllButton, v => v.UseStartAllCheckbox.IsChecked).DisposeWith(d);
                 this.OneWayBind(ViewModel, vm => vm.FarmListSettingInput.FarmInterval, v => v.FarmInterval.ViewModel).DisposeWith(d);

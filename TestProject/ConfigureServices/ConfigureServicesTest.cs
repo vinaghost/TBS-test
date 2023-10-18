@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
+using MainCore;
 using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using Microsoft.Extensions.DependencyInjection;
-using WPFUI;
 
 namespace TestProject.ConfigureServices
 {
@@ -14,7 +14,7 @@ namespace TestProject.ConfigureServices
         [DataRow(ServerEnums.TTWars)]
         public void ConfigureServicesTest_ShouldPass(ServerEnums server)
         {
-            var container = ServicesConfigure.Setup();
+            var container = DependencyInjection.Setup();
 
             var foundServices = AutoRegisterHelpers.GetAutoRegistered(server);
             foreach (var service in foundServices)

@@ -18,12 +18,12 @@ namespace WPFUI.Views.Tabs.Villages
             InitializeComponent();
             this.WhenActivated(d =>
             {
-                this.OneWayBind(ViewModel, vm => vm.Buildings, v => v.BuildingsGrid.ItemsSource).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.SelectedBuilding, v => v.BuildingsGrid.SelectedItem).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.Buildings.Items, v => v.BuildingsGrid.ItemsSource).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.Buildings.SelectedItem, v => v.BuildingsGrid.SelectedItem).DisposeWith(d);
 
-                this.OneWayBind(ViewModel, vm => vm.Jobs, v => v.JobsGrid.ItemsSource).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.SelectedJob, v => v.JobsGrid.SelectedItem).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.SelectedJobIndex, v => v.JobsGrid.SelectedIndex).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.Jobs.Items, v => v.JobsGrid.ItemsSource).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.Jobs.SelectedItem, v => v.JobsGrid.SelectedItem).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.Jobs.SelectedIndex, v => v.JobsGrid.SelectedIndex).DisposeWith(d);
 
                 this.BindCommand(ViewModel, vm => vm.UpCommand, v => v.UpButton).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.DownCommand, v => v.DownButton).DisposeWith(d);

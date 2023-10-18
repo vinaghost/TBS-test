@@ -22,8 +22,8 @@ namespace WPFUI.Views.Tabs
                 this.BindCommand(ViewModel, vm => vm.LoadUnloadCommand, v => v.LoadUnload).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.LoadAllCommand, v => v.LoadAll).DisposeWith(d);
 
-                this.OneWayBind(ViewModel, vm => vm.Villages, v => v.VillagesGrid.ItemsSource).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.SelectedVillage, v => v.VillagesGrid.SelectedItem).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.Villages.Items, v => v.VillagesGrid.ItemsSource).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.Villages.SelectedItem, v => v.VillagesGrid.SelectedItem).DisposeWith(d);
 
                 // tabs
                 this.OneWayBind(ViewModel, vm => vm.VillageTabStore.NoVillageViewModel, v => v.NoVillage.ViewModel).DisposeWith(d);
