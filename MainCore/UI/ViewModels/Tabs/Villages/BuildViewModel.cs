@@ -2,7 +2,6 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Models;
 using MainCore.Common.Repositories;
-using MainCore.Entities;
 using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -11,7 +10,6 @@ using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
-using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
 
@@ -39,11 +37,6 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             _taskManager = taskManager;
             _messageBoxViewModel = messageBoxViewModel;
 
-            _buildingRepository.BuildingUpdated += BuildingUpdated;
-            _jobRepository.Locked += Locked;
-            _jobRepository.AddActionCompleted += AddActionCompleted;
-            _jobRepository.DeleteActionCompleted += DeleteActionCompleted;
-
             NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
             ResourceBuildCommand = ReactiveCommand.CreateFromTask(ResourceBuildTask);
 
@@ -55,56 +48,26 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             DeleteCommand = ReactiveCommand.CreateFromTask(DeleteTask, jobObservable);
             DeleteAllCommand = ReactiveCommand.CreateFromTask(DeleteAllTask, jobObservable);
 
-            this.WhenAnyValue(vm => vm.SelectedBuilding)
+            this.WhenAnyValue(vm => vm.Buildings.SelectedItem)
                 .Subscribe(async x => await LoadNormalBuild());
         }
 
-        private async Task DeleteActionCompleted(int villageId, Job job)
+        public async Task BuildingUpdate(int villageId)
         {
             if (!IsActive) return;
             if (villageId != VillageId) return;
-            await Observable.Start(async () =>
-            {
-                var uiJob = Jobs.FirstOrDefault(x => x.Id == job.Id);
-                Jobs.Remove(uiJob);
-                SelectedJob = Jobs[0];
-
-                IsEnableNormalBuild = true;
-                IsEnableResourceBuild = true;
-                IsEnableJob = true;
-                await LoadBuildings(VillageId);
-            }, RxApp.MainThreadScheduler);
+            await Observable.Start(
+                async () => await LoadBuildings(villageId),
+                RxApp.MainThreadScheduler);
         }
 
-        private async Task AddActionCompleted(int villageId, Job job)
+        public async Task JobUpdate(int villageId)
         {
             if (!IsActive) return;
             if (villageId != VillageId) return;
-            await Observable.Start(async () =>
-            {
-                Jobs.Insert(0, new(job));
-                CheckBuildings();
-                IsEnableJob = true;
-                await LoadBuildings(VillageId);
-            }, RxApp.MainThreadScheduler);
-        }
-
-        private async Task Locked(int villageId)
-        {
-            if (!IsActive) return;
-            if (villageId != VillageId) return;
-            await Observable.Start(() =>
-            {
-                CheckBuildings();
-                IsEnableJob = false;
-            }, RxApp.MainThreadScheduler);
-        }
-
-        private async Task BuildingUpdated(int villageId)
-        {
-            if (!IsActive) return;
-            if (villageId != VillageId) return;
-            await Observable.Start(async () => await LoadBuildings(villageId), RxApp.MainThreadScheduler);
+            await Observable.Start(
+                async () => await LoadJobs(villageId),
+                RxApp.MainThreadScheduler);
         }
 
         protected override async Task Load(int villageId)
@@ -131,46 +94,20 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task LoadBuildings(int villageId)
         {
-            var buildings = await _buildingRepository.GetBuildingItems(villageId);
-            Buildings.Clear();
-            foreach (var building in buildings)
-            {
-                Buildings.Add(new(building));
-            }
-
-            if (buildings.Count > 0)
-            {
-                SelectedBuilding = Buildings[0];
-            }
-            else
-            {
-                SelectedBuilding = null;
-            }
+            var buildings = await Task.Run(() => _buildingRepository.GetBuildingItems(villageId));
+            Buildings.Load(buildings.Select(x => new ListBoxItem(x)));
         }
 
         private async Task LoadJobs(int villageId)
         {
             IsEnableJob = true;
-            var jobs = await _jobRepository.GetList(villageId);
-            Jobs.Clear();
-            foreach (var job in jobs)
-            {
-                Jobs.Add(new(job));
-            }
-
-            if (jobs.Count > 0)
-            {
-                SelectedJob = Jobs[0];
-            }
-            else
-            {
-                SelectedJob = null;
-            }
+            var jobs = await Task.Run(() => _jobRepository.GetList(villageId));
+            Jobs.Load(jobs.Select(x => new ListBoxItem(x)));
         }
 
         private async Task LoadNormalBuild()
         {
-            if (SelectedBuilding is null)
+            if (!Buildings.IsSelected)
             {
                 IsEnableNormalBuild = false;
                 NormalBuildInput.Clear();
@@ -178,15 +115,15 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             IsEnableNormalBuild = true;
 
-            var building = await _buildingRepository.Get(SelectedBuilding.Id);
+            var building = await Task.Run(() => _buildingRepository.GetBuilding(Buildings.SelectedItemId));
             if (building.Type == BuildingEnums.Site)
             {
-                var buildings = _buildingRepository.GetAvailableBuildings();
+                var buildings = _buildingRepository.AvailableBuildings;
                 NormalBuildInput.Set(buildings);
             }
             else
             {
-                NormalBuildInput.Set(new() { building.Type }, building.Level + 1);
+                NormalBuildInput.Set(new List<BuildingEnums>() { building.Type }, building.Level + 1);
             }
         }
 
@@ -243,9 +180,9 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task UpTask()
         {
-            if (SelectedJob is null) return;
+            if (!Jobs.IsSelected) return;
 
-            var oldIndex = SelectedJobIndex;
+            var oldIndex = Jobs.SelectedIndex;
 
             if (oldIndex == 0) return;
             var newIndex = oldIndex - 1;
@@ -254,16 +191,16 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             Jobs.Move(oldIndex, newIndex);
-            SelectedJobIndex = newIndex;
+            Jobs.SelectedIndex = newIndex;
 
-            await _jobRepository.Move(oldJob.Id, newJob.Id);
+            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
         }
 
         private async Task DownTask()
         {
-            if (SelectedJob is null) return;
+            if (!Jobs.IsSelected) return;
 
-            var oldIndex = SelectedJobIndex;
+            var oldIndex = Jobs.SelectedIndex;
 
             if (oldIndex == Jobs.Count - 1) return;
             var newIndex = oldIndex + 1;
@@ -272,16 +209,16 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             Jobs.Move(oldIndex, newIndex);
-            SelectedJobIndex = newIndex;
+            Jobs.SelectedIndex = newIndex;
 
-            await _jobRepository.Move(oldJob.Id, newJob.Id);
+            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
         }
 
         private async Task TopTask()
         {
-            if (SelectedJob is null) return;
+            if (!Jobs.IsSelected) return;
 
-            var oldIndex = SelectedJobIndex;
+            var oldIndex = Jobs.SelectedIndex;
 
             if (oldIndex == 0) return;
             var newIndex = 0;
@@ -290,16 +227,16 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             Jobs.Move(oldIndex, newIndex);
-            SelectedJobIndex = newIndex;
+            Jobs.SelectedIndex = newIndex;
 
-            await _jobRepository.Move(oldJob.Id, newJob.Id);
+            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
         }
 
         private async Task BottomTask()
         {
-            if (SelectedJob is null) return;
+            if (!Jobs.IsSelected) return;
 
-            var oldIndex = SelectedJobIndex;
+            var oldIndex = Jobs.SelectedIndex;
 
             if (oldIndex == Jobs.Count - 1) return;
             var newIndex = Jobs.Count - 1;
@@ -308,40 +245,32 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             Jobs.Move(oldIndex, newIndex);
-            SelectedJobIndex = newIndex;
+            Jobs.SelectedIndex = newIndex;
 
-            await _jobRepository.Move(oldJob.Id, newJob.Id);
+            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
         }
 
         private async Task DeleteTask()
         {
-            if (SelectedJob is null) return;
-            var jobId = SelectedJob.Id;
-            var oldIndex = SelectedJobIndex;
-            Jobs.RemoveAt(oldIndex);
-            await _jobRepository.Delete(jobId);
-            if (Jobs.Count > 0)
-            {
-                if (oldIndex == Jobs.Count)
-                {
-                    oldIndex = Jobs.Count - 1;
-                }
+            if (!Jobs.IsSelected) return;
+            var jobId = Jobs.SelectedItemId;
+            _jobRepository.Delete(jobId);
 
-                SelectedJobIndex = oldIndex;
-            }
+            Jobs.Delete();
+
             await LoadBuildings(VillageId);
         }
 
         private async Task DeleteAllTask()
         {
             Jobs.Clear();
-            await _jobRepository.Clear(VillageId);
+            _jobRepository.Clear(VillageId);
             await LoadBuildings(VillageId);
         }
 
         private async Task NormalBuild(int villageId)
         {
-            var building = await _buildingRepository.Get(SelectedBuilding.Id);
+            var building = _buildingRepository.GetBuilding(Buildings.SelectedItemId);
             var (type, level) = NormalBuildInput.Get();
             var plan = new NormalBuildPlan()
             {
@@ -349,15 +278,15 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 Type = type,
                 Level = level,
             };
-            var result = await _buildingRepository.CheckRequirements(VillageId, plan);
+            var result = _buildingRepository.CheckRequirements(VillageId, plan);
             if (result.IsFailed)
             {
                 await _messageBoxViewModel.Show("Error", result.Errors.First().Message);
                 return;
             }
-            await _buildingRepository.Validate(VillageId, plan);
-            var job = await _jobRepository.Add(villageId, plan);
-            Jobs.Add(new(job));
+            _buildingRepository.Validate(VillageId, plan);
+            var job = _jobRepository.Add(villageId, plan);
+            Jobs.Items.Add(new(job));
             await LoadBuildings(VillageId);
         }
 
@@ -369,9 +298,9 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 Plan = type,
                 Level = level,
             };
-            var job = await _jobRepository.Add(villageId, plan);
+            var job = _jobRepository.Add(villageId, plan);
 
-            Jobs.Add(new(job));
+            Jobs.Items.Add(new(job));
             await LoadBuildings(VillageId);
         }
 
@@ -414,31 +343,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         #endregion Resource build input
 
-        public ObservableCollection<ListBoxItem> Buildings { get; } = new();
-        private ListBoxItem _selectedBuilding;
-
-        public ListBoxItem SelectedBuilding
-        {
-            get => _selectedBuilding;
-            set => this.RaiseAndSetIfChanged(ref _selectedBuilding, value);
-        }
-
-        public ObservableCollection<ListBoxItem> Jobs { get; } = new();
-        private ListBoxItem _selectedJob;
-
-        public ListBoxItem SelectedJob
-        {
-            get => _selectedJob;
-            set => this.RaiseAndSetIfChanged(ref _selectedJob, value);
-        }
-
-        private int _selectedJobIndex;
-
-        public int SelectedJobIndex
-        {
-            get => _selectedJobIndex;
-            set => this.RaiseAndSetIfChanged(ref _selectedJobIndex, value);
-        }
+        public ListBoxItemViewModel Buildings { get; } = new();
+        public ListBoxItemViewModel Jobs { get; } = new();
 
         private bool _isEnableJob;
 

@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Repositories;
-using MainCore.Features.Update.DTO;
+using MainCore.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -28,7 +28,7 @@ namespace MainCore.Features.Update.Commands
             var dto = _stockBarParser.Get(html);
             var mapper = new StorageMapper();
             var storage = mapper.Map(villageId, dto);
-            await _storageRepository.Update(villageId, storage);
+            await Task.Run(() => _storageRepository.Update(villageId, storage));
             return Result.Ok();
         }
 

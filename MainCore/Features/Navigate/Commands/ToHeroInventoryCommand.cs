@@ -36,12 +36,12 @@ namespace MainCore.Features.Navigate.Commands
 
             Result result;
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(avatar.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged("hero"));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage())); result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line())); result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
             result = await _waitCommand.Execute(chromeBrowser, driver =>
             {
                 var doc = new HtmlDocument();
@@ -50,10 +50,10 @@ namespace MainCore.Features.Navigate.Commands
                 if (tab is null) return false;
                 return _heroParser.IsCurrentTab(tab);
             });
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _switchTabCommand.Execute(chromeBrowser, 0);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }

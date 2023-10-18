@@ -33,7 +33,7 @@ namespace MainCore.Features.Farming.Commands
             }
 
             var result = await _clickCommand.Execute(chromeBrowser, By.XPath(startButton.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
     }

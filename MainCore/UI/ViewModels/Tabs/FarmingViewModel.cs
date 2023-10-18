@@ -8,7 +8,6 @@ using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -21,8 +20,9 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly IFarmListRepository _farmListRepository;
         private readonly IAccountSettingRepository _accountSettingRepository;
-        public FarmListSettingInput FarmListSettingInput { get; set; } = new();
+        public FarmListSettingInput FarmListSettingInput { get; } = new();
         private readonly IValidator<FarmListSettingInput> _farmListSettingInputValidator;
+        public ListBoxItemViewModel FarmLists { get; } = new();
 
         private readonly ITaskManager _taskManager;
         private readonly MessageBoxViewModel _messageBoxViewModel;
@@ -43,15 +43,15 @@ namespace MainCore.UI.ViewModels.Tabs
             ActiveFarmListCommand = ReactiveCommand.CreateFromTask(ActiveFarmListTask);
             StartCommand = ReactiveCommand.CreateFromTask(StartTask);
             StopCommand = ReactiveCommand.CreateFromTask(StopTask);
-
-            _farmListRepository.FarmListsUpdated += FarmListsUpdated;
         }
 
-        private async Task FarmListsUpdated(int accountId)
+        public async Task FarmListsUpdated(int accountId)
         {
             if (!IsActive) return;
             if (accountId != AccountId) return;
-            await Observable.Start(async () => await LoadFarmLists(accountId), RxApp.MainThreadScheduler);
+            await Observable.Start(
+                async () => await LoadFarmLists(accountId),
+                RxApp.MainThreadScheduler);
         }
 
         protected override async Task Load(int accountId)
@@ -62,19 +62,16 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task AddLoadTask()
         {
-            await Task.Run(() =>
+            var task = await Task.Run(() => _taskManager.Get<UpdateFarmListTask>(AccountId));
+            if (task is null)
             {
-                var task = _taskManager.Get<UpdateFarmListTask>(AccountId);
-                if (task is null)
-                {
-                    _taskManager.Add<UpdateFarmListTask>(AccountId);
-                }
-                else
-                {
-                    task.ExecuteAt = DateTime.Now;
-                    _taskManager.ReOrder(AccountId);
-                }
-            });
+                _taskManager.Add<UpdateFarmListTask>(AccountId);
+            }
+            else
+            {
+                task.ExecuteAt = DateTime.Now;
+                await Task.Run(() => _taskManager.ReOrder(AccountId));
+            }
             await _messageBoxViewModel.Show("Information", "Added update farm list task");
         }
 
@@ -82,41 +79,36 @@ namespace MainCore.UI.ViewModels.Tabs
         {
             if (!FarmListSettingInput.UseStartAllButton)
             {
-                var count = await _farmListRepository.CountActiveFarmLists(AccountId);
+                var count = await Task.Run(() => _farmListRepository.CountActiveFarmLists(AccountId));
                 if (count == 0)
                 {
                     await _messageBoxViewModel.Show("Information", "There is no active farm or use start all button is disable");
                     return;
                 }
             }
-            await Task.Run(() =>
+            var task = await Task.Run(() => _taskManager.Get<StartFarmListTask>(AccountId));
+            if (task is null)
             {
-                var task = _taskManager.Get<StartFarmListTask>(AccountId);
-                if (task is null)
-                {
-                    _taskManager.Add<StartFarmListTask>(AccountId);
-                }
-            });
+                _taskManager.Add<StartFarmListTask>(AccountId);
+            }
             await _messageBoxViewModel.Show("Information", "Added start farm list task");
         }
 
         private async Task StopTask()
         {
-            await Task.Run(() =>
+            var task = await Task.Run(() => _taskManager.Get<StartFarmListTask>(AccountId));
+
+            if (task is not null)
             {
-                var task = _taskManager.Get<StartFarmListTask>(AccountId);
-                if (task is not null)
-                {
-                    _taskManager.Remove(AccountId, task);
-                }
-            });
+                _taskManager.Remove(AccountId, task);
+            }
             await _messageBoxViewModel.Show("Information", "Removed start farm list task");
         }
 
         private async Task Save(int accountId)
         {
             var settings = FarmListSettingInput.Get();
-            await _accountSettingRepository.Set(accountId, settings);
+            await Task.Run(() => _accountSettingRepository.Set(accountId, settings));
         }
 
         private async Task SaveTask()
@@ -137,12 +129,13 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task ActiveFarmListTask()
         {
-            if (SelectedFarmList is null)
+            var SelectedFarmList = FarmLists.SelectedItem;
+            if (FarmLists.SelectedItem is null)
             {
                 await _messageBoxViewModel.Show("Warning", "No farm list selected");
                 return;
             }
-            await _farmListRepository.ActiveFarmList(SelectedFarmList.Id);
+            await Task.Run(() => _farmListRepository.ActiveFarmList(SelectedFarmList.Id));
             if (SelectedFarmList.Color == Color.Green)
             {
                 SelectedFarmList.Color = Color.Red;
@@ -155,36 +148,14 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadSettings(int accountId)
         {
-            var settings = await _accountSettingRepository.Get(accountId);
+            var settings = await Task.Run(() => _accountSettingRepository.Get(accountId));
             FarmListSettingInput.Set(settings);
         }
 
         private async Task LoadFarmLists(int accountId)
         {
-            var farmLists = await _farmListRepository.GetList(accountId);
-            FarmLists.Clear();
-            foreach (var farmList in farmLists)
-            {
-                FarmLists.Add(new(farmList));
-            }
-
-            if (farmLists.Count > 0)
-            {
-                SelectedFarmList = FarmLists[0];
-            }
-            else
-            {
-                SelectedFarmList = null;
-            }
-        }
-
-        public ObservableCollection<ListBoxItem> FarmLists { get; } = new();
-        private ListBoxItem _selectedFarmList;
-
-        public ListBoxItem SelectedFarmList
-        {
-            get => _selectedFarmList;
-            set => this.RaiseAndSetIfChanged(ref _selectedFarmList, value);
+            var farmLists = await Task.Run(() => _farmListRepository.GetList(accountId));
+            FarmLists.Load(farmLists.Select(x => new ListBoxItem(x)));
         }
 
         public ReactiveCommand<Unit, Unit> LoadFarmListCommand { get; }

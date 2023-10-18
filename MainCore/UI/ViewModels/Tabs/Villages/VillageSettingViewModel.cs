@@ -43,14 +43,14 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         protected override async Task Load(int villageId)
         {
-            var settings = await _villageSettingRepository.Get(villageId);
+            var settings = await Task.Run(() => _villageSettingRepository.Get(villageId));
             VillageSettingInput.Set(settings);
         }
 
         private async Task Save(int villageId)
         {
             var settings = VillageSettingInput.Get();
-            await _villageSettingRepository.Set(villageId, settings);
+            await Task.Run(() => _villageSettingRepository.Set(villageId, settings));
         }
 
         private async Task SaveTask()
@@ -111,7 +111,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 "exporting settings ...",
                 async () =>
                 {
-                    var settings = await _villageSettingRepository.Get(VillageId);
+                    var settings = await Task.Run(() => _villageSettingRepository.Get(VillageId));
                     var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
                     await File.WriteAllTextAsync(path, jsonString);
                 });

@@ -39,7 +39,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (button is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} with ads [1]"));
 
             var result = await _clickCommand.Execute(chromeBrowser, By.XPath(button.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var driver = chromeBrowser.Driver;
             var current = driver.CurrentWindowHandle;
@@ -65,7 +65,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (node is null) return Result.Fail(Retry.ButtonNotFound($"play ads"));
 
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             driver.SwitchTo().DefaultContent();
 
@@ -83,16 +83,16 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 driver.SwitchTo().Window(current);
 
                 result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 driver.SwitchTo().DefaultContent();
             }
             while (true);
 
             result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged("dorf"));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }

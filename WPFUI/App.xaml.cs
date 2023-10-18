@@ -1,4 +1,5 @@
-﻿using MainCore.UI.ViewModels;
+﻿using MainCore;
+using MainCore.UI.ViewModels;
 using MainCore.UI.ViewModels.UserControls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
@@ -20,7 +21,7 @@ namespace WPFUI
 
         public App()
         {
-            Container = ServicesConfigure.Setup();
+            Container = DependencyInjection.Setup();
 
             mainWindow = new MainWindow()
             {

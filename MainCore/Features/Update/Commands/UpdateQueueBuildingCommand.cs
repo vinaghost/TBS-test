@@ -2,11 +2,13 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
+using MainCore.Common.Requests;
+using MainCore.DTO;
 using MainCore.Entities;
-using MainCore.Features.Update.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 
 namespace MainCore.Features.Update.Commands
 {
@@ -16,12 +18,14 @@ namespace MainCore.Features.Update.Commands
         private readonly IChromeManager _chromeManager;
         private readonly IQueueBuildingParser _queueBuildingParser;
         private readonly IQueueBuildingRepository _queueBuildingRepository;
+        private readonly IMediator _mediator;
 
-        public UpdateQueueBuildingCommand(IChromeManager chromeManager, IQueueBuildingParser queueBuildingParser, IQueueBuildingRepository queueBuildingRepository)
+        public UpdateQueueBuildingCommand(IChromeManager chromeManager, IQueueBuildingParser queueBuildingParser, IQueueBuildingRepository queueBuildingRepository, IMediator mediator)
         {
             _chromeManager = chromeManager;
             _queueBuildingParser = queueBuildingParser;
             _queueBuildingRepository = queueBuildingRepository;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(IChromeBrowser chromeBrowser, int villageId)
@@ -42,7 +46,8 @@ namespace MainCore.Features.Update.Commands
                 queueBuildings.Add(buildingQueue);
             }
 
-            await _queueBuildingRepository.Update(villageId, queueBuildings);
+            _queueBuildingRepository.Update(villageId, queueBuildings);
+            await _mediator.Send(new QueueBuildingUpdate(villageId));
             return Result.Ok();
         }
 

@@ -3,7 +3,6 @@ using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Common.Models;
 using MainCore.DTO;
-using MainCore.Entities;
 using ReactiveUI;
 using System.Drawing;
 using System.Text;
@@ -20,15 +19,35 @@ namespace MainCore.UI.Models.Output
 
         public ListBoxItem(AccountDto account) : this(account.Id)
         {
-            var serverUrl = new Uri(account.Server);
-            Content = $"{account.Username}{Environment.NewLine}({serverUrl.Host})";
+            Content = Get(account);
             Color = Color.Black;
         }
 
-        public ListBoxItem(Village village) : this(village.Id)
+        public void Set(AccountDto account)
         {
-            Content = $"{village.Name}{Environment.NewLine}({village.X}|{village.Y})";
+            Content = Get(account);
+        }
+
+        private static string Get(AccountDto account)
+        {
+            var serverUrl = new Uri(account.Server);
+            return $"{account.Username}{Environment.NewLine}({serverUrl.Host})";
+        }
+
+        public ListBoxItem(VillageDto village) : this(village.Id)
+        {
+            Content = Get(village);
             Color = Color.Black;
+        }
+
+        public void Set(VillageDto village)
+        {
+            Content = Get(village);
+        }
+
+        private static string Get(VillageDto village)
+        {
+            return $"{village.Name}{Environment.NewLine}({village.X}|{village.Y})";
         }
 
         public ListBoxItem(BuildingItemDto building) : this(building.Id)
@@ -50,31 +69,37 @@ namespace MainCore.UI.Models.Output
             Color = building.Type.GetColor();
         }
 
-        public ListBoxItem(Job job) : this(job.Id)
+        public ListBoxItem(JobDto job) : this(job.Id)
+        {
+            Content = Get(job);
+            Color = Color.Black;
+        }
+
+        public void Set(JobDto job)
+        {
+            Content = Get(job);
+        }
+
+        private static string Get(JobDto job)
         {
             switch (job.Type)
             {
                 case JobTypeEnums.NormalBuild:
                     {
                         var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-                        Content = $"Build {plan.Type.Humanize()} to level {plan.Level} at location {plan.Location}";
-                        break;
+                        return $"Build {plan.Type.Humanize()} to level {plan.Level} at location {plan.Location}";
                     }
                 case JobTypeEnums.ResourceBuild:
                     {
                         var plan = JsonSerializer.Deserialize<ResourceBuildPlan>(job.Content);
-                        Content = $"Build {plan.Plan.Humanize()} to level {plan.Level}";
-                        break;
+                        return $"Build {plan.Plan.Humanize()} to level {plan.Level}";
                     }
                 default:
-                    Content = job.Content;
-                    break;
+                    return job.Content;
             }
-
-            Color = Color.Black;
         }
 
-        public ListBoxItem(FarmList farmList) : this(farmList.Id)
+        public ListBoxItem(FarmListDto farmList) : this(farmList.Id)
         {
             Content = farmList.Name;
             if (farmList.IsActive)

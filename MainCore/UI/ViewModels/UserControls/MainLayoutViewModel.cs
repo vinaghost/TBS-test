@@ -9,7 +9,6 @@ using MainCore.UI.Models.Output;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;
 using ReactiveUI;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -33,6 +32,7 @@ namespace MainCore.UI.ViewModels.UserControls
         private readonly SelectedItemStore _selectedItemStore;
         private readonly MessageBoxViewModel _messageBoxViewModel;
 
+        public ListBoxItemViewModel Accounts { get; } = new();
         public AccountTabStore AccountTabStore => _accountTabStore;
 
         public MainLayoutViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand, MessageBoxViewModel messageBoxViewModel)
@@ -59,9 +59,8 @@ namespace MainCore.UI.ViewModels.UserControls
             PauseCommand = ReactiveCommand.CreateFromTask(PauseTask);
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
 
-            _accountRepository.AccountTableChanged += LoadAccountList;
             _taskManager.StatusUpdated += LoadStatusAccountItem;
-            var accountObservable = this.WhenAnyValue(x => x.SelectedAccount);
+            var accountObservable = this.WhenAnyValue(x => x.Accounts.SelectedItem);
             accountObservable.BindTo(_selectedItemStore, vm => vm.Account);
 
             accountObservable.Subscribe(x =>
@@ -72,6 +71,13 @@ namespace MainCore.UI.ViewModels.UserControls
             });
         }
 
+        public async Task AccountUpdate()
+        {
+            await Observable.Start(
+                async () => await LoadAccountList(),
+                RxApp.MainThreadScheduler);
+        }
+
         public async Task Load()
         {
             await LoadAccountList();
@@ -79,81 +85,81 @@ namespace MainCore.UI.ViewModels.UserControls
 
         private Task AddAccountTask()
         {
-            SelectedAccount = null;
+            Accounts.SelectedItem = null;
             AccountTabStore.SetTabType(AccountTabType.AddAccount);
             return Task.CompletedTask;
         }
 
         private Task AddAccountsTask()
         {
-            SelectedAccount = null;
+            Accounts.SelectedItem = null;
             AccountTabStore.SetTabType(AccountTabType.AddAccounts);
             return Task.CompletedTask;
         }
 
         private async Task DeleteAccountTask()
         {
-            if (SelectedAccount is null)
+            if (!Accounts.IsSelected)
             {
                 await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
 
-            var result = await _messageBoxViewModel.ShowConfirm("Information", $"Are you sure want to delete \n {SelectedAccount.Content}");
+            var result = await _messageBoxViewModel.ShowConfirm("Information", $"Are you sure want to delete \n {Accounts.SelectedItem.Content}");
             if (!result) return;
 
             await _waitingOverlayViewModel.Show(
                 "deleting account ...",
-                () => _accountRepository.Delete(SelectedAccount.Id));
+                () => _accountRepository.Delete(Accounts.SelectedItemId));
         }
 
         private async Task LoginTask()
         {
-            if (SelectedAccount is null)
+            if (!Accounts.IsSelected)
             {
                 await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
-            await _loginCommand.Execute(SelectedAccount.Id);
+            await _loginCommand.Execute(Accounts.SelectedItemId);
         }
 
         private async Task LogoutTask()
         {
-            if (SelectedAccount is null)
+            if (!Accounts.IsSelected)
             {
                 await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
-            await _logoutCommand.Execute(SelectedAccount.Id);
+            await _logoutCommand.Execute(Accounts.SelectedItemId);
         }
 
         private async Task PauseTask()
         {
-            if (SelectedAccount is null)
+            if (!Accounts.IsSelected)
             {
                 await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
 
-            await _pauseCommand.Execute(SelectedAccount.Id);
+            await _pauseCommand.Execute(Accounts.SelectedItemId);
         }
 
         private async Task RestartTask()
         {
-            if (SelectedAccount is null)
+            if (!Accounts.IsSelected)
             {
                 await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
 
-            await _restartCommand.Execute(SelectedAccount.Id);
+            await _restartCommand.Execute(Accounts.SelectedItemId);
         }
 
         private void LoadStatusAccountItem(int accountId, StatusEnums status)
         {
+            var account = Accounts.Items.FirstOrDefault(x => x.Id == accountId);
             Observable.Start(() =>
             {
-                var account = Accounts.FirstOrDefault(x => x.Id == accountId);
                 switch (status)
                 {
                     case StatusEnums.Online:
@@ -179,21 +185,8 @@ namespace MainCore.UI.ViewModels.UserControls
 
         private async Task LoadAccountList()
         {
-            var accounts = await _accountRepository.Get();
-            Accounts.Clear();
-            foreach (var account in accounts)
-            {
-                Accounts.Add(new(account));
-            }
-
-            if (accounts.Count > 0)
-            {
-                SelectedAccount = Accounts[0];
-            }
-            else
-            {
-                SelectedAccount = null;
-            }
+            var accounts = await Task.Run(_accountRepository.Get);
+            Accounts.Load(accounts.Select(x => new ListBoxItem(x)));
         }
 
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
@@ -203,14 +196,5 @@ namespace MainCore.UI.ViewModels.UserControls
         public ReactiveCommand<Unit, Unit> LogoutCommand { get; }
         public ReactiveCommand<Unit, Unit> PauseCommand { get; }
         public ReactiveCommand<Unit, Unit> RestartCommand { get; }
-
-        public ObservableCollection<ListBoxItem> Accounts { get; } = new();
-        private ListBoxItem _selectedAccount;
-
-        public ListBoxItem SelectedAccount
-        {
-            get => _selectedAccount;
-            set => this.RaiseAndSetIfChanged(ref _selectedAccount, value);
-        }
     }
 }

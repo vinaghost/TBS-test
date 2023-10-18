@@ -1,4 +1,5 @@
-﻿using MainCore.Entities;
+﻿using MainCore.DTO;
+using MainCore.Entities;
 
 namespace MainCore.Common.Repositories
 {
@@ -6,13 +7,13 @@ namespace MainCore.Common.Repositories
     {
         Village Get(int villageId);
 
-        Village GetActive(int accountId);
+        int GetActive(int accountId);
 
-        List<Village> GetInactive(int accountId);
+        List<int> GetInactive(int accountId);
 
-        List<Village> GetList(int accountId);
+        List<VillageDto> GetList(int accountId);
 
-        List<Village> GetUnloadList(int accountId);
+        List<int> GetUnloadList(int accountId);
 
         List<Village> Update(int accountId, List<Village> villages);
     }

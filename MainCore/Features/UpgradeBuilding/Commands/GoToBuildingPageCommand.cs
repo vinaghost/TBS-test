@@ -26,21 +26,21 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         {
             Result result;
             result = await _toBuildingCommand.Execute(accountId, plan.Location);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            var building = await _buildingRepository.GetBasedOnLocation(villageId, plan.Location);
+            var building = _buildingRepository.GetBuilding(villageId, plan.Location);
             if (building.Type == BuildingEnums.Site)
             {
                 var tabIndex = GetBuildingsCategory(building.Type);
                 result = await _switchTabCommand.Execute(accountId, tabIndex);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else
             {
                 if (building.Level == 0) return Result.Ok();
                 if (!HasMultipleTabs(building.Type)) return Result.Ok();
                 result = await _switchTabCommand.Execute(accountId, 0);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             return Result.Ok();
         }

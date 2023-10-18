@@ -12,36 +12,6 @@
           "Microsoft.Xaml.Behaviors.Wpf": "1.1.39"
         }
       },
-      "Microsoft.Extensions.Hosting": {
-        "type": "Direct",
-        "requested": "[7.0.1, )",
-        "resolved": "7.0.1",
-        "contentHash": "aoeMou6XSW84wiqd895OdaGyO9PfH6nohQJ0XBcshRDafbdIU6PQIVl8TpOCssPYq3ciRseP5064hbFyCR9J9w==",
-        "dependencies": {
-          "Microsoft.Extensions.Configuration": "7.0.0",
-          "Microsoft.Extensions.Configuration.Abstractions": "7.0.0",
-          "Microsoft.Extensions.Configuration.Binder": "7.0.3",
-          "Microsoft.Extensions.Configuration.CommandLine": "7.0.0",
-          "Microsoft.Extensions.Configuration.EnvironmentVariables": "7.0.0",
-          "Microsoft.Extensions.Configuration.FileExtensions": "7.0.0",
-          "Microsoft.Extensions.Configuration.Json": "7.0.0",
-          "Microsoft.Extensions.Configuration.UserSecrets": "7.0.0",
-          "Microsoft.Extensions.DependencyInjection": "7.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0",
-          "Microsoft.Extensions.FileProviders.Abstractions": "7.0.0",
-          "Microsoft.Extensions.FileProviders.Physical": "7.0.0",
-          "Microsoft.Extensions.Hosting.Abstractions": "7.0.0",
-          "Microsoft.Extensions.Logging": "7.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "7.0.0",
-          "Microsoft.Extensions.Logging.Configuration": "7.0.0",
-          "Microsoft.Extensions.Logging.Console": "7.0.0",
-          "Microsoft.Extensions.Logging.Debug": "7.0.0",
-          "Microsoft.Extensions.Logging.EventLog": "7.0.0",
-          "Microsoft.Extensions.Logging.EventSource": "7.0.0",
-          "Microsoft.Extensions.Options": "7.0.1",
-          "System.Diagnostics.DiagnosticSource": "7.0.1"
-        }
-      },
       "ReactiveUI.WPF": {
         "type": "Direct",
         "requested": "[18.4.1, )",
@@ -49,16 +19,6 @@
         "contentHash": "mKjsgcz9MgsqdrOUZSiK3gUbkHStiBaMAn64qx9CNvr8/KB3bkaGvuEuPn4oXo1luRf5lCV4fG0J0MfAEZxgIg==",
         "dependencies": {
           "ReactiveUI": "18.4.1"
-        }
-      },
-      "Splat.Microsoft.Extensions.DependencyInjection": {
-        "type": "Direct",
-        "requested": "[14.7.1, )",
-        "resolved": "14.7.1",
-        "contentHash": "56++5RvFF3A62Vv/rA77hpCivjVqD+KavQ7t77o8sQnC4D/Z9eHCCGfoSemJstWyl+wla4zSYM4hBEPGLL5d9A==",
-        "dependencies": {
-          "Microsoft.Extensions.DependencyInjection": "7.0.0",
-          "Splat": "14.7.1"
         }
       },
       "DynamicData": {
@@ -106,6 +66,20 @@
         "type": "Transitive",
         "resolved": "2.1.4",
         "contentHash": "C4Oy+qkjMoMPoZKyqYdCnIYtK8c0OSIHmNP73Vgc69NjiUG093xTkE7W/Ks54cTDS7fmWOtUHfwISTVTtb/YKg=="
+      },
+      "MediatR": {
+        "type": "Transitive",
+        "resolved": "12.1.1",
+        "contentHash": "1AbwzzeS6gn4NdcO6A9LfKS5TXXgAiUQM3J18dREHa7O7TrdCXJ5dNFeRBpzPZY7UWl5Kby+n9pWrPJe3SDiMA==",
+        "dependencies": {
+          "MediatR.Contracts": "[2.0.1, 3.0.0)",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0"
+        }
+      },
+      "MediatR.Contracts": {
+        "type": "Transitive",
+        "resolved": "2.0.1",
+        "contentHash": "FYv95bNT4UwcNA+G/J1oX5OpRiSUxteXaUt2BJbRSdRNiIUNbggJF69wy6mnk2wYToaanpdXZdCwVylt96MpwQ=="
       },
       "Microsoft.Data.Sqlite.Core": {
         "type": "Transitive",
@@ -308,6 +282,35 @@
         "resolved": "7.0.0",
         "contentHash": "2jONjKHiF+E92ynz2ZFcr9OvxIw+rTGMPEH+UZGeHTEComVav93jQUWGkso8yWwVBcEJGcNcZAaqY01FFJcj7w=="
       },
+      "Microsoft.Extensions.Hosting": {
+        "type": "Transitive",
+        "resolved": "7.0.1",
+        "contentHash": "aoeMou6XSW84wiqd895OdaGyO9PfH6nohQJ0XBcshRDafbdIU6PQIVl8TpOCssPYq3ciRseP5064hbFyCR9J9w==",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration": "7.0.0",
+          "Microsoft.Extensions.Configuration.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Configuration.Binder": "7.0.3",
+          "Microsoft.Extensions.Configuration.CommandLine": "7.0.0",
+          "Microsoft.Extensions.Configuration.EnvironmentVariables": "7.0.0",
+          "Microsoft.Extensions.Configuration.FileExtensions": "7.0.0",
+          "Microsoft.Extensions.Configuration.Json": "7.0.0",
+          "Microsoft.Extensions.Configuration.UserSecrets": "7.0.0",
+          "Microsoft.Extensions.DependencyInjection": "7.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0",
+          "Microsoft.Extensions.FileProviders.Abstractions": "7.0.0",
+          "Microsoft.Extensions.FileProviders.Physical": "7.0.0",
+          "Microsoft.Extensions.Hosting.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Logging": "7.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Logging.Configuration": "7.0.0",
+          "Microsoft.Extensions.Logging.Console": "7.0.0",
+          "Microsoft.Extensions.Logging.Debug": "7.0.0",
+          "Microsoft.Extensions.Logging.EventLog": "7.0.0",
+          "Microsoft.Extensions.Logging.EventSource": "7.0.0",
+          "Microsoft.Extensions.Options": "7.0.1",
+          "System.Diagnostics.DiagnosticSource": "7.0.1"
+        }
+      },
       "Microsoft.Extensions.Hosting.Abstractions": {
         "type": "Transitive",
         "resolved": "7.0.0",
@@ -480,16 +483,16 @@
       },
       "Selenium.Support": {
         "type": "Transitive",
-        "resolved": "4.14.0",
-        "contentHash": "Ix4QvIsavMH5O0+hwQ1eow9a/KxCLvPyQTigLLUU0UP7GVUXG4K4uzIIUfTsvqBcc9eW3MMffRz8d72iHodAgA==",
+        "resolved": "4.14.1",
+        "contentHash": "Jcky37lsMgJtraG7C9/X2twXQsv/620fvfZFfoXrz9IoNv/d5c92oALjAxdqdErqeCZiSp2/evl4l0zjqPwiCA==",
         "dependencies": {
-          "Selenium.WebDriver": "4.14.0"
+          "Selenium.WebDriver": "4.14.1"
         }
       },
       "Selenium.WebDriver": {
         "type": "Transitive",
-        "resolved": "4.14.0",
-        "contentHash": "TQ1JCHdxuac9l4r7yehgvt+5tj6kY5RSfi3RhkEPi/uCp9g/HW1J8CBOOzAu8p5T0ERJbNrGEqYOJu13leZI9Q==",
+        "resolved": "4.14.1",
+        "contentHash": "9gmtnYWDyscnVPdDZ1dMI8SikKLcrsS+GNweZVKMWxcUsagHOdQnX1yAA22KeTWbRubwp5Vw/E6NF/6drzaTbA==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1",
           "System.Drawing.Common": "7.0.0"
@@ -541,6 +544,15 @@
         "type": "Transitive",
         "resolved": "14.7.1",
         "contentHash": "nWalgf4RuopEICZhMpwlFPz0MJaBYrusIbP/GxpE6x19PZnlLW4RZs84FYxlCfXLKTMsImHKHv2YoOQmM8/bPA=="
+      },
+      "Splat.Microsoft.Extensions.DependencyInjection": {
+        "type": "Transitive",
+        "resolved": "14.7.1",
+        "contentHash": "56++5RvFF3A62Vv/rA77hpCivjVqD+KavQ7t77o8sQnC4D/Z9eHCCGfoSemJstWyl+wla4zSYM4hBEPGLL5d9A==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "7.0.0",
+          "Splat": "14.7.1"
+        }
       },
       "SQLitePCLRaw.bundle_e_sqlite3": {
         "type": "Transitive",
@@ -638,19 +650,22 @@
           "FluentValidation.DependencyInjectionExtensions": "[11.7.1, )",
           "HtmlAgilityPack": "[1.11.54, )",
           "Humanizer.Core": "[2.14.1, )",
+          "MediatR": "[12.1.1, )",
           "Microsoft.EntityFrameworkCore.Sqlite": "[7.0.12, )",
+          "Microsoft.Extensions.Hosting": "[7.0.1, )",
           "OpenQA.Selenium.Chrome.ChromeDriverExtensions": "[1.2.0, )",
           "Polly": "[7.2.4, )",
           "ReactiveUI": "[18.4.1, )",
           "RestSharp": "[110.2.0, )",
           "Riok.Mapperly": "[3.2.0, )",
-          "Selenium.Support": "[4.14.0, )",
-          "Selenium.WebDriver": "[4.14.0, )",
+          "Selenium.Support": "[4.14.1, )",
+          "Selenium.WebDriver": "[4.14.1, )",
           "Serilog": "[3.0.1, )",
           "Serilog.Extensions.Hosting": "[7.0.0, )",
           "Serilog.Sinks.File": "[5.0.0, )",
           "Serilog.Sinks.Map": "[1.0.2, )",
-          "Splat": "[14.7.1, )"
+          "Splat": "[14.7.1, )",
+          "Splat.Microsoft.Extensions.DependencyInjection": "[14.7.1, )"
         }
       }
     },

@@ -1,4 +1,5 @@
-﻿using MainCore.Entities;
+﻿using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -15,12 +16,13 @@ namespace MainCore.Common.Repositories
             _contextFactory = contextFactory;
         }
 
-        public List<FarmList> GetList(int accountId)
+        public IEnumerable<FarmListDto> GetList(int accountId)
         {
             using var context = _contextFactory.CreateDbContext();
             var farmLists = context.FarmLists
                     .Where(x => x.AccountId == accountId)
-                    .ToList();
+                    .ProjectToDto()
+                    .AsEnumerable();
             return farmLists;
         }
 

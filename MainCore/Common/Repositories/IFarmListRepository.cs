@@ -1,4 +1,5 @@
-﻿using MainCore.Entities;
+﻿using MainCore.DTO;
+using MainCore.Entities;
 
 namespace MainCore.Common.Repositories
 {
@@ -10,7 +11,7 @@ namespace MainCore.Common.Repositories
 
         List<int> GetActiveFarmLists(int accountId);
 
-        List<FarmList> GetList(int accountId);
+        IEnumerable<FarmListDto> GetList(int accountId);
 
         void Update(int accountId, List<FarmList> farmLists);
     }

@@ -30,25 +30,24 @@ namespace MainCore.Features.InstantUpgrade.Tasks
         {
             Result result;
             result = await _switchVillageCommand.Execute(AccountId, VillageId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _toDorfCommand.Execute(AccountId, 1);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _instantUpgradeCommand.Execute(AccountId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _updateDorfCommand.Execute(AccountId, VillageId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             TriggerUpgradeBuilding();
             return Result.Ok();
         }
 
-        protected override Task SetName()
+        protected override void SetName()
         {
             _name = "InstantUpgradeTask";
-            return Task.CompletedTask;
         }
 
         private void TriggerUpgradeBuilding()

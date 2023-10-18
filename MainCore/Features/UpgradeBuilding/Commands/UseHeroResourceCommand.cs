@@ -49,24 +49,24 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             var currentUrl = chromeBrowser.CurrentUrl;
             Result result;
             result = await _toHeroInventoryCommand.Execute(accountId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _updateHeroItemsCommand.Execute(accountId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             for (var i = 0; i < 4; i++)
             {
                 requiredResource[i] = RoundUpTo100(requiredResource[i]);
             }
 
-            result = await _heroItemRepository.IsEnoughResource(accountId, requiredResource);
+            result = _heroItemRepository.IsEnoughResource(accountId, requiredResource);
             if (result.IsFailed)
             {
                 if (!result.HasError<Retry>())
                 {
                     chromeBrowser.Navigate(currentUrl);
                 }
-                return result.WithError(new Trace(Trace.TraceMessage()));
+                return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
 
             var items = new List<(HeroItemEnums, long)>()
@@ -80,9 +80,9 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             foreach (var item in items)
             {
                 result = await UseResource(chromeBrowser, item.Item1, item.Item2);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _delayCommand.Execute(accountId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
 
             chromeBrowser.Navigate(currentUrl);
@@ -94,11 +94,11 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (amount == 0) return Result.Ok();
             Result result;
             result = await ClickItem(chromeBrowser, item);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await EnterAmount(chromeBrowser, amount);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await Confirm(chromeBrowser);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 
@@ -110,7 +110,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
             Result result;
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _waitCommand.Execute(chromeBrowser, driver =>
             {
                 var html = new HtmlDocument();
@@ -118,7 +118,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 var inventoryPageWrapper = html.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
                 return !inventoryPageWrapper.HasClass("loading");
             });
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }
@@ -130,7 +130,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (node is null) return Result.Fail(Retry.TextboxNotFound("amount input"));
             Result result;
             result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(node.XPath), amount.ToString());
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 
@@ -142,7 +142,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
             Result result;
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _waitCommand.Execute(chromeBrowser, driver =>
             {
                 var html = new HtmlDocument();
@@ -150,7 +150,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 var inventoryPageWrapper = html.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
                 return !inventoryPageWrapper.HasClass("loading");
             });
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }

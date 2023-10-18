@@ -1,7 +1,7 @@
 ﻿using MainCore.Entities;
 using Riok.Mapperly.Abstractions;
 
-namespace MainCore.Features.Update.DTO
+namespace MainCore.DTO
 {
     public class VillageDto
     {
@@ -27,5 +27,11 @@ namespace MainCore.Features.Update.DTO
         public partial VillageDto Map(Village dto);
 
         private partial Village Map(VillageDto dto);
+    }
+
+    [Mapper]
+    public static partial class VillageStaticMapper
+    {
+        public static partial IQueryable<VillageDto> ProjectToDto(this IQueryable<Village> entities);
     }
 }

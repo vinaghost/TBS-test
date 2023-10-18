@@ -40,14 +40,14 @@ namespace MainCore.UI.ViewModels.Tabs
 
         protected override async Task Load(int accountId)
         {
-            var settings = await _accountSettingRepository.Get(accountId);
+            var settings = await Task.Run(() => _accountSettingRepository.Get(accountId));
             AccountSettingInput.Set(settings);
         }
 
         private async Task Save(int accountId)
         {
             var settings = AccountSettingInput.Get();
-            await _accountSettingRepository.Set(accountId, settings);
+            await Task.Run(() => _accountSettingRepository.Set(accountId, settings));
         }
 
         private async Task SaveTask()
@@ -106,7 +106,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 "exporting settings ...",
                 async () =>
                 {
-                    var settings = await _accountSettingRepository.Get(AccountId);
+                    var settings = await Task.Run(() => _accountSettingRepository.Get(AccountId));
                     var jsonString = await Task.Run(() => JsonSerializer.Serialize(settings));
                     await File.WriteAllTextAsync(path, jsonString);
                 });

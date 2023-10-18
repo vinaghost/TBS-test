@@ -34,19 +34,19 @@ namespace MainCore.UI.Commands
             await _openBrowserCommand.Execute(accountId);
 
             _taskManager.Add<LoginTask>(accountId, first: true);
-            await AddUpgradeBuildingTask(accountId);
+            AddUpgradeBuildingTask(accountId);
             _timerManager.Start(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Online);
         }
 
-        private async Task AddUpgradeBuildingTask(int accountId)
+        private void AddUpgradeBuildingTask(int accountId)
         {
-            var villages = await _villageRepository.GetList(accountId);
+            var villages = _villageRepository.GetList(accountId);
             var now = DateTime.Now;
             var flag = false;
             foreach (var village in villages)
             {
-                var countJob = await _jobRepository.CountBuildingJob(village.Id);
+                var countJob = _jobRepository.CountBuildingJob(village.Id);
                 if (countJob > 0)
                 {
                     flag = true;

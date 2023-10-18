@@ -15,13 +15,13 @@ namespace MainCore.Common.Tasks
         {
             if (string.IsNullOrWhiteSpace(_name))
             {
-                SetName().Wait();
+                SetName();
             }
             return _name;
         }
 
         protected string _name;
 
-        protected abstract Task SetName();
+        protected abstract void SetName();
     }
 }

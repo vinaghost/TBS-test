@@ -38,53 +38,53 @@ namespace MainCore.Features.Update.Tasks
             if (CancellationToken.IsCancellationRequested) return new Cancel();
             Result result;
             result = await _switchVillageCommand.Execute(AccountId, VillageId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var chromeBrowser = _chromeManager.Get(AccountId);
             var url = chromeBrowser.CurrentUrl;
             if (url.Contains("dorf1"))
             {
                 result = await _updateQueueBuildingCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateFieldCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _toDorfCommand.Execute(AccountId, 2);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateInfrastructureCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else if (url.Contains("dorf2"))
             {
                 result = await _updateQueueBuildingCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateInfrastructureCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _toDorfCommand.Execute(AccountId, 1);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateFieldCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else
             {
                 result = await _toDorfCommand.Execute(AccountId, 2);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateInfrastructureCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _toDorfCommand.Execute(AccountId, 1);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateFieldCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
 
             result = await _updateStorageCommand.Execute(AccountId, VillageId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }
 
-        protected override async Task SetName()
+        protected override void SetName()
         {
-            var village = await _villageRepository.Get(VillageId);
+            var village = _villageRepository.Get(VillageId);
             _name = $"Update buildings in {village.Name}";
         }
     }

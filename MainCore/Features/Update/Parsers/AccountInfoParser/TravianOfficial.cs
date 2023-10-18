@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
-using MainCore.Features.Update.DTO;
+using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using System.Net;
 

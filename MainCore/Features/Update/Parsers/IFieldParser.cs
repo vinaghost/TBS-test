@@ -1,5 +1,5 @@
 ﻿using HtmlAgilityPack;
-using MainCore.Features.Update.DTO;
+using MainCore.DTO;
 
 namespace MainCore.Features.Update.Parsers
 {

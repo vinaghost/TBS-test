@@ -2,7 +2,7 @@
 using MainCore.Entities;
 using Riok.Mapperly.Abstractions;
 
-namespace MainCore.Features.Update.DTO
+namespace MainCore.DTO
 {
     public class HeroItemDto
     {

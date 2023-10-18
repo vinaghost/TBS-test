@@ -1,12 +1,14 @@
 ﻿using FluentValidation;
 using MainCore.Common.Repositories;
+using MainCore.Common.Requests;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
+using MediatR;
 using ReactiveUI;
-using System.Reactive;
+using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.Tabs
 {
@@ -17,6 +19,7 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly IValidator<AccessInput> _accessInputValidator;
         public AccountInput AccountInput { get; } = new();
         private readonly IValidator<AccountInput> _accountInputValidator;
+        private readonly IMediator _mediator;
 
         private AccessDto _selectedAcess;
 
@@ -29,7 +32,7 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly MessageBoxViewModel _messageBoxViewModel;
 
-        public EditAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, MessageBoxViewModel messageBoxViewModel)
+        public EditAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, MessageBoxViewModel messageBoxViewModel, IMediator mediator)
         {
             _accountRepository = accountRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
@@ -49,11 +52,12 @@ namespace MainCore.UI.ViewModels.Tabs
                     var mapper = new AccessInputMapper();
                     mapper.Map(x, AccessInput);
                 });
+            _mediator = mediator;
         }
 
         protected override async Task Load(int accountId)
         {
-            var account = await _accountRepository.Get(accountId);
+            var account = await Task.Run(() => _accountRepository.Get(accountId));
             var mapper = new AccountInputMapper();
             mapper.Map(account, AccountInput);
             AccountInput.SetAccesses(account.Accesses);
@@ -111,8 +115,11 @@ namespace MainCore.UI.ViewModels.Tabs
                 var dto = mapper.Map(AccountInput);
                 await _waitingOverlayViewModel.Show(
                     "editting account ...",
-                    () => _accountRepository.Edit(dto)
-                );
+                    async () =>
+                    {
+                        await Task.Run(() => _accountRepository.Edit(dto));
+                        await _mediator.Send(new AccountUpdate());
+                    });
                 await _messageBoxViewModel.Show("Information", "Edited accounts");
             }
         }

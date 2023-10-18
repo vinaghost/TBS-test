@@ -33,27 +33,27 @@ namespace MainCore.Features.Update.Commands
             if (url.Contains("dorf1"))
             {
                 result = await _updateQueueBuildingCommand.Execute(chromeBrowser, villageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateFieldCommand.Execute(chromeBrowser, villageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else if (url.Contains("dorf2"))
             {
                 result = await _updateQueueBuildingCommand.Execute(chromeBrowser, villageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateInfrastructureCommand.Execute(chromeBrowser, villageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else
             {
                 result = await _toDorfCommand.Execute(chromeBrowser, 1);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _updateFieldCommand.Execute(chromeBrowser, villageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
 
             result = await _updateStorageCommand.Execute(chromeBrowser, villageId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 

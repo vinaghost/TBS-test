@@ -2,7 +2,7 @@
 using MainCore.Entities;
 using Riok.Mapperly.Abstractions;
 
-namespace MainCore.Features.Update.DTO
+namespace MainCore.DTO
 {
     public class JobDto
     {
@@ -25,5 +25,11 @@ namespace MainCore.Features.Update.DTO
         public partial JobDto Map(Job dto);
 
         private partial Job Map(JobDto dto);
+    }
+
+    [Mapper]
+    public static partial class JobStaticMapper
+    {
+        public static partial IQueryable<JobDto> ProjectToDto(this IQueryable<Job> entities);
     }
 }

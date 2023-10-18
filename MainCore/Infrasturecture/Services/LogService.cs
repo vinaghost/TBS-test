@@ -30,7 +30,7 @@ namespace MainCore.Infrasturecture.Services
               .WriteTo.Map("Account", "Other", (acc, wt) =>
                     wt.File($"./logs/log-{acc}-.txt",
                             rollingInterval: RollingInterval.Day,
-                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"))
+                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Line:lj}{NewLine}{Exception}"))
               .CreateLogger();
         }
 

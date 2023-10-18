@@ -2,8 +2,8 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
+using MainCore.DTO;
 using MainCore.Entities;
-using MainCore.Features.Update.DTO;
 using MainCore.Features.Update.Parsers;
 using MainCore.Features.Update.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -34,7 +34,7 @@ namespace MainCore.Features.Update.Commands
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
-            var dtos = _villageListParser.Get(html);
+            var dtos = await Task.Run(() => _villageListParser.Get(html));
             var mapper = new VillageMapper();
             var villages = new List<Village>();
             foreach (var dto in dtos)
@@ -44,10 +44,10 @@ namespace MainCore.Features.Update.Commands
             }
             if (villages.Count == 0) return Result.Fail(new Retry("Villages list is empty"));
 
-            var newVillages = await _villageRepository.Update(accountId, villages);
+            var newVillages = _villageRepository.Update(accountId, villages);
             if (newVillages.Count > 0)
             {
-                var isLoadNewVillage = await _accountSettingRepository.GetBoolSetting(accountId, AccountSettingEnums.IsAutoLoadVillage);
+                var isLoadNewVillage = _accountSettingRepository.GetBoolSetting(accountId, AccountSettingEnums.IsAutoLoadVillage);
                 if (isLoadNewVillage)
                 {
                     foreach (var village in newVillages)

@@ -46,7 +46,7 @@ namespace MainCore.Common.Repositories
             context.Add(account);
             context.SaveChanges();
 
-            _accountSettingRepository.CheckSetting(account.Id, context);
+            _accountSettingRepository.CheckSetting(context, account.Id);
 
             return Result.Ok();
         }
@@ -80,7 +80,7 @@ namespace MainCore.Common.Repositories
             context.SaveChanges();
             foreach (var account in accounts)
             {
-                _accountSettingRepository.CheckSetting(account.Id, context);
+                _accountSettingRepository.CheckSetting(context, account.Id);
             }
         }
 

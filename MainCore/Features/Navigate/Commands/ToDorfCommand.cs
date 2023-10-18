@@ -36,11 +36,11 @@ namespace MainCore.Features.Navigate.Commands
 
             Result result;
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(button.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged($"dorf{dorf}"));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }

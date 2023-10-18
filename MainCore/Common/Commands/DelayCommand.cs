@@ -17,7 +17,7 @@ namespace MainCore.Common.Commands
 
         public async Task<Result> Execute(int accountId)
         {
-            var delay = await _settingRepository.GetSetting(accountId, AccountSettingEnums.ClickDelayMin, AccountSettingEnums.ClickDelayMax);
+            var delay = _settingRepository.GetSetting(accountId, AccountSettingEnums.ClickDelayMin, AccountSettingEnums.ClickDelayMax);
             await Task.Delay(delay);
             return Result.Ok();
         }

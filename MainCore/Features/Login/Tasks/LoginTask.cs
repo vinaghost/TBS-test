@@ -24,16 +24,15 @@ namespace MainCore.Features.Login.Tasks
             if (CancellationToken.IsCancellationRequested) return new Cancel();
             Result result;
             result = await _loginCommand.Execute(AccountId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _updateVillageListCommand.Execute(AccountId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 
-        protected override Task SetName()
+        protected override void SetName()
         {
             _name = "Login task";
-            return Task.CompletedTask;
         }
     }
 }

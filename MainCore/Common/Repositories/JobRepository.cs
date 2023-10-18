@@ -1,5 +1,6 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Models;
+using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
@@ -25,7 +26,7 @@ namespace MainCore.Common.Repositories
             _contextFactory = contextFactory;
         }
 
-        public Job Add<T>(int villageId, T content)
+        public JobDto Add<T>(int villageId, T content)
         {
             using var context = _contextFactory.CreateDbContext();
             var count = context.Jobs
@@ -41,7 +42,8 @@ namespace MainCore.Common.Repositories
             context.Add(job);
             context.SaveChanges();
 
-            return job;
+            var mapper = new JobMapper();
+            return mapper.Map(job);
         }
 
         public Job AddToTop<T>(int villageId, T content)
@@ -66,12 +68,13 @@ namespace MainCore.Common.Repositories
             return job;
         }
 
-        public List<Job> GetList(int villageId)
+        public List<JobDto> GetList(int villageId)
         {
             using var context = _contextFactory.CreateDbContext();
             var jobs = context.Jobs
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Position)
+                .ProjectToDto()
                 .ToList();
             return jobs;
         }

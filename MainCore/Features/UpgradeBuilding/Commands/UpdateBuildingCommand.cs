@@ -31,20 +31,20 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             Result result;
 
             result = await _updateAccountInfoCommand.Execute(accountId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             if (currentUrl.Contains("dorf"))
             {
                 result = await _updateQueueBuildingCommand.Execute(chromeBrowser, villageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 if (currentUrl.Contains("dorf1"))
                 {
                     result = await _updateFieldCommand.Execute(chromeBrowser, villageId);
-                    if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                    if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 }
                 else if (currentUrl.Contains("dorf2"))
                 {
                     result = await _updateInfrastructureCommand.Execute(chromeBrowser, villageId);
-                    if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                    if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 }
             }
 

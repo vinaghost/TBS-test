@@ -36,7 +36,7 @@ namespace MainCore.Features.InstantUpgrade.Commands
             Result result;
 
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(completeNowButton.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _waitCommand.Execute(chromeBrowser, driver =>
             {
@@ -44,14 +44,14 @@ namespace MainCore.Features.InstantUpgrade.Commands
                 var confirmButton = _instantUpgradeParser.GetConfirmButton(html);
                 return confirmButton is not null;
             });
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             html = chromeBrowser.Html;
             var confirmButton = _instantUpgradeParser.GetConfirmButton(html);
             if (confirmButton is null) return Result.Fail(Retry.ButtonNotFound("complete now"));
 
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(completeNowButton.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }

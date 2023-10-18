@@ -127,7 +127,7 @@ namespace MainCore.Infrasturecture.Services
             taskInfo.CancellationTokenSource = null;
             _taskManager.ReOrder(accountId);
 
-            var taskDelayTime = await _accountSettingRepository.GetSetting(accountId, AccountSettingEnums.TaskDelayMin, AccountSettingEnums.TaskDelayMax);
+            var taskDelayTime = _accountSettingRepository.GetSetting(accountId, AccountSettingEnums.TaskDelayMin, AccountSettingEnums.TaskDelayMax);
             await Task.Delay(taskDelayTime);
         }
 

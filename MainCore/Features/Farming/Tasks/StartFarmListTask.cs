@@ -31,24 +31,24 @@ namespace MainCore.Features.Farming.Tasks
         {
             Result result;
             result = await _toFarmListPageCommand.Execute(AccountId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            var useStartAllButton = await _accountSettingRepository.GetBoolSetting(AccountId, AccountSettingEnums.UseStartAllButton);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+            var useStartAllButton = _accountSettingRepository.GetBoolSetting(AccountId, AccountSettingEnums.UseStartAllButton);
             if (useStartAllButton)
             {
                 result = await _sendAllFarmListCommand.Execute(AccountId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else
             {
-                var farmLists = await _farmListRepository.GetActiveFarmLists(AccountId);
+                var farmLists = _farmListRepository.GetActiveFarmLists(AccountId);
                 if (farmLists.Count == 0) return Result.Fail(new Skip("No farmlist is active"));
 
-                var clickDelay = await _accountSettingRepository.GetSetting(AccountId, AccountSettingEnums.ClickDelayMin, AccountSettingEnums.ClickDelayMax);
+                var clickDelay = _accountSettingRepository.GetSetting(AccountId, AccountSettingEnums.ClickDelayMin, AccountSettingEnums.ClickDelayMax);
 
                 foreach (var farmList in farmLists)
                 {
                     result = await _sendFarmListCommand.Execute(AccountId, farmList);
-                    if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                    if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                     await Task.Delay(clickDelay);
                 }
@@ -56,10 +56,9 @@ namespace MainCore.Features.Farming.Tasks
             return Result.Ok();
         }
 
-        protected override Task SetName()
+        protected override void SetName()
         {
             _name = "Start farm list";
-            return Task.CompletedTask;
         }
     }
 }

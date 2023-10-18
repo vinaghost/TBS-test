@@ -5,6 +5,10 @@ using MainCore.UI.Models.Input;
 using MainCore.UI.Models.Validators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ReactiveUI;
+using Splat;
+using Splat.Microsoft.Extensions.DependencyInjection;
 using Constants = MainCore.Common.Constants;
 
 namespace MainCore
@@ -19,8 +23,11 @@ namespace MainCore
 
             services
                 .AutoRegister(Constants.Server)
-                .AddValidator();
-
+                .AddValidator()
+                .AddMediatR(cfg =>
+                {
+                    cfg.RegisterServicesFromAssemblyContaining<AppDbContext>();
+                });
             return services;
         }
 
@@ -36,6 +43,25 @@ namespace MainCore
                 .AddTransient<IValidator<FarmListSettingInput>, FarmListSettingInputValidator>()
                 .AddTransient<IValidator<ResourceBuildInput>, ResourceBuildInputValidator>();
             return services;
+        }
+
+        public static IServiceProvider Setup()
+        {
+            var host = Host.CreateDefaultBuilder()
+               .ConfigureServices((context, services) =>
+               {
+                   services.UseMicrosoftDependencyResolver();
+                   var resolver = Locator.CurrentMutable;
+                   resolver.InitializeSplat();
+                   resolver.InitializeReactiveUI();
+
+                   services
+                       .AddCoreServices();
+               })
+               .Build();
+            var container = host.Services;
+            container.UseMicrosoftDependencyResolver();
+            return container;
         }
     }
 }

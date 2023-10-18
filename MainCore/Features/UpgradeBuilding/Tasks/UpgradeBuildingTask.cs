@@ -63,33 +63,33 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
             Result result;
 
             result = await _switchVillageCommand.Execute(AccountId, VillageId);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             while (true)
             {
                 if (CancellationToken.IsCancellationRequested) return new Cancel();
                 result = await _updateBuildingCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 result = await _chooseBuildingJobCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed)
                 {
                     if (result.HasError<BuildingQueue>())
                     {
-                        await SetTimeQueueBuildingComplete(VillageId);
+                        SetTimeQueueBuildingComplete(VillageId);
                     }
-                    return result.WithError(new Trace(Trace.TraceMessage()));
+                    return result.WithError(new TraceMessage(TraceMessage.Line()));
                 }
                 var job = _chooseBuildingJobCommand.Value;
                 if (job.Type == JobTypeEnums.ResourceBuild)
                 {
                     result = await _extractResourceFieldCommand.Execute(VillageId, job);
-                    if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                    if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                     continue;
                 }
 
                 var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
                 result = await _goToBuildingPageCommand.Execute(AccountId, VillageId, plan);
-                if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 result = await _checkResourceCommand.Execute(AccountId, VillageId, plan);
                 if (result.IsFailed)
@@ -97,91 +97,90 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
                     if (result.HasError<FreeCrop>())
                     {
                         result = await _addCroplandCommand.Execute(VillageId);
-                        if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                        if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                         continue;
                     }
                     else if (result.HasError<GranaryLimit>())
                     {
-                        return result.WithError(new Stop("Please take a look on building job queue")).WithError(new Trace(Trace.TraceMessage()));
+                        return result.WithError(new Stop("Please take a look on building job queue")).WithError(new TraceMessage(TraceMessage.Line()));
                     }
                     else if (result.HasError<WarehouseLimit>())
                     {
-                        return result.WithError(new Stop("Please take a look on building job queue")).WithError(new Trace(Trace.TraceMessage()));
+                        return result.WithError(new Stop("Please take a look on building job queue")).WithError(new TraceMessage(TraceMessage.Line()));
                     }
 
-                    if (await IsUseHeroResource())
+                    if (IsUseHeroResource())
                     {
-                        var missingResource = await _storageRepository.GetMissingResource(VillageId, _checkResourceCommand.Value);
+                        var missingResource = _storageRepository.GetMissingResource(VillageId, _checkResourceCommand.Value);
                         var heroResourceResult = await _useHeroResourceCommand.Execute(AccountId, missingResource);
                         if (heroResourceResult.IsFailed)
                         {
                             if (!heroResourceResult.HasError<Retry>())
                             {
-                                var timeResult = await SetEnoughResourcesTime(AccountId, VillageId, plan);
+                                var timeResult = SetEnoughResourcesTime(AccountId, VillageId, plan);
                                 if (timeResult.IsFailed)
                                 {
-                                    return timeResult.WithError(new Trace(Trace.TraceMessage()));
+                                    return timeResult.WithError(new TraceMessage(TraceMessage.Line()));
                                 }
                             }
 
-                            return heroResourceResult.WithError(new Trace(Trace.TraceMessage()));
+                            return heroResourceResult.WithError(new TraceMessage(TraceMessage.Line()));
                         }
                     }
                 }
 
-                if (await IsUpgradeable(plan))
+                if (IsUpgradeable(plan))
                 {
-                    if (await IsSpecialUpgrade())
+                    if (IsSpecialUpgrade())
                     {
                         result = await _upgradeAdsCommand.Execute(AccountId, plan);
-                        if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                        if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                     }
                     else
                     {
                         result = await _upgradeCommand.Execute(AccountId, plan);
-                        if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                        if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                     }
                 }
                 else
                 {
                     result = await _constructCommand.Execute(AccountId, plan);
-                    if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+                    if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 }
             }
         }
 
-        protected override Task SetName()
+        protected override void SetName()
         {
             _name = "Upgrade building";
-            return Task.CompletedTask;
         }
 
-        private async Task<bool> IsUpgradeable(NormalBuildPlan plan)
+        private bool IsUpgradeable(NormalBuildPlan plan)
         {
-            var building = await _buildingRepository.GetBasedOnLocation(VillageId, plan.Location);
+            var building = _buildingRepository.GetBuilding(VillageId, plan.Location);
             if (building.Type == BuildingEnums.Site) return false;
             return true;
         }
 
-        private async Task<bool> IsSpecialUpgrade()
+        private bool IsSpecialUpgrade()
         {
-            var useSpecialUpgrade = await _villageSettingRepository.GetBoolSetting(VillageId, VillageSettingEnums.UseSpecialUpgrade);
+            var useSpecialUpgrade = _villageSettingRepository.GetBoolSetting(VillageId, VillageSettingEnums.UseSpecialUpgrade);
             return useSpecialUpgrade;
         }
 
-        private async Task<bool> IsUseHeroResource()
+        private bool IsUseHeroResource()
         {
-            var useHeroResource = await _villageSettingRepository.GetBoolSetting(VillageId, VillageSettingEnums.UseHeroResourceForBuilding);
+            var useHeroResource = _villageSettingRepository.GetBoolSetting(VillageId, VillageSettingEnums.UseHeroResourceForBuilding);
             return useHeroResource;
         }
 
-        private async Task<Result> SetEnoughResourcesTime(int accountId, int villageId, NormalBuildPlan plan)
+        private Result SetEnoughResourcesTime(int accountId, int villageId, NormalBuildPlan plan)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
             HtmlNode node;
-            var building = await _buildingRepository.GetBasedOnLocation(villageId, plan.Location);
+            var building = _buildingRepository.GetBuilding(villageId, plan.Location);
             if (building.Type == BuildingEnums.Site)
             {
                 node = html.GetElementbyId($"contract_building{(int)plan.Type}");
@@ -202,9 +201,9 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
             return Result.Ok();
         }
 
-        private async Task SetTimeQueueBuildingComplete(int villageId)
+        private void SetTimeQueueBuildingComplete(int villageId)
         {
-            var buildingQueue = await _queueBuildingRepository.GetFirst(villageId);
+            var buildingQueue = _queueBuildingRepository.GetFirst(villageId);
             if (buildingQueue is null)
             {
                 ExecuteAt = DateTime.Now.AddSeconds(1);

@@ -41,7 +41,7 @@ namespace MainCore.Features.Navigate.Commands
             if (IsTabActive(tab)) return Result.Ok();
             Result result;
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(tab.XPath));
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _waitCommand.Execute(chromeBrowser, (driver) =>
             {
                 var doc = new HtmlDocument();
@@ -58,7 +58,7 @@ namespace MainCore.Features.Navigate.Commands
                 var tab = tabs[index];
                 return IsTabActive(tab);
             });
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 

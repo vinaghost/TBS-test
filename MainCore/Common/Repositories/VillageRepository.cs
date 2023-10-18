@@ -1,4 +1,5 @@
-﻿using MainCore.Entities;
+﻿using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -18,21 +19,24 @@ namespace MainCore.Common.Repositories
             _villageSettingRepository = villageSettingRepository;
         }
 
-        public Village GetActive(int accountId)
+        public int GetActive(int accountId)
         {
             using var context = _contextFactory.CreateDbContext();
             var village = context.Villages
-                .FirstOrDefault(x => x.AccountId == accountId && x.IsActive);
+                .Where(x => x.AccountId == accountId && x.IsActive)
+                .Select(x => x.Id)
+                .FirstOrDefault();
             return village;
         }
 
-        public List<Village> GetInactive(int accountId)
+        public List<int> GetInactive(int accountId)
         {
             using var context = _contextFactory.CreateDbContext();
             var villages = context.Villages
-                            .Where(x => x.AccountId == accountId && !x.IsActive)
-                            .OrderBy(x => x.Name)
-                            .ToList();
+                .Where(x => x.AccountId == accountId && !x.IsActive)
+                .OrderBy(x => x.Name)
+                .Select(x => x.Id)
+                .ToList();
             return villages;
         }
 
@@ -42,16 +46,17 @@ namespace MainCore.Common.Repositories
             return context.Villages.Find(villageId);
         }
 
-        public List<Village> GetList(int accountId)
+        public List<VillageDto> GetList(int accountId)
         {
             using var context = _contextFactory.CreateDbContext();
             return context.Villages
                 .Where(x => x.AccountId == accountId)
                 .OrderBy(x => x.Name)
+                .ProjectToDto()
                 .ToList();
         }
 
-        public List<Village> GetUnloadList(int accountId)
+        public List<int> GetUnloadList(int accountId)
         {
             using var context = _contextFactory.CreateDbContext();
             var villages = context.Villages
@@ -59,6 +64,7 @@ namespace MainCore.Common.Repositories
                 .Include(x => x.Buildings)
                 .Where(x => x.Buildings.Count < 19)
                 .OrderBy(x => x.Name)
+                .Select(x => x.Id)
                 .ToList();
             return villages;
         }
@@ -91,7 +97,7 @@ namespace MainCore.Common.Repositories
 
             foreach (var village in newVillages)
             {
-                _villageSettingRepository.CheckSetting(village.Id, context);
+                _villageSettingRepository.CheckSetting(context, village.Id);
             }
 
             return newVillages;

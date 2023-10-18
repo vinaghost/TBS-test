@@ -37,7 +37,7 @@ namespace MainCore.UI.ViewModels.Tabs
             _taskManager = taskManager;
             _taskManager.TaskUpdated += TaskUpdate;
 
-            _formatter = new("{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
+            _formatter = new("{Timestamp:HH:mm:ss} [{Level:u3}] {Line:lj}{NewLine}{Exception}");
         }
 
         private void TaskUpdate(int accountId)

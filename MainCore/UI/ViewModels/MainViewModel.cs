@@ -70,14 +70,14 @@ namespace MainCore.UI.ViewModels
                     //await context.Database.EnsureDeletedAsync();
                     if (!await context.Database.EnsureCreatedAsync())
                     {
-                        var accounts = context.Accounts.AsAsyncEnumerable();
-                        await foreach (var account in accounts)
+                        var accounts = context.Accounts.AsEnumerable();
+                        foreach (var account in accounts)
                         {
-                            await _accountSettingRepository.CheckSetting(account.Id, context);
-                            await context.Entry(account).Collection(x => x.Villages).LoadAsync();
+                            _accountSettingRepository.CheckSetting(context, account.Id);
+                            context.Entry(account).Collection(x => x.Villages).Load();
                             foreach (var village in account.Villages)
                             {
-                                await _villageSettingRepository.CheckSetting(village.Id, context);
+                                _villageSettingRepository.CheckSetting(context, village.Id);
                             }
                         }
                     }

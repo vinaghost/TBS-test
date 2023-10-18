@@ -28,20 +28,20 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         public async Task<Result> Execute(int accountId, int villageId, NormalBuildPlan plan)
         {
             Result result;
-            result = await GetBuildingResource(accountId, villageId, plan);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
-            result = await _storageRepository.IsEnoughResource(villageId, Value);
-            if (result.IsFailed) return result.WithError(new Trace(Trace.TraceMessage()));
+            result = GetBuildingResource(accountId, villageId, plan);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+            result = await Task.Run(() => _storageRepository.IsEnoughResource(villageId, Value));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
         }
 
-        private async Task<Result> GetBuildingResource(int accountId, int villageId, NormalBuildPlan plan)
+        private Result GetBuildingResource(int accountId, int villageId, NormalBuildPlan plan)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
-            var building = await _buildingRepository.GetBasedOnLocation(villageId, plan.Location);
+            var building = _buildingRepository.GetBuilding(villageId, plan.Location);
             HtmlNode node;
             if (building.Type == BuildingEnums.Site)
             {
