@@ -1,28 +1,37 @@
-﻿using MainCore.Infrasturecture.AutoRegisterDi;
+﻿using FluentResults;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
-using Microsoft.EntityFrameworkCore;
+using MediatR;
 
 namespace MainCore.Common.Commands
 {
-    [RegisterAsTransient]
-    public class OpenBrowserCommand : IOpenBrowserCommand
+    public class OpenBrowserCommand : IRequest<Result>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
-        private readonly IChromeManager _chromeManager;
+        public int AccountId { get; }
 
-        public OpenBrowserCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager)
+        public OpenBrowserCommand(int accountId)
         {
-            _contextFactory = contextFactory;
+            AccountId = accountId;
+        }
+    }
+
+    public class OpenBrowserCommandHandler : IRequestHandler<OpenBrowserCommand, Result>
+    {
+        private readonly IChromeManager _chromeManager;
+        private readonly AppDbContext _context;
+
+        public OpenBrowserCommandHandler(IChromeManager chromeManager, AppDbContext context)
+        {
             _chromeManager = chromeManager;
+            _context = context;
         }
 
-        public async Task Execute(int accountId)
+        public async Task<Result> Handle(OpenBrowserCommand request, CancellationToken cancellationToken)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            var accountId = request.AccountId;
             var chromeBrowser = _chromeManager.Get(accountId);
-            var account = await context.Accounts.FindAsync(accountId);
-            var access = await context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            var account = _context.Accounts.Find(accountId);
+            var access = _context.Accesses.FirstOrDefault(x => x.AccountId == accountId);
             await Task.Run(() =>
             {
                 try
@@ -34,7 +43,8 @@ namespace MainCore.Common.Commands
                 {
                     return;
                 }
-            });
+            }, cancellationToken);
+            return Result.Ok();
         }
     }
 }

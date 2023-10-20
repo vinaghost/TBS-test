@@ -33,7 +33,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             };
 
             _jobRepository.AddToTop(villageId, plan);
-            await _mediator.Send(new JobTriggerUI(villageId));
+            await _mediator.Send(new JobTrigger(villageId));
             return Result.Ok();
         }
     }

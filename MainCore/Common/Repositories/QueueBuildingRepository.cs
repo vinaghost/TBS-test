@@ -10,14 +10,14 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class QueueBuildingRepository : IQueueBuildingRepository
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
         private readonly IVillageSettingRepository _villageSettingRepository;
         private readonly IAccountInfoRepository _accountInfoRepository;
         private readonly ITaskManager _taskManager;
 
-        public QueueBuildingRepository(IDbContextFactory<AppDbContext> contextFactory, IVillageSettingRepository villageSettingRepository, IAccountInfoRepository accountInfoRepository, ITaskManager taskManager)
+        public QueueBuildingRepository(AppDbContext context, IVillageSettingRepository villageSettingRepository, IAccountInfoRepository accountInfoRepository, ITaskManager taskManager)
         {
-            _contextFactory = contextFactory;
+            _context = context;
             _villageSettingRepository = villageSettingRepository;
             _accountInfoRepository = accountInfoRepository;
             _taskManager = taskManager;
@@ -25,8 +25,8 @@ namespace MainCore.Common.Repositories
 
         public QueueBuilding GetFirst(int villageId)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var queueBuildings = context.QueueBuildings
+           
+            var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .OrderBy(x => x.Position);
             var queueBuilding = queueBuildings.FirstOrDefault();
@@ -35,8 +35,8 @@ namespace MainCore.Common.Repositories
 
         public List<QueueBuilding> GetList(int villageId)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var queueBuildings = context.QueueBuildings
+           
+            var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .OrderBy(x => x.Position);
             return queueBuildings.ToList();
@@ -44,9 +44,9 @@ namespace MainCore.Common.Repositories
 
         public void Update(int villageId, List<Building> buildings)
         {
-            using var context = _contextFactory.CreateDbContext();
+           
 
-            var queueBuildings = context.QueueBuildings
+            var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site);
 
             if (buildings.Count == 1)
@@ -58,7 +58,7 @@ namespace MainCore.Common.Repositories
                 {
                     item.Location = building.Location;
                 }
-                context.UpdateRange(list);
+                _context.UpdateRange(list);
             }
             else if (buildings.Count == 2)
             {
@@ -66,17 +66,17 @@ namespace MainCore.Common.Repositories
                 {
                     var queueBuilding = queueBuildings.FirstOrDefault(x => x.Type == building.Type);
                     queueBuilding.Location = building.Location;
-                    context.Update(queueBuilding);
+                    _context.Update(queueBuilding);
                 }
             }
-            context.SaveChanges();
+            _context.SaveChanges();
         }
 
         public void Update(int villageId, List<QueueBuilding> queueBuildings)
         {
-            using var context = _contextFactory.CreateDbContext();
+           
 
-            var dbQueueBuildings = context.QueueBuildings.Where(x => x.VillageId == villageId);
+            var dbQueueBuildings = _context.QueueBuildings.Where(x => x.VillageId == villageId);
 
             for (var i = 0; i < queueBuildings.Count; i++)
             {
@@ -84,17 +84,17 @@ namespace MainCore.Common.Repositories
                 var dbQueueBuilding = dbQueueBuildings.FirstOrDefault(x => x.Position == i);
                 if (dbQueueBuilding is null)
                 {
-                    context.Add(queueBuilding);
+                    _context.Add(queueBuilding);
                 }
                 else
                 {
                     dbQueueBuilding.Type = queueBuilding.Type;
                     dbQueueBuilding.Level = queueBuilding.Level;
                     dbQueueBuilding.CompleteTime = queueBuilding.CompleteTime;
-                    context.Update(dbQueueBuilding);
+                    _context.Update(dbQueueBuilding);
                 }
             }
-            context.SaveChanges();
+            _context.SaveChanges();
         }
 
         //private Task TriggerInstantUpgrade(int villageId)
@@ -104,11 +104,11 @@ namespace MainCore.Common.Repositories
         //    {
         //        var applyRomanQueueLogicWhenBuilding = _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
         //        int accountId, count;
-        //        using (var context = _contextFactory.CreateDbContext())
+        //        using (var context = _context.CreateDbContext())
         //        {
-        //            var village = context.Villages.Find(villageId);
+        //            var village = _context.Villages.Find(villageId);
         //            accountId = village.VillageId;
-        //            count = context.QueueBuildings.Where(x => x.VillageId == villageId).Count();
+        //            count = _context.QueueBuildings.Where(x => x.VillageId == villageId).Count();
         //        }
 
         //        var isPlusActive = _accountInfoRepository.IsPlusActive(accountId);

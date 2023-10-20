@@ -27,14 +27,14 @@ namespace MainCore.Infrasturecture.Services
                 UserAgentList = _userAgentList,
                 DateTime = _dateTime,
             });
-            var path = Path.Combine(AppContext.BaseDirectory, "Data", "useragent.json");
+            var path = Path.Combine(App_context.BaseDirectory, "Data", "useragent.json");
 
             File.WriteAllText(path, userAgentJsonString);
         }
 
         public async Task Load()
         {
-            var pathFolder = Path.Combine(AppContext.BaseDirectory, "Data");
+            var pathFolder = Path.Combine(App_context.BaseDirectory, "Data");
             if (!Directory.Exists(pathFolder)) Directory.CreateDirectory(pathFolder);
             var pathFile = Path.Combine(pathFolder, "useragent.json");
             if (!File.Exists(pathFile))

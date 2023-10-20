@@ -12,13 +12,13 @@ namespace MainCore.Infrasturecture.Services
     {
         private readonly Dictionary<int, ILogger> _loggers = new();
 
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
         private readonly IServiceProvider _serviceProvider;
         private readonly LogSink _logSink;
 
-        public LogService(IDbContextFactory<AppDbContext> contextFactory, IServiceProvider serviceProvider, ILogEventSink logSink)
+        public LogService(AppDbContext context, IServiceProvider serviceProvider, ILogEventSink logSink)
         {
-            _contextFactory = contextFactory;
+            _context = context;
             _serviceProvider = serviceProvider;
             _logSink = logSink as LogSink;
         }
@@ -50,8 +50,8 @@ namespace MainCore.Infrasturecture.Services
             var logger = _loggers.GetValueOrDefault(accountId);
             if (logger is null)
             {
-                using var context = _contextFactory.CreateDbContext();
-                var account = context.Accounts.Find(accountId);
+               
+                var account = _context.Accounts.Find(accountId);
 
                 var uri = new Uri(account.Server);
                 logger = Log.ForContext("Account", $"{account.Username}_{uri.Host}")

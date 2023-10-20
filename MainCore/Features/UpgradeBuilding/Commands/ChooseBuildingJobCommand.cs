@@ -94,7 +94,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (!_buildingRepository.IsJobValid(villageId, job))
             {
                 _jobRepository.Delete(job.Id);
-                await _mediator.Send(new JobTriggerUI(villageId));
+                await _mediator.Send(new JobTrigger(villageId));
                 return false;
             }
             return true;

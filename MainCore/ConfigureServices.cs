@@ -20,7 +20,9 @@ namespace MainCore
 
         public static IServiceCollection AddCoreServices(this IServiceCollection services, ServerEnums server)
         {
-            services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(_connectionString));
+            services.AddDbContext<AppDbContext>(
+                options => options.UseSqlite(_connectionString),
+                ServiceLifetime.Transient);
 
             services
                 .AutoRegister(server)

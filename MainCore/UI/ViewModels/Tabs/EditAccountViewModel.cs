@@ -118,7 +118,7 @@ namespace MainCore.UI.ViewModels.Tabs
                     async () =>
                     {
                         await Task.Run(() => _accountRepository.Edit(dto));
-                        await _mediator.Send(new AccountTriggerUI());
+                        await _mediator.Send(new AccountTrigger());
                     });
                 await _messageBoxViewModel.Show("Information", "Edited accounts");
             }

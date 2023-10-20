@@ -13,7 +13,7 @@ namespace MainCore.Features.Login.Commands
     [RegisterAsTransient]
     public class LoginCommand : ILoginCommand
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
         private readonly IChromeManager _chromeManager;
 
         private readonly IClickCommand _clickCommand;
@@ -22,9 +22,9 @@ namespace MainCore.Features.Login.Commands
 
         private readonly ILoginPageParser _loginPageParser;
 
-        public LoginCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager, IClickCommand clickCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser, IWaitCommand waitCommand)
+        public LoginCommand(AppDbContext context, IChromeManager chromeManager, IClickCommand clickCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser, IWaitCommand waitCommand)
         {
-            _contextFactory = contextFactory;
+            _context = context;
             _chromeManager = chromeManager;
             _clickCommand = clickCommand;
             _inputTextboxCommand = inputTextboxCommand;
@@ -34,9 +34,9 @@ namespace MainCore.Features.Login.Commands
 
         public async Task<Result> Execute(int accountId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
-            var account = await context.Accounts.FindAsync(accountId);
-            var access = await context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            using var context = await _context.CreateDbContextAsync();
+            var account = await _context.Accounts.FindAsync(accountId);
+            var access = await _context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
             var chromeBrowser = _chromeManager.Get(accountId);
 
             var html = chromeBrowser.Html;

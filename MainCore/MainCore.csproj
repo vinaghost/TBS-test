@@ -39,8 +39,4 @@
     <PackageReference Include="Splat" Version="14.7.1" />
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.7.1" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Common\Requests\" />
-  </ItemGroup>
 </Project>
