@@ -4,6 +4,7 @@ using MainCore.Common.Tasks;
 using MainCore.Features.Login.Commands;
 using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MediatR;
 
 namespace MainCore.Features.Login.Tasks
 {
@@ -11,12 +12,12 @@ namespace MainCore.Features.Login.Tasks
     public sealed class LoginTask : AccountTask
     {
         private readonly ILoginCommand _loginCommand;
-        private readonly IUpdateVillageListCommand _updateVillageListCommand;
+        private readonly IMediator _mediator;
 
-        public LoginTask(ILoginCommand loginCommand, IUpdateVillageListCommand updateVillageListCommand)
+        public LoginTask(ILoginCommand loginCommand, IMediator mediator)
         {
             _loginCommand = loginCommand;
-            _updateVillageListCommand = updateVillageListCommand;
+            _mediator = mediator;
         }
 
         public override async Task<Result> Execute()
@@ -25,7 +26,7 @@ namespace MainCore.Features.Login.Tasks
             Result result;
             result = await _loginCommand.Execute(AccountId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _updateVillageListCommand.Execute(AccountId);
+            result = await _mediator.Send(new UpdateVillageListCommand(AccountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MainCore.Common.Repositories;
-using MainCore.Features.Update.Commands;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.UI.Models.Input;
@@ -118,7 +117,6 @@ namespace MainCore.UI.ViewModels.Tabs
                     async () =>
                     {
                         await Task.Run(() => _accountRepository.Edit(dto));
-                        await _mediator.Send(new AccountTriggerUI());
                     });
                 await _messageBoxViewModel.Show("Information", "Edited accounts");
             }

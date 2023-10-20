@@ -6,6 +6,7 @@ using MainCore.Features.Navigate.Commands;
 using MainCore.Features.Update.Commands;
 using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 
 namespace MainCore.Features.InstantUpgrade.Tasks
 {
@@ -13,17 +14,17 @@ namespace MainCore.Features.InstantUpgrade.Tasks
     {
         private readonly IToDorfCommand _toDorfCommand;
         private readonly IInstantUpgradeCommand _instantUpgradeCommand;
-        private readonly IUpdateDorfCommand _updateDorfCommand;
         private readonly ISwitchVillageCommand _switchVillageCommand;
         private readonly ITaskManager _taskManager;
+        private readonly IMediator _mediator;
 
-        public InstantUpgradeTask(IToDorfCommand toDorfCommand, IInstantUpgradeCommand instantUpgradeCommand, IUpdateDorfCommand updateDorfCommand, ISwitchVillageCommand switchVillageCommand, ITaskManager taskManager)
+        public InstantUpgradeTask(IToDorfCommand toDorfCommand, IInstantUpgradeCommand instantUpgradeCommand, ISwitchVillageCommand switchVillageCommand, ITaskManager taskManager, IMediator mediator)
         {
             _toDorfCommand = toDorfCommand;
             _instantUpgradeCommand = instantUpgradeCommand;
-            _updateDorfCommand = updateDorfCommand;
             _switchVillageCommand = switchVillageCommand;
             _taskManager = taskManager;
+            _mediator = mediator;
         }
 
         public override async Task<Result> Execute()
@@ -38,7 +39,7 @@ namespace MainCore.Features.InstantUpgrade.Tasks
             result = await _instantUpgradeCommand.Execute(AccountId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _updateDorfCommand.Execute(AccountId, VillageId);
+            result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             TriggerUpgradeBuilding();

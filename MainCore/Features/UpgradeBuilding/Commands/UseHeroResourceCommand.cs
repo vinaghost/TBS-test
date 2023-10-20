@@ -9,6 +9,7 @@ using MainCore.Features.Navigate.Parsers;
 using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.UpgradeBuilding.Commands
@@ -20,7 +21,6 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         private readonly IHeroItemRepository _heroItemRepository;
 
         private readonly IToHeroInventoryCommand _toHeroInventoryCommand;
-        private readonly IUpdateHeroItemsCommand _updateHeroItemsCommand;
 
         private readonly IClickCommand _clickCommand;
         private readonly IInputTextboxCommand _inputTextboxCommand;
@@ -28,18 +28,19 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         private readonly IDelayCommand _delayCommand;
 
         private readonly IHeroParser _heroParser;
+        private readonly IMediator _mediator;
 
-        public UseHeroResourceCommand(IChromeManager chromeManager, IHeroItemRepository heroItemRepository, IToHeroInventoryCommand toHeroInventoryCommand, IUpdateHeroItemsCommand updateHeroItemsCommand, IClickCommand clickCommand, IWaitCommand waitCommand, IHeroParser heroParser, IInputTextboxCommand inputTextboxCommand, IDelayCommand delayCommand)
+        public UseHeroResourceCommand(IChromeManager chromeManager, IHeroItemRepository heroItemRepository, IToHeroInventoryCommand toHeroInventoryCommand, IClickCommand clickCommand, IWaitCommand waitCommand, IHeroParser heroParser, IInputTextboxCommand inputTextboxCommand, IDelayCommand delayCommand, IMediator mediator)
         {
             _chromeManager = chromeManager;
             _heroItemRepository = heroItemRepository;
             _toHeroInventoryCommand = toHeroInventoryCommand;
-            _updateHeroItemsCommand = updateHeroItemsCommand;
             _clickCommand = clickCommand;
             _waitCommand = waitCommand;
             _heroParser = heroParser;
             _inputTextboxCommand = inputTextboxCommand;
             _delayCommand = delayCommand;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(int accountId, long[] requiredResource)
@@ -51,7 +52,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             result = await _toHeroInventoryCommand.Execute(accountId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _updateHeroItemsCommand.Execute(accountId);
+            result = await _mediator.Send(new UpdateHeroItemsCommand(accountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             for (var i = 0; i < 4; i++)

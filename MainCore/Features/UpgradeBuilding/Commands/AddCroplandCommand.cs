@@ -1,7 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
 using MainCore.Common.Repositories;
-using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MediatR;
 
@@ -33,7 +32,6 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             };
 
             _jobRepository.AddToTop(villageId, plan);
-            await _mediator.Send(new JobTriggerUI(villageId));
             return Result.Ok();
         }
     }

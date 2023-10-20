@@ -4,6 +4,7 @@ using MainCore.Common.Tasks;
 using MainCore.Features.Farming.Commands;
 using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MediatR;
 
 namespace MainCore.Features.Farming.Tasks
 {
@@ -11,12 +12,12 @@ namespace MainCore.Features.Farming.Tasks
     public class UpdateFarmListTask : AccountTask
     {
         private readonly IToFarmListPageCommand _toFarmListPageCommand;
-        private readonly IUpdateFarmListCommand _updateFarmListCommand;
+        private readonly IMediator _mediator;
 
-        public UpdateFarmListTask(IToFarmListPageCommand toFarmListPageCommand, IUpdateFarmListCommand updateFarmListCommand)
+        public UpdateFarmListTask(IToFarmListPageCommand toFarmListPageCommand, IMediator mediator)
         {
             _toFarmListPageCommand = toFarmListPageCommand;
-            _updateFarmListCommand = updateFarmListCommand;
+            _mediator = mediator;
         }
 
         public override async Task<Result> Execute()
@@ -25,7 +26,7 @@ namespace MainCore.Features.Farming.Tasks
             Result result;
             result = await _toFarmListPageCommand.Execute(AccountId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _updateFarmListCommand.Execute(AccountId);
+            result = await _mediator.Send(new UpdateFarmListCommand(AccountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

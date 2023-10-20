@@ -5,6 +5,7 @@ using MainCore.Common.Repositories;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MediatR;
 
 namespace MainCore.Features.Farming.Commands
 {
@@ -14,27 +15,28 @@ namespace MainCore.Features.Farming.Commands
         private readonly IBuildingRepository _buildingRepository;
         private readonly IVillageRepository _villageRepository;
 
-        private readonly IUpdateVillageListCommand _updateVillageListCommand;
         private readonly ISwitchVillageCommand _switchVillageCommand;
         private readonly IToDorfCommand _toDorfCommand;
         private readonly IToBuildingCommand _toBuildingCommand;
         private readonly ISwitchTabCommand _switchTabCommand;
 
-        public ToFarmListPageCommand(IBuildingRepository buildingRepository, IVillageRepository villageRepository, IUpdateVillageListCommand updateVillageListCommand, ISwitchVillageCommand switchVillageCommand, IToDorfCommand toDorfCommand, IToBuildingCommand toBuildingCommand, ISwitchTabCommand switchTabCommand)
+        private readonly IMediator _mediator;
+
+        public ToFarmListPageCommand(IBuildingRepository buildingRepository, IVillageRepository villageRepository, ISwitchVillageCommand switchVillageCommand, IToDorfCommand toDorfCommand, IToBuildingCommand toBuildingCommand, ISwitchTabCommand switchTabCommand, IMediator mediator)
         {
             _buildingRepository = buildingRepository;
             _villageRepository = villageRepository;
-            _updateVillageListCommand = updateVillageListCommand;
             _switchVillageCommand = switchVillageCommand;
             _toDorfCommand = toDorfCommand;
             _toBuildingCommand = toBuildingCommand;
             _switchTabCommand = switchTabCommand;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(int accountId)
         {
             Result result;
-            result = await _updateVillageListCommand.Execute(accountId);
+            result = await _mediator.Send(new UpdateVillageListCommand(accountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var rallypointVillageId = GetVillageHasRallypoint(accountId);
