@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using MainCore.Common.Commands;
 using MainCore.Common.Errors;
+using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using OpenQA.Selenium;
@@ -14,50 +15,41 @@ namespace MainCore.Features.Navigate.Commands
         private readonly IChromeManager _chromeManager;
         private readonly IWaitCommand _waitCommand;
         private readonly IClickCommand _clickCommand;
+        private readonly INavigationTabParser _navigationTabParser;
 
-        public SwitchTabCommand(IChromeManager chromeManager, IClickCommand clickCommand, IWaitCommand waitCommand)
+        public SwitchTabCommand(IChromeManager chromeManager, IClickCommand clickCommand, IWaitCommand waitCommand, INavigationTabParser navigationTabParser)
         {
             _chromeManager = chromeManager;
             _clickCommand = clickCommand;
             _waitCommand = waitCommand;
+            _navigationTabParser = navigationTabParser;
         }
 
         public async Task<Result> Execute(IChromeBrowser chromeBrowser, int index)
         {
             var html = chromeBrowser.Html;
-            var navigationBar = html.DocumentNode
-                .Descendants("div")
-                .FirstOrDefault(x => x.HasClass("contentNavi") && x.HasClass("subNavi"));
-            if (navigationBar is null) return Result.Fail(new Retry("Cannot find tab bar"));
-            var tabs = navigationBar
-                .Descendants("a")
-                .Where(x => x.HasClass("tabItem"))
-                .ToList();
-            if (navigationBar is null) return Result.Fail(new Retry("Cannot find tab buttons"));
+            var count = _navigationTabParser.CountTab(html);
 
-            if (index > tabs.Count) return Result.Fail(new Retry($"Found {tabs.Count} tabs but selected tab {index}"));
+            if (index > count) return Result.Fail(new Retry($"Found {count} tabs but selected tab {index}"));
 
-            var tab = tabs[index];
-            if (IsTabActive(tab)) return Result.Ok();
+            var tab = _navigationTabParser.GetTab(html, index);
+            if (_navigationTabParser.IsTabActive(tab)) return Result.Ok();
             Result result;
             result = await _clickCommand.Execute(chromeBrowser, By.XPath(tab.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, (driver) =>
+
+            var tabActived = new Func<IWebDriver, bool>(driver =>
             {
                 var doc = new HtmlDocument();
                 doc.LoadHtml(driver.PageSource);
-                var navigationBar = doc.DocumentNode
-                .Descendants("div")
-                .FirstOrDefault(x => x.HasClass("contentNavi") && x.HasClass("subNavi"));
-                if (navigationBar is null) return false;
-                var tabs = navigationBar
-                    .Descendants("a")
-                    .Where(x => x.HasClass("tabItem"))
-                    .ToList();
-                if (tabs.Count < index) return false;
-                var tab = tabs[index];
-                return IsTabActive(tab);
+                var count = _navigationTabParser.CountTab(doc);
+                if (index > count) return false;
+                var tab = _navigationTabParser.GetTab(doc, index);
+                if (!_navigationTabParser.IsTabActive(tab)) return false;
+                return true;
             });
+
+            result = await _waitCommand.Execute(chromeBrowser, tabActived);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
@@ -66,11 +58,6 @@ namespace MainCore.Features.Navigate.Commands
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             return await Execute(chromeBrowser, index);
-        }
-
-        private bool IsTabActive(HtmlNode node)
-        {
-            return node.HasClass("active");
         }
     }
 }

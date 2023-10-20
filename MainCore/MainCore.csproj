@@ -11,7 +11,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Common\Requests\**" />
     <Compile Remove="ExtensionFile\**" />
+    <EmbeddedResource Remove="Common\Requests\**" />
+    <None Remove="Common\Requests\**" />
     <None Remove="ExtensionFile\**" />
     <EmbeddedResource Include="Misc\ExtensionFiles\**" />
   </ItemGroup>
@@ -38,9 +41,5 @@
     <PackageReference Include="Serilog.Sinks.Map" Version="1.0.2" />
     <PackageReference Include="Splat" Version="14.7.1" />
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.7.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Common\Requests\" />
   </ItemGroup>
 </Project>
