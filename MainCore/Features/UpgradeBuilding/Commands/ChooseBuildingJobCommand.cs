@@ -2,7 +2,7 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
-using MainCore.Common.Requests;
+using MainCore.Features.Update.Commands;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MediatR;
@@ -94,7 +94,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (!_buildingRepository.IsJobValid(villageId, job))
             {
                 _jobRepository.Delete(job.Id);
-                await _mediator.Send(new JobUpdate(villageId));
+                await _mediator.Send(new JobTriggerUI(villageId));
                 return false;
             }
             return true;

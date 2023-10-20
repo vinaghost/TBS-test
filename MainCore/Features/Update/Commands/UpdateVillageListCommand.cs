@@ -1,62 +1,78 @@
 ﻿using FluentResults;
-using MainCore.Common.Enums;
-using MainCore.Common.Errors;
-using MainCore.Common.Repositories;
 using MainCore.DTO;
-using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
-using MainCore.Features.Update.Tasks;
-using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Features.Update.Commands
 {
-    [RegisterAsTransient]
-    public class UpdateVillageListCommand : IUpdateVillageListCommand
+    public class UpdateVillageListCommand : IRequest<Result>
+    {
+        public int AccountId { get; }
+
+        public UpdateVillageListCommand(int accountId)
+        {
+            AccountId = accountId;
+        }
+    }
+
+    public class UpdateVillageListCommandCommandHandler : IRequestHandler<UpdateVillageListCommand, Result>
     {
         private readonly IChromeManager _chromeManager;
         private readonly IVillageListParser _villageListParser;
-        private readonly IVillageRepository _villageRepository;
-        private readonly IAccountSettingRepository _accountSettingRepository;
-        private readonly ITaskManager _taskManager;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateVillageListCommand(IChromeManager chromeManager, IVillageListParser villageListParser, IVillageRepository villageRepository, IAccountSettingRepository accountSettingRepository, ITaskManager taskManager)
+        public UpdateVillageListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IVillageListParser villageListParser)
         {
             _chromeManager = chromeManager;
+            _contextFactory = contextFactory;
             _villageListParser = villageListParser;
-            _villageRepository = villageRepository;
-            _accountSettingRepository = accountSettingRepository;
-            _taskManager = taskManager;
         }
 
-        public async Task<Result> Execute(int accountId)
+        public async Task<Result> Handle(UpdateVillageListCommand request, CancellationToken cancellationToken)
         {
+            var accountId = request.AccountId;
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
+            var dtos = _villageListParser.Get(html);
+            await Task.Run(() => Update(accountId, dtos.ToList()), cancellationToken);
+            return Result.Ok();
+        }
 
-            var dtos = await Task.Run(() => _villageListParser.Get(html));
+        private void Update(int accountId, List<VillageDto> dtos)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.Villages.Where(x => x.AccountId == accountId);
+            var ids = query
+                .Select(x => x.Id)
+                .ToList();
+
+            var dbVillages = query.ToList();
+
             var mapper = new VillageMapper();
-            var villages = new List<Village>();
             foreach (var dto in dtos)
             {
-                var village = mapper.Map(accountId, dto);
-                villages.Add(village);
-            }
-            if (villages.Count == 0) return Result.Fail(new Retry("Villages list is empty"));
-
-            var newVillages = _villageRepository.Update(accountId, villages);
-            if (newVillages.Count > 0)
-            {
-                var isLoadNewVillage = _accountSettingRepository.GetBoolSetting(accountId, AccountSettingEnums.IsAutoLoadVillage);
-                if (isLoadNewVillage)
+                var dbVillage = dbVillages.FirstOrDefault(x => x.Id == dto.Id);
+                if (dbVillage is null)
                 {
-                    foreach (var village in newVillages)
-                    {
-                        _taskManager.Add<UpdateVillageTask>(accountId, village.Id);
-                    }
+                    var VillageList = mapper.Map(accountId, dto);
+                    context.Add(VillageList);
                 }
+                else
+                {
+                    mapper.MapToEntity(dto, dbVillage);
+                    context.Update(dbVillage);
+                }
+
+                ids.Remove(dto.Id);
             }
-            return Result.Ok();
+            context.SaveChanges();
+
+            context.Villages
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteDelete();
         }
     }
 }

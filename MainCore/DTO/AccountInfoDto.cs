@@ -22,6 +22,8 @@ namespace MainCore.DTO
             return entity;
         }
 
+        public partial void MapToEntity(AccountInfoDto dto, AccountInfo entity);
+
         private partial AccountInfo Map(AccountInfoDto dto);
     }
 }

@@ -1,8 +1,6 @@
 ﻿using FluentAssertions;
 using MainCore;
 using MainCore.Common.Enums;
-using MainCore.Infrasturecture.AutoRegisterDi;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace TestProject.ConfigureServices
 {
@@ -12,17 +10,10 @@ namespace TestProject.ConfigureServices
         [TestMethod]
         [DataRow(ServerEnums.TravianOfficial)]
         [DataRow(ServerEnums.TTWars)]
-        public void ConfigureServicesTest_ShouldPass(ServerEnums server)
+        public void ConfigureServicesTest_ShouldNotThrow(ServerEnums server)
         {
-            var container = DependencyInjection.Setup();
-
-            var foundServices = AutoRegisterHelpers.GetAutoRegistered(server);
-            foreach (var service in foundServices)
-            {
-                Console.WriteLine($"{service.Interface}");
-                var result = container.GetRequiredService(service.Interface);
-                result.Should().NotBeNull();
-            }
+            var setup = () => DependencyInjection.Setup(server);
+            setup.Should().NotThrow();
         }
     }
 }

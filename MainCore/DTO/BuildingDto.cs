@@ -23,6 +23,8 @@ namespace MainCore.DTO
             return entity;
         }
 
+        public partial void MapToEntity(BuildingDto dto, Building entity);
+
         private partial Building Map(BuildingDto dto);
     }
 }

@@ -1,47 +1,65 @@
 ﻿using FluentResults;
-using MainCore.Common.Repositories;
-using MainCore.Common.Requests;
 using MainCore.DTO;
 using MainCore.Features.Update.Parsers;
-using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Features.Update.Commands
 {
-    [RegisterAsTransient]
-    public class UpdateAccountInfoCommand : IUpdateAccountInfoCommand
+    public class UpdateAccountInfoCommand : IRequest<Result>
+    {
+        public int AccountId { get; }
+
+        public UpdateAccountInfoCommand(int accountId)
+        {
+            AccountId = accountId;
+        }
+    }
+
+    public class UpdateAccountInfoCommandHandler : IRequestHandler<UpdateAccountInfoCommand, Result>
     {
         private readonly IChromeManager _chromeManager;
         private readonly IAccountInfoParser _accountInfoParser;
-        private readonly IAccountInfoRepository _accountInfoRepository;
-        private readonly IMediator _mediator;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateAccountInfoCommand(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, IAccountInfoRepository accountInfoRepository, IMediator mediator)
+        public UpdateAccountInfoCommandHandler(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, IDbContextFactory<AppDbContext> contextFactory)
         {
             _chromeManager = chromeManager;
             _accountInfoParser = accountInfoParser;
-            _accountInfoRepository = accountInfoRepository;
-            _mediator = mediator;
+            _contextFactory = contextFactory;
         }
 
-        public async Task<Result> Execute(int accountId, IChromeBrowser chromeBrowser)
+        public async Task<Result> Handle(UpdateAccountInfoCommand request, CancellationToken cancellationToken)
         {
+            var accountId = request.AccountId;
+            var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
             var dto = _accountInfoParser.Get(html);
-            var mapper = new AccountInfoMapper();
-
-            var accountInfo = mapper.Map(accountId, dto);
-
-            _accountInfoRepository.Update(accountId, accountInfo);
-            await _mediator.Send(new AccountInfoUpdate(accountId));
+            await Task.Run(() => Update(accountId, dto), cancellationToken);
             return Result.Ok();
         }
 
-        public async Task<Result> Execute(int accountId)
+        private void Update(int accountId, AccountInfoDto dto)
         {
-            var chromeBrowser = _chromeManager.Get(accountId);
-            return await Execute(accountId, chromeBrowser);
+            using var context = _contextFactory.CreateDbContext();
+
+            var dbAccountInfo = context.AccountsInfo
+                .FirstOrDefault(x => x.AccountId == accountId);
+
+            var mapper = new AccountInfoMapper();
+            if (dbAccountInfo is null)
+            {
+                var accountInfo = mapper.Map(accountId, dto);
+                context.Add(accountInfo);
+            }
+            else
+            {
+                mapper.MapToEntity(dto, dbAccountInfo);
+                context.Update(dbAccountInfo);
+            }
+            context.SaveChanges();
         }
     }
 }

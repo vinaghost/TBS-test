@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using MainCore.Common;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.UI.Models.Input;
@@ -9,7 +11,6 @@ using Microsoft.Extensions.Hosting;
 using ReactiveUI;
 using Splat;
 using Splat.Microsoft.Extensions.DependencyInjection;
-using Constants = MainCore.Common.Constants;
 
 namespace MainCore
 {
@@ -17,12 +18,12 @@ namespace MainCore
     {
         private const string _connectionString = "DataSource=TBS.db;Cache=Shared";
 
-        public static IServiceCollection AddCoreServices(this IServiceCollection services)
+        public static IServiceCollection AddCoreServices(this IServiceCollection services, ServerEnums server)
         {
             services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(_connectionString));
 
             services
-                .AutoRegister(Constants.Server)
+                .AutoRegister(server)
                 .AddValidator()
                 .AddMediatR(cfg =>
                 {
@@ -45,7 +46,9 @@ namespace MainCore
             return services;
         }
 
-        public static IServiceProvider Setup()
+        public static IServiceProvider Setup() => Setup(Constants.Server);
+
+        public static IServiceProvider Setup(ServerEnums server)
         {
             var host = Host.CreateDefaultBuilder()
                .ConfigureServices((context, services) =>
@@ -56,7 +59,11 @@ namespace MainCore
                    resolver.InitializeReactiveUI();
 
                    services
-                       .AddCoreServices();
+                       .AddCoreServices(server);
+               })
+               .UseDefaultServiceProvider(config =>
+               {
+                   config.ValidateOnBuild = true;
                })
                .Build();
             var container = host.Services;

@@ -55,7 +55,7 @@ namespace MainCore.Infrasturecture.Services
 
                 var uri = new Uri(account.Server);
                 logger = Log.ForContext("Account", $"{account.Username}_{uri.Host}")
-                            .ForContext("AccountId", accountId);
+                            .ForContext("VillageId", accountId);
                 _loggers.Add(accountId, logger);
             }
             return logger;

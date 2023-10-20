@@ -20,6 +20,10 @@ namespace MainCore.DTO
             return entity;
         }
 
+        [MapperIgnoreSource(nameof(FarmListDto.Id))]
+        [MapperIgnoreSource(nameof(FarmListDto.IsActive))]
+        public partial void MapToEntity(FarmListDto dto, FarmList entity);
+
         private partial FarmList Map(FarmListDto dto);
     }
 

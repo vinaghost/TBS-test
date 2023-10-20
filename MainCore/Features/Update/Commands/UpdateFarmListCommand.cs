@@ -1,50 +1,78 @@
 ﻿using FluentResults;
-using MainCore.Common.Repositories;
-using MainCore.Common.Requests;
 using MainCore.DTO;
-using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
-using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Features.Update.Commands
 {
-    [RegisterAsTransient]
-    public class UpdateFarmListCommand : IUpdateFarmListCommand
+    public class UpdateFarmListCommand : IRequest<Result>
     {
-        private readonly IFarmListRepository _farmListRepository;
+        public int AccountId { get; }
+
+        public UpdateFarmListCommand(int accountId)
+        {
+            AccountId = accountId;
+        }
+    }
+
+    public class UpdateFarmListCommandCommandHandler : IRequestHandler<UpdateFarmListCommand, Result>
+    {
         private readonly IChromeManager _chromeManager;
         private readonly IFarmListParser _farmListParser;
-        private readonly IMediator _mediator;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateFarmListCommand(IFarmListRepository farmListRepository, IChromeManager chromeManager, IFarmListParser farmListParser, IMediator mediator)
+        public UpdateFarmListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IFarmListParser farmListParser)
         {
-            _farmListRepository = farmListRepository;
             _chromeManager = chromeManager;
+            _contextFactory = contextFactory;
             _farmListParser = farmListParser;
-            _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId)
+        public async Task<Result> Handle(UpdateFarmListCommand request, CancellationToken cancellationToken)
         {
+            var accountId = request.AccountId;
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-
             var dtos = _farmListParser.Get(html);
+            await Task.Run(() => Update(accountId, dtos.ToList()), cancellationToken);
+            return Result.Ok();
+        }
+
+        private void Update(int accountId, List<FarmListDto> dtos)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.FarmLists.Where(x => x.AccountId == accountId);
+            var ids = query
+                .Select(x => x.Id)
+                .ToList();
+
+            var dbFarmLists = query.ToList();
+
             var mapper = new FarmListMapper();
-
-            var farmLists = new List<FarmList>();
-
             foreach (var dto in dtos)
             {
-                var farmList = mapper.Map(accountId, dto);
-                farmLists.Add(farmList);
-            }
+                var dbFarmlist = dbFarmLists.FirstOrDefault(x => x.Id == dto.Id);
+                if (dbFarmlist is null)
+                {
+                    var farmlist = mapper.Map(accountId, dto);
+                    context.Add(farmlist);
+                }
+                else
+                {
+                    mapper.MapToEntity(dto, dbFarmlist);
+                    context.Update(dbFarmlist);
+                }
 
-            _farmListRepository.Update(accountId, farmLists);
-            await _mediator.Send(new FarmListUpdate(accountId));
-            return Result.Ok();
+                ids.Remove(dto.Id);
+            }
+            context.SaveChanges();
+
+            context.FarmLists
+                .Where(x => ids.Contains(x.Id))
+                .ExecuteDelete();
         }
     }
 }

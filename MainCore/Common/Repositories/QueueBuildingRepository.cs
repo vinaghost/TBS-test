@@ -107,7 +107,7 @@ namespace MainCore.Common.Repositories
         //        using (var context = _contextFactory.CreateDbContext())
         //        {
         //            var village = context.Villages.Find(villageId);
-        //            accountId = village.AccountId;
+        //            accountId = village.VillageId;
         //            count = context.QueueBuildings.Where(x => x.VillageId == villageId).Count();
         //        }
 

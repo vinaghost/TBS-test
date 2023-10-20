@@ -24,7 +24,7 @@ namespace MainCore.Infrasturecture.Services
 
         public void Emit(LogEvent logEvent)
         {
-            var logEventPropertyValue = logEvent.Properties.GetValueOrDefault("AccountId");
+            var logEventPropertyValue = logEvent.Properties.GetValueOrDefault("VillageId");
             if (logEventPropertyValue is null) return;
             if (logEventPropertyValue is not ScalarValue scalarValue) return;
             var accountId = (int)scalarValue.Value;

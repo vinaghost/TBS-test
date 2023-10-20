@@ -1,49 +1,79 @@
 ﻿using FluentResults;
-using MainCore.Common.Repositories;
-using MainCore.Common.Requests;
 using MainCore.DTO;
-using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
-using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Features.Update.Commands
 {
-    [RegisterAsTransient]
-    public class UpdateHeroItemsCommand : IUpdateHeroItemsCommand
+    public class UpdateHeroItemsCommand : IRequest<Result>
+    {
+        public int AccountId { get; }
+
+        public UpdateHeroItemsCommand(int accountId)
+        {
+            AccountId = accountId;
+        }
+    }
+
+    public class UpdateHeroItemsCommandCommandHandler : IRequestHandler<UpdateHeroItemsCommand, Result>
     {
         private readonly IChromeManager _chromeManager;
         private readonly IHeroParser _heroParser;
-        private readonly IHeroItemRepository _heroItemRepository;
-        private readonly IMediator _mediator;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateHeroItemsCommand(IChromeManager chromeManager, IHeroParser heroParser, IHeroItemRepository heroItemRepository, IMediator mediator)
+        public UpdateHeroItemsCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IHeroParser heroParser)
         {
             _chromeManager = chromeManager;
+            _contextFactory = contextFactory;
             _heroParser = heroParser;
-            _heroItemRepository = heroItemRepository;
-            _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId)
+        public async Task<Result> Handle(UpdateHeroItemsCommand request, CancellationToken cancellationToken)
         {
+            var accountId = request.AccountId;
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-
             var dtos = _heroParser.GetItems(html);
+            await Task.Run(() => Update(accountId, dtos.ToList()), cancellationToken);
+            return Result.Ok();
+        }
+
+        private void Update(int accountId, List<HeroItemDto> dtos)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.HeroItems.Where(x => x.AccountId == accountId);
+            var ids = query
+                .Select(x => x.Type)
+                .ToList();
+
+            var dbHeroItemss = query.ToList();
 
             var mapper = new HeroItemMapper();
-
-            var items = new List<HeroItem>();
             foreach (var dto in dtos)
             {
-                var item = mapper.Map(accountId, dto);
-                items.Add(item);
+                var dbHeroItems = dbHeroItemss.FirstOrDefault(x => x.Type == dto.Type);
+                if (dbHeroItems is null)
+                {
+                    var HeroItems = mapper.Map(accountId, dto);
+                    context.Add(HeroItems);
+                }
+                else
+                {
+                    mapper.MapToEntity(dto, dbHeroItems);
+                    context.Update(dbHeroItems);
+                }
+
+                ids.Remove(dto.Type);
             }
-            _heroItemRepository.Update(accountId, items);
-            await _mediator.Send(new HeroItemUpdate(accountId));
-            return Result.Ok();
+            context.SaveChanges();
+
+            context.HeroItems
+                .Where(x => x.AccountId == accountId)
+                .Where(x => ids.Contains(x.Type))
+                .ExecuteDelete();
         }
     }
 }

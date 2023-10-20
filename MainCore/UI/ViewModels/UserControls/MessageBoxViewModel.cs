@@ -14,6 +14,7 @@ namespace MainCore.UI.ViewModels.UserControls
         public async Task Show(string header, string message)
         {
             DialogYesNo = false;
+            DialogOk = true;
             DialogHeader = header;
             DialogMessage = message;
             DialogShown = true;
@@ -23,6 +24,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
         public async Task<bool> ShowConfirm(string header, string message)
         {
+            DialogOk = false;
             DialogYesNo = true;
             DialogHeader = header;
             DialogMessage = message;
@@ -70,7 +72,7 @@ namespace MainCore.UI.ViewModels.UserControls
         private string _dialogMessage;
         private string _dialogHeader;
         private bool _dialogYesNo;
-        private readonly ObservableAsPropertyHelper<bool> _dialogOk;
+        private bool _dialogOk;
         private bool _dialogYes;
 
         public MessageBoxViewModel()
@@ -78,10 +80,6 @@ namespace MainCore.UI.ViewModels.UserControls
             OkCommand = ReactiveCommand.Create(OkTask);
             YesCommand = ReactiveCommand.Create(YesTask);
             NoCommand = ReactiveCommand.Create(NoTask);
-
-            this.WhenAnyValue(vm => vm.DialogYesNo)
-                .Select(x => !x)
-                .ToProperty(this, vm => vm.DialogOk, out _dialogOk);
         }
 
         public string DialogMessage
@@ -108,7 +106,11 @@ namespace MainCore.UI.ViewModels.UserControls
             set => this.RaiseAndSetIfChanged(ref _dialogYesNo, value);
         }
 
-        public bool DialogOk => _dialogOk.Value;
+        public bool DialogOk
+        {
+            get => _dialogOk;
+            set => this.RaiseAndSetIfChanged(ref _dialogOk, value);
+        }
 
         #endregion Members
     }

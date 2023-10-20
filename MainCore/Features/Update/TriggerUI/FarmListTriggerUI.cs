@@ -1,28 +1,28 @@
 ﻿using MainCore.UI.ViewModels.Tabs;
 using MediatR;
 
-namespace MainCore.Common.Requests
+namespace MainCore.Features.Update.TriggerUI
 {
-    public class FarmListUpdate : IRequest
+    public class FarmListTriggerUI : IRequest
     {
         public int AccountId { get; }
 
-        public FarmListUpdate(int accountId)
+        public FarmListTriggerUI(int accountId)
         {
             AccountId = accountId;
         }
     }
 
-    public class FarmListUpdateHandler : IRequestHandler<FarmListUpdate>
+    public class FarmListTriggerUIHandler : IRequestHandler<FarmListTriggerUI>
     {
         private readonly FarmingViewModel _farmingViewModel;
 
-        public FarmListUpdateHandler(FarmingViewModel farmingViewModel)
+        public FarmListTriggerUIHandler(FarmingViewModel farmingViewModel)
         {
             _farmingViewModel = farmingViewModel;
         }
 
-        public async Task Handle(FarmListUpdate request, CancellationToken cancellationToken)
+        public async Task Handle(FarmListTriggerUI request, CancellationToken cancellationToken)
         {
             await _farmingViewModel.FarmListsUpdated(request.AccountId);
         }

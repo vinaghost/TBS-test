@@ -24,6 +24,8 @@ namespace MainCore.DTO
             return entity;
         }
 
+        public partial void MapToEntity(StorageDto dto, Storage entity);
+
         private partial Storage Map(StorageDto dto);
     }
 }

@@ -28,5 +28,10 @@ namespace WPFUI.Views.UserControls
                 this.OneWayBind(ViewModel, vm => vm.DialogMessage, v => v.Message.Text).DisposeWith(d);
             });
         }
+
+        private bool NegativeValue(bool val)
+        {
+            return !val;
+        }
     }
 }

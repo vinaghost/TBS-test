@@ -20,6 +20,8 @@ namespace MainCore.DTO
             return entity;
         }
 
+        public partial void MapToEntity(HeroItemDto dto, HeroItem entity);
+
         private partial HeroItem Map(HeroItemDto dto);
     }
 }

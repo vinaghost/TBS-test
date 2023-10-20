@@ -24,6 +24,8 @@ namespace MainCore.DTO
             return entity;
         }
 
+        public partial void MapToEntity(VillageDto dto, Village entity);
+
         public partial VillageDto Map(Village dto);
 
         private partial Village Map(VillageDto dto);
