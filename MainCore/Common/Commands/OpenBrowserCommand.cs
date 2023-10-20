@@ -1,37 +1,28 @@
-﻿using FluentResults;
+﻿using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
-using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Commands
 {
-    public class OpenBrowserCommand : IRequest<Result>
+    [RegisterAsTransient]
+    public class OpenBrowserCommand : IOpenBrowserCommand
     {
-        public int AccountId { get; }
-
-        public OpenBrowserCommand(int accountId)
-        {
-            AccountId = accountId;
-        }
-    }
-
-    public class OpenBrowserCommandHandler : IRequestHandler<OpenBrowserCommand, Result>
-    {
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IChromeManager _chromeManager;
-        private readonly AppDbContext _context;
 
-        public OpenBrowserCommandHandler(IChromeManager chromeManager, AppDbContext context)
+        public OpenBrowserCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager)
         {
+            _contextFactory = contextFactory;
             _chromeManager = chromeManager;
-            _context = context;
         }
 
-        public async Task<Result> Handle(OpenBrowserCommand request, CancellationToken cancellationToken)
+        public async Task Execute(int accountId)
         {
-            var accountId = request.AccountId;
+            using var context = await _contextFactory.CreateDbContextAsync();
             var chromeBrowser = _chromeManager.Get(accountId);
-            var account = _context.Accounts.Find(accountId);
-            var access = _context.Accesses.FirstOrDefault(x => x.AccountId == accountId);
+            var account = await context.Accounts.FindAsync(accountId);
+            var access = await context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
             await Task.Run(() =>
             {
                 try
@@ -43,8 +34,7 @@ namespace MainCore.Common.Commands
                 {
                     return;
                 }
-            }, cancellationToken);
-            return Result.Ok();
+            });
         }
     }
 }

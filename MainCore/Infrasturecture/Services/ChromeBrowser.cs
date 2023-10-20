@@ -22,7 +22,7 @@ namespace MainCore.Infrasturecture.Services
 
         public ChromeBrowser(string[] extensionsPath, Account account)
         {
-            _pathUserData = Path.Combine(App_context.BaseDirectory, "Data", "Cache", account.Server.Replace("https://", "").Replace("http://", "").Replace(".", "_"), account.Username);
+            _pathUserData = Path.Combine(AppContext.BaseDirectory, "Data", "Cache", account.Server.Replace("https://", "").Replace("http://", "").Replace(".", "_"), account.Username);
             if (!Directory.Exists(_pathUserData)) Directory.CreateDirectory(_pathUserData);
 
             _extensionsPath = extensionsPath;

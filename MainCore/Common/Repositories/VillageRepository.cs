@@ -9,20 +9,20 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class VillageRepository : IVillageRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
         private readonly IVillageSettingRepository _villageSettingRepository;
 
-        public VillageRepository(AppDbContext context, IVillageSettingRepository villageSettingRepository)
+        public VillageRepository(IDbContextFactory<AppDbContext> contextFactory, IVillageSettingRepository villageSettingRepository)
         {
-            _context = context;
+            _contextFactory = contextFactory;
             _villageSettingRepository = villageSettingRepository;
         }
 
         public int GetActive(int accountId)
         {
-           
-            var village = _context.Villages
+            using var context = _contextFactory.CreateDbContext();
+            var village = context.Villages
                 .Where(x => x.AccountId == accountId && x.IsActive)
                 .Select(x => x.Id)
                 .FirstOrDefault();
@@ -31,8 +31,8 @@ namespace MainCore.Common.Repositories
 
         public List<int> GetInactive(int accountId)
         {
-           
-            var villages = _context.Villages
+            using var context = _contextFactory.CreateDbContext();
+            var villages = context.Villages
                 .Where(x => x.AccountId == accountId && !x.IsActive)
                 .OrderBy(x => x.Name)
                 .Select(x => x.Id)
@@ -42,14 +42,14 @@ namespace MainCore.Common.Repositories
 
         public Village Get(int villageId)
         {
-           
-            return _context.Villages.Find(villageId);
+            using var context = _contextFactory.CreateDbContext();
+            return context.Villages.Find(villageId);
         }
 
         public List<VillageDto> GetList(int accountId)
         {
-           
-            return _context.Villages
+            using var context = _contextFactory.CreateDbContext();
+            return context.Villages
                 .Where(x => x.AccountId == accountId)
                 .OrderBy(x => x.Name)
                 .ProjectToDto()
@@ -58,8 +58,8 @@ namespace MainCore.Common.Repositories
 
         public List<int> GetUnloadList(int accountId)
         {
-           
-            var villages = _context.Villages
+            using var context = _contextFactory.CreateDbContext();
+            var villages = context.Villages
                 .Where(x => x.AccountId == accountId)
                 .Include(x => x.Buildings)
                 .Where(x => x.Buildings.Count < 19)
@@ -72,16 +72,16 @@ namespace MainCore.Common.Repositories
         public List<Village> Update(int accountId, List<Village> villages)
         {
             List<Village> newVillages;
-           
+            using var context = _contextFactory.CreateDbContext();
 
-            var villagesOnDb = _context.Villages.Where(x => x.AccountId == accountId).ToList();
+            var villagesOnDb = context.Villages.Where(x => x.AccountId == accountId).ToList();
 
             newVillages = villages.Except(villagesOnDb).ToList();
             var oldVillages = villagesOnDb.Except(villages).ToList();
             var updateVillages = villagesOnDb.Where(x => !oldVillages.Contains(x)).ToList();
 
-            _context.AddRange(newVillages);
-            _context.RemoveRange(oldVillages);
+            context.AddRange(newVillages);
+            context.RemoveRange(oldVillages);
             foreach (var village in updateVillages)
             {
                 var vill = villages.FirstOrDefault(x => x.Id == village.Id);
@@ -91,9 +91,9 @@ namespace MainCore.Common.Repositories
                 village.IsActive = vill.IsActive;
                 village.IsUnderAttack = vill.IsUnderAttack;
             }
-            _context.UpdateRange(updateVillages);
+            context.UpdateRange(updateVillages);
 
-            _context.SaveChanges();
+            context.SaveChanges();
 
             foreach (var village in newVillages)
             {

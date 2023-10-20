@@ -197,7 +197,7 @@ namespace MainCore.Infrasturecture.Services
         private static string GetDriverPath()
         {
             var driverName = GetDriverName();
-            string targetPath = Path.GetDirectoryName(App_context.BaseDirectory);
+            string targetPath = Path.GetDirectoryName(AppContext.BaseDirectory);
             targetPath = Path.Combine(targetPath, driverName);
             return targetPath;
         }

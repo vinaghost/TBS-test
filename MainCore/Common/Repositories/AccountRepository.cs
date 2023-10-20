@@ -12,13 +12,13 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class AccountRepository : IAccountRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IUseragentManager _useragentManager;
         private readonly IAccountSettingRepository _accountSettingRepository;
 
-        public AccountRepository(AppDbContext context, IUseragentManager useragentManager, MainCore.Common.Repositories.IAccountSettingRepository accountSettingRepository)
+        public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager, MainCore.Common.Repositories.IAccountSettingRepository accountSettingRepository)
         {
-            _context = context;
+            _contextFactory = contextFactory;
             _useragentManager = useragentManager;
             _accountSettingRepository = accountSettingRepository;
         }
@@ -32,9 +32,9 @@ namespace MainCore.Common.Repositories
 
         public Result Add(Account account)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
 
-            var query = _context.Accounts
+            var query = context.Accounts
                 .Where(x => x.Username == account.Username
                             && x.Server == account.Server);
 
@@ -43,8 +43,8 @@ namespace MainCore.Common.Repositories
             {
                 access.Useragent = _useragentManager.Get();
             }
-            _context.Add(account);
-            _context.SaveChanges();
+            context.Add(account);
+            context.SaveChanges();
 
             _accountSettingRepository.CheckSetting(context, account.Id);
 
@@ -67,7 +67,7 @@ namespace MainCore.Common.Repositories
 
         public void AddRange(List<Account> accounts)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
 
             foreach (var account in accounts)
             {
@@ -76,8 +76,8 @@ namespace MainCore.Common.Repositories
                     access.Useragent = _useragentManager.Get();
                 }
             }
-            _context.AddRange(accounts);
-            _context.SaveChanges();
+            context.AddRange(accounts);
+            context.SaveChanges();
             foreach (var account in accounts)
             {
                 _accountSettingRepository.CheckSetting(context, account.Id);
@@ -86,8 +86,8 @@ namespace MainCore.Common.Repositories
 
         public List<AccountDto> Get()
         {
-           
-            var accounts = _context.Accounts
+            using var context = _contextFactory.CreateDbContext();
+            var accounts = context.Accounts
                 .AsQueryable()
                 .ProjectToDto()
                 .ToList();
@@ -96,10 +96,10 @@ namespace MainCore.Common.Repositories
 
         public AccountDto Get(int accountId)
         {
-           
-            var account = _context.Accounts
+            using var context = _contextFactory.CreateDbContext();
+            var account = context.Accounts
                 .Find(accountId);
-            _context.Entry(account)
+            context.Entry(account)
                .Collection(x => x.Accesses)
                .Load();
             var mapper = new AccountMapper();
@@ -115,7 +115,7 @@ namespace MainCore.Common.Repositories
 
         public void Edit(Account account)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
 
             var accessIds = account.Accesses
                 .Where(x => x.AccountId == account.Id)
@@ -125,19 +125,19 @@ namespace MainCore.Common.Repositories
             var oldAccessIds = accessIds
                 .Except(account.Accesses.Select(x => x.Id));
 
-            _context.Accesses
+            context.Accesses
                .Where(x => oldAccessIds.Contains(x.Id))
                .ExecuteDelete();
 
-            _context.Update(account);
-            _context.SaveChanges();
+            context.Update(account);
+            context.SaveChanges();
         }
 
         public void Delete(int accountId)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
 
-            _context.Accounts
+            context.Accounts
                .Where(x => x.Id == accountId)
                .ExecuteDelete();
         }

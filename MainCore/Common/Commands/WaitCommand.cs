@@ -1,54 +1,35 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Common.Commands
 {
-    public class WaitCommand : IRequest<Result>
+    [RegisterAsTransient]
+    public class WaitCommand : IWaitCommand
     {
         public static Func<IWebDriver, bool> PageLoaded => driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
 
         public static Func<IWebDriver, bool> PageChanged(string part) => driver => driver.Url.Contains(part);
 
-        public int AccountId { get; }
-        public Func<IWebDriver, bool> Condition { get; }
-
-        public WaitCommand(int accountId, Func<IWebDriver, bool> condition)
+        public async Task<Result> Execute(IChromeBrowser chromeBrowser, Func<IWebDriver, bool> condition)
         {
-            AccountId = accountId;
-            Condition = condition;
-        }
-    }
-
-    public class WaitCommandHandler : IRequestHandler<WaitCommand, Result>
-    {
-        private readonly IChromeManager _chromeManager;
-
-        public WaitCommandHandler(IChromeManager chromeManager)
-        {
-            _chromeManager = chromeManager;
+            return await Task.Run(() => ExecuteSync(chromeBrowser, condition));
         }
 
-        public async Task<Result> Handle(WaitCommand request, CancellationToken cancellationToken)
+        private Result ExecuteSync(IChromeBrowser chromeBrowser, Func<IWebDriver, bool> condition)
         {
-            var accountId = request.AccountId;
-            var chromeBrowser = _chromeManager.Get(accountId);
             var wait = chromeBrowser.Wait;
-
-            return result = await Task.Run(() =>
+            try
             {
-                try
-                {
-                    wait.Until(request.Condition);
-                }
-                catch (TimeoutException)
-                {
-                    return Result.Fail(new Stop("Page not loaded in 3 mins"));
-                }
-                return Result.Ok();
-            });
+                wait.Until(condition);
+            }
+            catch (TimeoutException)
+            {
+                return Result.Fail(new Stop("Page not loaded in 3 mins"));
+            }
+            return Result.Ok();
         }
     }
 }

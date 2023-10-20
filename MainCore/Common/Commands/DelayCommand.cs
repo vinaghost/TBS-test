@@ -1,32 +1,24 @@
 ﻿using FluentResults;
-using MainCore.Common.Queries;
-using MediatR;
+using MainCore.Common.Enums;
+using MainCore.Common.Repositories;
+using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Common.Commands
 {
-    public class DelayCommand : IRequest<Result>
+    [RegisterAsTransient]
+    public class DelayCommand : IDelayCommand
     {
-        public int AccountId { get; }
+        private readonly IAccountSettingRepository _settingRepository;
 
-        public DelayCommand(int accountId)
+        public DelayCommand(IAccountSettingRepository settingRepository)
         {
-            AccountId = accountId;
-        }
-    }
-
-    public class DelayCommandHandler : IRequestHandler<DelayCommand, Result>
-    {
-        private readonly IMediator _mediator;
-
-        public DelayCommandHandler(IMediator mediator)
-        {
-            _mediator = mediator;
+            _settingRepository = settingRepository;
         }
 
-        public async Task<Result> Handle(DelayCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Execute(int accountId)
         {
-            var delay = await _mediator.Send(new GetClickDelayQuery(request.AccountId), cancellationToken);
-            await Task.Delay(delay, cancellationToken);
+            var delay = _settingRepository.GetSetting(accountId, AccountSettingEnums.ClickDelayMin, AccountSettingEnums.ClickDelayMax);
+            await Task.Delay(delay);
             return Result.Ok();
         }
     }

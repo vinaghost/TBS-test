@@ -15,13 +15,13 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class BuildingRepository : IBuildingRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
         private readonly List<BuildingEnums> _availableBuildings = new();
 
-        public BuildingRepository(AppDbContext context)
+        public BuildingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
 
             for (var i = BuildingEnums.Sawmill; i <= BuildingEnums.Hospital; i++)
             {
@@ -33,8 +33,8 @@ namespace MainCore.Common.Repositories
 
         public List<Building> GetBuildingList(int villageId)
         {
-           
-            var buildings = _context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var buildings = context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
                 .ToList();
@@ -43,16 +43,16 @@ namespace MainCore.Common.Repositories
 
         public Building GetBuilding(int buildingId)
         {
-           
-            var building = _context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings
                 .Find(buildingId);
             return building;
         }
 
         public Building GetBuilding(int villageId, int location)
         {
-           
-            var building = _context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings
                 .Where(x => x.VillageId == villageId && x.Location == location)
                 .FirstOrDefault();
             return building;
@@ -60,8 +60,8 @@ namespace MainCore.Common.Repositories
 
         public int CountQueueBuilding(int villageId)
         {
-           
-            var count = _context.QueueBuildings
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .Count();
             return count;
@@ -69,8 +69,8 @@ namespace MainCore.Common.Repositories
 
         public int CountResourceQueueBuilding(int villageId)
         {
-           
-            var count = _context.QueueBuildings
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.QueueBuildings
                 .Where(x => x.VillageId == villageId)
                 .Where(x =>
                     x.Type == BuildingEnums.Woodcutter ||
@@ -83,8 +83,8 @@ namespace MainCore.Common.Repositories
 
         public bool HasRallyPoint(int villageId)
         {
-           
-            return _context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            return context.Buildings
                         .Where(x => x.VillageId == villageId && x.Level > 0 && x.Type == BuildingEnums.RallyPoint)
                         .Any();
         }
@@ -93,12 +93,12 @@ namespace MainCore.Common.Repositories
         {
             if (job.Type == JobTypeEnums.ResourceBuild) return true;
             var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-           
-            var building = _context.Buildings.FirstOrDefault(x => x.VillageId == villageId && x.Location == plan.Location);
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings.FirstOrDefault(x => x.VillageId == villageId && x.Location == plan.Location);
             if (building is null) return true;
             if (building.Level >= plan.Level) return false;
 
-            var queueBuilding = _context.QueueBuildings
+            var queueBuilding = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Location == plan.Location)
                 .OrderByDescending(x => x.Level)
                 .FirstOrDefault();
@@ -109,9 +109,9 @@ namespace MainCore.Common.Repositories
 
         public void Update(int villageId, List<Building> buildings)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
 
-            var dbBuildings = _context.Buildings
+            var dbBuildings = context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
                 .ToList();
@@ -121,23 +121,23 @@ namespace MainCore.Common.Repositories
                     .FirstOrDefault(x => x.Location == building.Location);
                 if (dbBuilding is null)
                 {
-                    _context.Add(building);
+                    context.Add(building);
                 }
                 else
                 {
                     dbBuilding.Level = building.Level;
                     dbBuilding.Type = building.Type;
                     dbBuilding.IsUnderConstruction = building.IsUnderConstruction;
-                    _context.Update(dbBuilding);
+                    context.Update(dbBuilding);
                 }
             }
-            _context.SaveChanges();
+            context.SaveChanges();
         }
 
         public Building GetCropland(int villageId)
         {
-           
-            var building = _context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var building = context.Buildings
                 .Where(x => x.VillageId == villageId
                             && x.Type == BuildingEnums.Cropland)
                 .OrderByDescending(x => x.Level)
@@ -147,8 +147,8 @@ namespace MainCore.Common.Repositories
 
         public NormalBuildPlan GetNormalBuildPlan(int villageId, ResourceBuildPlan plan)
         {
-           
-            var query = _context.Buildings.Where(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.Buildings.Where(x => x.VillageId == villageId);
             switch (plan.Plan)
             {
                 case ResourcePlanEnums.AllResources:
@@ -180,7 +180,7 @@ namespace MainCore.Common.Repositories
             {
                 if (building.IsUnderConstruction)
                 {
-                    var levelUpgrading = _context.QueueBuildings.Where(x => x.VillageId == villageId && x.Location == building.Location).Count();
+                    var levelUpgrading = context.QueueBuildings.Where(x => x.VillageId == villageId && x.Location == building.Location).Count();
                     building.Level += levelUpgrading;
                 }
             }
@@ -248,8 +248,8 @@ namespace MainCore.Common.Repositories
 
         public List<BuildingItemDto> GetBuildingItems(int villageId)
         {
-           
-            var villageBuildings = _context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var villageBuildings = context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
                 .Select(x => new BuildingItemDto()
@@ -261,7 +261,7 @@ namespace MainCore.Common.Repositories
                 })
                 .ToList();
 
-            var queueBuildings = _context.QueueBuildings
+            var queueBuildings = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .GroupBy(x => x.Location)
                 .AsEnumerable()
@@ -279,7 +279,7 @@ namespace MainCore.Common.Repositories
                 villageBuilding.QueueLevel = queueBuilding.Level;
             }
 
-            var jobBuildings = _context.Jobs
+            var jobBuildings = context.Jobs
                 .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
                 .AsEnumerable()
                 .Select(x => JsonSerializer.Deserialize<NormalBuildPlan>(x.Content))
@@ -299,7 +299,7 @@ namespace MainCore.Common.Repositories
                 villageBuilding.JobLevel = jobBuilding.Level;
             }
 
-            var resourceJobs = _context.Jobs
+            var resourceJobs = context.Jobs
                .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.ResourceBuild)
                .AsEnumerable()
                .Select(x => JsonSerializer.Deserialize<ResourceBuildPlan>(x.Content))
@@ -342,8 +342,8 @@ namespace MainCore.Common.Repositories
 
         private List<BuildingItem> GetBuildings(int villageId)
         {
-           
-            var villageBuildings = _context.Buildings
+            using var context = _contextFactory.CreateDbContext();
+            var villageBuildings = context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
                 .Select(x => new BuildingItem()
@@ -354,7 +354,7 @@ namespace MainCore.Common.Repositories
                 })
                 .AsEnumerable();
 
-            var queueBuildings = _context.QueueBuildings
+            var queueBuildings = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .GroupBy(x => x.Location)
                 .AsEnumerable()
@@ -365,7 +365,7 @@ namespace MainCore.Common.Repositories
                     Level = x.MaxBy(x => x.Level).Level,
                 });
 
-            var jobBuildings = _context.Jobs
+            var jobBuildings = context.Jobs
                 .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
                 .AsEnumerable()
                 .Select(x => JsonSerializer.Deserialize<NormalBuildPlan>(x.Content))
@@ -390,7 +390,7 @@ namespace MainCore.Common.Repositories
                 .OrderBy(x => x.Location)
                 .ToList();
 
-            var resourceJobs = _context.Jobs
+            var resourceJobs = context.Jobs
                .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.ResourceBuild)
                .AsEnumerable()
                .Select(x => JsonSerializer.Deserialize<ResourceBuildPlan>(x.Content))

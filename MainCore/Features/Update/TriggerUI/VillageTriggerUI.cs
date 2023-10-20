@@ -1,28 +1,28 @@
 ﻿using MainCore.UI.ViewModels.Tabs;
 using MediatR;
 
-namespace MainCore.Features.Update.Trigger
+namespace MainCore.Features.Update.TriggerUI
 {
-    public class VillageTrigger : INotification
+    public class VillageTriggerUI : IRequest
     {
         public int AccountId { get; }
 
-        public VillageTrigger(int accountId)
+        public VillageTriggerUI(int accountId)
         {
             AccountId = accountId;
         }
     }
 
-    public class VillageTriggerHandler : INotificationHandler<VillageTrigger>
+    public class VillageTriggerUIHandler : IRequestHandler<VillageTriggerUI>
     {
         private readonly VillageViewModel _villageViewModel;
 
-        public VillageTriggerHandler(VillageViewModel villageViewModel)
+        public VillageTriggerUIHandler(VillageViewModel villageViewModel)
         {
             _villageViewModel = villageViewModel;
         }
 
-        public async Task Handle(VillageTrigger request, CancellationToken cancellationToken)
+        public async Task Handle(VillageTriggerUI request, CancellationToken cancellationToken)
         {
             await _villageViewModel.VillageUpdate(request.AccountId);
         }

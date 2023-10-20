@@ -12,7 +12,7 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class JobRepository : IJobRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
         private readonly Dictionary<Type, JobTypeEnums> _jobTypes = new()
         {
@@ -20,16 +20,16 @@ namespace MainCore.Common.Repositories
             { typeof(ResourceBuildPlan),JobTypeEnums.ResourceBuild },
         };
 
-        public JobRepository(AppDbContext context)
+        public JobRepository(IDbContextFactory<AppDbContext> contextFactory)
 
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public JobDto Add<T>(int villageId, T content)
         {
-           
-            var count = _context.Jobs
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.Jobs
                 .Where(x => x.VillageId == villageId)
                 .Count();
             var job = new Job()
@@ -39,8 +39,8 @@ namespace MainCore.Common.Repositories
                 Type = _jobTypes[typeof(T)],
                 Content = JsonSerializer.Serialize(content),
             };
-            _context.Add(job);
-            _context.SaveChanges();
+            context.Add(job);
+            context.SaveChanges();
 
             var mapper = new JobMapper();
             return mapper.Map(job);
@@ -48,9 +48,9 @@ namespace MainCore.Common.Repositories
 
         public Job AddToTop<T>(int villageId, T content)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
 
-            _context.Jobs
+            context.Jobs
                .Where(x => x.VillageId == villageId)
                .ExecuteUpdate(x =>
                    x.SetProperty(x => x.Position, x => x.Position + 1));
@@ -62,16 +62,16 @@ namespace MainCore.Common.Repositories
                 Type = _jobTypes[typeof(T)],
                 Content = JsonSerializer.Serialize(content),
             };
-            _context.Add(job);
-            _context.SaveChanges();
+            context.Add(job);
+            context.SaveChanges();
 
             return job;
         }
 
         public List<JobDto> GetList(int villageId)
         {
-           
-            var jobs = _context.Jobs
+            using var context = _contextFactory.CreateDbContext();
+            var jobs = context.Jobs
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Position)
                 .ProjectToDto()
@@ -81,15 +81,15 @@ namespace MainCore.Common.Repositories
 
         public Job Get(int jobId)
         {
-           
-            var job = _context.Jobs.Find(jobId);
+            using var context = _contextFactory.CreateDbContext();
+            var job = context.Jobs.Find(jobId);
             return job;
         }
 
         public int CountBuildingJob(int villageId)
         {
-           
-            var count = _context.Jobs
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.Jobs
                 .Where(x => x.VillageId == villageId && (x.Type == JobTypeEnums.NormalBuild || x.Type == JobTypeEnums.ResourceBuild))
                 .Count();
             return count;
@@ -97,8 +97,8 @@ namespace MainCore.Common.Repositories
 
         public Job GetResourceBuildingJob(int villageId)
         {
-           
-            var job = _context.Jobs
+            using var context = _contextFactory.CreateDbContext();
+            var job = context.Jobs
                 .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
                 .AsEnumerable()
                 .Select(x => new
@@ -115,7 +115,7 @@ namespace MainCore.Common.Repositories
                 .OrderBy(x => x.Position)
                 .FirstOrDefault();
 
-            var resourceBuildJob = _context.Jobs
+            var resourceBuildJob = context.Jobs
                 .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.ResourceBuild)
                 .FirstOrDefault();
 
@@ -127,8 +127,8 @@ namespace MainCore.Common.Repositories
 
         public Job GetInfrastructureBuildingJob(int villageId)
         {
-           
-            var job = _context.Jobs
+            using var context = _contextFactory.CreateDbContext();
+            var job = context.Jobs
                 .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
                 .AsEnumerable()
                 .Select(x => new
@@ -149,33 +149,33 @@ namespace MainCore.Common.Repositories
 
         public void Move(int jobOldId, int jobNewId)
         {
-           
-            var jobOld = _context.Jobs.Find(jobOldId);
-            var jobNew = _context.Jobs.Find(jobNewId);
+            using var context = _contextFactory.CreateDbContext();
+            var jobOld = context.Jobs.Find(jobOldId);
+            var jobNew = context.Jobs.Find(jobNewId);
 
             (jobNew.Position, jobOld.Position) = (jobOld.Position, jobNew.Position);
-            _context.Update(jobOld);
-            _context.Update(jobNew);
+            context.Update(jobOld);
+            context.Update(jobNew);
 
-            _context.SaveChanges();
+            context.SaveChanges();
         }
 
         public void Delete(int jobId)
         {
-           
-            _context.Jobs.Where(x => x.Id == jobId).ExecuteDelete();
+            using var context = _contextFactory.CreateDbContext();
+            context.Jobs.Where(x => x.Id == jobId).ExecuteDelete();
         }
 
         public void Clear(int villageId)
         {
-           
-            _context.Jobs.Where(x => x.VillageId == villageId).ExecuteDelete();
+            using var context = _contextFactory.CreateDbContext();
+            context.Jobs.Where(x => x.VillageId == villageId).ExecuteDelete();
         }
 
         public Job GetFirstJob(int villageId)
         {
-           
-            var job = _context.Jobs
+            using var context = _contextFactory.CreateDbContext();
+            var job = context.Jobs
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Position)
                 .FirstOrDefault();

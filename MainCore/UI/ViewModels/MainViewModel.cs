@@ -13,7 +13,7 @@ namespace MainCore.UI.ViewModels
     [RegisterAsTransient(withoutInterface: true)]
     public class MainViewModel : ViewModelBase
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly MessageBoxViewModel _messageBoxViewModel;
         private MainLayoutViewModel _mainLayoutViewModel;
@@ -26,10 +26,10 @@ namespace MainCore.UI.ViewModels
         private readonly IAccountSettingRepository _accountSettingRepository;
         private readonly IVillageSettingRepository _villageSettingRepository;
 
-        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, AppDbContext context, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IUseragentManager useragentManager, ILogService logService, IAccountSettingRepository accountSettingRepository, IVillageSettingRepository villageSettingRepository, MessageBoxViewModel messageBoxViewModel, IRestClientManager restClientManager)
+        public MainViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IDbContextFactory<AppDbContext> contextFactory, IChromeDriverInstaller chromeDriverInstaller, IChromeManager chromeManager, IUseragentManager useragentManager, ILogService logService, IAccountSettingRepository accountSettingRepository, IVillageSettingRepository villageSettingRepository, MessageBoxViewModel messageBoxViewModel, IRestClientManager restClientManager)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
-            _context = context;
+            _contextFactory = contextFactory;
             _chromeDriverInstaller = chromeDriverInstaller;
             _chromeManager = chromeManager;
             _useragentManager = useragentManager;
@@ -65,16 +65,16 @@ namespace MainCore.UI.ViewModels
                 "loading database",
                 async () =>
                 {
-                    using var context = await _context.CreateDbContextAsync();
+                    using var context = await _contextFactory.CreateDbContextAsync();
 
-                    //await _context.Database.EnsureDeletedAsync();
-                    if (!await _context.Database.EnsureCreatedAsync())
+                    //await context.Database.EnsureDeletedAsync();
+                    if (!await context.Database.EnsureCreatedAsync())
                     {
-                        var accounts = _context.Accounts.AsEnumerable();
+                        var accounts = context.Accounts.AsEnumerable();
                         foreach (var account in accounts)
                         {
                             _accountSettingRepository.CheckSetting(context, account.Id);
-                            _context.Entry(account).Collection(x => x.Villages).Load();
+                            context.Entry(account).Collection(x => x.Villages).Load();
                             foreach (var village in account.Villages)
                             {
                                 _villageSettingRepository.CheckSetting(context, village.Id);
@@ -116,7 +116,7 @@ namespace MainCore.UI.ViewModels
                 "deleting proxy's cache",
                 () =>
                 {
-                    var path = Path.Combine(App_context.BaseDirectory, "Plugins");
+                    var path = Path.Combine(AppContext.BaseDirectory, "Plugins");
                     if (Directory.Exists(path)) Directory.Delete(path, true);
                 });
             if (!success) return;

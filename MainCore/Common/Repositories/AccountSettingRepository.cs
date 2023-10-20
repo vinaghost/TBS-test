@@ -9,7 +9,7 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class AccountSettingRepository : IAccountSettingRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
         private readonly Dictionary<AccountSettingEnums, int> _defaultSettings = new()
         {
@@ -23,27 +23,27 @@ namespace MainCore.Common.Repositories
             { AccountSettingEnums.UseStartAllButton , 0 },
         };
 
-        public AccountSettingRepository(AppDbContext context)
+        public AccountSettingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         private int GetSetting(AppDbContext context, int accountId, AccountSettingEnums setting)
         {
-            var settingEntity = _context.AccountsSetting
+            var settingEntity = context.AccountsSetting
                .FirstOrDefault(x => x.AccountId == accountId && x.Setting == setting);
             return settingEntity.Value;
         }
 
         public int GetSetting(int accountId, AccountSettingEnums setting)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
             return GetSetting(context, accountId, setting);
         }
 
         public int GetSetting(int accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
             var settingValueMin = GetSetting(context, accountId, settingMin);
             var settingValueMax = GetSetting(context, accountId, settingMax);
             return Random.Shared.Next(settingValueMin, settingValueMax);
@@ -58,7 +58,7 @@ namespace MainCore.Common.Repositories
 
         public void CheckSetting(AppDbContext context, int accountId)
         {
-            var query = _context.AccountsSetting.Where(x => x.AccountId == accountId);
+            var query = context.AccountsSetting.Where(x => x.AccountId == accountId);
             foreach (var setting in _defaultSettings.Keys)
             {
                 var settingEntity = query.FirstOrDefault(x => x.Setting == setting);
@@ -71,16 +71,16 @@ namespace MainCore.Common.Repositories
                         Value = _defaultSettings[setting],
                     };
 
-                    _context.Add(settingEntity);
+                    context.Add(settingEntity);
                 }
             }
-            _context.SaveChanges();
+            context.SaveChanges();
         }
 
         public Dictionary<AccountSettingEnums, int> Get(int accountId)
         {
-           
-            var settings = _context.AccountsSetting
+            using var context = _contextFactory.CreateDbContext();
+            var settings = context.AccountsSetting
                 .Where(x => x.AccountId == accountId)
                 .ToDictionary(x => x.Setting, x => x.Value);
             return settings;
@@ -88,8 +88,8 @@ namespace MainCore.Common.Repositories
 
         public void Set(int accountId, Dictionary<AccountSettingEnums, int> settings)
         {
-           
-            var query = _context.AccountsSetting
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.AccountsSetting
                 .Where(x => x.AccountId == accountId);
 
             foreach (var setting in settings)

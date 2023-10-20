@@ -1,36 +1,22 @@
-﻿using FluentResults;
+﻿using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MediatR;
 
 namespace MainCore.Common.Commands
 {
-    public class CloseBrowserCommand : IRequest<Result>
-    {
-        public int AccountId { get; }
-
-        public CloseBrowserCommand(int accountId)
-        {
-            AccountId = accountId;
-        }
-    }
-
-    public class CloseBrowserCommandHandler : IRequestHandler<CloseBrowserCommand, Result>
+    [RegisterAsTransient]
+    public class CloseBrowserCommand : ICloseBrowserCommand
     {
         private readonly IChromeManager _chromeManager;
 
-        public CloseBrowserCommandHandler(IChromeManager chromeManager)
+        public CloseBrowserCommand(IChromeManager chromeManager)
         {
             _chromeManager = chromeManager;
         }
 
-        public async Task<Result> Handle(CloseBrowserCommand request, CancellationToken cancellationToken)
+        public async Task Execute(int accountId)
         {
-            var accountId = request.AccountId;
-            var chromeBrowser = _chromeManager.Get(accountId);
-            var chrome = chromeBrowser.Driver;
-
-            await Task.Run(chrome.Close, cancellationToken);
-            return Result.Ok();
+            var chrome = _chromeManager.Get(accountId);
+            await Task.Run(chrome.Close);
         }
     }
 }

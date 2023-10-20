@@ -1,10 +1,10 @@
 ﻿using FluentResults;
 using MainCore.DTO;
 using MainCore.Features.Update.Parsers;
-using MainCore.Features.Update.Trigger;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Features.Update.Commands
 {
@@ -22,15 +22,13 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IAccountInfoParser _accountInfoParser;
-        private readonly AppDbContext _context;
-        private readonly IMediator _mediator;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateAccountInfoCommandHandler(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, AppDbContext context, IMediator mediator)
+        public UpdateAccountInfoCommandHandler(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, IDbContextFactory<AppDbContext> contextFactory)
         {
             _chromeManager = chromeManager;
             _accountInfoParser = accountInfoParser;
-            _context = context;
-            _mediator = mediator;
+            _contextFactory = contextFactory;
         }
 
         public async Task<Result> Handle(UpdateAccountInfoCommand request, CancellationToken cancellationToken)
@@ -40,27 +38,28 @@ namespace MainCore.Features.Update.Commands
             var html = chromeBrowser.Html;
             var dto = _accountInfoParser.Get(html);
             await Task.Run(() => Update(accountId, dto), cancellationToken);
-            await _mediator.Publish(new AccountInfoTrigger(accountId), cancellationToken);
             return Result.Ok();
         }
 
         private void Update(int accountId, AccountInfoDto dto)
         {
-            var dbAccountInfo = _context.AccountsInfo
+            using var context = _contextFactory.CreateDbContext();
+
+            var dbAccountInfo = context.AccountsInfo
                 .FirstOrDefault(x => x.AccountId == accountId);
 
             var mapper = new AccountInfoMapper();
             if (dbAccountInfo is null)
             {
                 var accountInfo = mapper.Map(accountId, dto);
-                _context.Add(accountInfo);
+                context.Add(accountInfo);
             }
             else
             {
                 mapper.MapToEntity(dto, dbAccountInfo);
-                _context.Update(dbAccountInfo);
+                context.Update(dbAccountInfo);
             }
-            _context.SaveChanges();
+            context.SaveChanges();
         }
     }
 }

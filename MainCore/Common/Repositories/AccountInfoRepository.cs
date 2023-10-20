@@ -8,17 +8,17 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class AccountInfoRepository : IAccountInfoRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public AccountInfoRepository(AppDbContext context)
+        public AccountInfoRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public bool IsPlusActive(int accountId)
         {
-           
-            var accountInfo = _context.AccountsInfo
+            using var context = _contextFactory.CreateDbContext();
+            var accountInfo = context.AccountsInfo
                 .FirstOrDefault(x => x.AccountId == accountId);
             if (accountInfo is null) return false;
             return accountInfo.HasPlusAccount;
@@ -26,13 +26,13 @@ namespace MainCore.Common.Repositories
 
         public void Update(int accountId, AccountInfo accountInfo)
         {
-           
+            using var context = _contextFactory.CreateDbContext();
 
-            var dbAccountInfo = _context.AccountsInfo
+            var dbAccountInfo = context.AccountsInfo
                 .FirstOrDefault(x => x.AccountId == accountId);
             if (dbAccountInfo is null)
             {
-                _context.Add(accountInfo);
+                context.Add(accountInfo);
             }
             else
             {
@@ -40,9 +40,9 @@ namespace MainCore.Common.Repositories
                 dbAccountInfo.Gold = accountInfo.Gold;
                 dbAccountInfo.Silver = accountInfo.Silver;
                 dbAccountInfo.HasPlusAccount = accountInfo.HasPlusAccount;
-                _context.Update(dbAccountInfo);
+                context.Update(dbAccountInfo);
             }
-            _context.SaveChanges();
+            context.SaveChanges();
         }
     }
 }

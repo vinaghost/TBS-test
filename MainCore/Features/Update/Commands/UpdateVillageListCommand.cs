@@ -1,7 +1,6 @@
 ﻿using FluentResults;
 using MainCore.DTO;
 using MainCore.Features.Update.Parsers;
-using MainCore.Features.Update.Trigger;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
 using MediatR;
@@ -23,15 +22,13 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IVillageListParser _villageListParser;
-        private readonly AppDbContext _context;
-        private readonly IMediator _mediator;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateVillageListCommandCommandHandler(IChromeManager chromeManager, AppDbContext context, IVillageListParser villageListParser, IMediator mediator)
+        public UpdateVillageListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IVillageListParser villageListParser)
         {
             _chromeManager = chromeManager;
-            _context = context;
+            _contextFactory = contextFactory;
             _villageListParser = villageListParser;
-            _mediator = mediator;
         }
 
         public async Task<Result> Handle(UpdateVillageListCommand request, CancellationToken cancellationToken)
@@ -41,14 +38,13 @@ namespace MainCore.Features.Update.Commands
             var html = chromeBrowser.Html;
             var dtos = _villageListParser.Get(html);
             await Task.Run(() => Update(accountId, dtos.ToList()), cancellationToken);
-            await _mediator.Publish(new VillageTrigger(accountId), cancellationToken);
             return Result.Ok();
         }
 
         private void Update(int accountId, List<VillageDto> dtos)
         {
-           
-            var query = _context.Villages.Where(x => x.AccountId == accountId);
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.Villages.Where(x => x.AccountId == accountId);
             var ids = query
                 .Select(x => x.Id)
                 .ToList();
@@ -62,19 +58,19 @@ namespace MainCore.Features.Update.Commands
                 if (dbVillage is null)
                 {
                     var VillageList = mapper.Map(accountId, dto);
-                    _context.Add(VillageList);
+                    context.Add(VillageList);
                 }
                 else
                 {
                     mapper.MapToEntity(dto, dbVillage);
-                    _context.Update(dbVillage);
+                    context.Update(dbVillage);
                 }
 
                 ids.Remove(dto.Id);
             }
-            _context.SaveChanges();
+            context.SaveChanges();
 
-            _context.Villages
+            context.Villages
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteDelete();
         }

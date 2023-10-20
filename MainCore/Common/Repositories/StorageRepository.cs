@@ -10,20 +10,20 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class StorageRepository : IStorageRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public StorageRepository(AppDbContext context)
+        public StorageRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public void Update(int villageId, Storage storage)
         {
-           
-            var storageOnDb = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var storageOnDb = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             if (storageOnDb is null)
             {
-                _context.Add(storage);
+                context.Add(storage);
             }
             else
             {
@@ -34,16 +34,16 @@ namespace MainCore.Common.Repositories
                 storageOnDb.Iron = storage.Iron;
                 storageOnDb.Warehouse = storage.Warehouse;
                 storageOnDb.Granary = storage.Granary;
-                _context.Update(storageOnDb);
+                context.Update(storageOnDb);
             }
 
-            _context.SaveChanges();
+            context.SaveChanges();
         }
 
         public Result IsEnoughResource(int villageId, long[] requiredResource)
         {
-           
-            var storage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var storage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             var result = Result.Ok();
             if (storage.Wood < requiredResource[0]) result.WithError(new Resource("wood", storage.Wood, requiredResource[0]));
             if (storage.Clay < requiredResource[1]) result.WithError(new Resource("clay", storage.Clay, requiredResource[1]));
@@ -59,8 +59,8 @@ namespace MainCore.Common.Repositories
 
         public long[] GetMissingResource(int villageId, long[] requiredResource)
         {
-           
-            var storage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var storage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
 
             var resource = new long[4];
             if (storage.Wood < requiredResource[0]) resource[0] = requiredResource[0] - storage.Wood;
