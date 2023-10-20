@@ -22,12 +22,12 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IHeroParser _heroParser;
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public UpdateHeroItemsCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IHeroParser heroParser)
+        public UpdateHeroItemsCommandCommandHandler(IChromeManager chromeManager, AppDbContext context, IHeroParser heroParser)
         {
             _chromeManager = chromeManager;
-            _contextFactory = contextFactory;
+            _context = context;
             _heroParser = heroParser;
         }
 
@@ -43,8 +43,8 @@ namespace MainCore.Features.Update.Commands
 
         private void Update(int accountId, List<HeroItemDto> dtos)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var query = context.HeroItems.Where(x => x.AccountId == accountId);
+            
+            var query = _context.HeroItems.Where(x => x.AccountId == accountId);
             var ids = query
                 .Select(x => x.Type)
                 .ToList();
@@ -58,19 +58,19 @@ namespace MainCore.Features.Update.Commands
                 if (dbHeroItems is null)
                 {
                     var HeroItems = mapper.Map(accountId, dto);
-                    context.Add(HeroItems);
+                    _context.Add(HeroItems);
                 }
                 else
                 {
                     mapper.MapToEntity(dto, dbHeroItems);
-                    context.Update(dbHeroItems);
+                    _context.Update(dbHeroItems);
                 }
 
                 ids.Remove(dto.Type);
             }
-            context.SaveChanges();
+            _context.SaveChanges();
 
-            context.HeroItems
+            _context.HeroItems
                 .Where(x => x.AccountId == accountId)
                 .Where(x => ids.Contains(x.Type))
                 .ExecuteDelete();

@@ -22,12 +22,12 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IVillageListParser _villageListParser;
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public UpdateVillageListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IVillageListParser villageListParser)
+        public UpdateVillageListCommandCommandHandler(IChromeManager chromeManager, AppDbContext context, IVillageListParser villageListParser)
         {
             _chromeManager = chromeManager;
-            _contextFactory = contextFactory;
+            _context = context;
             _villageListParser = villageListParser;
         }
 
@@ -43,8 +43,8 @@ namespace MainCore.Features.Update.Commands
 
         private void Update(int accountId, List<VillageDto> dtos)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var query = context.Villages.Where(x => x.AccountId == accountId);
+            
+            var query = _context.Villages.Where(x => x.AccountId == accountId);
             var ids = query
                 .Select(x => x.Id)
                 .ToList();
@@ -58,19 +58,19 @@ namespace MainCore.Features.Update.Commands
                 if (dbVillage is null)
                 {
                     var VillageList = mapper.Map(accountId, dto);
-                    context.Add(VillageList);
+                    _context.Add(VillageList);
                 }
                 else
                 {
                     mapper.MapToEntity(dto, dbVillage);
-                    context.Update(dbVillage);
+                    _context.Update(dbVillage);
                 }
 
                 ids.Remove(dto.Id);
             }
-            context.SaveChanges();
+            _context.SaveChanges();
 
-            context.Villages
+            _context.Villages
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteDelete();
         }

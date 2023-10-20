@@ -9,17 +9,17 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class FarmListRepository : IFarmListRepository
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public FarmListRepository(IDbContextFactory<AppDbContext> contextFactory)
+        public FarmListRepository(AppDbContext context)
         {
-            _contextFactory = contextFactory;
+            _context = context;
         }
 
         public IEnumerable<FarmListDto> GetList(int accountId)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var farmLists = context.FarmLists
+            
+            var farmLists = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .ProjectToDto()
                     .AsEnumerable();
@@ -28,16 +28,16 @@ namespace MainCore.Common.Repositories
 
         public void ActiveFarmList(int farmListId)
         {
-            using var context = _contextFactory.CreateDbContext();
-            context.FarmLists
+            
+            _context.FarmLists
                .Where(x => x.Id == farmListId)
                .ExecuteUpdate(x => x.SetProperty(x => x.IsActive, x => !x.IsActive));
         }
 
         public int CountActiveFarmLists(int accountId)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var count = context.FarmLists
+            
+            var count = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .Where(x => x.IsActive)
                     .Count();
@@ -46,8 +46,8 @@ namespace MainCore.Common.Repositories
 
         public List<int> GetActiveFarmLists(int accountId)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var farmListIds = context.FarmLists
+            
+            var farmListIds = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .Where(x => x.IsActive)
                     .Select(x => x.Id)
@@ -57,16 +57,16 @@ namespace MainCore.Common.Repositories
 
         public void Update(int accountId, List<FarmList> farmLists)
         {
-            using var context = _contextFactory.CreateDbContext();
+            
 
-            var dbFarmList = context.FarmLists.Where(x => x.AccountId == accountId).ToList();
+            var dbFarmList = _context.FarmLists.Where(x => x.AccountId == accountId).ToList();
 
             var newFarmList = farmLists.Except(dbFarmList).ToList();
             var oldFarmList = dbFarmList.Except(farmLists).ToList();
             var updateFarmList = dbFarmList.Where(x => !oldFarmList.Contains(x)).ToList();
 
-            context.AddRange(newFarmList);
-            context.RemoveRange(oldFarmList);
+            _context.AddRange(newFarmList);
+            _context.RemoveRange(oldFarmList);
             foreach (var village in updateFarmList)
             {
                 var vill = farmLists.FirstOrDefault(x => x.Id == village.Id);
@@ -74,9 +74,9 @@ namespace MainCore.Common.Repositories
 
                 village.Name = vill.Name;
             }
-            context.UpdateRange(updateFarmList);
+            _context.UpdateRange(updateFarmList);
 
-            context.SaveChanges();
+            _context.SaveChanges();
         }
     }
 }

@@ -30,12 +30,12 @@ namespace MainCore.Features.Update.Commands
         private readonly IFieldParser _fieldParser;
         private readonly IInfrastructureParser _infrastructureParser;
         private readonly IStockBarParser _stockBarParser;
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public UpdateDorfCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IQueueBuildingParser queueBuildingParser, IFieldParser fieldParser, IInfrastructureParser infrastructureParser, IStockBarParser stockBarParser)
+        public UpdateDorfCommandHandler(IChromeManager chromeManager, AppDbContext context, IQueueBuildingParser queueBuildingParser, IFieldParser fieldParser, IInfrastructureParser infrastructureParser, IStockBarParser stockBarParser)
         {
             _chromeManager = chromeManager;
-            _contextFactory = contextFactory;
+            _context = context;
             _queueBuildingParser = queueBuildingParser;
             _fieldParser = fieldParser;
             _infrastructureParser = infrastructureParser;
@@ -97,27 +97,27 @@ namespace MainCore.Features.Update.Commands
             var result = IsVaild(dtos);
             if (result.IsFailed) return result;
 
-            using var context = _contextFactory.CreateDbContext();
+            
             var mapper = new QueueBuildingMapper();
 
-            context.QueueBuildings
+            _context.QueueBuildings
                 .Where(x => x.VillageId == villageId)
                 .ExecuteDelete();
 
             foreach (var dto in dtos)
             {
                 var queueBuilding = mapper.Map(villageId, dto);
-                context.Add(queueBuilding);
+                _context.Add(queueBuilding);
             }
-            context.SaveChanges();
+            _context.SaveChanges();
             return Result.Ok();
         }
 
         private void UpdateQueueBuilding(int villageId, List<BuildingDto> dtos)
         {
-            using var context = _contextFactory.CreateDbContext();
+            
 
-            var queueBuildings = context.QueueBuildings
+            var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site);
 
             if (dtos.Count == 1)
@@ -129,7 +129,7 @@ namespace MainCore.Features.Update.Commands
                 {
                     item.Location = building.Location;
                 }
-                context.UpdateRange(list);
+                _context.UpdateRange(list);
             }
             else if (dtos.Count == 2)
             {
@@ -137,17 +137,17 @@ namespace MainCore.Features.Update.Commands
                 {
                     var queueBuilding = queueBuildings.FirstOrDefault(x => x.Type == dto.Type);
                     queueBuilding.Location = dto.Location;
-                    context.Update(queueBuilding);
+                    _context.Update(queueBuilding);
                 }
             }
-            context.SaveChanges();
+            _context.SaveChanges();
         }
 
         private void UpdateBuildings(int villageId, IEnumerable<BuildingDto> dtos)
         {
-            using var context = _contextFactory.CreateDbContext();
+            
 
-            var dbBuildings = context.Buildings
+            var dbBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .ToList();
 
@@ -159,35 +159,35 @@ namespace MainCore.Features.Update.Commands
                 if (dbBuilding is null)
                 {
                     var building = mapper.Map(villageId, dto);
-                    context.Add(building);
+                    _context.Add(building);
                 }
                 else
                 {
                     mapper.MapToEntity(dto, dbBuilding);
-                    context.Update(dbBuilding);
+                    _context.Update(dbBuilding);
                 }
             }
-            context.SaveChanges();
+            _context.SaveChanges();
         }
 
         private void UpdateStorage(int villageId, StorageDto dto)
         {
-            using var context = _contextFactory.CreateDbContext();
+            
 
             var mapper = new StorageMapper();
-            var dbStorage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
+            var dbStorage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             if (dbStorage is null)
             {
                 var storage = mapper.Map(villageId, dto);
-                context.Add(storage);
+                _context.Add(storage);
             }
             else
             {
                 mapper.MapToEntity(dto, dbStorage);
-                context.Update(dbStorage);
+                _context.Update(dbStorage);
             }
 
-            context.SaveChanges();
+            _context.SaveChanges();
         }
     }
 }

@@ -20,7 +20,9 @@ namespace MainCore
 
         public static IServiceCollection AddCoreServices(this IServiceCollection services, ServerEnums server)
         {
-            services.AddDbContextFactory<AppDbContext>(options => options.UseSqlite(_connectionString));
+            services.AddDbContext<AppDbContext>(
+                options => options.UseSqlite(_connectionString)
+            );
 
             services
                 .AutoRegister(server)
@@ -51,7 +53,7 @@ namespace MainCore
         public static IServiceProvider Setup(ServerEnums server)
         {
             var host = Host.CreateDefaultBuilder()
-               .ConfigureServices((context, services) =>
+               .ConfigureServices((_context, services) =>
                {
                    services.UseMicrosoftDependencyResolver();
                    var resolver = Locator.CurrentMutable;

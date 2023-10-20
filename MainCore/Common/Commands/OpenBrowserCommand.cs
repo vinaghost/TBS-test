@@ -8,21 +8,20 @@ namespace MainCore.Common.Commands
     [RegisterAsTransient]
     public class OpenBrowserCommand : IOpenBrowserCommand
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
         private readonly IChromeManager _chromeManager;
 
-        public OpenBrowserCommand(IDbContextFactory<AppDbContext> contextFactory, IChromeManager chromeManager)
+        public OpenBrowserCommand(AppDbContext context, IChromeManager chromeManager)
         {
-            _contextFactory = contextFactory;
+            _context = context;
             _chromeManager = chromeManager;
         }
 
         public async Task Execute(int accountId)
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
             var chromeBrowser = _chromeManager.Get(accountId);
-            var account = await context.Accounts.FindAsync(accountId);
-            var access = await context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            var account = await _context.Accounts.FindAsync(accountId);
+            var access = await _context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
             await Task.Run(() =>
             {
                 try

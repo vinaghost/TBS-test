@@ -11,17 +11,17 @@ namespace MainCore.Common.Repositories
     [RegisterAsSingleton]
     public class HeroItemRepository : IHeroItemRepository
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public HeroItemRepository(IDbContextFactory<AppDbContext> contextFactory)
+        public HeroItemRepository(AppDbContext context)
         {
-            _contextFactory = contextFactory;
+            _context = context;
         }
 
         public Result IsEnoughResource(int accountId, long[] requiredResource)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var items = context.HeroItems.Where(x => x.AccountId == accountId);
+            
+            var items = _context.HeroItems.Where(x => x.AccountId == accountId);
 
             var result = Result.Ok();
             var wood = items.FirstOrDefault(x => x.Type == HeroItemEnums.Wood);
@@ -41,23 +41,23 @@ namespace MainCore.Common.Repositories
 
         public void Update(int accountId, IEnumerable<HeroItem> items)
         {
-            using var context = _contextFactory.CreateDbContext();
-            var dbItems = context.HeroItems.Where(x => x.AccountId == accountId).ToList();
+            
+            var dbItems = _context.HeroItems.Where(x => x.AccountId == accountId).ToList();
             foreach (var item in items)
             {
                 var dbItem = dbItems.FirstOrDefault(x => x.Type == item.Type);
                 if (dbItem is null)
                 {
-                    context.Add(item);
+                    _context.Add(item);
                 }
                 else
                 {
                     dbItem.Type = item.Type;
                     dbItem.Amount = item.Amount;
-                    context.Update(dbItem);
+                    _context.Update(dbItem);
                 }
             }
-            context.SaveChanges();
+            _context.SaveChanges();
         }
     }
 }

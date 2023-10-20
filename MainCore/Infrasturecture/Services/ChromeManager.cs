@@ -11,11 +11,11 @@ namespace MainCore.Infrasturecture.Services
     {
         private readonly ConcurrentDictionary<int, ChromeBrowser> _dictionary = new();
         private string[] _extensionsPath;
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public ChromeManager(IDbContextFactory<AppDbContext> contextFactory)
+        public ChromeManager(AppDbContext context)
         {
-            _contextFactory = contextFactory;
+            _context = context;
         }
 
         public IChromeBrowser Get(int accountId)
@@ -23,8 +23,8 @@ namespace MainCore.Infrasturecture.Services
             var result = _dictionary.TryGetValue(accountId, out ChromeBrowser browser);
             if (result) return browser;
 
-            using var context = _contextFactory.CreateDbContext();
-            var account = context.Accounts.Find(accountId);
+            
+            var account = _context.Accounts.Find(accountId);
 
             browser = new ChromeBrowser(_extensionsPath, account);
             _dictionary.TryAdd(accountId, browser);

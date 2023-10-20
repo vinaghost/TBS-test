@@ -22,13 +22,13 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IAccountInfoParser _accountInfoParser;
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public UpdateAccountInfoCommandHandler(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, IDbContextFactory<AppDbContext> contextFactory)
+        public UpdateAccountInfoCommandHandler(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, AppDbContext context)
         {
             _chromeManager = chromeManager;
             _accountInfoParser = accountInfoParser;
-            _contextFactory = contextFactory;
+            _context = context;
         }
 
         public async Task<Result> Handle(UpdateAccountInfoCommand request, CancellationToken cancellationToken)
@@ -43,23 +43,23 @@ namespace MainCore.Features.Update.Commands
 
         private void Update(int accountId, AccountInfoDto dto)
         {
-            using var context = _contextFactory.CreateDbContext();
+            
 
-            var dbAccountInfo = context.AccountsInfo
+            var dbAccountInfo = _context.AccountsInfo
                 .FirstOrDefault(x => x.AccountId == accountId);
 
             var mapper = new AccountInfoMapper();
             if (dbAccountInfo is null)
             {
                 var accountInfo = mapper.Map(accountId, dto);
-                context.Add(accountInfo);
+                _context.Add(accountInfo);
             }
             else
             {
                 mapper.MapToEntity(dto, dbAccountInfo);
-                context.Update(dbAccountInfo);
+                _context.Update(dbAccountInfo);
             }
-            context.SaveChanges();
+            _context.SaveChanges();
         }
     }
 }
