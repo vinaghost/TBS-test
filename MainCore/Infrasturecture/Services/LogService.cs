@@ -23,7 +23,7 @@ namespace MainCore.Infrasturecture.Services
             _logSink = logSink as LogSink;
         }
 
-        public void Init()
+        public void Load()
         {
             Log.Logger = new LoggerConfiguration()
               .ReadFrom.Services(_serviceProvider)

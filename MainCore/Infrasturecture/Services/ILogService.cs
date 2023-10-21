@@ -7,7 +7,7 @@ namespace MainCore.Infrasturecture.Services
     {
         LinkedList<LogEvent> GetLog(int accountId);
         ILogger GetLogger(int accountId);
-        void Init();
+        void Load();
         void Shutdown();
     }
 }
