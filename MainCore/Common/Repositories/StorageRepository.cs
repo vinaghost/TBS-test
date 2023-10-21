@@ -3,11 +3,10 @@ using MainCore.Common.Errors.Storage;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class StorageRepository : IStorageRepository
     {
         private readonly AppDbContext _context;
@@ -19,7 +18,6 @@ namespace MainCore.Common.Repositories
 
         public void Update(int villageId, Storage storage)
         {
-            
             var storageOnDb = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             if (storageOnDb is null)
             {
@@ -42,7 +40,6 @@ namespace MainCore.Common.Repositories
 
         public Result IsEnoughResource(int villageId, long[] requiredResource)
         {
-            
             var storage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             var result = Result.Ok();
             if (storage.Wood < requiredResource[0]) result.WithError(new Resource("wood", storage.Wood, requiredResource[0]));
@@ -59,7 +56,6 @@ namespace MainCore.Common.Repositories
 
         public long[] GetMissingResource(int villageId, long[] requiredResource)
         {
-            
             var storage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
 
             var resource = new long[4];

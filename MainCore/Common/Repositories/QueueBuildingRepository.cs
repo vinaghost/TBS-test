@@ -3,11 +3,10 @@ using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class QueueBuildingRepository : IQueueBuildingRepository
     {
         private readonly AppDbContext _context;
@@ -25,7 +24,6 @@ namespace MainCore.Common.Repositories
 
         public QueueBuilding GetFirst(int villageId)
         {
-            
             var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .OrderBy(x => x.Position);
@@ -35,7 +33,6 @@ namespace MainCore.Common.Repositories
 
         public List<QueueBuilding> GetList(int villageId)
         {
-            
             var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .OrderBy(x => x.Position);
@@ -44,8 +41,6 @@ namespace MainCore.Common.Repositories
 
         public void Update(int villageId, List<Building> buildings)
         {
-            
-
             var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site);
 
@@ -74,8 +69,6 @@ namespace MainCore.Common.Repositories
 
         public void Update(int villageId, List<QueueBuilding> queueBuildings)
         {
-            
-
             var dbQueueBuildings = _context.QueueBuildings.Where(x => x.VillageId == villageId);
 
             for (var i = 0; i < queueBuildings.Count; i++)

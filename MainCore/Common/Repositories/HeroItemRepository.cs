@@ -4,11 +4,10 @@ using MainCore.Common.Errors.Storage;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class HeroItemRepository : IHeroItemRepository
     {
         private readonly AppDbContext _context;
@@ -20,7 +19,6 @@ namespace MainCore.Common.Repositories
 
         public Result IsEnoughResource(int accountId, long[] requiredResource)
         {
-            
             var items = _context.HeroItems.Where(x => x.AccountId == accountId);
 
             var result = Result.Ok();
@@ -41,7 +39,6 @@ namespace MainCore.Common.Repositories
 
         public void Update(int accountId, IEnumerable<HeroItem> items)
         {
-            
             var dbItems = _context.HeroItems.Where(x => x.AccountId == accountId).ToList();
             foreach (var item in items)
             {

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class AccountRepository : IAccountRepository
     {
         private readonly AppDbContext _context;

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class FarmListRepository : IFarmListRepository
     {
         private readonly AppDbContext _context;
@@ -18,7 +18,6 @@ namespace MainCore.Common.Repositories
 
         public IEnumerable<FarmListDto> GetList(int accountId)
         {
-            
             var farmLists = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .ProjectToDto()
@@ -28,7 +27,6 @@ namespace MainCore.Common.Repositories
 
         public void ActiveFarmList(int farmListId)
         {
-            
             _context.FarmLists
                .Where(x => x.Id == farmListId)
                .ExecuteUpdate(x => x.SetProperty(x => x.IsActive, x => !x.IsActive));
@@ -36,7 +34,6 @@ namespace MainCore.Common.Repositories
 
         public int CountActiveFarmLists(int accountId)
         {
-            
             var count = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .Where(x => x.IsActive)
@@ -46,7 +43,6 @@ namespace MainCore.Common.Repositories
 
         public List<int> GetActiveFarmLists(int accountId)
         {
-            
             var farmListIds = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
                     .Where(x => x.IsActive)
@@ -57,8 +53,6 @@ namespace MainCore.Common.Repositories
 
         public void Update(int accountId, List<FarmList> farmLists)
         {
-            
-
             var dbFarmList = _context.FarmLists.Where(x => x.AccountId == accountId).ToList();
 
             var newFarmList = farmLists.Except(dbFarmList).ToList();

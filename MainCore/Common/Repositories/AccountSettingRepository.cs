@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class AccountSettingRepository : IAccountSettingRepository
     {
         private readonly AppDbContext _context;
@@ -37,13 +37,11 @@ namespace MainCore.Common.Repositories
 
         public int GetSetting(int accountId, AccountSettingEnums setting)
         {
-            
             return GetSetting(_context, accountId, setting);
         }
 
         public int GetSetting(int accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax)
         {
-            
             var settingValueMin = GetSetting(_context, accountId, settingMin);
             var settingValueMax = GetSetting(_context, accountId, settingMax);
             return Random.Shared.Next(settingValueMin, settingValueMax);
@@ -79,7 +77,6 @@ namespace MainCore.Common.Repositories
 
         public Dictionary<AccountSettingEnums, int> Get(int accountId)
         {
-            
             var settings = _context.AccountsSetting
                 .Where(x => x.AccountId == accountId)
                 .ToDictionary(x => x.Setting, x => x.Value);
@@ -88,7 +85,6 @@ namespace MainCore.Common.Repositories
 
         public void Set(int accountId, Dictionary<AccountSettingEnums, int> settings)
         {
-            
             var query = _context.AccountsSetting
                 .Where(x => x.AccountId == accountId);
 

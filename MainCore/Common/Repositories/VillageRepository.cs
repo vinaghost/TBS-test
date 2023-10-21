@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class VillageRepository : IVillageRepository
     {
         private readonly AppDbContext _context;
@@ -21,7 +21,6 @@ namespace MainCore.Common.Repositories
 
         public int GetActive(int accountId)
         {
-            
             var village = _context.Villages
                 .Where(x => x.AccountId == accountId && x.IsActive)
                 .Select(x => x.Id)
@@ -31,7 +30,6 @@ namespace MainCore.Common.Repositories
 
         public List<int> GetInactive(int accountId)
         {
-            
             var villages = _context.Villages
                 .Where(x => x.AccountId == accountId && !x.IsActive)
                 .OrderBy(x => x.Name)
@@ -42,13 +40,11 @@ namespace MainCore.Common.Repositories
 
         public Village Get(int villageId)
         {
-            
             return _context.Villages.Find(villageId);
         }
 
         public List<VillageDto> GetList(int accountId)
         {
-            
             return _context.Villages
                 .Where(x => x.AccountId == accountId)
                 .OrderBy(x => x.Name)
@@ -58,7 +54,6 @@ namespace MainCore.Common.Repositories
 
         public List<int> GetUnloadList(int accountId)
         {
-            
             var villages = _context.Villages
                 .Where(x => x.AccountId == accountId)
                 .Include(x => x.Buildings)
@@ -72,7 +67,6 @@ namespace MainCore.Common.Repositories
         public List<Village> Update(int accountId, List<Village> villages)
         {
             List<Village> newVillages;
-            
 
             var villagesOnDb = _context.Villages.Where(x => x.AccountId == accountId).ToList();
 

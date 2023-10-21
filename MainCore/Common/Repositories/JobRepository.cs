@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class JobRepository : IJobRepository
     {
         private readonly AppDbContext _context;
@@ -28,7 +28,6 @@ namespace MainCore.Common.Repositories
 
         public JobDto Add<T>(int villageId, T content)
         {
-            
             var count = _context.Jobs
                 .Where(x => x.VillageId == villageId)
                 .Count();
@@ -48,8 +47,6 @@ namespace MainCore.Common.Repositories
 
         public Job AddToTop<T>(int villageId, T content)
         {
-            
-
             _context.Jobs
                .Where(x => x.VillageId == villageId)
                .ExecuteUpdate(x =>
@@ -70,7 +67,6 @@ namespace MainCore.Common.Repositories
 
         public List<JobDto> GetList(int villageId)
         {
-            
             var jobs = _context.Jobs
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Position)
@@ -81,14 +77,12 @@ namespace MainCore.Common.Repositories
 
         public Job Get(int jobId)
         {
-            
             var job = _context.Jobs.Find(jobId);
             return job;
         }
 
         public int CountBuildingJob(int villageId)
         {
-            
             var count = _context.Jobs
                 .Where(x => x.VillageId == villageId && (x.Type == JobTypeEnums.NormalBuild || x.Type == JobTypeEnums.ResourceBuild))
                 .Count();
@@ -97,7 +91,6 @@ namespace MainCore.Common.Repositories
 
         public Job GetResourceBuildingJob(int villageId)
         {
-            
             var job = _context.Jobs
                 .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
                 .AsEnumerable()
@@ -127,7 +120,6 @@ namespace MainCore.Common.Repositories
 
         public Job GetInfrastructureBuildingJob(int villageId)
         {
-            
             var job = _context.Jobs
                 .Where(x => x.VillageId == villageId && x.Type == JobTypeEnums.NormalBuild)
                 .AsEnumerable()
@@ -149,7 +141,6 @@ namespace MainCore.Common.Repositories
 
         public void Move(int jobOldId, int jobNewId)
         {
-            
             var jobOld = _context.Jobs.Find(jobOldId);
             var jobNew = _context.Jobs.Find(jobNewId);
 
@@ -162,19 +153,16 @@ namespace MainCore.Common.Repositories
 
         public void Delete(int jobId)
         {
-            
             _context.Jobs.Where(x => x.Id == jobId).ExecuteDelete();
         }
 
         public void Clear(int villageId)
         {
-            
             _context.Jobs.Where(x => x.VillageId == villageId).ExecuteDelete();
         }
 
         public Job GetFirstJob(int villageId)
         {
-            
             var job = _context.Jobs
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Position)

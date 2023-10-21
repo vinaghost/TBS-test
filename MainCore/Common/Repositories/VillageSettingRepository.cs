@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class VillageSettingRepository : IVillageSettingRepository
     {
         private readonly AppDbContext _context;
@@ -23,22 +23,17 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        private int GetSetting(AppDbContext context, int villageId, VillageSettingEnums setting)
+        public int GetSetting(int villageId, VillageSettingEnums setting)
         {
             var settingEntity = _context.VillagesSetting
                .FirstOrDefault(x => x.VillageId == villageId && x.Setting == setting);
             return settingEntity.Value;
         }
 
-        public int GetSetting(int villageId, VillageSettingEnums setting)
-        {
-            return GetSetting(_context, villageId, setting);
-        }
-
         public int GetSetting(int villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax)
         {
-            var settingValueMin = GetSetting(_context, villageId, settingMin);
-            var settingValueMax = GetSetting(_context, villageId, settingMax);
+            var settingValueMin = GetSetting(villageId, settingMin);
+            var settingValueMax = GetSetting(villageId, settingMax);
             return Random.Shared.Next(settingValueMin, settingValueMax);
         }
 
@@ -51,10 +46,13 @@ namespace MainCore.Common.Repositories
 
         public void CheckSetting(AppDbContext context, int villageId)
         {
-            var query = _context.VillagesSetting.Where(x => x.VillageId == villageId);
+            var settings = _context
+                .VillagesSetting
+                .Where(x => x.VillageId == villageId)
+                .ToList();
             foreach (var setting in _defaultSettings.Keys)
             {
-                var settingEntity = query.FirstOrDefault(x => x.Setting == setting);
+                var settingEntity = settings.FirstOrDefault(x => x.Setting == setting);
                 if (settingEntity is null)
                 {
                     settingEntity = new VillageSetting()
@@ -82,7 +80,9 @@ namespace MainCore.Common.Repositories
 
             foreach (var setting in settings)
             {
-                query.Where(x => x.Setting == setting.Key).ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
+                query
+                    .Where(x => x.Setting == setting.Key)
+                    .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
             }
         }
     }

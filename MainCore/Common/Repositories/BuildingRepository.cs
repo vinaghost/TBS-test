@@ -7,12 +7,11 @@ using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace MainCore.Common.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class BuildingRepository : IBuildingRepository
     {
         private readonly AppDbContext _context;
@@ -33,7 +32,6 @@ namespace MainCore.Common.Repositories
 
         public List<Building> GetBuildingList(int villageId)
         {
-            
             var buildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
@@ -43,7 +41,6 @@ namespace MainCore.Common.Repositories
 
         public Building GetBuilding(int buildingId)
         {
-            
             var building = _context.Buildings
                 .Find(buildingId);
             return building;
@@ -51,7 +48,6 @@ namespace MainCore.Common.Repositories
 
         public Building GetBuilding(int villageId, int location)
         {
-            
             var building = _context.Buildings
                 .Where(x => x.VillageId == villageId && x.Location == location)
                 .FirstOrDefault();
@@ -60,7 +56,6 @@ namespace MainCore.Common.Repositories
 
         public int CountQueueBuilding(int villageId)
         {
-            
             var count = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .Count();
@@ -69,7 +64,6 @@ namespace MainCore.Common.Repositories
 
         public int CountResourceQueueBuilding(int villageId)
         {
-            
             var count = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId)
                 .Where(x =>
@@ -83,7 +77,6 @@ namespace MainCore.Common.Repositories
 
         public bool HasRallyPoint(int villageId)
         {
-            
             return _context.Buildings
                         .Where(x => x.VillageId == villageId && x.Level > 0 && x.Type == BuildingEnums.RallyPoint)
                         .Any();
@@ -93,7 +86,7 @@ namespace MainCore.Common.Repositories
         {
             if (job.Type == JobTypeEnums.ResourceBuild) return true;
             var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-            
+
             var building = _context.Buildings.FirstOrDefault(x => x.VillageId == villageId && x.Location == plan.Location);
             if (building is null) return true;
             if (building.Level >= plan.Level) return false;
@@ -109,8 +102,6 @@ namespace MainCore.Common.Repositories
 
         public void Update(int villageId, List<Building> buildings)
         {
-            
-
             var dbBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
@@ -136,7 +127,6 @@ namespace MainCore.Common.Repositories
 
         public Building GetCropland(int villageId)
         {
-            
             var building = _context.Buildings
                 .Where(x => x.VillageId == villageId
                             && x.Type == BuildingEnums.Cropland)
@@ -147,7 +137,6 @@ namespace MainCore.Common.Repositories
 
         public NormalBuildPlan GetNormalBuildPlan(int villageId, ResourceBuildPlan plan)
         {
-            
             var query = _context.Buildings.Where(x => x.VillageId == villageId);
             switch (plan.Plan)
             {
@@ -248,7 +237,6 @@ namespace MainCore.Common.Repositories
 
         public List<BuildingItemDto> GetBuildingItems(int villageId)
         {
-            
             var villageBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
@@ -342,7 +330,6 @@ namespace MainCore.Common.Repositories
 
         private List<BuildingItem> GetBuildings(int villageId)
         {
-            
             var villageBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .OrderBy(x => x.Location)
