@@ -4,6 +4,7 @@ using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -13,13 +14,13 @@ namespace MainCore.Features.Navigate.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IToDorfCommand _toDorfCommand;
-        private readonly IClickCommand _clickCommand;
+        private readonly IMediator _mediator;
 
-        public ToBuildingCommand(IChromeManager chromeManager, IClickCommand clickCommand, IToDorfCommand toDorfCommand)
+        public ToBuildingCommand(IChromeManager chromeManager, IToDorfCommand toDorfCommand, IMediator mediator)
         {
             _chromeManager = chromeManager;
-            _clickCommand = clickCommand;
             _toDorfCommand = toDorfCommand;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(int accountId, int location)
@@ -47,7 +48,7 @@ namespace MainCore.Features.Navigate.Commands
             }
 
             if (node is null) return Result.Fail(Retry.NotFound($"{location}", "nodeBuilding"));
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

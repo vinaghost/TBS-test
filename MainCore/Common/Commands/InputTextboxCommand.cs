@@ -1,18 +1,31 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
-using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Common.Commands
 {
-    [RegisterAsTransient]
-    public class InputTextboxCommand : IInputTextboxCommand
+    public class InputTextboxCommand : IRequest<Result>
     {
-        public async Task<Result> Execute(IChromeBrowser browser, By by, string content)
+        public IChromeBrowser Browser { get; }
+        public By By { get; }
+        public string Content { get; }
+
+        public InputTextboxCommand(IChromeBrowser browser, By by, string content)
         {
-            var chrome = browser.Driver;
-            var elements = chrome.FindElements(by);
+            Browser = browser;
+            By = by;
+            Content = content;
+        }
+    }
+
+    public class InputTextboxCommandHandler : IRequestHandler<InputTextboxCommand, Result>
+    {
+        public async Task<Result> Handle(InputTextboxCommand request, CancellationToken cancellationToken)
+        {
+            var driver = request.Browser.Driver;
+            var elements = driver.FindElements(request.By);
             if (elements.Count == 0) return Retry.ElementNotFound();
 
             var element = elements[0];
@@ -22,8 +35,8 @@ namespace MainCore.Common.Commands
             {
                 element.SendKeys(Keys.Home);
                 element.SendKeys(Keys.Shift + Keys.End);
-                element.SendKeys(content);
-            });
+                element.SendKeys(request.Content);
+            }, cancellationToken);
             return Result.Ok();
         }
     }

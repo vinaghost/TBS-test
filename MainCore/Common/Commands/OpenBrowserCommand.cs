@@ -1,27 +1,37 @@
-﻿using MainCore.Infrasturecture.AutoRegisterDi;
+﻿using FluentResults;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
-using Microsoft.EntityFrameworkCore;
+using MediatR;
 
 namespace MainCore.Common.Commands
 {
-    [RegisterAsTransient]
-    public class OpenBrowserCommand : IOpenBrowserCommand
+    public class OpenBrowserCommand : IRequest<Result>
+    {
+        public int AccountId { get; }
+
+        public OpenBrowserCommand(int accountId)
+        {
+            AccountId = accountId;
+        }
+    }
+
+    public class OpenBrowserCommandHandler : IRequestHandler<OpenBrowserCommand, Result>
     {
         private readonly AppDbContext _context;
         private readonly IChromeManager _chromeManager;
 
-        public OpenBrowserCommand(AppDbContext context, IChromeManager chromeManager)
+        public OpenBrowserCommandHandler(AppDbContext context, IChromeManager chromeManager)
         {
             _context = context;
             _chromeManager = chromeManager;
         }
 
-        public async Task Execute(int accountId)
+        public async Task<Result> Handle(OpenBrowserCommand request, CancellationToken cancellationToken)
         {
+            var accountId = request.AccountId;
             var chromeBrowser = _chromeManager.Get(accountId);
-            var account = await _context.Accounts.FindAsync(accountId);
-            var access = await _context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
+            var account = _context.Accounts.Find(accountId);
+            var access = _context.Accesses.FirstOrDefault(x => x.AccountId == accountId);
             await Task.Run(() =>
             {
                 try
@@ -33,7 +43,9 @@ namespace MainCore.Common.Commands
                 {
                     return;
                 }
-            });
+            }, cancellationToken);
+
+            return Result.Ok();
         }
     }
 }

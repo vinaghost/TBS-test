@@ -5,6 +5,7 @@ using MainCore.Features.Login.Tasks;
 using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 
 namespace MainCore.UI.Commands
 {
@@ -14,24 +15,24 @@ namespace MainCore.UI.Commands
         private readonly ITaskManager _taskManager;
         private readonly ITimerManager _timerManager;
         private readonly IAccountSettingRepository _accountSettingRepository;
-        private readonly IOpenBrowserCommand _openBrowserCommand;
         private readonly IVillageRepository _villageRepository;
         private readonly IJobRepository _jobRepository;
+        private readonly IMediator _mediator;
 
-        public LoginCommand(ITaskManager taskManager, IAccountSettingRepository accountSettingRepository, IOpenBrowserCommand openBrowserCommand, ITimerManager timerManager, IVillageRepository villageRepository, IJobRepository jobRepository)
+        public LoginCommand(ITaskManager taskManager, IAccountSettingRepository accountSettingRepository, ITimerManager timerManager, IVillageRepository villageRepository, IJobRepository jobRepository, IMediator mediator)
         {
             _taskManager = taskManager;
             _accountSettingRepository = accountSettingRepository;
-            _openBrowserCommand = openBrowserCommand;
             _timerManager = timerManager;
             _villageRepository = villageRepository;
             _jobRepository = jobRepository;
+            _mediator = mediator;
         }
 
         public async Task Execute(int accountId)
         {
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
-            await _openBrowserCommand.Execute(accountId);
+            await _mediator.Send(new OpenBrowserCommand(accountId));
 
             _taskManager.Add<LoginTask>(accountId, first: true);
             AddUpgradeBuildingTask(accountId);

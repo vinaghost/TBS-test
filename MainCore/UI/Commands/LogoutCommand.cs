@@ -3,6 +3,7 @@ using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.ViewModels.UserControls;
+using MediatR;
 
 namespace MainCore.UI.Commands
 {
@@ -10,14 +11,16 @@ namespace MainCore.UI.Commands
     public class LogoutCommand : ILogoutCommand
     {
         private readonly ITaskManager _taskManager;
-        private readonly ICloseBrowserCommand _closeBrowserCommand;
+        private readonly IMediator _mediator;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly IChromeManager _chromeManager;
 
-        public LogoutCommand(ITaskManager taskManager, ICloseBrowserCommand closeBrowserCommand, WaitingOverlayViewModel waitingOverlayViewModel)
+        public LogoutCommand(ITaskManager taskManager, WaitingOverlayViewModel waitingOverlayViewModel, IMediator mediator, IChromeManager chromeManager)
         {
             _taskManager = taskManager;
-            _closeBrowserCommand = closeBrowserCommand;
             _waitingOverlayViewModel = waitingOverlayViewModel;
+            _mediator = mediator;
+            _chromeManager = chromeManager;
         }
 
         public async Task Execute(int accountId)
@@ -43,7 +46,8 @@ namespace MainCore.UI.Commands
                         });
                     });
             }
-            await _closeBrowserCommand.Execute(accountId);
+            var chrome = _chromeManager.Get(accountId);
+            await _mediator.Send(new CloseBrowserCommand(chrome));
             _taskManager.SetStatus(accountId, StatusEnums.Offline);
         }
     }

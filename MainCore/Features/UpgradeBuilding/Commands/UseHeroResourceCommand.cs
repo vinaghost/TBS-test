@@ -22,24 +22,15 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
         private readonly IToHeroInventoryCommand _toHeroInventoryCommand;
 
-        private readonly IClickCommand _clickCommand;
-        private readonly IInputTextboxCommand _inputTextboxCommand;
-        private readonly IWaitCommand _waitCommand;
-        private readonly IDelayCommand _delayCommand;
-
         private readonly IHeroParser _heroParser;
         private readonly IMediator _mediator;
 
-        public UseHeroResourceCommand(IChromeManager chromeManager, IHeroItemRepository heroItemRepository, IToHeroInventoryCommand toHeroInventoryCommand, IClickCommand clickCommand, IWaitCommand waitCommand, IHeroParser heroParser, IInputTextboxCommand inputTextboxCommand, IDelayCommand delayCommand, IMediator mediator)
+        public UseHeroResourceCommand(IChromeManager chromeManager, IHeroItemRepository heroItemRepository, IToHeroInventoryCommand toHeroInventoryCommand, IHeroParser heroParser, IMediator mediator)
         {
             _chromeManager = chromeManager;
             _heroItemRepository = heroItemRepository;
             _toHeroInventoryCommand = toHeroInventoryCommand;
-            _clickCommand = clickCommand;
-            _waitCommand = waitCommand;
             _heroParser = heroParser;
-            _inputTextboxCommand = inputTextboxCommand;
-            _delayCommand = delayCommand;
             _mediator = mediator;
         }
 
@@ -82,7 +73,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             {
                 result = await UseResource(chromeBrowser, item.Item1, item.Item2);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _delayCommand.Execute(accountId);
+                result = await _mediator.Send(new DelayCommand(accountId));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
 
@@ -110,15 +101,17 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (node is null) return Result.Fail(Retry.NotFound($"{item}", "item"));
 
             Result result;
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, driver =>
+            var loadingCompleted = new Func<IWebDriver, bool>(driver =>
             {
                 var html = new HtmlDocument();
                 html.LoadHtml(driver.PageSource);
                 var inventoryPageWrapper = html.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
                 return !inventoryPageWrapper.HasClass("loading");
             });
+
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, loadingCompleted));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
@@ -130,7 +123,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             var node = _heroParser.GetAmountBox(html);
             if (node is null) return Result.Fail(Retry.TextboxNotFound("amount input"));
             Result result;
-            result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(node.XPath), amount.ToString());
+            result = await _mediator.Send(new InputTextboxCommand(chromeBrowser, By.XPath(node.XPath), amount.ToString()));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
@@ -142,15 +135,18 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             if (node is null) return Result.Fail(Retry.ButtonNotFound("Confirm"));
 
             Result result;
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, driver =>
+
+            var loadingCompleted = new Func<IWebDriver, bool>(driver =>
             {
                 var html = new HtmlDocument();
                 html.LoadHtml(driver.PageSource);
                 var inventoryPageWrapper = html.DocumentNode.Descendants("div").FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
                 return !inventoryPageWrapper.HasClass("loading");
             });
+
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, loadingCompleted));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

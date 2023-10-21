@@ -5,6 +5,7 @@ using MainCore.Features.Login.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OpenQA.Selenium;
 
@@ -16,25 +17,20 @@ namespace MainCore.Features.Login.Commands
         private readonly AppDbContext _context;
         private readonly IChromeManager _chromeManager;
 
-        private readonly IClickCommand _clickCommand;
-        private readonly IInputTextboxCommand _inputTextboxCommand;
-        private readonly IWaitCommand _waitCommand;
+        private readonly IMediator _mediator;
 
         private readonly ILoginPageParser _loginPageParser;
 
-        public LoginCommand(AppDbContext context, IChromeManager chromeManager, IClickCommand clickCommand, IInputTextboxCommand inputTextboxCommand, ILoginPageParser loginPageParser, IWaitCommand waitCommand)
+        public LoginCommand(AppDbContext context, IChromeManager chromeManager, ILoginPageParser loginPageParser, IMediator mediator)
         {
             _context = context;
             _chromeManager = chromeManager;
-            _clickCommand = clickCommand;
-            _inputTextboxCommand = inputTextboxCommand;
             _loginPageParser = loginPageParser;
-            _waitCommand = waitCommand;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(int accountId)
         {
-            
             var account = await _context.Accounts.FindAsync(accountId);
             var access = await _context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);
             var chromeBrowser = _chromeManager.Get(accountId);
@@ -48,16 +44,16 @@ namespace MainCore.Features.Login.Commands
             if (passwordNode is null) return Retry.TextboxNotFound("password");
 
             Result result;
-            result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(usernameNode.XPath), account.Username);
+            result = await _mediator.Send(new InputTextboxCommand(chromeBrowser, By.XPath(usernameNode.XPath), account.Username));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _inputTextboxCommand.Execute(chromeBrowser, By.XPath(passwordNode.XPath), access.Password);
+            result = await _mediator.Send(new InputTextboxCommand(chromeBrowser, By.XPath(passwordNode.XPath), access.Password));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(buttonNode.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(buttonNode.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged("dorf"));
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged("dorf")));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

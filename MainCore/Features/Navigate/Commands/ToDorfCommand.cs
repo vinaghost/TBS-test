@@ -5,6 +5,7 @@ using MainCore.Common.Errors;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -14,17 +15,14 @@ namespace MainCore.Features.Navigate.Commands
     {
         private readonly INavigationBarParser _navigationBarParser;
         private readonly IChromeManager _chromeManager;
+        private readonly IMediator _mediator;
 
-        private readonly IClickCommand _clickCommand;
-        private readonly IWaitCommand _waitCommand;
-
-        public ToDorfCommand(INavigationBarParser navigationBarParser, IChromeManager chromeManager, IClickCommand clickCommand, IWaitCommand waitCommand)
+        public ToDorfCommand(INavigationBarParser navigationBarParser, IChromeManager chromeManager, IMediator mediator)
 
         {
             _navigationBarParser = navigationBarParser;
             _chromeManager = chromeManager;
-            _clickCommand = clickCommand;
-            _waitCommand = waitCommand;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(IChromeBrowser chromeBrowser, int dorf)
@@ -35,11 +33,11 @@ namespace MainCore.Features.Navigate.Commands
             if (button is null) return Retry.ButtonNotFound($"dorf{dorf}");
 
             Result result;
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(button.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(button.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged($"dorf{dorf}"));
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged($"dorf{dorf}")));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

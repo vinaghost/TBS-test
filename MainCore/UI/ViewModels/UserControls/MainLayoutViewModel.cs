@@ -1,5 +1,4 @@
-﻿using MainCore.Common.Commands;
-using MainCore.Common.Enums;
+﻿using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -35,7 +34,7 @@ namespace MainCore.UI.ViewModels.UserControls
         public ListBoxItemViewModel Accounts { get; } = new();
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ICloseBrowserCommand closeBrowserCommand, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand, MessageBoxViewModel messageBoxViewModel)
+        public MainLayoutViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand, MessageBoxViewModel messageBoxViewModel)
         {
             _accountTabStore = accountTabStore;
             _selectedItemStore = selectedItemStore;

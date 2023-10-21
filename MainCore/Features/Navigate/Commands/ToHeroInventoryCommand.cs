@@ -5,6 +5,7 @@ using MainCore.Common.Errors;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -14,17 +15,15 @@ namespace MainCore.Features.Navigate.Commands
     {
         private readonly IHeroParser _heroParser;
         private readonly IChromeManager _chromeManager;
-        private readonly IClickCommand _clickCommand;
         private readonly ISwitchTabCommand _switchTabCommand;
-        private readonly IWaitCommand _waitCommand;
+        private readonly IMediator _mediator;
 
-        public ToHeroInventoryCommand(IHeroParser heroParser, IChromeManager chromeManager, IClickCommand clickCommand, ISwitchTabCommand switchTabCommand, IWaitCommand waitCommand)
+        public ToHeroInventoryCommand(IHeroParser heroParser, IChromeManager chromeManager, ISwitchTabCommand switchTabCommand, IMediator mediator)
         {
             _heroParser = heroParser;
             _chromeManager = chromeManager;
-            _clickCommand = clickCommand;
             _switchTabCommand = switchTabCommand;
-            _waitCommand = waitCommand;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(int accountId)
@@ -35,14 +34,15 @@ namespace MainCore.Features.Navigate.Commands
             if (avatar is null) return Result.Fail(Retry.ButtonNotFound("avatar hero"));
 
             Result result;
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(avatar.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(avatar.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged("hero"));
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged("hero")));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line())); result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
-            result = await _waitCommand.Execute(chromeBrowser, driver =>
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
+            var tabActived = new Func<IWebDriver, bool>(driver =>
             {
                 var doc = new HtmlDocument();
                 doc.LoadHtml(driver.PageSource);
@@ -50,6 +50,8 @@ namespace MainCore.Features.Navigate.Commands
                 if (tab is null) return false;
                 return _heroParser.IsCurrentTab(tab);
             });
+
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, tabActived));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _switchTabCommand.Execute(chromeBrowser, 0);

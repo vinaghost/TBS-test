@@ -5,6 +5,7 @@ using MainCore.Common.Errors;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -13,16 +14,14 @@ namespace MainCore.Features.Navigate.Commands
     public class SwitchTabCommand : ISwitchTabCommand
     {
         private readonly IChromeManager _chromeManager;
-        private readonly IWaitCommand _waitCommand;
-        private readonly IClickCommand _clickCommand;
         private readonly INavigationTabParser _navigationTabParser;
+        private readonly IMediator _mediator;
 
-        public SwitchTabCommand(IChromeManager chromeManager, IClickCommand clickCommand, IWaitCommand waitCommand, INavigationTabParser navigationTabParser)
+        public SwitchTabCommand(IChromeManager chromeManager, INavigationTabParser navigationTabParser, IMediator mediator)
         {
             _chromeManager = chromeManager;
-            _clickCommand = clickCommand;
-            _waitCommand = waitCommand;
             _navigationTabParser = navigationTabParser;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(IChromeBrowser chromeBrowser, int index)
@@ -35,7 +34,7 @@ namespace MainCore.Features.Navigate.Commands
             var tab = _navigationTabParser.GetTab(html, index);
             if (_navigationTabParser.IsTabActive(tab)) return Result.Ok();
             Result result;
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(tab.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(tab.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var tabActived = new Func<IWebDriver, bool>(driver =>
@@ -49,7 +48,7 @@ namespace MainCore.Features.Navigate.Commands
                 return true;
             });
 
-            result = await _waitCommand.Execute(chromeBrowser, tabActived);
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, tabActived));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

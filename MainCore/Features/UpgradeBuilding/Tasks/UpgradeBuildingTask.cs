@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Common.Commands;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Storage;
@@ -34,9 +33,8 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
         private readonly ISwitchVillageCommand _switchVillageCommand;
         private readonly IUpgradeAdsCommand _upgradeAdsCommand;
         private readonly IVillageSettingRepository _villageSettingRepository;
-        private readonly IWaitCommand _waitCommand;
 
-        public UpgradeBuildingTask(IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IGoToBuildingPageCommand goToBuildingPageCommand, IUpgradeCommand upgradeCommand, IBuildingRepository buildingRepository, IConstructCommand constructCommand, IChromeManager chromeManager, ICheckResourceCommand checkResourceCommand, IAddCroplandCommand addCroplandCommand, IUseHeroResourceCommand useHeroResourceCommand, IStorageRepository storageRepository, IUpdateBuildingCommand updateBuildingCommand, IQueueBuildingRepository queueBuildingRepository, ISwitchVillageCommand switchVillageCommand, IVillageSettingRepository villageSettingRepository, IUpgradeAdsCommand upgradeAdsCommand, IWaitCommand waitCommand)
+        public UpgradeBuildingTask(IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IGoToBuildingPageCommand goToBuildingPageCommand, IUpgradeCommand upgradeCommand, IBuildingRepository buildingRepository, IConstructCommand constructCommand, IChromeManager chromeManager, ICheckResourceCommand checkResourceCommand, IAddCroplandCommand addCroplandCommand, IUseHeroResourceCommand useHeroResourceCommand, IStorageRepository storageRepository, IUpdateBuildingCommand updateBuildingCommand, IQueueBuildingRepository queueBuildingRepository, ISwitchVillageCommand switchVillageCommand, IVillageSettingRepository villageSettingRepository, IUpgradeAdsCommand upgradeAdsCommand)
 
         {
             _chooseBuildingJobCommand = chooseBuildingJobCommand;
@@ -55,7 +53,6 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
             _switchVillageCommand = switchVillageCommand;
             _villageSettingRepository = villageSettingRepository;
             _upgradeAdsCommand = upgradeAdsCommand;
-            _waitCommand = waitCommand;
         }
 
         public override async Task<Result> Execute()

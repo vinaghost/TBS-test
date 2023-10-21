@@ -5,6 +5,7 @@ using MainCore.Common.Repositories;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -15,16 +16,14 @@ namespace MainCore.Features.Navigate.Commands
         private readonly IVillageRepository _villageRepository;
         private readonly IChromeManager _chromeManager;
         private readonly IVillageItemParser _villageItemParser;
-        private readonly IClickCommand _clickCommand;
-        private readonly IWaitCommand _waitCommand;
+        private readonly IMediator _mediator;
 
-        public SwitchVillageCommand(IVillageRepository villageRepository, IChromeManager chromeManager, IVillageItemParser villageItemParser, IClickCommand clickCommand, IWaitCommand waitCommand)
+        public SwitchVillageCommand(IVillageRepository villageRepository, IChromeManager chromeManager, IVillageItemParser villageItemParser, IMediator mediator)
         {
             _villageRepository = villageRepository;
             _chromeManager = chromeManager;
             _villageItemParser = villageItemParser;
-            _clickCommand = clickCommand;
-            _waitCommand = waitCommand;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(int accountId, int villageId)
@@ -40,12 +39,12 @@ namespace MainCore.Features.Navigate.Commands
             if (_villageItemParser.IsActive(node)) return Result.Ok();
 
             Result result;
-            result = await _clickCommand.Execute(chromeBrowser, By.XPath(node.XPath));
+            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageChanged($"{villageId}"));
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged($"{villageId}")));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _waitCommand.Execute(chromeBrowser, WaitCommand.PageLoaded);
+            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

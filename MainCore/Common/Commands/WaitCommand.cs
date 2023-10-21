@@ -1,35 +1,44 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
-using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Common.Commands
 {
-    [RegisterAsTransient]
-    public class WaitCommand : IWaitCommand
+    public class WaitCommand : IRequest<Result>
     {
         public static Func<IWebDriver, bool> PageLoaded => driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
 
         public static Func<IWebDriver, bool> PageChanged(string part) => driver => driver.Url.Contains(part);
 
-        public async Task<Result> Execute(IChromeBrowser chromeBrowser, Func<IWebDriver, bool> condition)
-        {
-            return await Task.Run(() => ExecuteSync(chromeBrowser, condition));
-        }
+        public IChromeBrowser Browser { get; }
+        public Func<IWebDriver, bool> Condition { get; }
 
-        private Result ExecuteSync(IChromeBrowser chromeBrowser, Func<IWebDriver, bool> condition)
+        public WaitCommand(IChromeBrowser browser, Func<IWebDriver, bool> condition)
         {
-            var wait = chromeBrowser.Wait;
-            try
+            Browser = browser;
+            Condition = condition;
+        }
+    }
+
+    public class WaitCommandHandler : IRequestHandler<WaitCommand, Result>
+    {
+        public async Task<Result> Handle(WaitCommand request, CancellationToken cancellationToken)
+        {
+            var wait = request.Browser.Wait;
+            return await Task.Run(() =>
             {
-                wait.Until(condition);
-            }
-            catch (TimeoutException)
-            {
-                return Result.Fail(new Stop("Page not loaded in 3 mins"));
-            }
-            return Result.Ok();
+                try
+                {
+                    wait.Until(request.Condition);
+                }
+                catch (TimeoutException)
+                {
+                    return Result.Fail(new Stop("Page not loaded in 3 mins"));
+                }
+                return Result.Ok();
+            });
         }
     }
 }
