@@ -8,9 +8,10 @@ using MainCore.UI.Enums;
 using MainCore.UI.Models.Output;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;
+using MediatR;
 using ReactiveUI;
-using System.Reactive;
 using System.Reactive.Linq;
+using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.UserControls
 {
@@ -19,12 +20,8 @@ namespace MainCore.UI.ViewModels.UserControls
     {
         private readonly IAccountRepository _accountRepository;
 
-        private readonly ILoginCommand _loginCommand;
-        private readonly ILogoutCommand _logoutCommand;
-        private readonly IPauseCommand _pauseCommand;
-        private readonly IRestartCommand _restartCommand;
-
         private readonly ITaskManager _taskManager;
+        private readonly IMediator _mediator;
 
         private readonly AccountTabStore _accountTabStore;
         private readonly SelectedItemStore _selectedItemStore;
@@ -33,19 +30,16 @@ namespace MainCore.UI.ViewModels.UserControls
         public ListBoxItemViewModel Accounts { get; } = new();
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IAccountRepository accountRepository, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand, MessageBoxViewModel messageBoxViewModel)
+        public MainLayoutViewModel(IAccountRepository accountRepository, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel, IMediator mediator)
         {
             _accountTabStore = accountTabStore;
             _selectedItemStore = selectedItemStore;
 
             _accountRepository = accountRepository;
-            _pauseCommand = pauseCommand;
-            _restartCommand = restartCommand;
-            _loginCommand = loginCommand;
-            _logoutCommand = logoutCommand;
             _messageBoxViewModel = messageBoxViewModel;
 
             _taskManager = taskManager;
+            _mediator = mediator;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
             AddAccountsCommand = ReactiveCommand.CreateFromTask(AddAccountsTask);
@@ -106,7 +100,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
-            await _loginCommand.Execute(Accounts.SelectedItemId);
+            await _mediator.Send(new LoginCommand(Accounts.SelectedItemId));
         }
 
         private async Task LogoutTask()
@@ -116,7 +110,8 @@ namespace MainCore.UI.ViewModels.UserControls
                 await _messageBoxViewModel.Show("Warning", "No account selected");
                 return;
             }
-            await _logoutCommand.Execute(Accounts.SelectedItemId);
+
+            await _mediator.Send(new LogoutCommand(Accounts.SelectedItemId));
         }
 
         private async Task PauseTask()
@@ -127,7 +122,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _pauseCommand.Execute(Accounts.SelectedItemId);
+            await _mediator.Send(new PauseCommand(Accounts.SelectedItemId));
         }
 
         private async Task RestartTask()
@@ -138,7 +133,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _restartCommand.Execute(Accounts.SelectedItemId);
+            await _mediator.Send(new RestartCommand(Accounts.SelectedItemId));
         }
 
         public async Task LoadStatus(int accountId, StatusEnums status)

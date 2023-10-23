@@ -1,36 +1,48 @@
 ﻿using MainCore.Common.Enums;
-using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.ViewModels.UserControls;
+using MediatR;
 
 namespace MainCore.UI.Commands
 {
-    [RegisterAsTransient]
-    public class RestartCommand : IRestartCommand
+    public class RestartCommand : IRequest
+    {
+        public int AccountId { get; }
+
+        public RestartCommand(int accountId)
+        {
+            AccountId = accountId;
+        }
+    }
+
+    public class RestartCommandHandler : IRequestHandler<RestartCommand>
     {
         private readonly ITaskManager _taskManager;
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly MessageBoxViewModel _messageBoxViewModel;
 
-        public RestartCommand(ITaskManager taskManager, WaitingOverlayViewModel waitingOverlayViewModel)
+        public RestartCommandHandler(ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel)
         {
             _taskManager = taskManager;
-            _waitingOverlayViewModel = waitingOverlayViewModel;
+            _messageBoxViewModel = messageBoxViewModel;
         }
 
-        public async Task Execute(int accountId)
+        public async Task Handle(RestartCommand request, CancellationToken cancellationToken)
         {
+            var accountId = request.AccountId;
+
             var status = _taskManager.GetStatus(accountId);
+
             switch (status)
             {
                 case StatusEnums.Offline:
                 case StatusEnums.Starting:
                 case StatusEnums.Pausing:
                 case StatusEnums.Stopping:
-                    //await _messageBoxViewModel.Show("Information", $"Account is {status}");
+                    await _messageBoxViewModel.Show("Information", $"Account is {status}");
                     return;
 
                 case StatusEnums.Online:
-                    //await _messageBoxViewModel.Show("Information", $"Account should be paused first");
+                    await _messageBoxViewModel.Show("Information", $"Account should be paused first");
                     return;
 
                 case StatusEnums.Paused:

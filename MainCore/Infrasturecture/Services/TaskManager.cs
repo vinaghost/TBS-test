@@ -76,6 +76,21 @@ namespace MainCore.Infrasturecture.Services
             return tasks.FirstOrDefault(x => x.Stage == StageEnums.Executing);
         }
 
+        public async Task StopCurrentTask(int accountId)
+        {
+            var cts = GetCancellationTokenSource(accountId);
+            cts.Cancel();
+            TaskBase currentTask;
+            do
+            {
+                currentTask = GetCurrentTask(accountId);
+                if (currentTask is null) return;
+                await Task.Delay(500);
+            }
+            while (currentTask.Stage != StageEnums.Waiting);
+            SetStatus(accountId, StatusEnums.Offline);
+        }
+
         public void AddOrUpdate<T>(int accountId, bool first = false) where T : AccountTask
         {
             var task = Get<T>(accountId);

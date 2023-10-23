@@ -31,7 +31,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 Level = cropland.Level + 1,
             };
 
-            _jobRepository.AddToTop(villageId, plan);
+            await _jobRepository.AddToTop(villageId, plan);
             return Result.Ok();
         }
     }

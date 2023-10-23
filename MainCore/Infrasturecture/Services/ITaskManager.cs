@@ -31,5 +31,6 @@ namespace MainCore.Infrasturecture.Services
         void ReOrder(int accountId);
 
         void SetStatus(int accountId, StatusEnums status);
+        Task StopCurrentTask(int accountId);
     }
 }
