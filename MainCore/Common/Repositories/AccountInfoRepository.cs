@@ -16,7 +16,8 @@ namespace MainCore.Common.Repositories
         public bool IsPlusActive(int accountId)
         {
             var accountInfo = _context.AccountsInfo
-                .FirstOrDefault(x => x.AccountId == accountId);
+                    .FirstOrDefault(x => x.AccountId == accountId);
+
             if (accountInfo is null) return false;
             return accountInfo.HasPlusAccount;
         }

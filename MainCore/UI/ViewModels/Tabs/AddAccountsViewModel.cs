@@ -1,10 +1,10 @@
-﻿using DynamicData;
-using MainCore.Common.Repositories;
+﻿using MainCore.Common.Repositories;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -15,12 +15,11 @@ namespace MainCore.UI.ViewModels.Tabs
     public class AddAccountsViewModel : TabViewModelBase
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly MessageBoxViewModel _messageBoxViewModel;
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
         public ReactiveCommand<string, Unit> UpdateTableCommand { get; }
 
-        public ObservableCollection<AccountsDto> Accounts { get; } = new();
+        public ObservableCollection<AccountDto> Accounts { get; } = new();
         private string _input;
 
         public string Input
@@ -29,54 +28,62 @@ namespace MainCore.UI.ViewModels.Tabs
             set => this.RaiseAndSetIfChanged(ref _input, value);
         }
 
-        public AddAccountsViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, MessageBoxViewModel messageBoxViewModel)
+        public AddAccountsViewModel(IAccountRepository accountRepository, MessageBoxViewModel messageBoxViewModel)
         {
             _accountRepository = accountRepository;
-            _waitingOverlayViewModel = waitingOverlayViewModel;
+            _messageBoxViewModel = messageBoxViewModel;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
             UpdateTableCommand = ReactiveCommand.CreateFromTask<string>(UpdateTableTask);
 
             this.WhenAnyValue(x => x.Input).InvokeCommand(UpdateTableCommand);
-            _messageBoxViewModel = messageBoxViewModel;
         }
 
         private async Task UpdateTableTask(string input)
         {
+            await Observable.Start(
+                () => Accounts.Clear(),
+                RxApp.MainThreadScheduler);
+
             if (string.IsNullOrWhiteSpace(input))
             {
-                if (Accounts.Count > 0) Accounts.Clear();
                 return;
             }
-            var strArr = input.Trim().Split('\n');
-            var listTasks = new List<Task<AccountsDto>>();
-            foreach (var str in strArr)
+
+            var dtos = await Observable.Start(() =>
             {
-                listTasks.Add(Task.Run(() => AccountParser(str)));
-            }
+                var strArr = input.Trim().Split('\n');
+                ConcurrentBag<AccountDto> accounts = new();
+                Parallel.ForEach(strArr, str => accounts.Add(Parse(str)));
+                return accounts.ToList();
+            }, RxApp.TaskpoolScheduler);
 
-            var listResult = await Task.WhenAll(listTasks);
-            listResult = listResult.Where(x => x is not null).ToArray();
-
-            Accounts.Clear();
-            Accounts.AddRange(listResult);
+            await Observable.Start(() =>
+            {
+                foreach (var dto in dtos)
+                {
+                    if (dto is not null) continue;
+                    Accounts.Add(dto);
+                }
+            }, RxApp.MainThreadScheduler);
         }
 
         private async Task AddAccountTask()
         {
-            var success = await _waitingOverlayViewModel.Show(
-                "adding accounts ...",
-                () => _accountRepository.AddRange(Accounts.ToList())
-            );
+            await Observable.StartAsync(
+                () => _accountRepository.AddRange(Accounts.ToList()),
+                RxApp.TaskpoolScheduler);
 
-            if (!success) return;
+            await Observable.Start(() =>
+            {
+                Accounts.Clear();
+                Input = "";
+            }, RxApp.MainThreadScheduler);
 
-            Accounts.Clear();
-            Input = "";
             await _messageBoxViewModel.Show("Information", "Added accounts");
         }
 
-        private static AccountsDto AccountParser(string input)
+        private static AccountDto Parse(string input)
         {
             var strAccount = input.Trim().Split(' ');
             Uri url = null;
@@ -101,32 +108,11 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             return strAccount.Length switch
             {
-                3 => new AccountsDto()
-                {
-                    Server = url.AbsoluteUri,
-                    Username = strAccount[1],
-                    Password = strAccount[2],
-                },
-                5 => new AccountsDto()
-                {
-                    Server = url.AbsoluteUri,
-                    Username = strAccount[1],
-                    Password = strAccount[2],
-                    ProxyHost = strAccount[3],
-                    ProxyPort = int.Parse(strAccount[4]),
-                },
-                7 => new AccountsDto()
-                {
-                    Server = url.AbsoluteUri,
-                    Username = strAccount[1],
-                    Password = strAccount[2],
-                    ProxyHost = strAccount[3],
-                    ProxyPort = int.Parse(strAccount[4]),
-                    ProxyUsername = strAccount[5],
-                    ProxyPassword = strAccount[6],
-                },
+                3 => AccountDto.Create(url.AbsoluteUri, strAccount[1], strAccount[2]),
+                5 => AccountDto.Create(url.AbsoluteUri, strAccount[1], strAccount[2], strAccount[3], int.Parse(strAccount[4])),
+                7 => AccountDto.Create(url.AbsoluteUri, strAccount[1], strAccount[2], strAccount[3], int.Parse(strAccount[4]), strAccount[5], strAccount[6]),
                 _ => null,
-            };
+            }; ;
         }
     }
 }

@@ -1,29 +1,20 @@
 ﻿using FluentResults;
 using MainCore.DTO;
-using MainCore.Entities;
 
 namespace MainCore.Common.Repositories
 {
     public interface IAccountRepository
     {
-        Result Add(Account account);
+        Task<Result> Add(AccountDto dto);
 
-        Result Add(AccountDto dto);
+        Task AddRange(IEnumerable<AccountDto> dtos);
 
-        void AddRange(List<Account> accounts);
+        Task DeleteById(int accountId);
 
-        void AddRange(List<AccountDto> dtos);
+        Task Edit(AccountDto dto);
 
-        void AddRange(List<AccountsDto> dtos);
+        Task<IEnumerable<AccountDto>> GetAll();
 
-        void Delete(int accountId);
-
-        void Edit(Account account);
-
-        void Edit(AccountDto dto);
-
-        List<AccountDto> Get();
-
-        AccountDto Get(int accountId);
+        Task<AccountDto> GetById(int accountId);
     }
 }

@@ -7,6 +7,7 @@ using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 using ReactiveUI;
+using System.Reactive.Linq;
 using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.Tabs
@@ -56,10 +57,15 @@ namespace MainCore.UI.ViewModels.Tabs
 
         protected override async Task Load(int accountId)
         {
-            var account = await Task.Run(() => _accountRepository.Get(accountId));
+            var account = await _accountRepository.GetById(accountId);
+
             var mapper = new AccountInputMapper();
-            mapper.Map(account, AccountInput);
-            AccountInput.SetAccesses(account.Accesses);
+
+            await Observable.Start(() =>
+            {
+                mapper.Map(account, AccountInput);
+                AccountInput.SetAccesses(account.Accesses);
+            }, RxApp.MainThreadScheduler);
         }
 
         private async Task AddAccessTask()

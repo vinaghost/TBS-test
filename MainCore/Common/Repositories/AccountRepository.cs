@@ -1,10 +1,11 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors.Database;
+using MainCore.Common.Notification;
 using MainCore.DTO;
-using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
@@ -14,122 +15,112 @@ namespace MainCore.Common.Repositories
     {
         private readonly AppDbContext _context;
         private readonly IUseragentManager _useragentManager;
-        private readonly IAccountSettingRepository _accountSettingRepository;
+        private readonly IMediator _mediator;
 
-        public AccountRepository(AppDbContext context, IUseragentManager useragentManager, MainCore.Common.Repositories.IAccountSettingRepository accountSettingRepository)
+        public AccountRepository(AppDbContext context, IUseragentManager useragentManager, IMediator mediator)
         {
             _context = context;
             _useragentManager = useragentManager;
-            _accountSettingRepository = accountSettingRepository;
+            _mediator = mediator;
         }
 
-        public Result Add(AccountDto dto)
+        public async Task<Result> Add(AccountDto dto)
         {
-            var mapper = new AccountMapper();
-            var account = mapper.Map(dto);
-            return Add(account);
-        }
+            var isExist = await Task.Run(() =>
+                _context.Accounts
+                    .Where(x => x.Username == dto.Username
+                                && x.Server == dto.Server)
+                    .Any());
 
-        public Result Add(Account account)
-        {
-            var query = _context.Accounts
-                .Where(x => x.Username == account.Username
-                            && x.Server == account.Server);
-
-            if (query.Any()) return Result.Fail(new AccountExist(account.Username, account.Server));
-            foreach (var access in account.Accesses)
+            if (isExist) return Result.Fail(new AccountExist(dto.Username, dto.Server));
+            foreach (var access in dto.Accesses)
             {
                 access.Useragent = _useragentManager.Get();
             }
-            _context.Add(account);
-            _context.SaveChanges();
 
-            _accountSettingRepository.CheckSetting(_context, account.Id);
+            var mapper = new AccountMapper();
+            var entity = mapper.Map(dto);
 
+            _context.Add(entity);
+            await Task.Run(() => _context.SaveChanges());
+            await _mediator.Publish(new AccountUpdated());
             return Result.Ok();
         }
 
-        public void AddRange(List<AccountDto> dtos)
+        public async Task AddRange(IEnumerable<AccountDto> dtos)
         {
             var mapper = new AccountMapper();
-            var accounts = mapper.Map(dtos);
-            AddRange(accounts);
-        }
-
-        public void AddRange(List<AccountsDto> dtos)
-        {
-            var mapper = new AccountsMapper();
-            var accounts = mapper.Map(dtos);
-            AddRange(accounts);
-        }
-
-        public void AddRange(List<Account> accounts)
-        {
-            foreach (var account in accounts)
+            foreach (var dto in dtos)
             {
-                foreach (var access in account.Accesses)
+                var isExist = await Task.Run(() =>
+                    _context.Accounts
+                        .Where(x => x.Username == dto.Username
+                                    && x.Server == dto.Server)
+                        .Any());
+
+                if (isExist) continue;
+
+                foreach (var access in dto.Accesses)
                 {
                     access.Useragent = _useragentManager.Get();
                 }
+                var entity = mapper.Map(dto);
+                _context.Add(entity);
             }
-            _context.AddRange(accounts);
-            _context.SaveChanges();
-            foreach (var account in accounts)
-            {
-                _accountSettingRepository.CheckSetting(_context, account.Id);
-            }
+
+            await Task.Run(() => _context.SaveChanges());
+            await _mediator.Publish(new AccountUpdated());
         }
 
-        public List<AccountDto> Get()
+        public async Task<IEnumerable<AccountDto>> GetAll()
         {
-            var accounts = _context.Accounts
-                .AsQueryable()
-                .ProjectToDto()
-                .ToList();
+            var accounts = await Task.Run(() =>
+                _context.Accounts
+                    .AsQueryable()
+                    .ProjectToDto()
+                    .AsEnumerable());
             return accounts;
         }
 
-        public AccountDto Get(int accountId)
+        public async Task<AccountDto> GetById(int accountId)
         {
-            var account = _context.Accounts
-                .Find(accountId);
-            _context.Entry(account)
-               .Collection(x => x.Accesses)
-               .Load();
+            var account = await Task.Run(() =>
+                _context.Accounts
+                    .Find(accountId));
+
+            await Task.Run(() =>
+                _context.Entry(account)
+                    .Collection(x => x.Accesses)
+                    .Load());
+
             var mapper = new AccountMapper();
-            return mapper.Map(account);
+            var dto = mapper.Map(account);
+            return dto;
         }
 
-        public void Edit(AccountDto dto)
+        public async Task Edit(AccountDto dto)
         {
+            _context.Accesses
+               .Where(x => x.AccountId == dto.Id)
+               .ExecuteDelete();
+
             var mapper = new AccountMapper();
             var account = mapper.Map(dto);
-            Edit(account);
-        }
-
-        public void Edit(Account account)
-        {
-            var accessIds = account.Accesses
-                .Where(x => x.AccountId == account.Id)
-                .Select(x => x.Id)
-                .ToList();
-
-            var oldAccessIds = accessIds
-                .Except(account.Accesses.Select(x => x.Id));
-
-            _context.Accesses
-               .Where(x => oldAccessIds.Contains(x.Id))
-               .ExecuteDelete();
 
             _context.Update(account);
-            _context.SaveChanges();
+            await Task.Run(() => _context.SaveChanges());
+
+            await _mediator.Publish(new AccountUpdated());
         }
 
-        public void Delete(int accountId)
+        public async Task DeleteById(int accountId)
         {
-            _context.Accounts
-               .Where(x => x.Id == accountId)
-               .ExecuteDelete();
+            await Task.Run(() =>
+                _context.Accounts
+                    .Where(x => x.Id == accountId)
+                    .ExecuteDelete());
+
+            await _mediator.Publish(new AccountUpdated());
         }
     }
 }

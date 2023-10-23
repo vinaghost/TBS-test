@@ -70,13 +70,6 @@ namespace MainCore.UI.ViewModels.UserControls
             });
         }
 
-        public async Task AccountUpdate()
-        {
-            await Observable.Start(
-                async () => await LoadAccountList(),
-                RxApp.MainThreadScheduler);
-        }
-
         public async Task Load()
         {
             await LoadAccountList();
@@ -106,10 +99,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
             var result = await _messageBoxViewModel.ShowConfirm("Information", $"Are you sure want to delete \n {Accounts.SelectedItem.Content}");
             if (!result) return;
-
-            await _waitingOverlayViewModel.Show(
-                "deleting account ...",
-                () => _accountRepository.Delete(Accounts.SelectedItemId));
+            await _accountRepository.DeleteById(Accounts.SelectedItemId);
         }
 
         private async Task LoginTask()
@@ -184,8 +174,13 @@ namespace MainCore.UI.ViewModels.UserControls
 
         private async Task LoadAccountList()
         {
-            var accounts = await Task.Run(_accountRepository.Get);
-            Accounts.Load(accounts.Select(x => new ListBoxItem(x)));
+            var accounts = await _accountRepository.GetAll();
+            var items = accounts.Select(x => new ListBoxItem(x));
+
+            await Observable.Start(
+                () => Accounts.Load(items),
+                RxApp.MainThreadScheduler
+            );
         }
 
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
