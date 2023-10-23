@@ -26,7 +26,6 @@ namespace MainCore.UI.ViewModels.UserControls
 
         private readonly ITaskManager _taskManager;
 
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly AccountTabStore _accountTabStore;
         private readonly SelectedItemStore _selectedItemStore;
         private readonly MessageBoxViewModel _messageBoxViewModel;
@@ -34,11 +33,10 @@ namespace MainCore.UI.ViewModels.UserControls
         public ListBoxItemViewModel Accounts { get; } = new();
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand, MessageBoxViewModel messageBoxViewModel)
+        public MainLayoutViewModel(IAccountRepository accountRepository, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, IPauseCommand pauseCommand, IRestartCommand restartCommand, ILoginCommand loginCommand, ILogoutCommand logoutCommand, MessageBoxViewModel messageBoxViewModel)
         {
             _accountTabStore = accountTabStore;
             _selectedItemStore = selectedItemStore;
-            _waitingOverlayViewModel = waitingOverlayViewModel;
 
             _accountRepository = accountRepository;
             _pauseCommand = pauseCommand;
@@ -172,7 +170,7 @@ namespace MainCore.UI.ViewModels.UserControls
             }, RxApp.MainThreadScheduler);
         }
 
-        private async Task LoadAccountList()
+        public async Task LoadAccountList()
         {
             var accounts = await _accountRepository.GetAll();
             var items = accounts.Select(x => new ListBoxItem(x));
