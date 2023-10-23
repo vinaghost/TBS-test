@@ -35,16 +35,8 @@ namespace MainCore.UI.ViewModels.Tabs
             _logSink = logSink as LogSink;
             _logSink.LogEmitted += LogEmitted;
             _taskManager = taskManager;
-            _taskManager.TaskUpdated += TaskUpdate;
 
             _formatter = new("{Timestamp:HH:mm:ss} [{Level:u3}] {Line:lj}{NewLine}{Exception}");
-        }
-
-        private void TaskUpdate(int accountId)
-        {
-            if (!IsActive) return;
-            if (accountId != AccountId) return;
-            Observable.Start(() => LoadTask(accountId), RxApp.MainThreadScheduler);
         }
 
         private void LogEmitted(int accountId, LogEvent logEvent)

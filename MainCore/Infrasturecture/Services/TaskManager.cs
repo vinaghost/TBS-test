@@ -1,6 +1,8 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Common.Notification;
 using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Splat;
 
@@ -19,10 +21,12 @@ namespace MainCore.Infrasturecture.Services
         }
 
         private readonly Dictionary<int, TaskInfo> _tasks = new();
+        private readonly IMediator _mediator;
 
-        public event Action<int> TaskUpdated;
-
-        public event Action<int, StatusEnums> StatusUpdated;
+        public TaskManager(IMediator mediator)
+        {
+            _mediator = mediator;
+        }
 
         public TaskInfo GetTaskInfo(int accountId)
         {
@@ -51,7 +55,7 @@ namespace MainCore.Infrasturecture.Services
         {
             var taskInfo = GetTaskInfo(accountId);
             taskInfo.Status = status;
-            StatusUpdated?.Invoke(accountId, status);
+            _mediator.Publish(new StatusUpdated(accountId, status));
         }
 
         public bool IsExecuting(int accountId)
@@ -166,13 +170,13 @@ namespace MainCore.Infrasturecture.Services
         {
             var tasks = GetTaskList(accountId);
             tasks.Clear();
-            TaskUpdated?.Invoke(accountId);
+            _mediator.Send(new TaskUpdated(accountId));
         }
 
         private void ReOrder(int accountId, List<TaskBase> tasks)
         {
             tasks.Sort((x, y) => DateTime.Compare(x.ExecuteAt, y.ExecuteAt));
-            TaskUpdated?.Invoke(accountId);
+            _mediator.Send(new TaskUpdated(accountId));
         }
     }
 }

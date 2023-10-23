@@ -1,4 +1,5 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Common.Extensions;
 using MainCore.Common.Repositories;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -8,7 +9,6 @@ using MainCore.UI.Models.Output;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;
 using ReactiveUI;
-using System.Drawing;
 using System.Reactive;
 using System.Reactive.Linq;
 
@@ -56,7 +56,6 @@ namespace MainCore.UI.ViewModels.UserControls
             PauseCommand = ReactiveCommand.CreateFromTask(PauseTask);
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
 
-            _taskManager.StatusUpdated += LoadStatusAccountItem;
             var accountObservable = this.WhenAnyValue(x => x.Accounts.SelectedItem);
             accountObservable.BindTo(_selectedItemStore, vm => vm.Account);
 
@@ -142,31 +141,12 @@ namespace MainCore.UI.ViewModels.UserControls
             await _restartCommand.Execute(Accounts.SelectedItemId);
         }
 
-        private void LoadStatusAccountItem(int accountId, StatusEnums status)
+        public async Task LoadStatus(int accountId, StatusEnums status)
         {
             var account = Accounts.Items.FirstOrDefault(x => x.Id == accountId);
-            Observable.Start(() =>
+            await Observable.Start(() =>
             {
-                switch (status)
-                {
-                    case StatusEnums.Online:
-                        account.Color = Color.Green;
-                        break;
-
-                    case StatusEnums.Starting:
-                    case StatusEnums.Pausing:
-                    case StatusEnums.Stopping:
-                        account.Color = Color.Orange;
-                        break;
-
-                    case StatusEnums.Offline:
-                        account.Color = Color.Black;
-                        break;
-
-                    case StatusEnums.Paused:
-                        account.Color = Color.Red;
-                        break;
-                }
+                account.Color = status.GetColor();
             }, RxApp.MainThreadScheduler);
         }
 
@@ -175,10 +155,16 @@ namespace MainCore.UI.ViewModels.UserControls
             var accounts = await _accountRepository.GetAll();
             var items = accounts.Select(x => new ListBoxItem(x));
 
-            await Observable.Start(
-                () => Accounts.Load(items),
-                RxApp.MainThreadScheduler
-            );
+            foreach (var item in items)
+            {
+                var status = _taskManager.GetStatus(item.Id);
+                item.Color = status.GetColor();
+            }
+
+            await Observable.Start(() =>
+            {
+                Accounts.Load(items);
+            }, RxApp.MainThreadScheduler);
         }
 
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
