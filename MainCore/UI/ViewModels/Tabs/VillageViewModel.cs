@@ -53,7 +53,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
 
-            await Task.Run(() => _taskManager.Add<UpdateVillageTask>(AccountId, Villages.SelectedItemId));
+            _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, Villages.SelectedItemId);
             await _messageBoxViewModel.Show("Information", $"Added update task");
             return;
         }
@@ -66,10 +66,10 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
 
-            var villages = await Task.Run(() => _villageRepository.GetUnloadList(AccountId));
+            var villages = await _villageRepository.GetUnloadVillageId(AccountId);
             foreach (var village in villages)
             {
-                _taskManager.Add<UpdateVillageTask>(AccountId, village);
+                _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
             }
             await _messageBoxViewModel.Show("Information", $"Added update task");
             return;
@@ -83,10 +83,10 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
 
-            var villages = await Task.Run(() => _villageRepository.GetList(AccountId));
+            var villages = await Task.Run(() => _villageRepository.GetAll(AccountId));
             foreach (var village in villages)
             {
-                _taskManager.Add<UpdateVillageTask>(AccountId, village.Id);
+                _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village.Id);
             }
             await _messageBoxViewModel.Show("Information", $"Added update task");
             return;
@@ -108,7 +108,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadVillageList(int accountId)
         {
-            var villages = await Task.Run(() => _villageRepository.GetList(accountId));
+            var villages = await Task.Run(() => _villageRepository.GetAll(accountId));
             Villages.Load(villages.Select(x => new ListBoxItem(x)));
         }
 

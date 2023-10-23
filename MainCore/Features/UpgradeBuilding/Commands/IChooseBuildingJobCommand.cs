@@ -1,11 +1,11 @@
 ﻿using FluentResults;
-using MainCore.Entities;
+using MainCore.DTO;
 
 namespace MainCore.Features.UpgradeBuilding.Commands
 {
     public interface IChooseBuildingJobCommand
     {
-        Job Value { get; }
+        JobDto Value { get; }
 
         Task<Result> Execute(int accountId, int villageId);
     }

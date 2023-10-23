@@ -72,8 +72,8 @@ namespace MainCore.Features.Update.Tasks
 
         protected override void SetName()
         {
-            var village = _villageRepository.Get(VillageId);
-            _name = $"Update buildings in {village.Name}";
+            var village = _villageRepository.GetVillageName(VillageId);
+            _name = $"Update buildings in {village}";
         }
     }
 }

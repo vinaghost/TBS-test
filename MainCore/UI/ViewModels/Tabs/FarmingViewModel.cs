@@ -62,16 +62,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task AddLoadTask()
         {
-            var task = await Task.Run(() => _taskManager.Get<UpdateFarmListTask>(AccountId));
-            if (task is null)
-            {
-                _taskManager.Add<UpdateFarmListTask>(AccountId);
-            }
-            else
-            {
-                task.ExecuteAt = DateTime.Now;
-                await Task.Run(() => _taskManager.ReOrder(AccountId));
-            }
+            _taskManager.AddOrUpdate<UpdateFarmListTask>(AccountId);
             await _messageBoxViewModel.Show("Information", "Added update farm list task");
         }
 
@@ -89,7 +80,7 @@ namespace MainCore.UI.ViewModels.Tabs
             var task = await Task.Run(() => _taskManager.Get<StartFarmListTask>(AccountId));
             if (task is null)
             {
-                _taskManager.Add<StartFarmListTask>(AccountId);
+                _taskManager.AddOrUpdate<StartFarmListTask>(AccountId);
             }
             await _messageBoxViewModel.Show("Information", "Added start farm list task");
         }

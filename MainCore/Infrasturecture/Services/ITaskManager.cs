@@ -6,10 +6,6 @@ namespace MainCore.Infrasturecture.Services
 {
     public interface ITaskManager
     {
-        void Add<T>(int accountId, bool first = false) where T : AccountTask;
-
-        void Add<T>(int accountId, int villageId, bool first = false) where T : VillageTask;
-
         void AddOrUpdate<T>(int accountId, int villageId, bool first = false) where T : VillageTask;
 
         void AddOrUpdate<T>(int accountId, bool first = false) where T : AccountTask;

@@ -101,7 +101,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private async Task LoadJobs(int villageId)
         {
             IsEnableJob = true;
-            var jobs = await Task.Run(() => _jobRepository.GetList(villageId));
+            var jobs = await _jobRepository.GetAll(villageId);
             Jobs.Load(jobs.Select(x => new ListBoxItem(x)));
         }
 
@@ -167,15 +167,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private void AddTask()
         {
-            var task = _taskManager.Get<UpgradeBuildingTask>(AccountId, VillageId);
-            if (task is null)
-            {
-                _taskManager.Add<UpgradeBuildingTask>(AccountId, VillageId);
-            }
-            else
-            {
-                task.ExecuteAt = DateTime.Now;
-            }
+            _taskManager.AddOrUpdate<UpgradeBuildingTask>(AccountId, VillageId);
         }
 
         private async Task UpTask()
@@ -193,7 +185,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.Move(oldIndex, newIndex);
             Jobs.SelectedIndex = newIndex;
 
-            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
         }
 
         private async Task DownTask()
@@ -211,7 +203,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.Move(oldIndex, newIndex);
             Jobs.SelectedIndex = newIndex;
 
-            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
         }
 
         private async Task TopTask()
@@ -229,7 +221,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.Move(oldIndex, newIndex);
             Jobs.SelectedIndex = newIndex;
 
-            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
         }
 
         private async Task BottomTask()
@@ -247,25 +239,20 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.Move(oldIndex, newIndex);
             Jobs.SelectedIndex = newIndex;
 
-            await Task.Run(() => _jobRepository.Move(oldJob.Id, newJob.Id));
+            await _jobRepository.Move(oldJob.Id, newJob.Id);
         }
 
         private async Task DeleteTask()
         {
             if (!Jobs.IsSelected) return;
             var jobId = Jobs.SelectedItemId;
-            _jobRepository.Delete(jobId);
-
             Jobs.Delete();
-
-            await LoadBuildings(VillageId);
+            await _jobRepository.Delete(jobId);
         }
 
         private async Task DeleteAllTask()
         {
-            Jobs.Clear();
-            _jobRepository.Clear(VillageId);
-            await LoadBuildings(VillageId);
+            await _jobRepository.Clear(VillageId);
         }
 
         private async Task NormalBuild(int villageId)
@@ -285,9 +272,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 return;
             }
             _buildingRepository.Validate(VillageId, plan);
-            var job = _jobRepository.Add(villageId, plan);
-            Jobs.Items.Add(new(job));
-            await LoadBuildings(VillageId);
+            await _jobRepository.Add(villageId, plan);
         }
 
         private async Task ResourceBuild(int villageId)
@@ -298,10 +283,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 Plan = type,
                 Level = level,
             };
-            var job = _jobRepository.Add(villageId, plan);
-
-            Jobs.Items.Add(new(job));
-            await LoadBuildings(VillageId);
+            await _jobRepository.Add(villageId, plan);
         }
 
         public ReactiveCommand<Unit, Unit> NormalBuildCommand { get; }

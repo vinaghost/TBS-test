@@ -82,7 +82,7 @@ namespace MainCore.Common.Repositories
                         .Any();
         }
 
-        public bool IsJobValid(int villageId, Job job)
+        public bool IsJobValid(int villageId, JobDto job)
         {
             if (job.Type == JobTypeEnums.ResourceBuild) return true;
             var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);

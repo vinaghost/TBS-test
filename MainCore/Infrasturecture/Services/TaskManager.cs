@@ -85,8 +85,7 @@ namespace MainCore.Infrasturecture.Services
             }
             else
             {
-                task.ExecuteAt = DateTime.Now;
-                ReOrder(accountId);
+                Update(accountId, task, first);
             }
         }
 
@@ -99,8 +98,7 @@ namespace MainCore.Infrasturecture.Services
             }
             else
             {
-                task.ExecuteAt = DateTime.Now;
-                ReOrder(accountId);
+                Update(accountId, task, first);
             }
         }
 
@@ -150,6 +148,25 @@ namespace MainCore.Infrasturecture.Services
             if (task.ExecuteAt == default) task.ExecuteAt = DateTime.Now;
 
             tasks.Add(task);
+            ReOrder(accountId, tasks);
+        }
+
+        private void Update(int accountId, TaskBase task, bool first = false)
+        {
+            var tasks = GetTaskList(accountId);
+
+            if (first)
+            {
+                var firstTask = tasks.FirstOrDefault();
+                if (firstTask is not null)
+                {
+                    task.ExecuteAt = firstTask.ExecuteAt.AddSeconds(-1);
+                }
+            }
+            else
+            {
+                task.ExecuteAt = DateTime.Now;
+            }
             ReOrder(accountId, tasks);
         }
 

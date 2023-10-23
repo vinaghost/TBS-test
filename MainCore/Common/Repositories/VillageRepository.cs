@@ -1,5 +1,4 @@
 ﻿using MainCore.DTO;
-using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -11,90 +10,71 @@ namespace MainCore.Common.Repositories
     {
         private readonly AppDbContext _context;
 
-        private readonly IVillageSettingRepository _villageSettingRepository;
-
-        public VillageRepository(AppDbContext context, IVillageSettingRepository villageSettingRepository)
+        public VillageRepository(AppDbContext context)
         {
             _context = context;
-            _villageSettingRepository = villageSettingRepository;
         }
 
-        public int GetActive(int accountId)
+        public string GetVillageName(int villageId)
         {
-            var village = _context.Villages
-                .Where(x => x.AccountId == accountId && x.IsActive)
-                .Select(x => x.Id)
+            var villageName = _context.Villages
+                .Where(x => x.Id == villageId)
+                .Select(x => x.Name)
                 .FirstOrDefault();
+            return villageName;
+        }
+
+        public async Task<int> GetActiveVillageId(int accountId)
+        {
+            var village = await Task.Run(() =>
+                _context.Villages
+                    .Where(x => x.AccountId == accountId && x.IsActive)
+                    .Select(x => x.Id)
+                    .FirstOrDefault());
             return village;
         }
 
-        public List<int> GetInactive(int accountId)
+        public async Task<List<int>> GetInactiveVillageId(int accountId)
         {
-            var villages = _context.Villages
-                .Where(x => x.AccountId == accountId && !x.IsActive)
-                .OrderBy(x => x.Name)
-                .Select(x => x.Id)
-                .ToList();
+            var villages = await Task.Run(() =>
+                _context.Villages
+                    .Where(x => x.AccountId == accountId && !x.IsActive)
+                    .OrderBy(x => x.Name)
+                    .Select(x => x.Id)
+                    .ToList());
             return villages;
         }
 
-        public Village Get(int villageId)
+        public async Task<VillageDto> GetById(int villageId)
         {
-            return _context.Villages.Find(villageId);
+            var village = await Task.Run(() => _context.Villages.Find(villageId));
+            var mapper = new VillageMapper();
+            var dto = mapper.Map(village);
+            return dto;
         }
 
-        public List<VillageDto> GetList(int accountId)
+        public async Task<List<VillageDto>> GetAll(int accountId)
         {
-            return _context.Villages
-                .Where(x => x.AccountId == accountId)
-                .OrderBy(x => x.Name)
-                .ProjectToDto()
-                .ToList();
+            var dtos = await Task.Run(() =>
+                _context.Villages
+                    .Where(x => x.AccountId == accountId)
+                    .OrderBy(x => x.Name)
+                    .ProjectToDto()
+                    .ToList());
+            return dtos;
         }
 
-        public List<int> GetUnloadList(int accountId)
+        public async Task<List<int>> GetUnloadVillageId(int accountId)
         {
-            var villages = _context.Villages
-                .Where(x => x.AccountId == accountId)
-                .Include(x => x.Buildings)
-                .Where(x => x.Buildings.Count < 19)
-                .OrderBy(x => x.Name)
-                .Select(x => x.Id)
-                .ToList();
+            var villages = await Task.Run(() =>
+                _context.Villages
+                    .Where(x => x.AccountId == accountId)
+                    .Include(x => x.Buildings)
+                    .Where(x => x.Buildings.Count < 19)
+                    .OrderBy(x => x.Name)
+                    .Select(x => x.Id)
+                    .ToList());
             return villages;
-        }
-
-        public List<Village> Update(int accountId, List<Village> villages)
-        {
-            List<Village> newVillages;
-
-            var villagesOnDb = _context.Villages.Where(x => x.AccountId == accountId).ToList();
-
-            newVillages = villages.Except(villagesOnDb).ToList();
-            var oldVillages = villagesOnDb.Except(villages).ToList();
-            var updateVillages = villagesOnDb.Where(x => !oldVillages.Contains(x)).ToList();
-
-            _context.AddRange(newVillages);
-            _context.RemoveRange(oldVillages);
-            foreach (var village in updateVillages)
-            {
-                var vill = villages.FirstOrDefault(x => x.Id == village.Id);
-                if (vill is null) break;
-
-                village.Name = vill.Name;
-                village.IsActive = vill.IsActive;
-                village.IsUnderAttack = vill.IsUnderAttack;
-            }
-            _context.UpdateRange(updateVillages);
-
-            _context.SaveChanges();
-
-            foreach (var village in newVillages)
-            {
-                _villageSettingRepository.CheckSetting(_context, village.Id);
-            }
-
-            return newVillages;
         }
     }
 }

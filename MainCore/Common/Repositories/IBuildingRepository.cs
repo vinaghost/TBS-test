@@ -30,7 +30,7 @@ namespace MainCore.Common.Repositories
 
         bool HasRallyPoint(int villageId);
 
-        bool IsJobValid(int villageId, Job job);
+        bool IsJobValid(int villageId, JobDto job);
 
         void Update(int villageId, List<Building> buildings);
 

@@ -28,7 +28,7 @@ namespace MainCore.Features.Navigate.Commands
 
         public async Task<Result> Execute(int accountId, int villageId)
         {
-            var village = _villageRepository.Get(villageId);
+            var village = _villageRepository.GetById(villageId);
             if (village is null) return Skip.VillageNotFound;
 
             var chromeBrowser = _chromeManager.Get(accountId);

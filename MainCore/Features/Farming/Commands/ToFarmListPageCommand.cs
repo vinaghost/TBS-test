@@ -39,7 +39,7 @@ namespace MainCore.Features.Farming.Commands
             result = await _mediator.Send(new UpdateVillageListCommand(accountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            var rallypointVillageId = GetVillageHasRallypoint(accountId);
+            var rallypointVillageId = await GetVillageHasRallypoint(accountId);
             if (rallypointVillageId == 0) return Result.Fail(new NoRallypoint());
 
             result = await _switchVillageCommand.Execute(accountId, rallypointVillageId);
@@ -53,15 +53,15 @@ namespace MainCore.Features.Farming.Commands
             return Result.Ok();
         }
 
-        private int GetVillageHasRallypoint(int accountId)
+        private async Task<int> GetVillageHasRallypoint(int accountId)
         {
-            var activeVillage = _villageRepository.GetActive(accountId);
+            var activeVillage = await _villageRepository.GetActiveVillageId(accountId);
             if (_buildingRepository.HasRallyPoint(activeVillage))
             {
                 return activeVillage;
             }
 
-            var inactiveVillages = _villageRepository.GetInactive(accountId);
+            var inactiveVillages = await _villageRepository.GetInactiveVillageId(accountId);
             foreach (var village in inactiveVillages)
             {
                 if (_buildingRepository.HasRallyPoint(village))
