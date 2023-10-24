@@ -2,6 +2,7 @@
 using MainCore.Common.Repositories;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -19,7 +20,7 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly IValidator<AccountInput> _accountInputValidator;
 
         private AccessDto _selectedAccess;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
 
         public ReactiveCommand<Unit, Unit> AddAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccessCommand { get; }
@@ -29,14 +30,14 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
-        public AddAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, MessageBoxViewModel messageBoxViewModel)
+        public AddAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IDialogService dialogService)
         {
             _accountRepository = accountRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
 
             _accessInputValidator = accessInputValidator;
             _accountInputValidator = accountInputValidator;
-            _messageBoxViewModel = messageBoxViewModel;
+            _dialogService = dialogService;
 
             AddAccessCommand = ReactiveCommand.CreateFromTask(AddAccessTask);
             EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
@@ -57,7 +58,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
             }
             else
             {
@@ -73,7 +74,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
             }
             else
             {
@@ -95,7 +96,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             if (!results.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", results.ToString());
+                _dialogService.ShowMessageBox("Error", results.ToString());
             }
             else
             {
@@ -105,7 +106,7 @@ namespace MainCore.UI.ViewModels.Tabs
                     "adding account ...",
                     () => _accountRepository.Add(dto)
                 );
-                await _messageBoxViewModel.Show("Information", "Added account");
+                _dialogService.ShowMessageBox("Information", "Added account");
             }
         }
 

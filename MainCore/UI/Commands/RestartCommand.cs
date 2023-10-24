@@ -1,6 +1,5 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Infrasturecture.Services;
-using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 
 namespace MainCore.UI.Commands
@@ -18,12 +17,12 @@ namespace MainCore.UI.Commands
     public class RestartCommandHandler : IRequestHandler<RestartCommand>
     {
         private readonly ITaskManager _taskManager;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
 
-        public RestartCommandHandler(ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel)
+        public RestartCommandHandler(ITaskManager taskManager, IDialogService dialogService)
         {
             _taskManager = taskManager;
-            _messageBoxViewModel = messageBoxViewModel;
+            _dialogService = dialogService;
         }
 
         public async Task Handle(RestartCommand request, CancellationToken cancellationToken)
@@ -38,11 +37,11 @@ namespace MainCore.UI.Commands
                 case StatusEnums.Starting:
                 case StatusEnums.Pausing:
                 case StatusEnums.Stopping:
-                    await _messageBoxViewModel.Show("Information", $"Account is {status}");
+                    _dialogService.ShowMessageBox("Information", $"Account is {status}");
                     return;
 
                 case StatusEnums.Online:
-                    await _messageBoxViewModel.Show("Information", $"Account should be paused first");
+                    _dialogService.ShowMessageBox("Information", $"Account should be paused first");
                     return;
 
                 case StatusEnums.Paused:

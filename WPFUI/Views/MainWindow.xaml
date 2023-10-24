@@ -29,12 +29,5 @@
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-        <ContentControl x:Name="MessageBox">
-            <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type vm_uc:MessageBoxViewModel}">
-                    <v_uc:MessageBoxUc ViewModel="{Binding .}" />
-                </DataTemplate>
-            </ContentControl.Resources>
-        </ContentControl>
     </Grid>
 </v:MainWindowBase>

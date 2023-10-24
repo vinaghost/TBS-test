@@ -1,4 +1,5 @@
 ﻿using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Services;
 using MainCore.UI.ViewModels.Abstract;
 using ReactiveUI;
 
@@ -7,11 +8,11 @@ namespace MainCore.UI.ViewModels.UserControls
     [RegisterAsSingleton(withoutInterface: true)]
     public class WaitingOverlayViewModel : ViewModelBase
     {
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
 
-        public WaitingOverlayViewModel(MessageBoxViewModel messageBoxViewModel)
+        public WaitingOverlayViewModel(IDialogService dialogService)
         {
-            _messageBoxViewModel = messageBoxViewModel;
+            _dialogService = dialogService;
             BusyMessage = "is initializing";
         }
 
@@ -27,14 +28,9 @@ namespace MainCore.UI.ViewModels.UserControls
             }
             catch (Exception ex)
             {
-                await _messageBoxViewModel.Show("Error", $"{ex.Message} \n {ex.StackTrace}");
+                _dialogService.ShowMessageBox("Error", $"{ex.Message} \n {ex.StackTrace}");
                 return false;
             }
-        }
-
-        public async Task<bool> Show(string message, Action func)
-        {
-            return await Show(message, () => Task.Run(func));
         }
 
         private bool _shown;

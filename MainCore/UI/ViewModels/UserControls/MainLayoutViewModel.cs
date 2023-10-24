@@ -25,18 +25,17 @@ namespace MainCore.UI.ViewModels.UserControls
 
         private readonly AccountTabStore _accountTabStore;
         private readonly SelectedItemStore _selectedItemStore;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
 
         public ListBoxItemViewModel Accounts { get; } = new();
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IAccountRepository accountRepository, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel, IMediator mediator)
+        public MainLayoutViewModel(IAccountRepository accountRepository, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, IMediator mediator, IDialogService dialogService)
         {
             _accountTabStore = accountTabStore;
             _selectedItemStore = selectedItemStore;
 
             _accountRepository = accountRepository;
-            _messageBoxViewModel = messageBoxViewModel;
 
             _taskManager = taskManager;
             _mediator = mediator;
@@ -59,6 +58,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 if (x is null) tabType = AccountTabType.NoAccount;
                 _accountTabStore.SetTabType(tabType);
             });
+            _dialogService = dialogService;
         }
 
         public async Task Load()
@@ -84,11 +84,11 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (!Accounts.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No account selected");
+                _dialogService.ShowMessageBox("Warning", "No account selected");
                 return;
             }
 
-            var result = await _messageBoxViewModel.ShowConfirm("Information", $"Are you sure want to delete \n {Accounts.SelectedItem.Content}");
+            var result = _dialogService.ShowConfirmBox("Information", $"Are you sure want to delete \n {Accounts.SelectedItem.Content}");
             if (!result) return;
             await _accountRepository.DeleteById(Accounts.SelectedItemId);
         }
@@ -97,7 +97,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (!Accounts.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No account selected");
+                _dialogService.ShowMessageBox("Warning", "No account selected");
                 return;
             }
             await _mediator.Send(new LoginCommand(Accounts.SelectedItemId));
@@ -107,7 +107,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (!Accounts.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No account selected");
+                _dialogService.ShowMessageBox("Warning", "No account selected");
                 return;
             }
 
@@ -118,7 +118,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (!Accounts.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No account selected");
+                _dialogService.ShowMessageBox("Warning", "No account selected");
                 return;
             }
 
@@ -129,7 +129,7 @@ namespace MainCore.UI.ViewModels.UserControls
         {
             if (!Accounts.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No account selected");
+                _dialogService.ShowMessageBox("Warning", "No account selected");
                 return;
             }
 

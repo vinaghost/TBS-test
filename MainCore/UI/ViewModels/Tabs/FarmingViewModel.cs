@@ -25,9 +25,9 @@ namespace MainCore.UI.ViewModels.Tabs
         public ListBoxItemViewModel FarmLists { get; } = new();
 
         private readonly ITaskManager _taskManager;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
 
-        public FarmingViewModel(IFarmListRepository farmListRepository, IAccountSettingRepository accountSettingRepository, IValidator<FarmListSettingInput> farmListSettingInputValidator, WaitingOverlayViewModel waitingOverlayViewModel, ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel)
+        public FarmingViewModel(IFarmListRepository farmListRepository, IAccountSettingRepository accountSettingRepository, IValidator<FarmListSettingInput> farmListSettingInputValidator, WaitingOverlayViewModel waitingOverlayViewModel, ITaskManager taskManager, IDialogService dialogService)
 
         {
             _farmListRepository = farmListRepository;
@@ -36,13 +36,13 @@ namespace MainCore.UI.ViewModels.Tabs
 
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _taskManager = taskManager;
-            _messageBoxViewModel = messageBoxViewModel;
 
             LoadFarmListCommand = ReactiveCommand.CreateFromTask(AddLoadTask);
             SaveCommand = ReactiveCommand.CreateFromTask(SaveTask);
             ActiveFarmListCommand = ReactiveCommand.CreateFromTask(ActiveFarmListTask);
             StartCommand = ReactiveCommand.CreateFromTask(StartTask);
             StopCommand = ReactiveCommand.CreateFromTask(StopTask);
+            _dialogService = dialogService;
         }
 
         public async Task FarmListsUpdated(int accountId)
@@ -63,7 +63,7 @@ namespace MainCore.UI.ViewModels.Tabs
         private async Task AddLoadTask()
         {
             _taskManager.AddOrUpdate<UpdateFarmListTask>(AccountId);
-            await _messageBoxViewModel.Show("Information", "Added update farm list task");
+            _dialogService.ShowMessageBox("Information", "Added update farm list task");
         }
 
         private async Task StartTask()
@@ -73,7 +73,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 var count = await Task.Run(() => _farmListRepository.CountActiveFarmLists(AccountId));
                 if (count == 0)
                 {
-                    await _messageBoxViewModel.Show("Information", "There is no active farm or use start all button is disable");
+                    _dialogService.ShowMessageBox("Information", "There is no active farm or use start all button is disable");
                     return;
                 }
             }
@@ -82,7 +82,7 @@ namespace MainCore.UI.ViewModels.Tabs
             {
                 _taskManager.AddOrUpdate<StartFarmListTask>(AccountId);
             }
-            await _messageBoxViewModel.Show("Information", "Added start farm list task");
+            _dialogService.ShowMessageBox("Information", "Added start farm list task");
         }
 
         private async Task StopTask()
@@ -93,7 +93,7 @@ namespace MainCore.UI.ViewModels.Tabs
             {
                 _taskManager.Remove(AccountId, task);
             }
-            await _messageBoxViewModel.Show("Information", "Removed start farm list task");
+            _dialogService.ShowMessageBox("Information", "Removed start farm list task");
         }
 
         private async Task Save(int accountId)
@@ -107,14 +107,14 @@ namespace MainCore.UI.ViewModels.Tabs
             var result = _farmListSettingInputValidator.Validate(FarmListSettingInput);
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
             }
             else
             {
                 await _waitingOverlayViewModel.Show(
                     "saving settings ...",
                     () => Save(AccountId));
-                await _messageBoxViewModel.Show("Information", "Settings saved");
+                _dialogService.ShowMessageBox("Information", "Settings saved");
             }
         }
 
@@ -123,7 +123,7 @@ namespace MainCore.UI.ViewModels.Tabs
             var SelectedFarmList = FarmLists.SelectedItem;
             if (FarmLists.SelectedItem is null)
             {
-                await _messageBoxViewModel.Show("Warning", "No farm list selected");
+                _dialogService.ShowMessageBox("Warning", "No farm list selected");
                 return;
             }
             await Task.Run(() => _farmListRepository.ActiveFarmList(SelectedFarmList.Id));

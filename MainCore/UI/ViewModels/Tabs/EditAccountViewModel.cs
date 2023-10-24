@@ -2,6 +2,7 @@
 using MainCore.Common.Repositories;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -30,15 +31,17 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
 
-        public EditAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, MessageBoxViewModel messageBoxViewModel, IMediator mediator)
+        public EditAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IMediator mediator, IDialogService dialogService)
         {
             _accountRepository = accountRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _accessInputValidator = accessInputValidator;
             _accountInputValidator = accountInputValidator;
-            _messageBoxViewModel = messageBoxViewModel;
+
+            _mediator = mediator;
+            _dialogService = dialogService;
 
             AddAccessCommand = ReactiveCommand.CreateFromTask(AddAccessTask);
             EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
@@ -52,7 +55,6 @@ namespace MainCore.UI.ViewModels.Tabs
                     var mapper = new AccessInputMapper();
                     mapper.Map(x, AccessInput);
                 });
-            _mediator = mediator;
         }
 
         protected override async Task Load(int accountId)
@@ -74,7 +76,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             if (!results.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", results.ToString());
+                _dialogService.ShowMessageBox("Error", results.ToString());
             }
             else
             {
@@ -90,7 +92,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
             }
             else
             {
@@ -112,7 +114,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             if (!results.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", results.ToString());
+                _dialogService.ShowMessageBox("Error", results.ToString());
             }
             else
             {
@@ -124,7 +126,7 @@ namespace MainCore.UI.ViewModels.Tabs
                     {
                         await Task.Run(() => _accountRepository.Edit(dto));
                     });
-                await _messageBoxViewModel.Show("Information", "Edited accounts");
+                _dialogService.ShowMessageBox("Information", "Edited accounts");
             }
         }
 

@@ -1,6 +1,5 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Infrasturecture.Services;
-using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 
 namespace MainCore.UI.Commands
@@ -18,12 +17,12 @@ namespace MainCore.UI.Commands
     public class PauseCommandHandler : IRequestHandler<PauseCommand>
     {
         private readonly ITaskManager _taskManager;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
 
-        public PauseCommandHandler(ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel)
+        public PauseCommandHandler(ITaskManager taskManager, IDialogService dialogService)
         {
             _taskManager = taskManager;
-            _messageBoxViewModel = messageBoxViewModel;
+            _dialogService = dialogService;
         }
 
         public async Task Handle(PauseCommand request, CancellationToken cancellationToken)
@@ -44,7 +43,7 @@ namespace MainCore.UI.Commands
                 return;
             }
 
-            await _messageBoxViewModel.Show("Information", $"Account is {status}");
+            _dialogService.ShowMessageBox("Information", $"Account is {status}");
         }
     }
 }

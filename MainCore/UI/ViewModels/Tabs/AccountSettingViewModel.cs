@@ -2,6 +2,7 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -19,19 +20,17 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private readonly IAccountSettingRepository _accountSettingRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
-        private readonly FileDialogViewModel _fileDialogViewModel;
+        private readonly IDialogService _dialogService;
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public AccountSettingViewModel(IAccountSettingRepository accountSettingRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccountSettingInput> accountsettingInputValidator, MessageBoxViewModel messageBoxViewModel, FileDialogViewModel fileDialogViewModel)
+        public AccountSettingViewModel(IAccountSettingRepository accountSettingRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccountSettingInput> accountsettingInputValidator, IDialogService dialogService)
         {
             _accountSettingRepository = accountSettingRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _accountsettingInputValidator = accountsettingInputValidator;
-            _messageBoxViewModel = messageBoxViewModel;
-            _fileDialogViewModel = fileDialogViewModel;
+            _dialogService = dialogService;
 
             SaveCommand = ReactiveCommand.CreateFromTask(SaveTask);
             ExportCommand = ReactiveCommand.CreateFromTask(ExportTask);
@@ -55,7 +54,7 @@ namespace MainCore.UI.ViewModels.Tabs
             var result = _accountsettingInputValidator.Validate(AccountSettingInput);
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
             }
             else
             {
@@ -64,13 +63,13 @@ namespace MainCore.UI.ViewModels.Tabs
                      () => Save(AccountId)
                  );
 
-                await _messageBoxViewModel.Show("Information", "Settings saved");
+                _dialogService.ShowMessageBox("Information", "Settings saved");
             }
         }
 
         private async Task ImportTask()
         {
-            var path = _fileDialogViewModel.OpenFileDialog();
+            var path = _dialogService.OpenFileDialog();
             Dictionary<AccountSettingEnums, int> settings;
             try
             {
@@ -79,7 +78,7 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             catch
             {
-                await _messageBoxViewModel.Show("Warning", "Invalid file.");
+                _dialogService.ShowMessageBox("Warning", "Invalid file.");
                 return;
             }
 
@@ -87,21 +86,19 @@ namespace MainCore.UI.ViewModels.Tabs
             var result = _accountsettingInputValidator.Validate(AccountSettingInput);
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
                 return;
             }
             else
             {
-                await _waitingOverlayViewModel.Show(
-                    "importing settings ...",
-                    () => _accountSettingRepository.Set(AccountId, settings));
-                await _messageBoxViewModel.Show("Information", "Settings imported");
+                _accountSettingRepository.Set(AccountId, settings);
+                _dialogService.ShowMessageBox("Information", "Settings imported");
             }
         }
 
         private async Task ExportTask()
         {
-            var path = _fileDialogViewModel.SaveFileDialog();
+            var path = _dialogService.SaveFileDialog();
             await _waitingOverlayViewModel.Show(
                 "exporting settings ...",
                 async () =>
@@ -111,7 +108,7 @@ namespace MainCore.UI.ViewModels.Tabs
                     await File.WriteAllTextAsync(path, jsonString);
                 });
 
-            await _messageBoxViewModel.Show("Settings exported", "Information");
+            _dialogService.ShowMessageBox("Settings exported", "Information");
         }
     }
 }

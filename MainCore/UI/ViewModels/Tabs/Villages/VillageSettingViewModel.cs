@@ -2,6 +2,7 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -20,25 +21,23 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private readonly IVillageSettingRepository _villageSettingRepository;
 
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
-        private readonly FileDialogViewModel _fileDialogViewModel;
+        private readonly IDialogService _dialogService;
 
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public VillageSettingViewModel(IVillageSettingRepository villageSettingRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<VillageSettingInput> villageSettingInputValidator, MessageBoxViewModel messageBoxViewModel, FileDialogViewModel fileDialogViewModel)
+        public VillageSettingViewModel(IVillageSettingRepository villageSettingRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<VillageSettingInput> villageSettingInputValidator, IDialogService dialogService)
         {
             _villageSettingRepository = villageSettingRepository;
 
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _villageSettingInputValidator = villageSettingInputValidator;
-            _messageBoxViewModel = messageBoxViewModel;
+            _dialogService = dialogService;
 
             SaveCommand = ReactiveCommand.CreateFromTask(SaveTask);
             ExportCommand = ReactiveCommand.CreateFromTask(ExportTask);
             ImportCommand = ReactiveCommand.CreateFromTask(ImportTask);
-            _fileDialogViewModel = fileDialogViewModel;
         }
 
         protected override async Task Load(int villageId)
@@ -58,7 +57,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var result = _villageSettingInputValidator.Validate(VillageSettingInput);
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
             }
             else
             {
@@ -66,13 +65,13 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                     "saving settings ...",
                     () => Save(VillageId)
                 );
-                await _messageBoxViewModel.Show("Information", "Settings saved");
+                _dialogService.ShowMessageBox("Information", "Settings saved");
             }
         }
 
         private async Task ImportTask()
         {
-            var path = _fileDialogViewModel.OpenFileDialog();
+            var path = _dialogService.OpenFileDialog();
             Dictionary<VillageSettingEnums, int> settings;
             try
             {
@@ -81,7 +80,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             catch
             {
-                await _messageBoxViewModel.Show("Warning", "Invalid file.");
+                _dialogService.ShowMessageBox("Warning", "Invalid file.");
                 return;
             }
 
@@ -89,23 +88,19 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var result = _villageSettingInputValidator.Validate(VillageSettingInput);
             if (!result.IsValid)
             {
-                await _messageBoxViewModel.Show("Error", result.ToString());
+                _dialogService.ShowMessageBox("Error", result.ToString());
                 return;
             }
             else
             {
-                await _waitingOverlayViewModel.Show(
-                    "importing settings ...",
-                    () => _villageSettingRepository.Set(VillageId, settings)
-                );
-
-                await _messageBoxViewModel.Show("Information", "Settings imported");
+                _villageSettingRepository.Set(VillageId, settings);
+                _dialogService.ShowMessageBox("Information", "Settings imported");
             }
         }
 
         private async Task ExportTask()
         {
-            var path = _fileDialogViewModel.SaveFileDialog();
+            var path = _dialogService.SaveFileDialog();
 
             await _waitingOverlayViewModel.Show(
                 "exporting settings ...",
@@ -116,7 +111,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                     await File.WriteAllTextAsync(path, jsonString);
                 });
 
-            await _messageBoxViewModel.Show("Information", "Settings exported");
+            _dialogService.ShowMessageBox("Information", "Settings exported");
         }
     }
 }

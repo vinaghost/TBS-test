@@ -20,15 +20,14 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly VillageTabStore _villageTabStore;
 
         private readonly ITaskManager _taskManager;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
         public ListBoxItemViewModel Villages { get; } = new();
 
-        public VillageViewModel(IVillageRepository villageRepository, VillageTabStore villageTabStore, ITaskManager taskManager, MessageBoxViewModel messageBoxViewModel)
+        public VillageViewModel(IVillageRepository villageRepository, VillageTabStore villageTabStore, ITaskManager taskManager, IDialogService dialogService)
         {
             _villageRepository = villageRepository;
             _villageTabStore = villageTabStore;
 
-            _messageBoxViewModel = messageBoxViewModel;
             _taskManager = taskManager;
 
             LoadCurrentCommand = ReactiveCommand.CreateFromTask(LoadCurrentTask);
@@ -43,18 +42,19 @@ namespace MainCore.UI.ViewModels.Tabs
                 if (x is null) tabType = VillageTabType.NoVillage;
                 _villageTabStore.SetTabType(tabType);
             });
+            _dialogService = dialogService;
         }
 
         private async Task LoadCurrentTask()
         {
             if (!Villages.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No village selected");
+                _dialogService.ShowMessageBox("Warning", "No village selected");
                 return;
             }
 
             _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, Villages.SelectedItemId);
-            await _messageBoxViewModel.Show("Information", $"Added update task");
+            _dialogService.ShowMessageBox("Information", $"Added update task");
             return;
         }
 
@@ -62,7 +62,7 @@ namespace MainCore.UI.ViewModels.Tabs
         {
             if (!Villages.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No village selected");
+                _dialogService.ShowMessageBox("Warning", "No village selected");
                 return;
             }
 
@@ -71,7 +71,7 @@ namespace MainCore.UI.ViewModels.Tabs
             {
                 _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
             }
-            await _messageBoxViewModel.Show("Information", $"Added update task");
+            _dialogService.ShowMessageBox("Information", $"Added update task");
             return;
         }
 
@@ -79,7 +79,7 @@ namespace MainCore.UI.ViewModels.Tabs
         {
             if (!Villages.IsSelected)
             {
-                await _messageBoxViewModel.Show("Warning", "No village selected");
+                _dialogService.ShowMessageBox("Warning", "No village selected");
                 return;
             }
 
@@ -88,7 +88,7 @@ namespace MainCore.UI.ViewModels.Tabs
             {
                 _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village.Id);
             }
-            await _messageBoxViewModel.Show("Information", $"Added update task");
+            _dialogService.ShowMessageBox("Information", $"Added update task");
             return;
         }
 

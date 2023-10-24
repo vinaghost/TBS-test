@@ -1,6 +1,6 @@
 ﻿using MainCore;
+using MainCore.Infrasturecture.Services;
 using MainCore.UI.ViewModels;
-using MainCore.UI.ViewModels.UserControls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using Splat;
@@ -28,9 +28,22 @@ namespace WPFUI
                 ViewModel = Locator.Current.GetService<MainViewModel>(),
             };
 
-            var fileDialogViewModel = Locator.Current.GetService<FileDialogViewModel>();
-            fileDialogViewModel.SaveFileDialogFunc = SaveFileDialog;
-            fileDialogViewModel.OpenFileDialogFunc = OpenFileDialog;
+            var dialogService = Locator.Current.GetService<IDialogService>() as DialogService;
+            dialogService.MessageBoxFunc = ShowMessage;
+            dialogService.ConfirmBoxFunc = ShowConfirm;
+            dialogService.SaveFileDialogFunc = SaveFileDialog;
+            dialogService.OpenFileDialogFunc = OpenFileDialog;
+        }
+
+        private void ShowMessage(string message, string title)
+        {
+            MessageBox.Show(message, title);
+        }
+
+        private bool ShowConfirm(string message, string title)
+        {
+            var answer = MessageBox.Show(message, title, MessageBoxButton.YesNo);
+            return answer == MessageBoxResult.Yes;
         }
 
         private string SaveFileDialog()

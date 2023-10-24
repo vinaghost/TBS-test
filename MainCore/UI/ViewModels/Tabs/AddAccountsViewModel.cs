@@ -1,8 +1,8 @@
 ﻿using MainCore.Common.Repositories;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Services;
 using MainCore.UI.ViewModels.Abstract;
-using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
@@ -15,7 +15,7 @@ namespace MainCore.UI.ViewModels.Tabs
     public class AddAccountsViewModel : TabViewModelBase
     {
         private readonly IAccountRepository _accountRepository;
-        private readonly MessageBoxViewModel _messageBoxViewModel;
+        private readonly IDialogService _dialogService;
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
         public ReactiveCommand<string, Unit> UpdateTableCommand { get; }
 
@@ -28,15 +28,15 @@ namespace MainCore.UI.ViewModels.Tabs
             set => this.RaiseAndSetIfChanged(ref _input, value);
         }
 
-        public AddAccountsViewModel(IAccountRepository accountRepository, MessageBoxViewModel messageBoxViewModel)
+        public AddAccountsViewModel(IAccountRepository accountRepository, IDialogService dialogService)
         {
             _accountRepository = accountRepository;
-            _messageBoxViewModel = messageBoxViewModel;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
             UpdateTableCommand = ReactiveCommand.CreateFromTask<string>(UpdateTableTask);
 
             this.WhenAnyValue(x => x.Input).InvokeCommand(UpdateTableCommand);
+            _dialogService = dialogService;
         }
 
         private async Task UpdateTableTask(string input)
@@ -80,7 +80,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 Input = "";
             }, RxApp.MainThreadScheduler);
 
-            await _messageBoxViewModel.Show("Information", "Added accounts");
+            _dialogService.ShowMessageBox("Information", "Added accounts");
         }
 
         private static AccountDto Parse(string input)
