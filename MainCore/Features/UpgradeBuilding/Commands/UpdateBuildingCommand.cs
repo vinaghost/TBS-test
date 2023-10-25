@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
+using MainCore.Entities;
 using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -19,7 +20,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _chromeManager = chromeManager;
         }
 
-        public async Task<Result> Execute(int accountId, int villageId)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             Result result;

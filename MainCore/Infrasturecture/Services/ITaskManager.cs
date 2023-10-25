@@ -1,36 +1,38 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Tasks;
+using MainCore.Entities;
 using static MainCore.Infrasturecture.Services.TaskManager;
 
 namespace MainCore.Infrasturecture.Services
 {
     public interface ITaskManager
     {
-        void AddOrUpdate<T>(int accountId, int villageId, bool first = false) where T : VillageTask;
+        void AddOrUpdate<T>(AccountId accountId, VillageId villageId, bool first = false) where T : VillageTask;
 
-        void AddOrUpdate<T>(int accountId, bool first = false) where T : AccountTask;
+        void AddOrUpdate<T>(AccountId accountId, bool first = false) where T : AccountTask;
 
-        void Clear(int accountId);
+        void Clear(AccountId accountId);
 
-        AccountTask Get<T>(int accountId) where T : AccountTask;
+        AccountTask Get<T>(AccountId accountId) where T : AccountTask;
 
-        VillageTask Get<T>(int accountId, int villageId) where T : VillageTask;
+        VillageTask Get<T>(AccountId accountId, VillageId villageId) where T : VillageTask;
 
-        CancellationTokenSource GetCancellationTokenSource(int accountId);
+        CancellationTokenSource GetCancellationTokenSource(AccountId accountId);
 
-        TaskBase GetCurrentTask(int accountId);
+        TaskBase GetCurrentTask(AccountId accountId);
 
-        StatusEnums GetStatus(int accountId);
+        StatusEnums GetStatus(AccountId accountId);
 
-        TaskInfo GetTaskInfo(int accountId);
+        TaskInfo GetTaskInfo(AccountId accountId);
 
-        List<TaskBase> GetTaskList(int accountId);
+        List<TaskBase> GetTaskList(AccountId accountId);
 
-        void Remove(int accountId, TaskBase task);
+        void Remove(AccountId accountId, TaskBase task);
 
-        void ReOrder(int accountId);
+        void ReOrder(AccountId accountId);
 
-        void SetStatus(int accountId, StatusEnums status);
-        Task StopCurrentTask(int accountId);
+        void SetStatus(AccountId accountId, StatusEnums status);
+
+        Task StopCurrentTask(AccountId accountId);
     }
 }

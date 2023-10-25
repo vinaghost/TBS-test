@@ -1,12 +1,13 @@
-﻿using MediatR;
+﻿using MainCore.Entities;
+using MediatR;
 
 namespace MainCore.Common.Notification
 {
     public class BuildingUpdated : INotification
     {
-        public int VillageId { get; }
+        public VillageId VillageId { get; }
 
-        public BuildingUpdated(int villageId)
+        public BuildingUpdated(VillageId villageId)
         {
             VillageId = villageId;
         }

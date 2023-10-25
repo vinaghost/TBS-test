@@ -1,4 +1,5 @@
-﻿using MainCore.Infrasturecture.AutoRegisterDi;
+﻿using MainCore.Entities;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 
 namespace MainCore.Common.Repositories
@@ -13,7 +14,7 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        public bool IsPlusActive(int accountId)
+        public bool IsPlusActive(AccountId accountId)
         {
             var accountInfo = _context.AccountsInfo
                     .FirstOrDefault(x => x.AccountId == accountId);

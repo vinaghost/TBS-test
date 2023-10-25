@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
+using MainCore.Entities;
 using MainCore.Features.Login.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
@@ -28,7 +29,7 @@ namespace MainCore.Features.Login.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId)
+        public async Task<Result> Execute(AccountId accountId)
         {
             var account = await _context.Accounts.FindAsync(accountId);
             var access = await _context.Accesses.FirstOrDefaultAsync(x => x.AccountId == accountId);

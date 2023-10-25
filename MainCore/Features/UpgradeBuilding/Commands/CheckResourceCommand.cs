@@ -4,6 +4,7 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 
@@ -25,7 +26,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _storageRepository = storageRepository;
         }
 
-        public async Task<Result> Execute(int accountId, int villageId, NormalBuildPlan plan)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
             Result result;
             result = GetBuildingResource(accountId, villageId, plan);
@@ -36,7 +37,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             return Result.Ok();
         }
 
-        private Result GetBuildingResource(int accountId, int villageId, NormalBuildPlan plan)
+        private Result GetBuildingResource(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;

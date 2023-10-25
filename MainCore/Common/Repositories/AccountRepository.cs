@@ -2,6 +2,7 @@
 using MainCore.Common.Errors.Database;
 using MainCore.Common.Notification;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
@@ -82,7 +83,7 @@ namespace MainCore.Common.Repositories
             return accounts;
         }
 
-        public async Task<AccountDto> GetById(int accountId)
+        public async Task<AccountDto> GetById(AccountId accountId)
         {
             var account = await Task.Run(() =>
                 _context.Accounts
@@ -113,7 +114,7 @@ namespace MainCore.Common.Repositories
             await _mediator.Publish(new AccountUpdated());
         }
 
-        public async Task DeleteById(int accountId)
+        public async Task DeleteById(AccountId accountId)
         {
             await Task.Run(() =>
                 _context.Accounts

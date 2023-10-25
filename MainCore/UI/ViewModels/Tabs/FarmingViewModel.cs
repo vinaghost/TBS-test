@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Features.Farming.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -45,7 +46,7 @@ namespace MainCore.UI.ViewModels.Tabs
             _dialogService = dialogService;
         }
 
-        public async Task FarmListsUpdated(int accountId)
+        public async Task FarmListsUpdated(AccountId accountId)
         {
             if (!IsActive) return;
             if (accountId != AccountId) return;
@@ -54,7 +55,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 RxApp.MainThreadScheduler);
         }
 
-        protected override async Task Load(int accountId)
+        protected override async Task Load(AccountId accountId)
         {
             await LoadFarmLists(accountId);
             await LoadSettings(accountId);
@@ -96,7 +97,7 @@ namespace MainCore.UI.ViewModels.Tabs
             _dialogService.ShowMessageBox("Information", "Removed start farm list task");
         }
 
-        private async Task Save(int accountId)
+        private async Task Save(AccountId accountId)
         {
             var settings = FarmListSettingInput.Get();
             await Task.Run(() => _accountSettingRepository.Set(accountId, settings));
@@ -126,7 +127,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Warning", "No farm list selected");
                 return;
             }
-            await Task.Run(() => _farmListRepository.ActiveFarmList(SelectedFarmList.Id));
+            await Task.Run(() => _farmListRepository.ActiveFarmList(new FarmListId(SelectedFarmList.Id)));
             if (SelectedFarmList.Color == Color.Green)
             {
                 SelectedFarmList.Color = Color.Red;
@@ -137,13 +138,13 @@ namespace MainCore.UI.ViewModels.Tabs
             }
         }
 
-        private async Task LoadSettings(int accountId)
+        private async Task LoadSettings(AccountId accountId)
         {
             var settings = await Task.Run(() => _accountSettingRepository.Get(accountId));
             FarmListSettingInput.Set(settings);
         }
 
-        private async Task LoadFarmLists(int accountId)
+        private async Task LoadFarmLists(AccountId accountId)
         {
             var farmLists = await Task.Run(() => _farmListRepository.GetList(accountId));
             FarmLists.Load(farmLists.Select(x => new ListBoxItem(x)));

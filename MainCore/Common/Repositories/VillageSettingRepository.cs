@@ -23,28 +23,28 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        public int GetSetting(int villageId, VillageSettingEnums setting)
+        public int GetSetting(VillageId villageId, VillageSettingEnums setting)
         {
             var settingEntity = _context.VillagesSetting
                .FirstOrDefault(x => x.VillageId == villageId && x.Setting == setting);
             return settingEntity.Value;
         }
 
-        public int GetSetting(int villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax)
+        public int GetSetting(VillageId villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax)
         {
             var settingValueMin = GetSetting(villageId, settingMin);
             var settingValueMax = GetSetting(villageId, settingMax);
             return Random.Shared.Next(settingValueMin, settingValueMax);
         }
 
-        public bool GetBoolSetting(int villageId, VillageSettingEnums setting)
+        public bool GetBoolSetting(VillageId villageId, VillageSettingEnums setting)
         {
             var settingEntity = GetSetting(villageId, setting);
             //return settingEntity == 0 ? false : true;
             return settingEntity != 0;
         }
 
-        public void CheckSetting(AppDbContext context, int villageId)
+        public void CheckSetting(AppDbContext context, VillageId villageId)
         {
             var settings = _context
                 .VillagesSetting
@@ -68,13 +68,13 @@ namespace MainCore.Common.Repositories
             _context.SaveChanges();
         }
 
-        public Dictionary<VillageSettingEnums, int> Get(int villageId)
+        public Dictionary<VillageSettingEnums, int> Get(VillageId villageId)
         {
             var settings = _context.VillagesSetting.Where(x => x.VillageId == villageId).ToDictionary(x => x.Setting, x => x.Value);
             return settings;
         }
 
-        public void Set(int villageId, Dictionary<VillageSettingEnums, int> settings)
+        public void Set(VillageId villageId, Dictionary<VillageSettingEnums, int> settings)
         {
             var query = _context.VillagesSetting.Where(x => x.VillageId == villageId);
 

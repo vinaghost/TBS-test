@@ -1,9 +1,11 @@
-﻿namespace MainCore.Infrasturecture.Services
+﻿using MainCore.Entities;
+
+namespace MainCore.Infrasturecture.Services
 {
     public interface ITimerManager
     {
         void Shutdown();
 
-        void Start(int accountId);
+        void Start(AccountId accountId);
     }
 }

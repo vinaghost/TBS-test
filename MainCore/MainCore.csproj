@@ -25,6 +25,8 @@
     <PackageReference Include="FluentResults" Version="3.15.2" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+    <PackageReference Include="LessCode.EFCore.StronglyTypedIdCommons" Version="1.0.2" />
+    <PackageReference Include="LessCode.EFCore.StronglyTypedIdGenerator" Version="1.0.4" />
     <PackageReference Include="MediatR" Version="12.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.12" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
@@ -41,5 +43,7 @@
     <PackageReference Include="Serilog.Sinks.Map" Version="1.0.2" />
     <PackageReference Include="Splat" Version="14.7.1" />
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.7.1" />
+    <PackageReference Include="StronglyTypedId" Version="1.0.0-beta06" PrivateAssets="all" ExcludeAssets="runtime"/>
+    
   </ItemGroup>
 </Project>

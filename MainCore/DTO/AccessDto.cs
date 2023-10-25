@@ -19,7 +19,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class AccessMapper
     {
-        public Access Map(int accountId, AccessDto dto)
+        public Access Map(AccountId accountId, AccessDto dto)
         {
             var entity = Map(dto);
             entity.AccountId = accountId;

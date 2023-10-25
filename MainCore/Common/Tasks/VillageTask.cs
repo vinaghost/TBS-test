@@ -1,11 +1,13 @@
-﻿namespace MainCore.Common.Tasks
+﻿using MainCore.Entities;
+
+namespace MainCore.Common.Tasks
 {
     public abstract class VillageTask : TaskBase
     {
-        public int AccountId { get; private set; }
-        public int VillageId { get; private set; }
+        public AccountId AccountId { get; private set; }
+        public VillageId VillageId { get; private set; }
 
-        public void Setup(int accountId, int villageId, CancellationToken cancellationToken = default)
+        public void Setup(AccountId accountId, VillageId villageId, CancellationToken cancellationToken = default)
         {
             AccountId = accountId;
             VillageId = villageId;

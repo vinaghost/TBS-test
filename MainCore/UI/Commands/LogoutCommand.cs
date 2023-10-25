@@ -1,4 +1,5 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
 using MediatR;
 
@@ -6,9 +7,9 @@ namespace MainCore.UI.Commands
 {
     public class LogoutCommand : IRequest
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public LogoutCommand(int accountId)
+        public LogoutCommand(AccountId accountId)
         {
             AccountId = accountId;
         }

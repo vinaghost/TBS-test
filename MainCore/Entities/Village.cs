@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using StronglyTypedIds;
 
 namespace MainCore.Entities
 {
-    public class Village : IEquatable<Village>
+    public class Village
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
+        public VillageId Id { get; set; }
 
         public string Name { get; set; }
         public int X { get; set; }
@@ -14,23 +13,15 @@ namespace MainCore.Entities
         public bool IsActive { get; set; }
         public bool IsUnderAttack { get; set; }
 
-        public int AccountId { get; set; }
+        public AccountId AccountId { get; set; }
         public ICollection<Building> Buildings { get; set; }
         public ICollection<QueueBuilding> QueueBuildings { get; set; }
         public ICollection<Job> Jobs { get; set; }
         public Storage Storage { get; set; }
         public ICollection<VillageSetting> VillageSetting { get; set; }
-
-        public bool Equals(Village other)
-        {
-            if (other is null)
-                return false;
-
-            return Id == other.Id;
-        }
-
-        public override bool Equals(object obj) => Equals(obj as Village);
-
-        public override int GetHashCode() => Id;
     }
+
+    [StronglyTypedId]
+    public partial struct VillageId
+    { }
 }

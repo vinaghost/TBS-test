@@ -1,15 +1,16 @@
 ﻿using FluentResults;
 using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MediatR;
 
 namespace MainCore.Common.Commands
 {
     public class DelayCommand : IRequest<Result>
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public DelayCommand(int accountId)
+        public DelayCommand(AccountId accountId)
         {
             AccountId = accountId;
         }

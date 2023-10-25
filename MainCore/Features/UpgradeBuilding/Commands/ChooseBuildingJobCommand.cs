@@ -3,6 +3,7 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MediatR;
 
@@ -27,7 +28,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId, int villageId)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId)
         {
             do
             {
@@ -88,17 +89,17 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             while (true);
         }
 
-        private async Task<bool> Validate(int villageId, JobDto job)
+        private async Task<bool> Validate(VillageId villageId, JobDto job)
         {
             if (!_buildingRepository.IsJobValid(villageId, job))
             {
-                await _jobRepository.Delete(job.Id);
+                await _jobRepository.DeleteById(job.Id);
                 return false;
             }
             return true;
         }
 
-        private async Task<JobDto> GetJobBasedOnRomanLogic(int villageId, int countQueueBuilding)
+        private async Task<JobDto> GetJobBasedOnRomanLogic(VillageId villageId, int countQueueBuilding)
         {
             var countResourceQueueBuilding = _buildingRepository.CountResourceQueueBuilding(villageId);
             var countInfrastructureQueueBuilding = countQueueBuilding - countResourceQueueBuilding;

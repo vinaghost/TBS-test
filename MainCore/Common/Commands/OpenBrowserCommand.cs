@@ -1,4 +1,6 @@
 ﻿using FluentResults;
+using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
 using MediatR;
@@ -7,9 +9,9 @@ namespace MainCore.Common.Commands
 {
     public class OpenBrowserCommand : IRequest<Result>
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public OpenBrowserCommand(int accountId)
+        public OpenBrowserCommand(AccountId accountId)
         {
             AccountId = accountId;
         }
@@ -32,12 +34,17 @@ namespace MainCore.Common.Commands
             var chromeBrowser = _chromeManager.Get(accountId);
             var account = _context.Accounts.Find(accountId);
             var access = _context.Accesses.FirstOrDefault(x => x.AccountId == accountId);
+
+            var accountMapper = new AccountMapper();
+            var accountDto = accountMapper.Map(account);
+            var accessMapper = new AccessMapper();
+            var accessDto = accessMapper.Map(access);
             await Task.Run(() =>
             {
                 try
                 {
-                    chromeBrowser.Setup(access);
-                    chromeBrowser.Navigate(account.Server);
+                    chromeBrowser.Setup(accountDto, accessDto);
+                    chromeBrowser.Navigate(accountDto.Server);
                 }
                 catch
                 {

@@ -5,8 +5,8 @@ namespace MainCore.Common.Repositories
 {
     public interface IHeroItemRepository
     {
-        Result IsEnoughResource(int accountId, long[] requiredResource);
+        Result IsEnoughResource(AccountId accountId, long[] requiredResource);
 
-        void Update(int accountId, IEnumerable<HeroItem> items);
+        void Update(AccountId accountId, IEnumerable<HeroItem> items);
     }
 }

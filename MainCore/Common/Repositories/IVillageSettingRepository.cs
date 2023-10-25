@@ -1,20 +1,21 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;
 
 namespace MainCore.Common.Repositories
 {
     public interface IVillageSettingRepository
     {
-        void CheckSetting(AppDbContext context, int villageId);
+        void CheckSetting(AppDbContext context, VillageId villageId);
 
-        Dictionary<VillageSettingEnums, int> Get(int villageId);
+        Dictionary<VillageSettingEnums, int> Get(VillageId villageId);
 
-        bool GetBoolSetting(int villageId, VillageSettingEnums setting);
+        bool GetBoolSetting(VillageId villageId, VillageSettingEnums setting);
 
-        int GetSetting(int villageId, VillageSettingEnums setting);
+        int GetSetting(VillageId villageId, VillageSettingEnums setting);
 
-        int GetSetting(int villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax);
+        int GetSetting(VillageId villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax);
 
-        void Set(int villageId, Dictionary<VillageSettingEnums, int> settings);
+        void Set(VillageId villageId, Dictionary<VillageSettingEnums, int> settings);
     }
 }

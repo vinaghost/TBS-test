@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
@@ -10,9 +11,9 @@ namespace MainCore.Features.Update.Commands
 {
     public class UpdateFarmListCommand : IRequest<Result>
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public UpdateFarmListCommand(int accountId)
+        public UpdateFarmListCommand(AccountId accountId)
         {
             AccountId = accountId;
         }
@@ -41,9 +42,8 @@ namespace MainCore.Features.Update.Commands
             return Result.Ok();
         }
 
-        private void Update(int accountId, List<FarmListDto> dtos)
+        private void Update(AccountId accountId, List<FarmListDto> dtos)
         {
-            
             var query = _context.FarmLists.Where(x => x.AccountId == accountId);
             var ids = query
                 .Select(x => x.Id)

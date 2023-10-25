@@ -1,6 +1,7 @@
 ﻿using MainCore.Common.Commands;
 using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Features.Login.Tasks;
 using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.Services;
@@ -10,9 +11,9 @@ namespace MainCore.UI.Commands
 {
     public class LoginCommand : IRequest
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public LoginCommand(int accountId)
+        public LoginCommand(AccountId accountId)
         {
             AccountId = accountId;
         }
@@ -48,7 +49,7 @@ namespace MainCore.UI.Commands
             _taskManager.SetStatus(accountId, StatusEnums.Online);
         }
 
-        private async Task AddUpgradeBuildingTask(int accountId)
+        private async Task AddUpgradeBuildingTask(AccountId accountId)
         {
             var villages = await _villageRepository.GetAll(accountId);
 

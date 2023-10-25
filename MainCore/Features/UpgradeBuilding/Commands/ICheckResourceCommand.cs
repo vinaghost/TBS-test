@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
+using MainCore.Entities;
 
 namespace MainCore.Features.UpgradeBuilding.Commands
 {
@@ -7,6 +8,6 @@ namespace MainCore.Features.UpgradeBuilding.Commands
     {
         long[] Value { get; }
 
-        Task<Result> Execute(int accountId, int villageId, NormalBuildPlan plan);
+        Task<Result> Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan);
     }
 }

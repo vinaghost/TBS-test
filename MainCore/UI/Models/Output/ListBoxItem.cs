@@ -17,7 +17,7 @@ namespace MainCore.UI.Models.Output
             Id = id;
         }
 
-        public ListBoxItem(AccountDto account) : this(account.Id)
+        public ListBoxItem(AccountDto account) : this(account.Id.Value)
         {
             Content = Get(account);
             Color = Color.Black;
@@ -34,7 +34,7 @@ namespace MainCore.UI.Models.Output
             return $"{account.Username}{Environment.NewLine}({serverUrl.Host})";
         }
 
-        public ListBoxItem(VillageDto village) : this(village.Id)
+        public ListBoxItem(VillageDto village) : this(village.Id.Value)
         {
             Content = Get(village);
             Color = Color.Black;
@@ -69,7 +69,7 @@ namespace MainCore.UI.Models.Output
             Color = building.Type.GetColor();
         }
 
-        public ListBoxItem(JobDto job) : this(job.Id)
+        public ListBoxItem(JobDto job) : this(job.Id.Value)
         {
             Content = Get(job);
             Color = Color.Black;
@@ -99,7 +99,7 @@ namespace MainCore.UI.Models.Output
             }
         }
 
-        public ListBoxItem(FarmListDto farmList) : this(farmList.Id)
+        public ListBoxItem(FarmListDto farmList) : this(farmList.Id.Value)
         {
             Content = farmList.Name;
             if (farmList.IsActive)

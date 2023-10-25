@@ -1,12 +1,13 @@
-﻿using MediatR;
+﻿using MainCore.Entities;
+using MediatR;
 
 namespace MainCore.Common.Notification
 {
     internal class QueueBuildingUpdated : INotification
     {
-        public int VillageId { get; }
+        public VillageId VillageId { get; }
 
-        public QueueBuildingUpdated(int villageId)
+        public QueueBuildingUpdated(VillageId villageId)
         {
             VillageId = villageId;
         }

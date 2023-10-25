@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Farming.Parsers.FarmListParser
@@ -7,7 +8,7 @@ namespace MainCore.Features.Farming.Parsers.FarmListParser
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
     public class TravianOfficial : IFarmListParser
     {
-        public HtmlNode GetStartButton(HtmlDocument doc, int raidId)
+        public HtmlNode GetStartButton(HtmlDocument doc, FarmListId raidId)
         {
             var farmNode = doc.GetElementbyId($"raidList{raidId}");
             if (farmNode is null) return null;

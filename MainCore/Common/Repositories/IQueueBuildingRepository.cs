@@ -4,12 +4,12 @@ namespace MainCore.Common.Repositories
 {
     public interface IQueueBuildingRepository
     {
-        QueueBuilding GetFirst(int villageId);
+        QueueBuilding GetFirst(VillageId villageId);
 
-        List<QueueBuilding> GetList(int villageId);
+        List<QueueBuilding> GetList(VillageId villageId);
 
-        void Update(int villageId, List<Building> buildings);
+        void Update(VillageId villageId, List<Building> buildings);
 
-        void Update(int villageId, List<QueueBuilding> queueBuildings);
+        void Update(VillageId villageId, List<QueueBuilding> queueBuildings);
     }
 }

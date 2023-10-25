@@ -6,7 +6,7 @@ namespace MainCore.DTO
 {
     public class JobDto
     {
-        public int Id { get; set; }
+        public JobId Id { get; set; }
         public int Position { get; set; }
         public JobTypeEnums Type { get; set; }
         public string Content { get; set; }
@@ -15,7 +15,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class JobMapper
     {
-        public Job Map(int villageId, JobDto dto)
+        public Job Map(VillageId villageId, JobDto dto)
         {
             var entity = Map(dto);
             entity.VillageId = villageId;

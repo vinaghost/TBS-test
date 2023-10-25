@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MainCore.Common.Repositories;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
@@ -57,7 +58,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 });
         }
 
-        protected override async Task Load(int accountId)
+        protected override async Task Load(AccountId accountId)
         {
             var account = await _accountRepository.GetById(accountId);
 

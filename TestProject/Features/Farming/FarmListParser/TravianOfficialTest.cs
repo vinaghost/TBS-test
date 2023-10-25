@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
+using MainCore.Entities;
 using MainCore.Features.Farming.Parsers.FarmListParser;
 
 namespace TestProject.Features.Farming.FarmListParser
@@ -23,7 +24,7 @@ namespace TestProject.Features.Farming.FarmListParser
             var path = Helper.GetPath(parts, "TravianOfficial.html");
             html.Load(path);
 
-            var node = parser.GetStartButton(html, 1233);
+            var node = parser.GetStartButton(html, new FarmListId(1233));
             node.Should().NotBeNull();
         }
 

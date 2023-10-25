@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Entities;
 
 namespace MainCore.Features.Farming.Parsers
 {
@@ -6,6 +7,6 @@ namespace MainCore.Features.Farming.Parsers
     {
         HtmlNode GetStartAllButton(HtmlDocument doc);
 
-        HtmlNode GetStartButton(HtmlDocument doc, int raidId);
+        HtmlNode GetStartButton(HtmlDocument doc, FarmListId raidId);
     }
 }

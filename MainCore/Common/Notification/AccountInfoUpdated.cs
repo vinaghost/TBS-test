@@ -1,12 +1,13 @@
-﻿using MediatR;
+﻿using MainCore.Entities;
+using MediatR;
 
 namespace MainCore.Common.Notification
 {
     public class AccountInfoUpdated : INotification
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public AccountInfoUpdated(int accountId)
+        public AccountInfoUpdated(AccountId accountId)
         {
             AccountId = accountId;
         }

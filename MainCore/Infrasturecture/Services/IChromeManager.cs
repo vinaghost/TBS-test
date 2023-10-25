@@ -1,9 +1,13 @@
-﻿namespace MainCore.Infrasturecture.Services
+﻿using MainCore.Entities;
+
+namespace MainCore.Infrasturecture.Services
 {
     public interface IChromeManager
     {
-        IChromeBrowser Get(int accountId);
+        IChromeBrowser Get(AccountId accountId);
+
         void LoadExtension();
+
         void Shutdown();
     }
 }

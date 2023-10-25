@@ -1,6 +1,7 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Commands;
@@ -90,7 +91,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
             var result = _dialogService.ShowConfirmBox("Information", $"Are you sure want to delete \n {Accounts.SelectedItem.Content}");
             if (!result) return;
-            await _accountRepository.DeleteById(Accounts.SelectedItemId);
+            await _accountRepository.DeleteById(new AccountId(Accounts.SelectedItemId));
         }
 
         private async Task LoginTask()
@@ -100,7 +101,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 _dialogService.ShowMessageBox("Warning", "No account selected");
                 return;
             }
-            await _mediator.Send(new LoginCommand(Accounts.SelectedItemId));
+            await _mediator.Send(new LoginCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
         private async Task LogoutTask()
@@ -111,7 +112,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _mediator.Send(new LogoutCommand(Accounts.SelectedItemId));
+            await _mediator.Send(new LogoutCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
         private async Task PauseTask()
@@ -122,7 +123,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _mediator.Send(new PauseCommand(Accounts.SelectedItemId));
+            await _mediator.Send(new PauseCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
         private async Task RestartTask()
@@ -133,12 +134,12 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _mediator.Send(new RestartCommand(Accounts.SelectedItemId));
+            await _mediator.Send(new RestartCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
-        public async Task LoadStatus(int accountId, StatusEnums status)
+        public async Task LoadStatus(AccountId accountId, StatusEnums status)
         {
-            var account = Accounts.Items.FirstOrDefault(x => x.Id == accountId);
+            var account = Accounts.Items.FirstOrDefault(x => x.Id == accountId.Value);
             await Observable.Start(() =>
             {
                 account.Color = status.GetColor();
@@ -152,7 +153,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
             foreach (var item in items)
             {
-                var status = _taskManager.GetStatus(item.Id);
+                var status = _taskManager.GetStatus(new AccountId(item.Id));
                 item.Color = status.GetColor();
             }
 

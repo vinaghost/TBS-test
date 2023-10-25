@@ -3,6 +3,7 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
@@ -22,7 +23,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _switchTabCommand = switchTabCommand;
         }
 
-        public async Task<Result> Execute(int accountId, int villageId, NormalBuildPlan plan)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
             Result result;
             result = await _toBuildingCommand.Execute(accountId, plan.Location);

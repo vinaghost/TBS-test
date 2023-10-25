@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Navigate.Parsers.VillageItemParser
@@ -7,7 +8,7 @@ namespace MainCore.Features.Navigate.Parsers.VillageItemParser
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
     public class TravianOfficial : IVillageItemParser
     {
-        public HtmlNode GetVillageNode(HtmlDocument doc, int villageId)
+        public HtmlNode GetVillageNode(HtmlDocument doc, VillageId villageId)
         {
             var villageBox = doc.GetElementbyId("sidebarBoxVillagelist");
             if (villageBox is null) return null;
@@ -24,10 +25,10 @@ namespace MainCore.Features.Navigate.Parsers.VillageItemParser
             return node.HasClass("active");
         }
 
-        private static int GetId(HtmlNode node)
+        private static VillageId GetId(HtmlNode node)
         {
             var dataDid = node.GetAttributeValue("data-did", 0);
-            return dataDid;
+            return new VillageId(dataDid);
         }
     }
 }

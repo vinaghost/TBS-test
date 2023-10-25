@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MediatR;
 
@@ -20,7 +21,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int villageId)
+        public async Task<Result> Execute(VillageId villageId)
         {
             var cropland = _buildingRepository.GetCropland(villageId);
 

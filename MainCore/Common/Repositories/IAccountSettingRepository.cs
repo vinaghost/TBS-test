@@ -1,20 +1,21 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;
 
 namespace MainCore.Common.Repositories
 {
     public interface IAccountSettingRepository
     {
-        void CheckSetting(AppDbContext context, int accountId);
+        void CheckSetting(AppDbContext context, AccountId accountId);
 
-        Dictionary<AccountSettingEnums, int> Get(int accountId);
+        Dictionary<AccountSettingEnums, int> Get(AccountId accountId);
 
-        bool GetBoolSetting(int accountId, AccountSettingEnums setting);
+        bool GetBoolSetting(AccountId accountId, AccountSettingEnums setting);
 
-        int GetSetting(int accountId, AccountSettingEnums setting);
+        int GetSetting(AccountId accountId, AccountSettingEnums setting);
 
-        int GetSetting(int accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax);
+        int GetSetting(AccountId accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax);
 
-        void Set(int accountId, Dictionary<AccountSettingEnums, int> settings);
+        void Set(AccountId accountId, Dictionary<AccountSettingEnums, int> settings);
     }
 }

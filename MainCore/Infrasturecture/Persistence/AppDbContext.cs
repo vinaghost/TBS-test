@@ -1,5 +1,11 @@
 ﻿using MainCore.Entities;
 using Microsoft.EntityFrameworkCore;
+using StronglyTypedIds;
+
+[assembly: StronglyTypedIdDefaults(
+    backingType: StronglyTypedIdBackingType.Int,
+    converters: StronglyTypedIdConverter.SystemTextJson |
+                StronglyTypedIdConverter.EfCoreValueConverter)]
 
 namespace MainCore.Infrasturecture.Persistence
 {

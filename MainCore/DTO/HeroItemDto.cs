@@ -13,7 +13,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class HeroItemMapper
     {
-        public HeroItem Map(int accountId, HeroItemDto dto)
+        public HeroItem Map(AccountId accountId, HeroItemDto dto)
         {
             var entity = Map(dto);
             entity.AccountId = accountId;

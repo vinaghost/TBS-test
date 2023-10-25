@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
 using MainCore.Common.Errors;
+using MainCore.Entities;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -52,7 +53,7 @@ namespace MainCore.Features.Navigate.Commands
             return Result.Ok();
         }
 
-        public async Task<Result> Execute(int accountId, int index)
+        public async Task<Result> Execute(AccountId accountId, int index)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             return await Execute(chromeBrowser, index);

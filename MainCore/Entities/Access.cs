@@ -13,6 +13,6 @@
         public string Useragent { get; set; }
         public DateTime LastUsed { get; set; }
 
-        public int AccountId { get; set; }
+        public AccountId AccountId { get; set; }
     }
 }

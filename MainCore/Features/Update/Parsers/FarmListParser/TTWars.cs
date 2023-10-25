@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Update.Parsers.FarmListParser
@@ -41,11 +42,11 @@ namespace MainCore.Features.Update.Parsers.FarmListParser
             return name.InnerText.Trim();
         }
 
-        private static int GetId(HtmlNode node)
+        private static FarmListId GetId(HtmlNode node)
         {
             var id = node.Id;
             var value = new string(id.Where(c => char.IsDigit(c)).ToArray());
-            return int.Parse(value);
+            return new FarmListId(int.Parse(value));
         }
     }
 }

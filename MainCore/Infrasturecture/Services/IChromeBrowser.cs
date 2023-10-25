@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Entities;
+using MainCore.DTO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -22,7 +22,7 @@ namespace MainCore.Infrasturecture.Services
 
         Task Navigate(string url = null);
 
-        void Setup(Access access);
+        void Setup(AccountDto account, AccessDto access);
 
         void Shutdown();
 

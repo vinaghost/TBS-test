@@ -1,4 +1,5 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
 using MediatR;
 
@@ -6,9 +7,9 @@ namespace MainCore.UI.Commands
 {
     public class RestartCommand : IRequest
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public RestartCommand(int accountId)
+        public RestartCommand(AccountId accountId)
         {
             AccountId = accountId;
         }
@@ -50,7 +51,7 @@ namespace MainCore.UI.Commands
             }
         }
 
-        private Task Handle(int accountId)
+        private Task Handle(AccountId accountId)
         {
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
             _taskManager.Clear(accountId);

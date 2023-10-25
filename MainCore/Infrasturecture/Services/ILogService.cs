@@ -1,13 +1,17 @@
-﻿using Serilog;
+﻿using MainCore.Entities;
+using Serilog;
 using Serilog.Events;
 
 namespace MainCore.Infrasturecture.Services
 {
     public interface ILogService
     {
-        LinkedList<LogEvent> GetLog(int accountId);
-        ILogger GetLogger(int accountId);
+        LinkedList<LogEvent> GetLog(AccountId accountId);
+
+        ILogger GetLogger(AccountId accountId);
+
         void Load();
+
         void Shutdown();
     }
 }

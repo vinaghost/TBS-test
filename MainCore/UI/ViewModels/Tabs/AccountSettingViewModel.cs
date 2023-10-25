@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
@@ -37,13 +38,13 @@ namespace MainCore.UI.ViewModels.Tabs
             ImportCommand = ReactiveCommand.CreateFromTask(ImportTask);
         }
 
-        protected override async Task Load(int accountId)
+        protected override async Task Load(AccountId accountId)
         {
             var settings = await Task.Run(() => _accountSettingRepository.Get(accountId));
             AccountSettingInput.Set(settings);
         }
 
-        private async Task Save(int accountId)
+        private async Task Save(AccountId accountId)
         {
             var settings = AccountSettingInput.Get();
             await Task.Run(() => _accountSettingRepository.Set(accountId, settings));

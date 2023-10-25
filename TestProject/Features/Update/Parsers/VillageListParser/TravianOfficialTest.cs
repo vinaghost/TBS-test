@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
+using MainCore.Entities;
 using MainCore.Features.Update.Parsers.VillageListParser;
 
 namespace TestProject.Features.Update.Parsers.VillageListParser
@@ -36,7 +37,7 @@ namespace TestProject.Features.Update.Parsers.VillageListParser
             html.Load(path);
             var dto = parser.Get(html).FirstOrDefault();
 
-            dto.Id.Should().Be(19501);
+            dto.Id.Should().Be(new VillageId(19501));
             dto.Name.Should().Be("VinaVillage");
             dto.X.Should().Be(114);
             dto.Y.Should().Be(-32);

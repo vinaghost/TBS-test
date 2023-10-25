@@ -6,6 +6,7 @@ using MainCore.Infrasturecture.Persistence;
 using MainCore.UI.Models.Input;
 using MainCore.UI.Models.Validators;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ReactiveUI;
@@ -21,7 +22,11 @@ namespace MainCore
         public static IServiceCollection AddCoreServices(this IServiceCollection services, ServerEnums server)
         {
             services.AddDbContext<AppDbContext>(
-                options => options.UseSqlite(_connectionString)
+                options => options
+                    .ReplaceService<IValueConverterSelector, StronglyTypedIdValueConverterSelector>()
+                    .UseSqlite(_connectionString),
+                ServiceLifetime.Transient,
+                ServiceLifetime.Transient
             );
 
             services

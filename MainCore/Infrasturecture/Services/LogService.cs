@@ -1,6 +1,6 @@
-﻿using MainCore.Infrasturecture.AutoRegisterDi;
+﻿using MainCore.Entities;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -10,7 +10,7 @@ namespace MainCore.Infrasturecture.Services
     [RegisterAsSingleton]
     public sealed class LogService : ILogService
     {
-        private readonly Dictionary<int, ILogger> _loggers = new();
+        private readonly Dictionary<AccountId, ILogger> _loggers = new();
 
         private readonly AppDbContext _context;
         private readonly IServiceProvider _serviceProvider;
@@ -39,18 +39,17 @@ namespace MainCore.Infrasturecture.Services
             Log.CloseAndFlush();
         }
 
-        public LinkedList<LogEvent> GetLog(int accountId)
+        public LinkedList<LogEvent> GetLog(AccountId accountId)
         {
             var logs = _logSink.GetLogs(accountId);
             return logs;
         }
 
-        public ILogger GetLogger(int accountId)
+        public ILogger GetLogger(AccountId accountId)
         {
             var logger = _loggers.GetValueOrDefault(accountId);
             if (logger is null)
             {
-                
                 var account = _context.Accounts.Find(accountId);
 
                 var uri = new Uri(account.Server);

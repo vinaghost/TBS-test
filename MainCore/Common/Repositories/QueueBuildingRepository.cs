@@ -22,7 +22,7 @@ namespace MainCore.Common.Repositories
             _taskManager = taskManager;
         }
 
-        public QueueBuilding GetFirst(int villageId)
+        public QueueBuilding GetFirst(VillageId villageId)
         {
             var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
@@ -31,7 +31,7 @@ namespace MainCore.Common.Repositories
             return queueBuilding;
         }
 
-        public List<QueueBuilding> GetList(int villageId)
+        public List<QueueBuilding> GetList(VillageId villageId)
         {
             var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
@@ -39,7 +39,7 @@ namespace MainCore.Common.Repositories
             return queueBuildings.ToList();
         }
 
-        public void Update(int villageId, List<Building> buildings)
+        public void Update(VillageId villageId, List<Building> buildings)
         {
             var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site);
@@ -67,7 +67,7 @@ namespace MainCore.Common.Repositories
             _context.SaveChanges();
         }
 
-        public void Update(int villageId, List<QueueBuilding> queueBuildings)
+        public void Update(VillageId villageId, List<QueueBuilding> queueBuildings)
         {
             var dbQueueBuildings = _context.QueueBuildings.Where(x => x.VillageId == villageId);
 
@@ -90,13 +90,13 @@ namespace MainCore.Common.Repositories
             _context.SaveChanges();
         }
 
-        //private Task TriggerInstantUpgrade(int villageId)
+        //private Task TriggerInstantUpgrade(VillageId villageId)
         //{
         //    var instantUpgrade = _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.InstantUpgrade);
         //    if (instantUpgrade)
         //    {
         //        var applyRomanQueueLogicWhenBuilding = _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
-        //        int accountId, count;
+        //        AccountId accountId, count;
         //        using (var context = _contextFactory.CreateDbContext())
         //        {
         //            var village = _context.Villages.Find(villageId);

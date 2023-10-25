@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
@@ -10,9 +11,9 @@ namespace MainCore.Features.Update.Commands
 {
     public class UpdateVillageListCommand : IRequest<Result>
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public UpdateVillageListCommand(int accountId)
+        public UpdateVillageListCommand(AccountId accountId)
         {
             AccountId = accountId;
         }
@@ -41,9 +42,8 @@ namespace MainCore.Features.Update.Commands
             return Result.Ok();
         }
 
-        private void Update(int accountId, List<VillageDto> dtos)
+        private void Update(AccountId accountId, List<VillageDto> dtos)
         {
-            
             var query = _context.Villages.Where(x => x.AccountId == accountId);
             var ids = query
                 .Select(x => x.Id)

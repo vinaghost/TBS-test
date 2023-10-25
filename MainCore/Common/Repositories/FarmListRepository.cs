@@ -16,7 +16,7 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        public IEnumerable<FarmListDto> GetList(int accountId)
+        public IEnumerable<FarmListDto> GetList(AccountId accountId)
         {
             var farmLists = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
@@ -25,14 +25,14 @@ namespace MainCore.Common.Repositories
             return farmLists;
         }
 
-        public void ActiveFarmList(int farmListId)
+        public void ActiveFarmList(FarmListId farmListId)
         {
             _context.FarmLists
                .Where(x => x.Id == farmListId)
                .ExecuteUpdate(x => x.SetProperty(x => x.IsActive, x => !x.IsActive));
         }
 
-        public int CountActiveFarmLists(int accountId)
+        public int CountActiveFarmLists(AccountId accountId)
         {
             var count = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
@@ -41,7 +41,7 @@ namespace MainCore.Common.Repositories
             return count;
         }
 
-        public List<int> GetActiveFarmLists(int accountId)
+        public List<FarmListId> GetActiveFarmLists(AccountId accountId)
         {
             var farmListIds = _context.FarmLists
                     .Where(x => x.AccountId == accountId)
@@ -51,7 +51,7 @@ namespace MainCore.Common.Repositories
             return farmListIds;
         }
 
-        public void Update(int accountId, List<FarmList> farmLists)
+        public void Update(AccountId accountId, List<FarmList> farmLists)
         {
             var dbFarmList = _context.FarmLists.Where(x => x.AccountId == accountId).ToList();
 

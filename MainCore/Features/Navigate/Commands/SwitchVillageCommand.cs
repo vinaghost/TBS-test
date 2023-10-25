@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -25,7 +26,7 @@ namespace MainCore.Features.Navigate.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId, int villageId)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId)
         {
             var village = _villageRepository.GetById(villageId);
             if (village is null) return Skip.VillageNotFound;

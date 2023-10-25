@@ -3,6 +3,7 @@ using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
@@ -13,10 +14,10 @@ namespace MainCore.Features.Update.Commands
 {
     public class UpdateDorfCommand : IRequest<Result>
     {
-        public int VillageId { get; }
-        public int AccountId { get; }
+        public VillageId VillageId { get; }
+        public AccountId AccountId { get; }
 
-        public UpdateDorfCommand(int accountId, int villageId)
+        public UpdateDorfCommand(AccountId accountId, VillageId villageId)
         {
             VillageId = villageId;
             AccountId = accountId;
@@ -53,7 +54,7 @@ namespace MainCore.Features.Update.Commands
             var dtoBuilding = GetBuildings(chromeBrowser.CurrentUrl, html);
             var dtoStorage = _stockBarParser.Get(html);
 
-            var result = await Task.Run(() => UpdateQueueBuilding(accountId, dtoQueueBuilding), cancellationToken);
+            var result = await Task.Run(() => UpdateQueueBuilding(villageId, dtoQueueBuilding), cancellationToken);
             if (result.IsFailed) return result;
 
             await Task.Run(() => UpdateBuildings(villageId, dtoBuilding), cancellationToken);
@@ -92,12 +93,11 @@ namespace MainCore.Features.Update.Commands
             return Result.Ok();
         }
 
-        private Result UpdateQueueBuilding(int villageId, IEnumerable<QueueBuildingDto> dtos)
+        private Result UpdateQueueBuilding(VillageId villageId, IEnumerable<QueueBuildingDto> dtos)
         {
             var result = IsVaild(dtos);
             if (result.IsFailed) return result;
 
-            
             var mapper = new QueueBuildingMapper();
 
             _context.QueueBuildings
@@ -113,10 +113,8 @@ namespace MainCore.Features.Update.Commands
             return Result.Ok();
         }
 
-        private void UpdateQueueBuilding(int villageId, List<BuildingDto> dtos)
+        private void UpdateQueueBuilding(VillageId villageId, List<BuildingDto> dtos)
         {
-            
-
             var queueBuildings = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site);
 
@@ -143,10 +141,8 @@ namespace MainCore.Features.Update.Commands
             _context.SaveChanges();
         }
 
-        private void UpdateBuildings(int villageId, IEnumerable<BuildingDto> dtos)
+        private void UpdateBuildings(VillageId villageId, IEnumerable<BuildingDto> dtos)
         {
-            
-
             var dbBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
                 .ToList();
@@ -170,10 +166,8 @@ namespace MainCore.Features.Update.Commands
             _context.SaveChanges();
         }
 
-        private void UpdateStorage(int villageId, StorageDto dto)
+        private void UpdateStorage(VillageId villageId, StorageDto dto)
         {
-            
-
             var mapper = new StorageMapper();
             var dbStorage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             if (dbStorage is null)

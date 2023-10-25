@@ -5,10 +5,10 @@ namespace MainCore.Common.Repositories
 {
     public interface IStorageRepository
     {
-        Result IsEnoughResource(int villageId, long[] requiredResource);
+        Result IsEnoughResource(VillageId villageId, long[] requiredResource);
 
-        long[] GetMissingResource(int villageId, long[] requiredResource);
+        long[] GetMissingResource(VillageId villageId, long[] requiredResource);
 
-        void Update(int villageId, Storage storage);
+        void Update(VillageId villageId, Storage storage);
     }
 }

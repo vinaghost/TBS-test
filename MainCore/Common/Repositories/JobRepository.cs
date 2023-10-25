@@ -29,7 +29,7 @@ namespace MainCore.Common.Repositories
             _mediator = mediator;
         }
 
-        public async Task Add<T>(int villageId, T content)
+        public async Task Add<T>(VillageId villageId, T content)
         {
             var count = await Task.Run(() =>
                 _context.Jobs
@@ -47,7 +47,7 @@ namespace MainCore.Common.Repositories
             await _mediator.Publish(new JobUpdated(villageId));
         }
 
-        public async Task AddToTop<T>(int villageId, T content)
+        public async Task AddToTop<T>(VillageId villageId, T content)
         {
             await Task.Run(() =>
                 _context.Jobs
@@ -67,7 +67,7 @@ namespace MainCore.Common.Repositories
             await _mediator.Publish(new JobUpdated(villageId));
         }
 
-        public async Task<List<JobDto>> GetAll(int villageId)
+        public async Task<List<JobDto>> GetAll(VillageId villageId)
         {
             var jobs = await Task.Run(() =>
                 _context.Jobs
@@ -78,7 +78,7 @@ namespace MainCore.Common.Repositories
             return jobs;
         }
 
-        public async Task<JobDto> GetById(int jobId)
+        public async Task<JobDto> GetById(JobId jobId)
         {
             var job = await Task.Run(() => _context.Jobs.Find(jobId));
             var mapper = new JobMapper();
@@ -86,7 +86,7 @@ namespace MainCore.Common.Repositories
             return dto;
         }
 
-        public async Task<int> CountBuildingJob(int villageId)
+        public async Task<int> CountBuildingJob(VillageId villageId)
         {
             var count = await Task.Run(() =>
                 _context.Jobs
@@ -95,7 +95,7 @@ namespace MainCore.Common.Repositories
             return count;
         }
 
-        public async Task<JobDto> GetResourceBuildingJob(int villageId)
+        public async Task<JobDto> GetResourceBuildingJob(VillageId villageId)
         {
             var job = await Task.Run(() =>
                 _context.Jobs
@@ -127,7 +127,7 @@ namespace MainCore.Common.Repositories
             return mapper.Map(resourceBuildJob);
         }
 
-        public async Task<JobDto> GetInfrastructureBuildingJob(int villageId)
+        public async Task<JobDto> GetInfrastructureBuildingJob(VillageId villageId)
         {
             var job = await Task.Run(() =>
                 _context.Jobs
@@ -150,7 +150,7 @@ namespace MainCore.Common.Repositories
             return mapper.Map(job);
         }
 
-        public async Task Move(int jobOldId, int jobNewId)
+        public async Task Move(JobId jobOldId, JobId jobNewId)
         {
             var jobOld = await Task.Run(() => _context.Jobs.Find(jobOldId));
             var jobNew = await Task.Run(() => _context.Jobs.Find(jobNewId));
@@ -162,18 +162,18 @@ namespace MainCore.Common.Repositories
             await Task.Run(_context.SaveChanges);
         }
 
-        public async Task Delete(int jobId)
+        public async Task DeleteById(JobId jobId)
         {
             await Task.Run(_context.Jobs.Where(x => x.Id == jobId).ExecuteDelete);
         }
 
-        public async Task Clear(int villageId)
+        public async Task Clear(VillageId villageId)
         {
             await Task.Run(_context.Jobs.Where(x => x.VillageId == villageId).ExecuteDelete);
             await _mediator.Publish(new JobUpdated(villageId));
         }
 
-        public async Task<JobDto> GetFirstJob(int villageId)
+        public async Task<JobDto> GetFirstJob(VillageId villageId)
         {
             var job = await Task.Run(() =>
                 _context.Jobs

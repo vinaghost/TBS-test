@@ -5,7 +5,7 @@ namespace MainCore.DTO
 {
     public class VillageDto
     {
-        public int Id { get; set; }
+        public VillageId Id { get; set; }
         public string Name { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
@@ -17,7 +17,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class VillageMapper
     {
-        public Village Map(int accountId, VillageDto dto)
+        public Village Map(AccountId accountId, VillageDto dto)
         {
             var entity = Map(dto);
             entity.AccountId = accountId;

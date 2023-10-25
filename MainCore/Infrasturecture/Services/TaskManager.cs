@@ -1,6 +1,7 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Notification;
 using MainCore.Common.Tasks;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +21,7 @@ namespace MainCore.Infrasturecture.Services
             public List<TaskBase> TaskList { get; set; } = new();
         }
 
-        private readonly Dictionary<int, TaskInfo> _tasks = new();
+        private readonly Dictionary<AccountId, TaskInfo> _tasks = new();
         private readonly IMediator _mediator;
 
         public TaskManager(IMediator mediator)
@@ -28,7 +29,7 @@ namespace MainCore.Infrasturecture.Services
             _mediator = mediator;
         }
 
-        public TaskInfo GetTaskInfo(int accountId)
+        public TaskInfo GetTaskInfo(AccountId accountId)
         {
             var task = _tasks.GetValueOrDefault(accountId);
             if (task is null)
@@ -39,44 +40,44 @@ namespace MainCore.Infrasturecture.Services
             return task;
         }
 
-        public List<TaskBase> GetTaskList(int accountId)
+        public List<TaskBase> GetTaskList(AccountId accountId)
         {
             var taskInfo = GetTaskInfo(accountId);
             return taskInfo.TaskList;
         }
 
-        public StatusEnums GetStatus(int accountId)
+        public StatusEnums GetStatus(AccountId accountId)
         {
             var taskInfo = GetTaskInfo(accountId);
             return taskInfo.Status;
         }
 
-        public void SetStatus(int accountId, StatusEnums status)
+        public void SetStatus(AccountId accountId, StatusEnums status)
         {
             var taskInfo = GetTaskInfo(accountId);
             taskInfo.Status = status;
             _mediator.Publish(new StatusUpdated(accountId, status));
         }
 
-        public bool IsExecuting(int accountId)
+        public bool IsExecuting(AccountId accountId)
         {
             var taskInfo = GetTaskInfo(accountId);
             return taskInfo.IsExecuting;
         }
 
-        public CancellationTokenSource GetCancellationTokenSource(int accountId)
+        public CancellationTokenSource GetCancellationTokenSource(AccountId accountId)
         {
             var taskInfo = GetTaskInfo(accountId);
             return taskInfo.CancellationTokenSource;
         }
 
-        public TaskBase GetCurrentTask(int accountId)
+        public TaskBase GetCurrentTask(AccountId accountId)
         {
             var tasks = GetTaskList(accountId);
             return tasks.FirstOrDefault(x => x.Stage == StageEnums.Executing);
         }
 
-        public async Task StopCurrentTask(int accountId)
+        public async Task StopCurrentTask(AccountId accountId)
         {
             var cts = GetCancellationTokenSource(accountId);
             cts.Cancel();
@@ -91,7 +92,7 @@ namespace MainCore.Infrasturecture.Services
             SetStatus(accountId, StatusEnums.Offline);
         }
 
-        public void AddOrUpdate<T>(int accountId, bool first = false) where T : AccountTask
+        public void AddOrUpdate<T>(AccountId accountId, bool first = false) where T : AccountTask
         {
             var task = Get<T>(accountId);
             if (task is null)
@@ -104,7 +105,7 @@ namespace MainCore.Infrasturecture.Services
             }
         }
 
-        public void AddOrUpdate<T>(int accountId, int villageId, bool first = false) where T : VillageTask
+        public void AddOrUpdate<T>(AccountId accountId, VillageId villageId, bool first = false) where T : VillageTask
         {
             var task = Get<T>(accountId, villageId);
             if (task is null)
@@ -117,21 +118,21 @@ namespace MainCore.Infrasturecture.Services
             }
         }
 
-        public void Add<T>(int accountId, bool first = false) where T : AccountTask
+        public void Add<T>(AccountId accountId, bool first = false) where T : AccountTask
         {
             var task = Locator.Current.GetService<T>();
             task.Setup(accountId);
             Add(accountId, task, first);
         }
 
-        public void Add<T>(int accountId, int villageId, bool first = false) where T : VillageTask
+        public void Add<T>(AccountId accountId, VillageId villageId, bool first = false) where T : VillageTask
         {
             var task = Locator.Current.GetService<T>();
             task.Setup(accountId, villageId);
             Add(accountId, task, first);
         }
 
-        public AccountTask Get<T>(int accountId) where T : AccountTask
+        public AccountTask Get<T>(AccountId accountId) where T : AccountTask
         {
             var tasks = GetTaskList(accountId);
             var filteredTasks = tasks.OfType<T>();
@@ -139,7 +140,7 @@ namespace MainCore.Infrasturecture.Services
             return task;
         }
 
-        public VillageTask Get<T>(int accountId, int villageId) where T : VillageTask
+        public VillageTask Get<T>(AccountId accountId, VillageId villageId) where T : VillageTask
         {
             var tasks = GetTaskList(accountId);
             var filteredTasks = tasks.OfType<T>();
@@ -147,7 +148,7 @@ namespace MainCore.Infrasturecture.Services
             return task;
         }
 
-        private void Add(int accountId, TaskBase task, bool first = false)
+        private void Add(AccountId accountId, TaskBase task, bool first = false)
         {
             var tasks = GetTaskList(accountId);
 
@@ -166,7 +167,7 @@ namespace MainCore.Infrasturecture.Services
             ReOrder(accountId, tasks);
         }
 
-        private void Update(int accountId, TaskBase task, bool first = false)
+        private void Update(AccountId accountId, TaskBase task, bool first = false)
         {
             var tasks = GetTaskList(accountId);
 
@@ -185,27 +186,27 @@ namespace MainCore.Infrasturecture.Services
             ReOrder(accountId, tasks);
         }
 
-        public void ReOrder(int accountId)
+        public void ReOrder(AccountId accountId)
         {
             var tasks = GetTaskList(accountId);
             ReOrder(accountId, tasks);
         }
 
-        public void Remove(int accountId, TaskBase task)
+        public void Remove(AccountId accountId, TaskBase task)
         {
             var tasks = GetTaskList(accountId);
             tasks.Remove(task);
             ReOrder(accountId, tasks);
         }
 
-        public void Clear(int accountId)
+        public void Clear(AccountId accountId)
         {
             var tasks = GetTaskList(accountId);
             tasks.Clear();
             _mediator.Send(new TaskUpdated(accountId));
         }
 
-        private void ReOrder(int accountId, List<TaskBase> tasks)
+        private void ReOrder(AccountId accountId, List<TaskBase> tasks)
         {
             tasks.Sort((x, y) => DateTime.Compare(x.ExecuteAt, y.ExecuteAt));
             _mediator.Send(new TaskUpdated(accountId));

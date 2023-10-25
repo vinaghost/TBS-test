@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
+using MainCore.Entities;
 using MainCore.Features.Farming.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -22,7 +23,7 @@ namespace MainCore.Features.Farming.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId)
+        public async Task<Result> Execute(AccountId accountId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;

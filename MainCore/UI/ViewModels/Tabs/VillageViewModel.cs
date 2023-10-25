@@ -1,4 +1,5 @@
 ﻿using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Features.Update.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -52,8 +53,8 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Warning", "No village selected");
                 return;
             }
-
-            _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, Villages.SelectedItemId);
+            var villageId = new VillageId(Villages.SelectedItemId);
+            _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, villageId);
             _dialogService.ShowMessageBox("Information", $"Added update task");
             return;
         }
@@ -92,7 +93,7 @@ namespace MainCore.UI.ViewModels.Tabs
             return;
         }
 
-        public async Task VillageUpdate(int accountId)
+        public async Task VillageUpdate(AccountId accountId)
         {
             if (!IsActive) return;
             if (AccountId != accountId) return;
@@ -101,12 +102,12 @@ namespace MainCore.UI.ViewModels.Tabs
                 RxApp.MainThreadScheduler);
         }
 
-        protected override async Task Load(int accountId)
+        protected override async Task Load(AccountId accountId)
         {
             await LoadVillageList(accountId);
         }
 
-        private async Task LoadVillageList(int accountId)
+        private async Task LoadVillageList(AccountId accountId)
         {
             var villages = await Task.Run(() => _villageRepository.GetAll(accountId));
             Villages.Load(villages.Select(x => new ListBoxItem(x)));

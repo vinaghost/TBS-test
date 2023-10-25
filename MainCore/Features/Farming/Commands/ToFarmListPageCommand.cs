@@ -2,6 +2,7 @@
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Farming;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -33,14 +34,14 @@ namespace MainCore.Features.Farming.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId)
+        public async Task<Result> Execute(AccountId accountId)
         {
             Result result;
             result = await _mediator.Send(new UpdateVillageListCommand(accountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var rallypointVillageId = await GetVillageHasRallypoint(accountId);
-            if (rallypointVillageId == 0) return Result.Fail(new NoRallypoint());
+            if (rallypointVillageId == VillageId.Empty) return Result.Fail(new NoRallypoint());
 
             result = await _switchVillageCommand.Execute(accountId, rallypointVillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
@@ -53,7 +54,7 @@ namespace MainCore.Features.Farming.Commands
             return Result.Ok();
         }
 
-        private async Task<int> GetVillageHasRallypoint(int accountId)
+        private async Task<VillageId> GetVillageHasRallypoint(AccountId accountId)
         {
             var activeVillage = await _villageRepository.GetActiveVillageId(accountId);
             if (_buildingRepository.HasRallyPoint(activeVillage))
@@ -69,7 +70,7 @@ namespace MainCore.Features.Farming.Commands
                     return village;
                 }
             }
-            return 0;
+            return VillageId.Empty;
         }
     }
 }

@@ -16,7 +16,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class QueueBuildingMapper
     {
-        public QueueBuilding Map(int villageId, QueueBuildingDto dto)
+        public QueueBuilding Map(VillageId villageId, QueueBuildingDto dto)
         {
             var entity = Map(dto);
             entity.VillageId = villageId;

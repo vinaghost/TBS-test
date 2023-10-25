@@ -1,6 +1,6 @@
-﻿using MainCore.Infrasturecture.AutoRegisterDi;
+﻿using MainCore.Entities;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -9,7 +9,7 @@ namespace MainCore.Infrasturecture.Services
     [RegisterAsSingleton]
     public sealed class ChromeManager : IChromeManager
     {
-        private readonly ConcurrentDictionary<int, ChromeBrowser> _dictionary = new();
+        private readonly ConcurrentDictionary<AccountId, ChromeBrowser> _dictionary = new();
         private string[] _extensionsPath;
         private readonly AppDbContext _context;
 
@@ -18,15 +18,14 @@ namespace MainCore.Infrasturecture.Services
             _context = context;
         }
 
-        public IChromeBrowser Get(int accountId)
+        public IChromeBrowser Get(AccountId accountId)
         {
             var result = _dictionary.TryGetValue(accountId, out ChromeBrowser browser);
             if (result) return browser;
 
-            
             var account = _context.Accounts.Find(accountId);
 
-            browser = new ChromeBrowser(_extensionsPath, account);
+            browser = new ChromeBrowser(_extensionsPath);
             _dictionary.TryAdd(accountId, browser);
             return browser;
         }

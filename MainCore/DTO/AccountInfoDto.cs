@@ -15,7 +15,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class AccountInfoMapper
     {
-        public AccountInfo Map(int accountId, AccountInfoDto dto)
+        public AccountInfo Map(AccountId accountId, AccountInfoDto dto)
         {
             var entity = Map(dto);
             entity.AccountId = accountId;

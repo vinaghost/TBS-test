@@ -17,7 +17,7 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        public Result IsEnoughResource(int accountId, long[] requiredResource)
+        public Result IsEnoughResource(AccountId accountId, long[] requiredResource)
         {
             var items = _context.HeroItems.Where(x => x.AccountId == accountId);
 
@@ -37,7 +37,7 @@ namespace MainCore.Common.Repositories
             return result;
         }
 
-        public void Update(int accountId, IEnumerable<HeroItem> items)
+        public void Update(AccountId accountId, IEnumerable<HeroItem> items)
         {
             var dbItems = _context.HeroItems.Where(x => x.AccountId == accountId).ToList();
             foreach (var item in items)

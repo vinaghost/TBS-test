@@ -1,4 +1,5 @@
 ﻿using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        public string GetVillageName(int villageId)
+        public string GetVillageName(VillageId villageId)
         {
             var villageName = _context.Villages
                 .Where(x => x.Id == villageId)
@@ -24,7 +25,7 @@ namespace MainCore.Common.Repositories
             return villageName;
         }
 
-        public async Task<int> GetActiveVillageId(int accountId)
+        public async Task<VillageId> GetActiveVillageId(AccountId accountId)
         {
             var village = await Task.Run(() =>
                 _context.Villages
@@ -34,7 +35,7 @@ namespace MainCore.Common.Repositories
             return village;
         }
 
-        public async Task<List<int>> GetInactiveVillageId(int accountId)
+        public async Task<List<VillageId>> GetInactiveVillageId(AccountId accountId)
         {
             var villages = await Task.Run(() =>
                 _context.Villages
@@ -45,7 +46,7 @@ namespace MainCore.Common.Repositories
             return villages;
         }
 
-        public async Task<VillageDto> GetById(int villageId)
+        public async Task<VillageDto> GetById(VillageId villageId)
         {
             var village = await Task.Run(() => _context.Villages.Find(villageId));
             var mapper = new VillageMapper();
@@ -53,7 +54,7 @@ namespace MainCore.Common.Repositories
             return dto;
         }
 
-        public async Task<List<VillageDto>> GetAll(int accountId)
+        public async Task<List<VillageDto>> GetAll(AccountId accountId)
         {
             var dtos = await Task.Run(() =>
                 _context.Villages
@@ -64,7 +65,7 @@ namespace MainCore.Common.Repositories
             return dtos;
         }
 
-        public async Task<List<int>> GetUnloadVillageId(int accountId)
+        public async Task<List<VillageId>> GetUnloadVillageId(AccountId accountId)
         {
             var villages = await Task.Run(() =>
                 _context.Villages

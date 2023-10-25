@@ -2,6 +2,7 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using Polly;
 using Timer = System.Timers.Timer;
@@ -11,7 +12,7 @@ namespace MainCore.Infrasturecture.Services
     [RegisterAsSingleton]
     public sealed class TimerManager : ITimerManager
     {
-        private readonly Dictionary<int, Timer> _timers = new();
+        private readonly Dictionary<AccountId, Timer> _timers = new();
 
         private bool _isShutdown = false;
 
@@ -28,7 +29,7 @@ namespace MainCore.Infrasturecture.Services
             _accountSettingRepository = accountSettingRepository;
         }
 
-        public async Task Execute(int accountId)
+        public async Task Execute(AccountId accountId)
         {
             var status = _taskManager.GetStatus(accountId);
             if (status != StatusEnums.Online) return;
@@ -140,7 +141,7 @@ namespace MainCore.Infrasturecture.Services
             }
         }
 
-        public void Start(int accountId)
+        public void Start(AccountId accountId)
         {
             if (!_timers.ContainsKey(accountId))
             {

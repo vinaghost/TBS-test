@@ -1,14 +1,15 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MediatR;
 
 namespace MainCore.Common.Notification
 {
     public class StatusUpdated : INotification
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
         public StatusEnums Status { get; }
 
-        public StatusUpdated(int accountId, StatusEnums status)
+        public StatusUpdated(AccountId accountId, StatusEnums status)
         {
             AccountId = accountId;
             Status = status;

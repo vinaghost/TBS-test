@@ -9,6 +9,6 @@ namespace MainCore.Entities
         public int Id { get; set; }
         public HeroItemEnums Type { get; set; }
         public int Amount { get; set; }
-        public int AccountId { get; set; }
+        public AccountId AccountId { get; set; }
     }
 }

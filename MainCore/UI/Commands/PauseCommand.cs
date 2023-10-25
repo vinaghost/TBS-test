@@ -1,4 +1,5 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
 using MediatR;
 
@@ -6,9 +7,9 @@ namespace MainCore.UI.Commands
 {
     public class PauseCommand : IRequest
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public PauseCommand(int accountId)
+        public PauseCommand(AccountId accountId)
         {
             AccountId = accountId;
         }

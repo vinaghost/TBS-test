@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
 using MainCore.Common.Errors;
-using MainCore.Entities;
+using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
@@ -20,20 +20,15 @@ namespace MainCore.Infrasturecture.Services
         private readonly string[] _extensionsPath;
         private readonly HtmlDocument _htmlDoc = new();
 
-        private readonly string _pathUserData;
-
-        public ChromeBrowser(string[] extensionsPath, Account account)
+        public ChromeBrowser(string[] extensionsPath)
         {
-            _pathUserData = Path.Combine(AppContext.BaseDirectory, "Data", "Cache", account.Server.Replace("https://", "").Replace("http://", "").Replace(".", "_"), account.Username);
-            if (!Directory.Exists(_pathUserData)) Directory.CreateDirectory(_pathUserData);
-
             _extensionsPath = extensionsPath;
 
             _chromeService = ChromeDriverService.CreateDefaultService();
             _chromeService.HideCommandPromptWindow = true;
         }
 
-        public void Setup(Access access)
+        public void Setup(AccountDto account, AccessDto access)
         {
             ChromeOptions options = new();
 
@@ -68,7 +63,10 @@ namespace MainCore.Infrasturecture.Services
             options.AddArguments("--start-maximized");
 
             //if (setting.IsDontLoadImage) options.AddArguments("--blink-settings=imagesEnabled=false"); //--disable-images
-            var pathUserData = Path.Combine(_pathUserData, string.IsNullOrEmpty(access.ProxyHost) ? "default" : access.ProxyHost);
+            var pathUserData = Path.Combine(AppContext.BaseDirectory, "Data", "Cache", account.Server.Replace("https://", "").Replace("http://", "").Replace(".", "_"), account.Username);
+            if (!Directory.Exists(pathUserData)) Directory.CreateDirectory(pathUserData);
+
+            pathUserData = Path.Combine(pathUserData, string.IsNullOrEmpty(access.ProxyHost) ? "default" : access.ProxyHost);
 
             options.AddArguments($"user-data-dir={pathUserData}");
 

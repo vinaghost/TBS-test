@@ -1,4 +1,5 @@
-﻿using MainCore.Infrasturecture.AutoRegisterDi;
+﻿using MainCore.Entities;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
@@ -39,7 +40,7 @@ namespace MainCore.UI.ViewModels.Tabs
             _formatter = new("{Timestamp:HH:mm:ss} [{Level:u3}] {Line:lj}{NewLine}{Exception}");
         }
 
-        private void LogEmitted(int accountId, LogEvent logEvent)
+        private void LogEmitted(AccountId accountId, LogEvent logEvent)
         {
             if (!IsActive) return;
             if (accountId != AccountId) return;
@@ -51,7 +52,7 @@ namespace MainCore.UI.ViewModels.Tabs
             Observable.Start(() => Logs = _cacheLog, RxApp.MainThreadScheduler);
         }
 
-        protected override async Task Load(int accountId)
+        protected override async Task Load(AccountId accountId)
         {
             await Observable.Start(() =>
             {
@@ -60,7 +61,7 @@ namespace MainCore.UI.ViewModels.Tabs
             }, RxApp.MainThreadScheduler);
         }
 
-        private void LoadTask(int accountId)
+        private void LoadTask(AccountId accountId)
         {
             Tasks.Clear();
             var tasks = _taskManager.GetTaskList(accountId);
@@ -72,7 +73,7 @@ namespace MainCore.UI.ViewModels.Tabs
             }
         }
 
-        private void LoadLog(int accountId)
+        private void LoadLog(AccountId accountId)
         {
             _isLogLoading = true;
             var logs = _logSink.GetLogs(accountId);

@@ -10,30 +10,30 @@ namespace MainCore.Common.Repositories
     {
         List<BuildingEnums> AvailableBuildings { get; }
 
-        Result CheckRequirements(int villageId, NormalBuildPlan plan);
+        Result CheckRequirements(VillageId villageId, NormalBuildPlan plan);
 
-        int CountQueueBuilding(int villageId);
+        int CountQueueBuilding(VillageId villageId);
 
-        int CountResourceQueueBuilding(int villageId);
+        int CountResourceQueueBuilding(VillageId villageId);
 
         Building GetBuilding(int buildingId);
 
-        Building GetBuilding(int villageId, int location);
+        Building GetBuilding(VillageId villageId, int location);
 
-        List<BuildingItemDto> GetBuildingItems(int villageId);
+        List<BuildingItemDto> GetBuildingItems(VillageId villageId);
 
-        List<Building> GetBuildingList(int villageId);
+        List<Building> GetBuildingList(VillageId villageId);
 
-        Building GetCropland(int villageId);
+        Building GetCropland(VillageId villageId);
 
-        NormalBuildPlan GetNormalBuildPlan(int villageId, ResourceBuildPlan plan);
+        NormalBuildPlan GetNormalBuildPlan(VillageId villageId, ResourceBuildPlan plan);
 
-        bool HasRallyPoint(int villageId);
+        bool HasRallyPoint(VillageId villageId);
 
-        bool IsJobValid(int villageId, JobDto job);
+        bool IsJobValid(VillageId villageId, JobDto job);
 
-        void Update(int villageId, List<Building> buildings);
+        void Update(VillageId villageId, List<Building> buildings);
 
-        void Validate(int villageId, NormalBuildPlan plan);
+        void Validate(VillageId villageId, NormalBuildPlan plan);
     }
 }

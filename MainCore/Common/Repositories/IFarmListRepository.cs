@@ -5,14 +5,14 @@ namespace MainCore.Common.Repositories
 {
     public interface IFarmListRepository
     {
-        void ActiveFarmList(int farmListId);
+        void ActiveFarmList(FarmListId farmListId);
 
-        int CountActiveFarmLists(int accountId);
+        int CountActiveFarmLists(AccountId accountId);
 
-        List<int> GetActiveFarmLists(int accountId);
+        List<FarmListId> GetActiveFarmLists(AccountId accountId);
 
-        IEnumerable<FarmListDto> GetList(int accountId);
+        IEnumerable<FarmListDto> GetList(AccountId accountId);
 
-        void Update(int accountId, List<FarmList> farmLists);
+        void Update(AccountId accountId, List<FarmList> farmLists);
     }
 }

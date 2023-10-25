@@ -16,7 +16,7 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        public void Update(int villageId, Storage storage)
+        public void Update(VillageId villageId, Storage storage)
         {
             var storageOnDb = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             if (storageOnDb is null)
@@ -38,7 +38,7 @@ namespace MainCore.Common.Repositories
             _context.SaveChanges();
         }
 
-        public Result IsEnoughResource(int villageId, long[] requiredResource)
+        public Result IsEnoughResource(VillageId villageId, long[] requiredResource)
         {
             var storage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
             var result = Result.Ok();
@@ -54,7 +54,7 @@ namespace MainCore.Common.Repositories
             return result;
         }
 
-        public long[] GetMissingResource(int villageId, long[] requiredResource)
+        public long[] GetMissingResource(VillageId villageId, long[] requiredResource)
         {
             var storage = _context.Storages.FirstOrDefault(x => x.VillageId == villageId);
 

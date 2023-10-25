@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Update.Parsers.VillageListParser
@@ -43,10 +44,10 @@ namespace MainCore.Features.Update.Parsers.VillageListParser
             return node.HasClass("attack");
         }
 
-        private static int GetId(HtmlNode node)
+        private static VillageId GetId(HtmlNode node)
         {
             var dataDid = node.GetAttributeValue("data-did", 0);
-            return dataDid;
+            return new VillageId(dataDid);
         }
 
         private static string GetName(HtmlNode node)

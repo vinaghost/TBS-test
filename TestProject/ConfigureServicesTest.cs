@@ -2,7 +2,7 @@
 using MainCore;
 using MainCore.Common.Enums;
 
-namespace TestProject.ConfigureServices
+namespace TestProject
 {
     [TestClass]
     public class ConfigureServicesTest

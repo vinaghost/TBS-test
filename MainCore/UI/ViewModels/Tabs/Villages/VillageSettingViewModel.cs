@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using MainCore.Common.Enums;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
@@ -40,13 +41,13 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             ImportCommand = ReactiveCommand.CreateFromTask(ImportTask);
         }
 
-        protected override async Task Load(int villageId)
+        protected override async Task Load(VillageId villageId)
         {
             var settings = await Task.Run(() => _villageSettingRepository.Get(villageId));
             VillageSettingInput.Set(settings);
         }
 
-        private async Task Save(int villageId)
+        private async Task Save(VillageId villageId)
         {
             var settings = VillageSettingInput.Get();
             await Task.Run(() => _villageSettingRepository.Set(villageId, settings));

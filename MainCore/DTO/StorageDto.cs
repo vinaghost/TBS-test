@@ -17,7 +17,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class StorageMapper
     {
-        public Storage Map(int villageId, StorageDto dto)
+        public Storage Map(VillageId villageId, StorageDto dto)
         {
             var entity = Map(dto);
             entity.VillageId = villageId;

@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MediatR;
@@ -20,7 +21,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId, NormalBuildPlan plan)
+        public async Task<Result> Execute(AccountId accountId, NormalBuildPlan plan)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;

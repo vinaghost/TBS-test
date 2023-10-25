@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
+using MainCore.Entities;
 using MainCore.Features.Navigate.Parsers.VillageItemParser;
 
 namespace TestProject.Features.Navigate.Parsers.VillageItemParser
@@ -24,7 +25,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
-            var node = parser.GetVillageNode(html, villageId);
+            var node = parser.GetVillageNode(html, new VillageId(villageId));
             node.Should().NotBeNull();
         }
 
@@ -37,7 +38,7 @@ namespace TestProject.Features.Navigate.Parsers.VillageItemParser
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
-            var node = parser.GetVillageNode(html, villageId);
+            var node = parser.GetVillageNode(html, new VillageId(villageId));
             var result = parser.IsActive(node);
             result.Should().Be(expected);
         }

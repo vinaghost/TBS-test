@@ -16,7 +16,7 @@ namespace MainCore.DTO
     {
         public partial VillageSettingDto Map(VillageSetting dto);
 
-        public VillageSetting Map(int villageId, VillageSettingDto dto)
+        public VillageSetting Map(VillageId villageId, VillageSettingDto dto)
         {
             var entity = Map(dto);
             entity.VillageId = villageId;

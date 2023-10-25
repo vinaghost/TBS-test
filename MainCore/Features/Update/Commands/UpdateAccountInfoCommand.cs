@@ -1,18 +1,18 @@
 ﻿using FluentResults;
 using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Features.Update.Commands
 {
     public class UpdateAccountInfoCommand : IRequest<Result>
     {
-        public int AccountId { get; }
+        public AccountId AccountId { get; }
 
-        public UpdateAccountInfoCommand(int accountId)
+        public UpdateAccountInfoCommand(AccountId accountId)
         {
             AccountId = accountId;
         }
@@ -41,10 +41,8 @@ namespace MainCore.Features.Update.Commands
             return Result.Ok();
         }
 
-        private void Update(int accountId, AccountInfoDto dto)
+        private void Update(AccountId accountId, AccountInfoDto dto)
         {
-            
-
             var dbAccountInfo = _context.AccountsInfo
                 .FirstOrDefault(x => x.AccountId == accountId);
 

@@ -1,14 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using StronglyTypedIds;
 
 namespace MainCore.Entities
 {
     public class FarmList
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
+        public FarmListId Id { get; set; }
 
-        public int AccountId { get; set; }
+        public AccountId AccountId { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
     }
+
+    [StronglyTypedId]
+    public partial struct FarmListId
+    { }
 }

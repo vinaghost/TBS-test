@@ -3,7 +3,7 @@
     public class Storage
     {
         public int Id { get; set; }
-        public int VillageId { get; set; }
+        public VillageId VillageId { get; set; }
         public long Wood { get; set; }
         public long Clay { get; set; }
         public long Iron { get; set; }

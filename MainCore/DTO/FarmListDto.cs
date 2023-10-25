@@ -5,7 +5,7 @@ namespace MainCore.DTO
 {
     public class FarmListDto
     {
-        public int Id { get; set; }
+        public FarmListId Id { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
     }
@@ -13,7 +13,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class FarmListMapper
     {
-        public FarmList Map(int accountId, FarmListDto dto)
+        public FarmList Map(AccountId accountId, FarmListDto dto)
         {
             var entity = Map(dto);
             entity.AccountId = accountId;

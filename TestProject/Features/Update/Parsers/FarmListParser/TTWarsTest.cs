@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
+using MainCore.Entities;
 using MainCore.Features.Update.Parsers.FarmListParser;
 
 namespace TestProject.Features.Update.Parsers.FarmListParser
@@ -36,7 +37,7 @@ namespace TestProject.Features.Update.Parsers.FarmListParser
             html.Load(path);
             var dto = parser.Get(html).FirstOrDefault();
 
-            dto.Id.Should().Be(54);
+            dto.Id.Should().Be(new FarmListId(54));
             dto.Name.Should().Be("1");
         }
     }

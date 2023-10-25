@@ -6,6 +6,7 @@ using MainCore.Common.Errors.Storage;
 using MainCore.Common.Models;
 using MainCore.Common.Repositories;
 using MainCore.Common.Tasks;
+using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.UpgradeBuilding.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -171,7 +172,7 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
             return useHeroResource;
         }
 
-        private Result SetEnoughResourcesTime(int accountId, int villageId, NormalBuildPlan plan)
+        private Result SetEnoughResourcesTime(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -198,7 +199,7 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
             return Result.Ok();
         }
 
-        private void SetTimeQueueBuildingComplete(int villageId)
+        private void SetTimeQueueBuildingComplete(VillageId villageId)
         {
             var buildingQueue = _queueBuildingRepository.GetFirst(villageId);
             if (buildingQueue is null)

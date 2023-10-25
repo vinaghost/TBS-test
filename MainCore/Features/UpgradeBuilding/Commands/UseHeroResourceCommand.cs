@@ -4,6 +4,7 @@ using MainCore.Common.Commands;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
+using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Features.Update.Commands;
@@ -34,7 +35,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId, long[] requiredResource)
+        public async Task<Result> Execute(AccountId accountId, long[] requiredResource)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
 

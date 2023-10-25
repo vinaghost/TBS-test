@@ -10,6 +10,6 @@ namespace MainCore.Entities
         public int Level { get; set; }
         public bool IsUnderConstruction { get; set; }
         public int Location { get; set; }
-        public int VillageId { get; set; }
+        public VillageId VillageId { get; set; }
     }
 }

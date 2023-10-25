@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using HtmlAgilityPack;
+using MainCore.Entities;
 using MainCore.Features.Farming.Parsers.FarmListParser;
 
 namespace TestProject.Features.Farming.FarmListParser
@@ -23,7 +24,7 @@ namespace TestProject.Features.Farming.FarmListParser
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
-            var node = parser.GetStartButton(html, 54);
+            var node = parser.GetStartButton(html, new FarmListId(54));
             node.Should().NotBeNull();
         }
 

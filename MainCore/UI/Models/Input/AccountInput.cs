@@ -1,5 +1,6 @@
 ﻿using DynamicData;
 using MainCore.DTO;
+using MainCore.Entities;
 using ReactiveUI;
 using Riok.Mapperly.Abstractions;
 using System.Collections.ObjectModel;
@@ -8,7 +9,7 @@ namespace MainCore.UI.Models.Input
 {
     public class AccountInput : ReactiveObject
     {
-        public int Id { get; set; }
+        public AccountId Id { get; set; }
         private string _username;
         private string _server;
         public ObservableCollection<AccessDto> Accesses = new();

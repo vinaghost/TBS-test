@@ -28,33 +28,33 @@ namespace MainCore.Common.Repositories
             _context = context;
         }
 
-        private int GetSetting(AppDbContext context, int accountId, AccountSettingEnums setting)
+        private int GetSetting(AppDbContext context, AccountId accountId, AccountSettingEnums setting)
         {
             var settingEntity = _context.AccountsSetting
                .FirstOrDefault(x => x.AccountId == accountId && x.Setting == setting);
             return settingEntity.Value;
         }
 
-        public int GetSetting(int accountId, AccountSettingEnums setting)
+        public int GetSetting(AccountId accountId, AccountSettingEnums setting)
         {
             return GetSetting(_context, accountId, setting);
         }
 
-        public int GetSetting(int accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax)
+        public int GetSetting(AccountId accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax)
         {
             var settingValueMin = GetSetting(_context, accountId, settingMin);
             var settingValueMax = GetSetting(_context, accountId, settingMax);
             return Random.Shared.Next(settingValueMin, settingValueMax);
         }
 
-        public bool GetBoolSetting(int accountId, AccountSettingEnums setting)
+        public bool GetBoolSetting(AccountId accountId, AccountSettingEnums setting)
         {
             var settingEntity = GetSetting(accountId, setting);
             //return settingEntity == 0 ? false : true;
             return settingEntity != 0;
         }
 
-        public void CheckSetting(AppDbContext context, int accountId)
+        public void CheckSetting(AppDbContext context, AccountId accountId)
         {
             var query = _context.AccountsSetting.Where(x => x.AccountId == accountId);
             foreach (var setting in _defaultSettings.Keys)
@@ -75,7 +75,7 @@ namespace MainCore.Common.Repositories
             _context.SaveChanges();
         }
 
-        public Dictionary<AccountSettingEnums, int> Get(int accountId)
+        public Dictionary<AccountSettingEnums, int> Get(AccountId accountId)
         {
             var settings = _context.AccountsSetting
                 .Where(x => x.AccountId == accountId)
@@ -83,7 +83,7 @@ namespace MainCore.Common.Repositories
             return settings;
         }
 
-        public void Set(int accountId, Dictionary<AccountSettingEnums, int> settings)
+        public void Set(AccountId accountId, Dictionary<AccountSettingEnums, int> settings)
         {
             var query = _context.AccountsSetting
                 .Where(x => x.AccountId == accountId);

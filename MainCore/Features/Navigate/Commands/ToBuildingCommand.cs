@@ -1,6 +1,7 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
 using MainCore.Common.Errors;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MediatR;
@@ -22,7 +23,7 @@ namespace MainCore.Features.Navigate.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(int accountId, int location)
+        public async Task<Result> Execute(AccountId accountId, int location)
         {
             Result result;
 

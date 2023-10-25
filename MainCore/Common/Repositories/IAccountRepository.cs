@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.DTO;
+using MainCore.Entities;
 
 namespace MainCore.Common.Repositories
 {
@@ -9,12 +10,12 @@ namespace MainCore.Common.Repositories
 
         Task AddRange(IEnumerable<AccountDto> dtos);
 
-        Task DeleteById(int accountId);
+        Task DeleteById(AccountId accountId);
 
         Task Edit(AccountDto dto);
 
         Task<IEnumerable<AccountDto>> GetAll();
 
-        Task<AccountDto> GetById(int accountId);
+        Task<AccountDto> GetById(AccountId accountId);
     }
 }

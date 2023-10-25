@@ -1,8 +1,10 @@
-﻿namespace MainCore.Entities
+﻿using StronglyTypedIds;
+
+namespace MainCore.Entities
 {
     public class Account
     {
-        public int Id { get; set; }
+        public AccountId Id { get; set; }
         public string Username { get; set; }
         public string Server { get; set; }
 
@@ -15,4 +17,8 @@
         public ICollection<HeroItem> HeroItems { get; set; }
         public ICollection<FarmList> FarmLists { get; set; }
     }
+
+    [StronglyTypedId]
+    public partial struct AccountId
+    { }
 }

@@ -30,7 +30,7 @@ namespace MainCore.Common.Repositories
 
         public List<BuildingEnums> AvailableBuildings => _availableBuildings;
 
-        public List<Building> GetBuildingList(int villageId)
+        public List<Building> GetBuildingList(VillageId villageId)
         {
             var buildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
@@ -46,7 +46,7 @@ namespace MainCore.Common.Repositories
             return building;
         }
 
-        public Building GetBuilding(int villageId, int location)
+        public Building GetBuilding(VillageId villageId, int location)
         {
             var building = _context.Buildings
                 .Where(x => x.VillageId == villageId && x.Location == location)
@@ -54,7 +54,7 @@ namespace MainCore.Common.Repositories
             return building;
         }
 
-        public int CountQueueBuilding(int villageId)
+        public int CountQueueBuilding(VillageId villageId)
         {
             var count = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
@@ -62,7 +62,7 @@ namespace MainCore.Common.Repositories
             return count;
         }
 
-        public int CountResourceQueueBuilding(int villageId)
+        public int CountResourceQueueBuilding(VillageId villageId)
         {
             var count = _context.QueueBuildings
                 .Where(x => x.VillageId == villageId)
@@ -75,14 +75,14 @@ namespace MainCore.Common.Repositories
             return count;
         }
 
-        public bool HasRallyPoint(int villageId)
+        public bool HasRallyPoint(VillageId villageId)
         {
             return _context.Buildings
                         .Where(x => x.VillageId == villageId && x.Level > 0 && x.Type == BuildingEnums.RallyPoint)
                         .Any();
         }
 
-        public bool IsJobValid(int villageId, JobDto job)
+        public bool IsJobValid(VillageId villageId, JobDto job)
         {
             if (job.Type == JobTypeEnums.ResourceBuild) return true;
             var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
@@ -100,7 +100,7 @@ namespace MainCore.Common.Repositories
             return true;
         }
 
-        public void Update(int villageId, List<Building> buildings)
+        public void Update(VillageId villageId, List<Building> buildings)
         {
             var dbBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
@@ -125,7 +125,7 @@ namespace MainCore.Common.Repositories
             _context.SaveChanges();
         }
 
-        public Building GetCropland(int villageId)
+        public Building GetCropland(VillageId villageId)
         {
             var building = _context.Buildings
                 .Where(x => x.VillageId == villageId
@@ -135,7 +135,7 @@ namespace MainCore.Common.Repositories
             return building;
         }
 
-        public NormalBuildPlan GetNormalBuildPlan(int villageId, ResourceBuildPlan plan)
+        public NormalBuildPlan GetNormalBuildPlan(VillageId villageId, ResourceBuildPlan plan)
         {
             var query = _context.Buildings.Where(x => x.VillageId == villageId);
             switch (plan.Plan)
@@ -187,7 +187,7 @@ namespace MainCore.Common.Repositories
             return normalBuildPlan;
         }
 
-        public Result CheckRequirements(int villageId, NormalBuildPlan plan)
+        public Result CheckRequirements(VillageId villageId, NormalBuildPlan plan)
         {
             var prerequisiteBuildings = plan.Type.GetPrerequisiteBuildings();
             if (prerequisiteBuildings.Count == 0) return Result.Ok();
@@ -201,7 +201,7 @@ namespace MainCore.Common.Repositories
             return Result.Ok();
         }
 
-        public void Validate(int villageId, NormalBuildPlan plan)
+        public void Validate(VillageId villageId, NormalBuildPlan plan)
         {
             if (plan.Type.IsWall())
             {
@@ -235,7 +235,7 @@ namespace MainCore.Common.Repositories
             }
         }
 
-        public List<BuildingItemDto> GetBuildingItems(int villageId)
+        public List<BuildingItemDto> GetBuildingItems(VillageId villageId)
         {
             var villageBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)
@@ -328,7 +328,7 @@ namespace MainCore.Common.Repositories
             return villageBuildings;
         }
 
-        private List<BuildingItem> GetBuildings(int villageId)
+        private List<BuildingItem> GetBuildings(VillageId villageId)
         {
             var villageBuildings = _context.Buildings
                 .Where(x => x.VillageId == villageId)

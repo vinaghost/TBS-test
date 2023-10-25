@@ -16,7 +16,7 @@ namespace MainCore.DTO
     [Mapper]
     public partial class BuildingMapper
     {
-        public Building Map(int villageId, BuildingDto dto)
+        public Building Map(VillageId villageId, BuildingDto dto)
         {
             var entity = Map(dto);
             entity.VillageId = villageId;
