@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -33,11 +32,11 @@ namespace MainCore.Features.Navigate.Commands
             if (button is null) return Retry.ButtonNotFound($"dorf{dorf}");
 
             Result result;
-            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(button.XPath)));
+            result = await chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged($"dorf{dorf}")));
+            result = await chromeBrowser.WaitPageChanged($"dorf{dorf}");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
+            result = await chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

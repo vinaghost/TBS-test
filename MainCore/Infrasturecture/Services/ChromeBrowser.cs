@@ -1,4 +1,6 @@
-﻿using HtmlAgilityPack;
+﻿using FluentResults;
+using HtmlAgilityPack;
+using MainCore.Common.Errors;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using OpenQA.Selenium;
@@ -88,15 +90,7 @@ namespace MainCore.Infrasturecture.Services
             }
         }
 
-        public WebDriverWait Wait => _wait;
-
         public void Shutdown()
-        {
-            Close();
-            _chromeService.Dispose();
-        }
-
-        public void Close()
         {
             if (_driver is null) return;
 
@@ -106,6 +100,7 @@ namespace MainCore.Infrasturecture.Services
             }
             catch { }
             _driver = null;
+            _chromeService.Dispose();
         }
 
         public bool IsOpen()
@@ -123,16 +118,16 @@ namespace MainCore.Infrasturecture.Services
 
         public string CurrentUrl => _driver.Url;
 
-        public void Navigate(string url = null)
+        public async Task Navigate(string url = null)
         {
             if (string.IsNullOrEmpty(url))
             {
-                Navigate(CurrentUrl);
+                await Navigate(CurrentUrl);
                 return;
             }
 
-            _driver.Navigate().GoToUrl(url);
-            WaitPageLoaded();
+            await Task.Run(() => _driver.Navigate().GoToUrl(url));
+            await WaitPageLoaded();
         }
 
         private void UpdateHtml(string source = null)
@@ -151,13 +146,68 @@ namespace MainCore.Infrasturecture.Services
             }
         }
 
-        public void WaitPageLoaded()
+        public async Task<Result> Click(By by)
         {
-            try
+            var elements = _driver.FindElements(by);
+            if (elements.Count == 0) return Retry.ElementNotFound();
+            var element = elements[0];
+            if (!element.Displayed || !element.Enabled) return Retry.ElementNotClickable();
+
+            await Task.Run(element.Click);
+
+            return Result.Ok();
+        }
+
+        public async Task<Result> InputTextbox(By by, string content)
+        {
+            var elements = _driver.FindElements(by);
+            if (elements.Count == 0) return Retry.ElementNotFound();
+
+            var element = elements[0];
+            if (!element.Displayed || !element.Enabled) return Retry.ElementNotClickable();
+
+            await Task.Run(() =>
             {
-                _wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            }
-            catch { }
+                element.SendKeys(Keys.Home);
+                element.SendKeys(Keys.Shift + Keys.End);
+                element.SendKeys(content);
+            });
+            return Result.Ok();
+        }
+
+        public async Task<Result> Wait(Func<IWebDriver, bool> condition)
+        {
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    _wait.Until(condition);
+                }
+                catch (TimeoutException)
+                {
+                    return Result.Fail(new Stop("Page not loaded in 3 mins"));
+                }
+                return Result.Ok();
+            });
+        }
+
+        public async Task<Result> WaitPageLoaded()
+        {
+            static bool pageLoaded(IWebDriver driver) => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
+            var result = await Wait(pageLoaded);
+            return result;
+        }
+
+        public async Task<Result> WaitPageChanged(string part)
+        {
+            bool pageChanged(IWebDriver driver) => driver.Url.Contains(part);
+            var result = await Wait(pageChanged);
+            return result;
+        }
+
+        public async Task Close()
+        {
+            await Task.Run(_driver.Close);
         }
     }
 }

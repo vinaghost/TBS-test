@@ -1,7 +1,8 @@
-﻿using HtmlAgilityPack;
+﻿using FluentResults;
+using HtmlAgilityPack;
 using MainCore.Entities;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
 
 namespace MainCore.Infrasturecture.Services
 {
@@ -10,13 +11,25 @@ namespace MainCore.Infrasturecture.Services
         string CurrentUrl { get; }
         ChromeDriver Driver { get; }
         HtmlDocument Html { get; }
-        WebDriverWait Wait { get; }
 
-        void Close();
+        Task<Result> Click(By by);
+
+        Task Close();
+
+        Task<Result> InputTextbox(By by, string content);
+
         bool IsOpen();
-        void Navigate(string url = null);
+
+        Task Navigate(string url = null);
+
         void Setup(Access access);
+
         void Shutdown();
-        void WaitPageLoaded();
+
+        Task<Result> Wait(Func<IWebDriver, bool> condition);
+
+        Task<Result> WaitPageChanged(string part);
+
+        Task<Result> WaitPageLoaded();
     }
 }

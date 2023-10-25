@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -48,7 +47,7 @@ namespace MainCore.Features.Navigate.Commands
             }
 
             if (node is null) return Result.Fail(Retry.NotFound($"{location}", "nodeBuilding"));
-            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
+            result = await chromeBrowser.Click(By.XPath(node.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

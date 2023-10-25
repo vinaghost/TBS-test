@@ -1,5 +1,4 @@
 ﻿using FluentResults;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Common.Repositories;
 using MainCore.Features.Navigate.Parsers;
@@ -39,12 +38,12 @@ namespace MainCore.Features.Navigate.Commands
             if (_villageItemParser.IsActive(node)) return Result.Ok();
 
             Result result;
-            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
+            result = await chromeBrowser.Click(By.XPath(node.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged($"{villageId}")));
+            result = await chromeBrowser.WaitPageChanged($"{villageId}");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
+            result = await chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

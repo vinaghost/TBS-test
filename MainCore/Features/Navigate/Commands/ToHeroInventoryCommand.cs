@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -34,24 +33,24 @@ namespace MainCore.Features.Navigate.Commands
             if (avatar is null) return Result.Fail(Retry.ButtonNotFound("avatar hero"));
 
             Result result;
-            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(avatar.XPath)));
+            result = await chromeBrowser.Click(By.XPath(avatar.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged("hero")));
+            result = await chromeBrowser.WaitPageChanged("hero");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
+            result = await chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            var tabActived = new Func<IWebDriver, bool>(driver =>
+            bool tabActived(IWebDriver driver)
             {
                 var doc = new HtmlDocument();
                 doc.LoadHtml(driver.PageSource);
                 var tab = _heroParser.GetHeroTab(doc, 1); // data-index not index in list
                 if (tab is null) return false;
                 return _heroParser.IsCurrentTab(tab);
-            });
+            };
 
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, tabActived));
+            result = await chromeBrowser.Wait(tabActived);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _switchTabCommand.Execute(chromeBrowser, 0);

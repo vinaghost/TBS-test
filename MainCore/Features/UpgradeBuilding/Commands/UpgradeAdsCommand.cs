@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -37,7 +36,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
             if (button is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} with ads [1]"));
 
-            var result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(button.XPath)));
+            var result = await chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var driver = chromeBrowser.Driver;
@@ -50,14 +49,14 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 driver.SwitchTo().Window(current);
             }
 
-            var videoFeatureShown = new Func<IWebDriver, bool>(driver =>
+            bool videoFeatureShown(IWebDriver driver)
             {
                 var doc = new HtmlDocument();
                 doc.LoadHtml(driver.PageSource);
                 return doc.GetElementbyId("videoFeature") is not null;
-            });
+            };
 
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, videoFeatureShown));
+            result = await chromeBrowser.Wait(videoFeatureShown);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             await Task.Delay(Random.Shared.Next(20000, 25000));
@@ -66,7 +65,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             node = html.GetElementbyId("videoFeature");
             if (node is null) return Result.Fail(Retry.ButtonNotFound($"play ads"));
 
-            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
+            result = await chromeBrowser.Click(By.XPath(node.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             driver.SwitchTo().DefaultContent();
@@ -84,16 +83,16 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 driver.Close();
                 driver.SwitchTo().Window(current);
 
-                result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(node.XPath)));
+                result = await chromeBrowser.Click(By.XPath(node.XPath));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 driver.SwitchTo().DefaultContent();
             }
             while (true);
 
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged("dorf")));
+            result = await chromeBrowser.WaitPageChanged("dorf");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
+            result = await chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

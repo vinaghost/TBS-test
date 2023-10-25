@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -34,10 +33,10 @@ namespace MainCore.Features.Navigate.Commands
             var tab = _navigationTabParser.GetTab(html, index);
             if (_navigationTabParser.IsTabActive(tab)) return Result.Ok();
             Result result;
-            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(tab.XPath)));
+            result = await chromeBrowser.Click(By.XPath(tab.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            var tabActived = new Func<IWebDriver, bool>(driver =>
+            bool tabActived(IWebDriver driver)
             {
                 var doc = new HtmlDocument();
                 doc.LoadHtml(driver.PageSource);
@@ -46,9 +45,9 @@ namespace MainCore.Features.Navigate.Commands
                 var tab = _navigationTabParser.GetTab(doc, index);
                 if (!_navigationTabParser.IsTabActive(tab)) return false;
                 return true;
-            });
+            };
 
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, tabActived));
+            result = await chromeBrowser.Wait(tabActived);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

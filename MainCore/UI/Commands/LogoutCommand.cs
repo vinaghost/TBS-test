@@ -1,5 +1,4 @@
-﻿using MainCore.Common.Commands;
-using MainCore.Common.Enums;
+﻿using MainCore.Common.Enums;
 using MainCore.Infrasturecture.Services;
 using MediatR;
 
@@ -36,9 +35,7 @@ namespace MainCore.UI.Commands
             await _taskManager.StopCurrentTask(accountId);
 
             var chrome = _chromeManager.Get(accountId);
-
-            await _mediator.Send(new CloseBrowserCommand(chrome), cancellationToken);
-
+            await chrome.Close();
             _taskManager.SetStatus(accountId, StatusEnums.Offline);
         }
     }

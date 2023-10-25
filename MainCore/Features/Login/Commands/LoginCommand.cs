@@ -1,5 +1,4 @@
 ﻿using FluentResults;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Features.Login.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -44,16 +43,16 @@ namespace MainCore.Features.Login.Commands
             if (passwordNode is null) return Retry.TextboxNotFound("password");
 
             Result result;
-            result = await _mediator.Send(new InputTextboxCommand(chromeBrowser, By.XPath(usernameNode.XPath), account.Username));
+            result = await chromeBrowser.InputTextbox(By.XPath(usernameNode.XPath), account.Username);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new InputTextboxCommand(chromeBrowser, By.XPath(passwordNode.XPath), access.Password));
+            result = await chromeBrowser.InputTextbox(By.XPath(passwordNode.XPath), access.Password);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(buttonNode.XPath)));
+            result = await chromeBrowser.Click(By.XPath(buttonNode.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageChanged("dorf")));
+            result = await chromeBrowser.WaitPageChanged("dorf");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _mediator.Send(new WaitCommand(chromeBrowser, WaitCommand.PageLoaded));
+            result = await chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

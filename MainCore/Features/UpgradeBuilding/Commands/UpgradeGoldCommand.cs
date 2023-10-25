@@ -1,5 +1,4 @@
 ﻿using FluentResults;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -36,7 +35,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
             if (button is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} [1]"));
 
-            var result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(button.XPath)));
+            var result = await chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

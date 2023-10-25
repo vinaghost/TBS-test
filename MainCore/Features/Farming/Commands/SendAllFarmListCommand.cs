@@ -1,5 +1,4 @@
 ﻿using FluentResults;
-using MainCore.Common.Commands;
 using MainCore.Common.Errors;
 using MainCore.Features.Farming.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -34,7 +33,7 @@ namespace MainCore.Features.Farming.Commands
                 return Result.Fail(new Retry("Cannot found start all button"));
             }
 
-            var result = await _mediator.Send(new ClickCommand(chromeBrowser, By.XPath(startAllButton.XPath)));
+            var result = await chromeBrowser.Click(By.XPath(startAllButton.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
