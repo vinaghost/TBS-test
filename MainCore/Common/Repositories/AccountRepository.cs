@@ -99,6 +99,27 @@ namespace MainCore.Common.Repositories
             return dto;
         }
 
+        public async Task<string> GetUsernameById(AccountId accountId)
+        {
+            var username = await Task.Run(() =>
+               _context.Accounts
+                   .Where(x => x.Id == accountId)
+                   .Select(x => x.Username)
+                   .FirstOrDefault());
+            return username;
+        }
+
+        public async Task<string> GetPasswordById(AccountId accountId)
+        {
+            var password = await Task.Run(() =>
+               _context.Accesses
+                   .Where(x => x.AccountId == accountId)
+                   .OrderByDescending(x => x.LastUsed)
+                   .Select(x => x.Password)
+                   .FirstOrDefault());
+            return password;
+        }
+
         public async Task Edit(AccountDto dto)
         {
             _context.Accesses

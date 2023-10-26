@@ -17,5 +17,7 @@ namespace MainCore.Common.Repositories
         Task<IEnumerable<AccountDto>> GetAll();
 
         Task<AccountDto> GetById(AccountId accountId);
+        Task<string> GetPasswordById(AccountId accountId);
+        Task<string> GetUsernameById(AccountId accountId);
     }
 }

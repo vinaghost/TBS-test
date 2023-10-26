@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Navigate.Parsers.BuildingParser
@@ -12,7 +13,7 @@ namespace MainCore.Features.Navigate.Parsers.BuildingParser
             return GetInfrastructure(doc, location);
         }
 
-        private HtmlNode GetField(HtmlDocument doc, int location)
+        private static HtmlNode GetField(HtmlDocument doc, int location)
         {
             var node = doc.DocumentNode
                                .Descendants("a")
@@ -20,7 +21,7 @@ namespace MainCore.Features.Navigate.Parsers.BuildingParser
             return node;
         }
 
-        private HtmlNode GetInfrastructure(HtmlDocument doc, int location)
+        private static HtmlNode GetInfrastructure(HtmlDocument doc, int location)
         {
             var tmpLocation = location - 18;
             var node = doc.DocumentNode
