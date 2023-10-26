@@ -5,7 +5,6 @@ using MainCore.Entities;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -15,18 +14,17 @@ namespace MainCore.Features.Navigate.Commands
     {
         private readonly INavigationBarParser _navigationBarParser;
         private readonly IChromeManager _chromeManager;
-        private readonly IMediator _mediator;
 
-        public ToDorfCommand(INavigationBarParser navigationBarParser, IChromeManager chromeManager, IMediator mediator)
+        public ToDorfCommand(INavigationBarParser navigationBarParser, IChromeManager chromeManager)
 
         {
             _navigationBarParser = navigationBarParser;
             _chromeManager = chromeManager;
-            _mediator = mediator;
         }
 
-        public async Task<Result> Execute(IChromeBrowser chromeBrowser, int dorf)
+        public async Task<Result> Execute(AccountId accountId, int dorf)
         {
+            var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
             var button = GetButton(html, dorf);
@@ -37,16 +35,8 @@ namespace MainCore.Features.Navigate.Commands
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await chromeBrowser.WaitPageChanged($"dorf{dorf}");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.WaitPageLoaded();
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
-        }
-
-        public async Task<Result> Execute(AccountId accountId, int dorf)
-        {
-            var chromeBrowser = _chromeManager.Get(accountId);
-            return await Execute(chromeBrowser, dorf);
         }
 
         private HtmlNode GetButton(HtmlDocument doc, int dorf)

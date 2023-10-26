@@ -199,7 +199,10 @@ namespace MainCore.Infrasturecture.Services
         public async Task<Result> WaitPageChanged(string part)
         {
             bool pageChanged(IWebDriver driver) => driver.Url.Contains(part);
-            var result = await Wait(pageChanged);
+            Result result;
+            result = await Wait(pageChanged);
+            if (result.IsFailed) return result;
+            result = await WaitPageLoaded();
             return result;
         }
 

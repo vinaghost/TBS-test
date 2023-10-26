@@ -5,7 +5,6 @@ using MainCore.Entities;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -15,15 +14,11 @@ namespace MainCore.Features.Navigate.Commands
     {
         private readonly IHeroParser _heroParser;
         private readonly IChromeManager _chromeManager;
-        private readonly ISwitchTabCommand _switchTabCommand;
-        private readonly IMediator _mediator;
 
-        public ToHeroInventoryCommand(IHeroParser heroParser, IChromeManager chromeManager, ISwitchTabCommand switchTabCommand, IMediator mediator)
+        public ToHeroInventoryCommand(IHeroParser heroParser, IChromeManager chromeManager)
         {
             _heroParser = heroParser;
             _chromeManager = chromeManager;
-            _switchTabCommand = switchTabCommand;
-            _mediator = mediator;
         }
 
         public async Task<Result> Execute(AccountId accountId)
@@ -39,8 +34,6 @@ namespace MainCore.Features.Navigate.Commands
 
             result = await chromeBrowser.WaitPageChanged("hero");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.WaitPageLoaded();
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             bool tabActived(IWebDriver driver)
             {
@@ -52,9 +45,6 @@ namespace MainCore.Features.Navigate.Commands
             };
 
             result = await chromeBrowser.Wait(tabActived);
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-
-            result = await _switchTabCommand.Execute(chromeBrowser, 0);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();
