@@ -49,31 +49,34 @@ namespace MainCore.UI.ViewModels.Tabs
             _formatter.Format(logEvent, buffer);
             buffer.WriteLine(_cacheLog);
             _cacheLog = buffer.ToString();
-            Observable.Start(() => Logs = _cacheLog, RxApp.MainThreadScheduler);
+
+            Observable.Start(
+                () => Logs = _cacheLog,
+                RxApp.MainThreadScheduler);
         }
 
         protected override async Task Load(AccountId accountId)
         {
-            await Observable.Start(() =>
-            {
-                LoadTask(accountId);
-                LoadLog(accountId);
-            }, RxApp.MainThreadScheduler);
+            await LoadTask(accountId);
+            await LoadLog(accountId);
         }
 
-        private void LoadTask(AccountId accountId)
+        private async Task LoadTask(AccountId accountId)
         {
             Tasks.Clear();
             var tasks = _taskManager.GetTaskList(accountId);
             if (tasks.Count == 0) return;
 
-            foreach (var task in tasks)
+            await Observable.Start(() =>
             {
-                Tasks.Add(new(task));
-            }
+                foreach (var task in tasks)
+                {
+                    Tasks.Add(new(task));
+                }
+            }, RxApp.MainThreadScheduler);
         }
 
-        private void LoadLog(AccountId accountId)
+        private async Task LoadLog(AccountId accountId)
         {
             _isLogLoading = true;
             var logs = _logSink.GetLogs(accountId);
@@ -83,7 +86,11 @@ namespace MainCore.UI.ViewModels.Tabs
                 _formatter.Format(log, buffer);
             }
             _cacheLog = buffer.ToString();
-            Logs = _cacheLog;
+
+            await Observable.Start(() =>
+            {
+                Logs = _cacheLog;
+            }, RxApp.MainThreadScheduler);
             _isLogLoading = false;
         }
     }

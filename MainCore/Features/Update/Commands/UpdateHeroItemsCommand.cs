@@ -23,12 +23,12 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IHeroParser _heroParser;
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateHeroItemsCommandCommandHandler(IChromeManager chromeManager, AppDbContext context, IHeroParser heroParser)
+        public UpdateHeroItemsCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IHeroParser heroParser)
         {
             _chromeManager = chromeManager;
-            _context = context;
+            _contextFactory = contextFactory;
             _heroParser = heroParser;
         }
 

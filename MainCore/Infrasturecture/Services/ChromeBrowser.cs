@@ -28,9 +28,9 @@ namespace MainCore.Infrasturecture.Services
             _chromeService.HideCommandPromptWindow = true;
         }
 
-        public void Setup(AccountDto account, AccessDto access)
+        public Result Setup(AccountDto account, AccessDto access)
         {
-            ChromeOptions options = new();
+            var options = new ChromeOptions();
 
             options.AddExtensions(_extensionsPath);
 
@@ -75,6 +75,10 @@ namespace MainCore.Infrasturecture.Services
 
             _driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(1);
             _wait = new WebDriverWait(_driver, TimeSpan.FromMinutes(3));
+
+            var result = Navigate($"{account.Server}/dorf1.php");
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+            return Result.Ok();
         }
 
         public ChromeDriver Driver => _driver;
@@ -116,16 +120,15 @@ namespace MainCore.Infrasturecture.Services
 
         public string CurrentUrl => _driver.Url;
 
-        public async Task Navigate(string url = null)
+        public Result Navigate(string url = null)
         {
             if (string.IsNullOrEmpty(url))
             {
-                await Navigate(CurrentUrl);
-                return;
+                return Navigate(CurrentUrl);
             }
 
-            await Task.Run(() => _driver.Navigate().GoToUrl(url));
-            await WaitPageLoaded();
+            _driver.Navigate().GoToUrl(url);
+            return WaitPageLoaded();
         }
 
         private void UpdateHtml(string source = null)
@@ -144,19 +147,19 @@ namespace MainCore.Infrasturecture.Services
             }
         }
 
-        public async Task<Result> Click(By by)
+        public Result Click(By by)
         {
             var elements = _driver.FindElements(by);
             if (elements.Count == 0) return Retry.ElementNotFound();
             var element = elements[0];
             if (!element.Displayed || !element.Enabled) return Retry.ElementNotClickable();
 
-            await Task.Run(element.Click);
+            element.Click();
 
             return Result.Ok();
         }
 
-        public async Task<Result> InputTextbox(By by, string content)
+        public Result InputTextbox(By by, string content)
         {
             var elements = _driver.FindElements(by);
             if (elements.Count == 0) return Retry.ElementNotFound();
@@ -164,51 +167,43 @@ namespace MainCore.Infrasturecture.Services
             var element = elements[0];
             if (!element.Displayed || !element.Enabled) return Retry.ElementNotClickable();
 
-            await Task.Run(() =>
-            {
-                element.SendKeys(Keys.Home);
-                element.SendKeys(Keys.Shift + Keys.End);
-                element.SendKeys(content);
-            });
+            element.SendKeys(Keys.Home);
+            element.SendKeys(Keys.Shift + Keys.End);
+            element.SendKeys(content);
+
             return Result.Ok();
         }
 
-        public async Task<Result> Wait(Func<IWebDriver, bool> condition)
+        public Result Wait(Func<IWebDriver, bool> condition)
         {
-            return await Task.Run(() =>
+            try
             {
-                try
-                {
-                    _wait.Until(condition);
-                }
-                catch (TimeoutException)
-                {
-                    return Result.Fail(new Stop("Page not loaded in 3 mins"));
-                }
-                return Result.Ok();
-            });
+                _wait.Until(condition);
+            }
+            catch (TimeoutException)
+            {
+                return Result.Fail(new Stop("Page not loaded in 3 mins"));
+            }
+            return Result.Ok();
         }
 
-        public async Task<Result> WaitPageLoaded()
+        public Result WaitPageLoaded()
         {
             static bool pageLoaded(IWebDriver driver) => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
-            var result = await Wait(pageLoaded);
+            var result = Wait(pageLoaded);
             return result;
         }
 
-        public async Task<Result> WaitPageChanged(string part)
+        public Result WaitPageChanged(string part)
         {
             bool pageChanged(IWebDriver driver) => driver.Url.Contains(part);
             Result result;
-            result = await Wait(pageChanged);
+            result = Wait(pageChanged);
             if (result.IsFailed) return result;
-            result = await WaitPageLoaded();
+            result = WaitPageLoaded();
             return result;
         }
 
-        public async Task Close()
-        {
-            await Task.Run(_driver.Close);
-        }
+        public void Close() => _driver.Close();
     }
 }

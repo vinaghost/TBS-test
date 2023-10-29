@@ -11,11 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Common\Requests\**" />
-    <Compile Remove="ExtensionFile\**" />
-    <EmbeddedResource Remove="Common\Requests\**" />
-    <None Remove="Common\Requests\**" />
-    <None Remove="ExtensionFile\**" />
     <EmbeddedResource Include="Misc\ExtensionFiles\**" />
   </ItemGroup>
 

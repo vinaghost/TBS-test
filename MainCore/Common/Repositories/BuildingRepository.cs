@@ -7,6 +7,7 @@ using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace MainCore.Common.Repositories
@@ -14,90 +15,83 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class BuildingRepository : IBuildingRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        private readonly List<BuildingEnums> _availableBuildings = new();
-
-        public BuildingRepository(AppDbContext context)
+        public BuildingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
-
-            for (var i = BuildingEnums.Sawmill; i <= BuildingEnums.Hospital; i++)
-            {
-                _availableBuildings.Add(i);
-            }
+            _contextFactory = contextFactory;
         }
 
-        public List<BuildingEnums> AvailableBuildings => _availableBuildings;
-
-        public List<Building> GetBuildingList(VillageId villageId)
+        public async Task<List<BuildingDto>> GetAllBuildings(VillageId villageId)
         {
-            var buildings = _context.Buildings
-                .Where(x => x.VillageId == villageId)
-                .OrderBy(x => x.Location)
-                .ToList();
+            using var context = _contextFactory.CreateDbContext();
+            var buildings = await Task.Run(() =>
+                context.Buildings
+                    .Where(x => x.VillageId == villageId)
+                    .OrderBy(x => x.Location)
+                    .ProjectToDto()
+                    .ToList());
             return buildings;
         }
 
-        public Building GetBuilding(int buildingId)
+        public async Task<BuildingDto> GetBuildingById(int buildingId)
         {
-            var building = _context.Buildings
-                .Find(buildingId);
+            using var context = _contextFactory.CreateDbContext();
+            var building = await Task.Run(() =>
+                context.Buildings
+                    .Find(buildingId));
+            var mapper = new BuildingMapper();
+            var dto = mapper.Map(building);
+            return dto;
+        }
+
+        public async Task<BuildingDto> GetBuildingByLocation(VillageId villageId, int location)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var building = await Task.Run(() =>
+                context.Buildings
+                    .Where(x => x.VillageId == villageId && x.Location == location)
+                    .ProjectToDto()
+                    .FirstOrDefault());
             return building;
         }
 
-        public Building GetBuilding(VillageId villageId, int location)
+        public async Task<int> CountQueueBuilding(VillageId villageId)
         {
-            var building = _context.Buildings
-                .Where(x => x.VillageId == villageId && x.Location == location)
-                .FirstOrDefault();
-            return building;
-        }
-
-        public int CountQueueBuilding(VillageId villageId)
-        {
-            var count = _context.QueueBuildings
-                .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
-                .Count();
+            using var context = _contextFactory.CreateDbContext();
+            var count = await Task.Run(() =>
+                context.QueueBuildings
+                    .Where(x => x.VillageId == villageId)
+                    .Where(x => x.Type != BuildingEnums.Site)
+                    .Count());
             return count;
         }
 
-        public int CountResourceQueueBuilding(VillageId villageId)
+        public async Task<int> CountResourceQueueBuilding(VillageId villageId)
         {
-            var count = _context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
-                .Where(x =>
-                    x.Type == BuildingEnums.Woodcutter ||
-                    x.Type == BuildingEnums.ClayPit ||
-                    x.Type == BuildingEnums.IronMine ||
-                    x.Type == BuildingEnums.Cropland)
-                .Count();
+            using var context = _contextFactory.CreateDbContext();
+            var count = await Task.Run(() =>
+                context.QueueBuildings
+                    .Where(x => x.VillageId == villageId)
+                    .Where(x =>
+                        x.Type == BuildingEnums.Woodcutter ||
+                        x.Type == BuildingEnums.ClayPit ||
+                        x.Type == BuildingEnums.IronMine ||
+                        x.Type == BuildingEnums.Cropland)
+                    .Count());
             return count;
         }
 
-        public bool HasRallyPoint(VillageId villageId)
+        public async Task<bool> IsRallyPointExists(VillageId villageId)
         {
-            return _context.Buildings
-                        .Where(x => x.VillageId == villageId && x.Level > 0 && x.Type == BuildingEnums.RallyPoint)
-                        .Any();
-        }
-
-        public bool IsJobValid(VillageId villageId, JobDto job)
-        {
-            if (job.Type == JobTypeEnums.ResourceBuild) return true;
-            var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-
-            var building = _context.Buildings.FirstOrDefault(x => x.VillageId == villageId && x.Location == plan.Location);
-            if (building is null) return true;
-            if (building.Level >= plan.Level) return false;
-
-            var queueBuilding = _context.QueueBuildings
-                .Where(x => x.VillageId == villageId && x.Location == plan.Location)
-                .OrderByDescending(x => x.Level)
-                .FirstOrDefault();
-            if (queueBuilding is null) return true;
-            if (queueBuilding.Level >= plan.Level) return false;
-            return true;
+            using var context = _contextFactory.CreateDbContext();
+            var isExists = await Task.Run(() =>
+                context.Buildings
+                    .Where(x => x.VillageId == villageId)
+                    .Where(x => x.Type == BuildingEnums.RallyPoint)
+                    .Where(x => x.Level > 0)
+                    .Any());
+            return isExists;
         }
 
         public void Update(VillageId villageId, List<Building> buildings)

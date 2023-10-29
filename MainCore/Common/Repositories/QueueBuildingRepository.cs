@@ -9,14 +9,14 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class QueueBuildingRepository : IQueueBuildingRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IVillageSettingRepository _villageSettingRepository;
         private readonly IAccountInfoRepository _accountInfoRepository;
         private readonly ITaskManager _taskManager;
 
-        public QueueBuildingRepository(AppDbContext context, IVillageSettingRepository villageSettingRepository, IAccountInfoRepository accountInfoRepository, ITaskManager taskManager)
+        public QueueBuildingRepository(IDbContextFactory<AppDbContext> contextFactory, IVillageSettingRepository villageSettingRepository, IAccountInfoRepository accountInfoRepository, ITaskManager taskManager)
         {
-            _context = context;
+            _contextFactory = contextFactory;
             _villageSettingRepository = villageSettingRepository;
             _accountInfoRepository = accountInfoRepository;
             _taskManager = taskManager;

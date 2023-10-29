@@ -1,34 +1,30 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.CQRS.Base;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
 using MediatR;
 
-namespace MainCore.UI.Commands
+namespace MainCore.CQRS.Commands
 {
-    public class LogoutCommand : IRequest
+    public class LogoutAccountByIdCommand : ByAccountIdRequestBase, IRequest
     {
-        public AccountId AccountId { get; }
-
-        public LogoutCommand(AccountId accountId)
+        public LogoutAccountByIdCommand(AccountId accountId) : base(accountId)
         {
-            AccountId = accountId;
         }
     }
 
-    public class LogoutCommandHandler : IRequestHandler<LogoutCommand>
+    public class LogoutAccountByIdCommandHandler : IRequestHandler<LogoutAccountByIdCommand>
     {
         private readonly ITaskManager _taskManager;
-        private readonly IMediator _mediator;
         private readonly IChromeManager _chromeManager;
 
-        public LogoutCommandHandler(IChromeManager chromeManager, IMediator mediator, ITaskManager taskManager)
+        public LogoutAccountByIdCommandHandler(IChromeManager chromeManager, ITaskManager taskManager)
         {
             _chromeManager = chromeManager;
-            _mediator = mediator;
             _taskManager = taskManager;
         }
 
-        public async Task Handle(LogoutCommand request, CancellationToken cancellationToken)
+        public async Task Handle(LogoutAccountByIdCommand request, CancellationToken cancellationToken)
         {
             var accountId = request.AccountId;
 
@@ -36,7 +32,7 @@ namespace MainCore.UI.Commands
             await _taskManager.StopCurrentTask(accountId);
 
             var chrome = _chromeManager.Get(accountId);
-            await chrome.Close();
+            await Task.Run(chrome.Close, cancellationToken);
             _taskManager.SetStatus(accountId, StatusEnums.Offline);
         }
     }

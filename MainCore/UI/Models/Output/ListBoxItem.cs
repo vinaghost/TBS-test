@@ -12,6 +12,10 @@ namespace MainCore.UI.Models.Output
 {
     public class ListBoxItem : ReactiveObject
     {
+        public ListBoxItem()
+        {
+        }
+
         public ListBoxItem(int id)
         {
             Id = id;
@@ -121,7 +125,7 @@ namespace MainCore.UI.Models.Output
             set => this.RaiseAndSetIfChanged(ref _content, value);
         }
 
-        private Color _color;
+        private Color _color = Color.Black;
 
         public Color Color
         {

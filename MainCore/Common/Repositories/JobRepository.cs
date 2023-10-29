@@ -14,7 +14,7 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class JobRepository : IJobRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IMediator _mediator;
 
         private readonly Dictionary<Type, JobTypeEnums> _jobTypes = new()
@@ -23,9 +23,9 @@ namespace MainCore.Common.Repositories
             { typeof(ResourceBuildPlan),JobTypeEnums.ResourceBuild },
         };
 
-        public JobRepository(AppDbContext context, IMediator mediator)
+        public JobRepository(IDbContextFactory<AppDbContext> contextFactory, IMediator mediator)
         {
-            _context = context;
+            _contextFactory = contextFactory;
             _mediator = mediator;
         }
 
@@ -45,6 +45,24 @@ namespace MainCore.Common.Repositories
             _context.Add(job);
             await Task.Run(() => _context.SaveChanges());
             await _mediator.Publish(new JobUpdated(villageId));
+        }
+
+        public bool IsJobValid(VillageId villageId, JobDto job)
+        {
+            if (job.Type == JobTypeEnums.ResourceBuild) return true;
+            var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
+
+            var building = _context.Buildings.FirstOrDefault(x => x.VillageId == villageId && x.Location == plan.Location);
+            if (building is null) return true;
+            if (building.Level >= plan.Level) return false;
+
+            var queueBuilding = _context.QueueBuildings
+                .Where(x => x.VillageId == villageId && x.Location == plan.Location)
+                .OrderByDescending(x => x.Level)
+                .FirstOrDefault();
+            if (queueBuilding is null) return true;
+            if (queueBuilding.Level >= plan.Level) return false;
+            return true;
         }
 
         public async Task AddToTop<T>(VillageId villageId, T content)

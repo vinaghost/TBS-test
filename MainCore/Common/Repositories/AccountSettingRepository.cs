@@ -9,7 +9,7 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class AccountSettingRepository : IAccountSettingRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
         private readonly Dictionary<AccountSettingEnums, int> _defaultSettings = new()
         {
@@ -23,43 +23,46 @@ namespace MainCore.Common.Repositories
             { AccountSettingEnums.UseStartAllButton , 0 },
         };
 
-        public AccountSettingRepository(AppDbContext context)
+        public AccountSettingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
-        private int GetSetting(AppDbContext context, AccountId accountId, AccountSettingEnums setting)
+        public async Task<int> GetByName(AccountId accountId, AccountSettingEnums setting)
         {
-            var settingEntity = _context.AccountsSetting
-               .FirstOrDefault(x => x.AccountId == accountId && x.Setting == setting);
-            return settingEntity.Value;
+            using var context = _contextFactory.CreateDbContext();
+            var settingValue = await Task.Run(() =>
+                context.AccountsSetting
+                   .Where(x => x.AccountId == accountId && x.Setting == setting)
+                   .Select(x => x.Value)
+                   .FirstOrDefault());
+            return settingValue;
         }
 
-        public int GetSetting(AccountId accountId, AccountSettingEnums setting)
+        public async Task<int> GetByName(AccountId accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax)
         {
-            return GetSetting(_context, accountId, setting);
-        }
-
-        public int GetSetting(AccountId accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax)
-        {
-            var settingValueMin = GetSetting(_context, accountId, settingMin);
-            var settingValueMax = GetSetting(_context, accountId, settingMax);
+            var settingValueMin = await GetByName(accountId, settingMin);
+            var settingValueMax = await GetByName(accountId, settingMax);
             return Random.Shared.Next(settingValueMin, settingValueMax);
         }
 
-        public bool GetBoolSetting(AccountId accountId, AccountSettingEnums setting)
+        public async Task<bool> GetBooleanByName(AccountId accountId, AccountSettingEnums setting)
         {
-            var settingEntity = GetSetting(accountId, setting);
+            var settingEntity = await GetByName(accountId, setting);
             //return settingEntity == 0 ? false : true;
             return settingEntity != 0;
         }
 
-        public void CheckSetting(AppDbContext context, AccountId accountId)
+        public async Task FillSetting(AccountId accountId)
         {
-            var query = _context.AccountsSetting.Where(x => x.AccountId == accountId);
+            using var context = _contextFactory.CreateDbContext();
+            var settings = await Task.Run(() =>
+                context.AccountsSetting
+                    .Where(x => x.AccountId == accountId)
+                    .ToList());
             foreach (var setting in _defaultSettings.Keys)
             {
-                var settingEntity = query.FirstOrDefault(x => x.Setting == setting);
+                var settingEntity = settings.FirstOrDefault(x => x.Setting == setting);
                 if (settingEntity is null)
                 {
                     settingEntity = new AccountSetting()
@@ -69,30 +72,34 @@ namespace MainCore.Common.Repositories
                         Value = _defaultSettings[setting],
                     };
 
-                    _context.Add(settingEntity);
+                    context.Add(settingEntity);
                 }
             }
-            _context.SaveChanges();
+            await Task.Run(context.SaveChanges);
         }
 
-        public Dictionary<AccountSettingEnums, int> Get(AccountId accountId)
+        public async Task<Dictionary<AccountSettingEnums, int>> GetDictionary(AccountId accountId)
         {
-            var settings = _context.AccountsSetting
-                .Where(x => x.AccountId == accountId)
-                .ToDictionary(x => x.Setting, x => x.Value);
+            using var context = _contextFactory.CreateDbContext();
+            var settings = await Task.Run(() =>
+                context.AccountsSetting
+                    .Where(x => x.AccountId == accountId)
+                    .ToDictionary(x => x.Setting, x => x.Value));
             return settings;
         }
 
-        public void Set(AccountId accountId, Dictionary<AccountSettingEnums, int> settings)
+        public async Task SetDictionary(AccountId accountId, Dictionary<AccountSettingEnums, int> settings)
         {
-            var query = _context.AccountsSetting
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.AccountsSetting
                 .Where(x => x.AccountId == accountId);
 
             foreach (var setting in settings)
             {
-                query
-                    .Where(x => x.Setting == setting.Key)
-                    .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
+                await Task.Run(() =>
+                    query
+                        .Where(x => x.Setting == setting.Key)
+                        .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value)));
             }
         }
     }

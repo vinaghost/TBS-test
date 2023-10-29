@@ -10,11 +10,11 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class HeroItemRepository : IHeroItemRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public HeroItemRepository(AppDbContext context)
+        public HeroItemRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public Result IsEnoughResource(AccountId accountId, long[] requiredResource)

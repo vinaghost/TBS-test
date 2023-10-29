@@ -1,13 +1,13 @@
 ﻿using FluentValidation;
-using MainCore.Common.Repositories;
+using MainCore.CQRS.Commands;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
-using MainCore.UI.ViewModels.UserControls;
+using MediatR;
 using ReactiveUI;
-using System.Reactive;
+using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.Tabs
 {
@@ -21,28 +21,24 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private AccessDto _selectedAccess;
         private readonly IDialogService _dialogService;
-
+        private readonly IMediator _mediator;
         public ReactiveCommand<Unit, Unit> AddAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
 
-        private readonly IAccountRepository _accountRepository;
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-
-        public AddAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IDialogService dialogService)
+        public AddAccountViewModel(IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IDialogService dialogService, IMediator mediator)
         {
-            _accountRepository = accountRepository;
-            _waitingOverlayViewModel = waitingOverlayViewModel;
+            _mediator = mediator;
 
             _accessInputValidator = accessInputValidator;
             _accountInputValidator = accountInputValidator;
             _dialogService = dialogService;
 
-            AddAccessCommand = ReactiveCommand.CreateFromTask(AddAccessTask);
-            EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
-            DeleteAccessCommand = ReactiveCommand.CreateFromTask(DeleteAccessTask);
-            AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
+            AddAccessCommand = ReactiveCommand.Create(AddAccessCommandHandler);
+            EditAccessCommand = ReactiveCommand.Create(EditAccessCommandHandler);
+            DeleteAccessCommand = ReactiveCommand.Create(DeleteAccessCommandHandler);
+            AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountCommandHandler);
             this.WhenAnyValue(vm => vm.SelectedAccess)
                 .WhereNotNull()
                 .Subscribe(x =>
@@ -52,62 +48,54 @@ namespace MainCore.UI.ViewModels.Tabs
                 });
         }
 
-        private async Task AddAccessTask()
+        private void AddAccessCommandHandler()
         {
             var result = _accessInputValidator.Validate(AccessInput);
 
             if (!result.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", result.ToString());
+                return;
             }
-            else
-            {
-                var mapper = new AccessInputMapper();
-                var dto = mapper.Map(AccessInput);
-                AccountInput.Accesses.Add(dto);
-            }
+
+            var mapper = new AccessInputMapper();
+            var dto = mapper.Map(AccessInput);
+            AccountInput.Accesses.Add(dto);
         }
 
-        private async Task EditAccessTask()
+        private void EditAccessCommandHandler()
         {
             var result = _accessInputValidator.Validate(AccessInput);
 
             if (!result.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", result.ToString());
+                return;
             }
-            else
-            {
-                var mapper = new AccessInputMapper();
-                mapper.Map(SelectedAccess, AccessInput);
-            }
+
+            var mapper = new AccessInputMapper();
+            mapper.Map(SelectedAccess, AccessInput);
         }
 
-        private Task DeleteAccessTask()
+        private void DeleteAccessCommandHandler()
         {
             AccountInput.Accesses.Remove(SelectedAccess);
             SelectedAccess = null;
-            return Task.CompletedTask;
         }
 
-        private async Task AddAccountTask()
+        private async Task AddAccountCommandHandler()
         {
             var results = _accountInputValidator.Validate(AccountInput);
 
             if (!results.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", results.ToString());
+                return;
             }
-            else
-            {
-                var mapper = new AccountInputMapper();
-                var dto = mapper.Map(AccountInput);
-                await _waitingOverlayViewModel.Show(
-                    "adding account ...",
-                    () => _accountRepository.Add(dto)
-                );
-                _dialogService.ShowMessageBox("Information", "Added account");
-            }
+            var mapper = new AccountInputMapper();
+            var dto = mapper.Map(AccountInput);
+            await _mediator.Send(new AddAccountCommand(dto));
+            _dialogService.ShowMessageBox("Information", "Added account");
         }
 
         public AccessDto SelectedAccess

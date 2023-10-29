@@ -1,12 +1,11 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
-using MainCore.Common.Repositories;
+using MainCore.CQRS.Commands.AccountByIdCommand;
+using MainCore.CQRS.Queries.ListBoxItemsQuery;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MainCore.UI.Commands;
 using MainCore.UI.Enums;
-using MainCore.UI.Models.Output;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;
 using MediatR;
@@ -19,9 +18,6 @@ namespace MainCore.UI.ViewModels.UserControls
     [RegisterAsSingleton(withoutInterface: true)]
     public class MainLayoutViewModel : ViewModelBase
     {
-        private readonly IAccountRepository _accountRepository;
-
-        private readonly ITaskManager _taskManager;
         private readonly IMediator _mediator;
 
         private readonly AccountTabStore _accountTabStore;
@@ -31,21 +27,18 @@ namespace MainCore.UI.ViewModels.UserControls
         public ListBoxItemViewModel Accounts { get; } = new();
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(IAccountRepository accountRepository, AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, ITaskManager taskManager, IMediator mediator, IDialogService dialogService)
+        public MainLayoutViewModel(AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IMediator mediator, IDialogService dialogService)
         {
             _accountTabStore = accountTabStore;
             _selectedItemStore = selectedItemStore;
-
-            _accountRepository = accountRepository;
-
-            _taskManager = taskManager;
+            _dialogService = dialogService;
             _mediator = mediator;
 
-            AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountTask);
-            AddAccountsCommand = ReactiveCommand.CreateFromTask(AddAccountsTask);
+            AddAccountCommand = ReactiveCommand.Create(AddAccountCommandHandler);
+            AddAccountsCommand = ReactiveCommand.Create(AddAccountsCommandHandler);
 
-            DeleteAccountCommand = ReactiveCommand.CreateFromTask(DeleteAccountTask);
-            LoginCommand = ReactiveCommand.CreateFromTask(LoginTask);
+            DeleteAccountCommand = ReactiveCommand.CreateFromTask(DeleteAccountCommandHandler);
+            LoginCommand = ReactiveCommand.CreateFromTask(LoginCommandHandler);
             LogoutCommand = ReactiveCommand.CreateFromTask(LogoutTask);
             PauseCommand = ReactiveCommand.CreateFromTask(PauseTask);
             RestartCommand = ReactiveCommand.CreateFromTask(RestartTask);
@@ -59,7 +52,6 @@ namespace MainCore.UI.ViewModels.UserControls
                 if (x is null) tabType = AccountTabType.NoAccount;
                 _accountTabStore.SetTabType(tabType);
             });
-            _dialogService = dialogService;
         }
 
         public async Task Load()
@@ -67,21 +59,19 @@ namespace MainCore.UI.ViewModels.UserControls
             await LoadAccountList();
         }
 
-        private Task AddAccountTask()
+        private void AddAccountCommandHandler()
         {
             Accounts.SelectedItem = null;
             AccountTabStore.SetTabType(AccountTabType.AddAccount);
-            return Task.CompletedTask;
         }
 
-        private Task AddAccountsTask()
+        private void AddAccountsCommandHandler()
         {
             Accounts.SelectedItem = null;
             AccountTabStore.SetTabType(AccountTabType.AddAccounts);
-            return Task.CompletedTask;
         }
 
-        private async Task DeleteAccountTask()
+        private async Task DeleteAccountCommandHandler()
         {
             if (!Accounts.IsSelected)
             {
@@ -91,17 +81,19 @@ namespace MainCore.UI.ViewModels.UserControls
 
             var result = _dialogService.ShowConfirmBox("Information", $"Are you sure want to delete \n {Accounts.SelectedItem.Content}");
             if (!result) return;
-            await _accountRepository.DeleteById(new AccountId(Accounts.SelectedItemId));
+            var accountId = new AccountId(Accounts.SelectedItemId);
+            await _mediator.Send(new DeleteAccountByIdCommand(accountId));
         }
 
-        private async Task LoginTask()
+        private async Task LoginCommandHandler()
         {
             if (!Accounts.IsSelected)
             {
                 _dialogService.ShowMessageBox("Warning", "No account selected");
                 return;
             }
-            await _mediator.Send(new LoginCommand(new AccountId(Accounts.SelectedItemId)));
+
+            await _mediator.Send(new LoginAccountByIdCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
         private async Task LogoutTask()
@@ -112,7 +104,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _mediator.Send(new LogoutCommand(new AccountId(Accounts.SelectedItemId)));
+            await _mediator.Send(new LogoutAccountByIdCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
         private async Task PauseTask()
@@ -123,7 +115,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _mediator.Send(new PauseCommand(new AccountId(Accounts.SelectedItemId)));
+            await _mediator.Send(new PauseAccountByIdCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
         private async Task RestartTask()
@@ -134,7 +126,7 @@ namespace MainCore.UI.ViewModels.UserControls
                 return;
             }
 
-            await _mediator.Send(new RestartCommand(new AccountId(Accounts.SelectedItemId)));
+            await _mediator.Send(new RestartAccountByIdCommand(new AccountId(Accounts.SelectedItemId)));
         }
 
         public async Task LoadStatus(AccountId accountId, StatusEnums status)
@@ -148,14 +140,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
         public async Task LoadAccountList()
         {
-            var accounts = await _accountRepository.GetAll();
-            var items = accounts.Select(x => new ListBoxItem(x));
-
-            foreach (var item in items)
-            {
-                var status = _taskManager.GetStatus(new AccountId(item.Id));
-                item.Color = status.GetColor();
-            }
+            var items = await _mediator.Send(new GetAccountListBoxItemsQuery());
 
             await Observable.Start(() =>
             {

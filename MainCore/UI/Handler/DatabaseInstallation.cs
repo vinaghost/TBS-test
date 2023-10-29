@@ -6,11 +6,11 @@ namespace MainCore.UI.Handler
 {
     public class DatabaseInstallation : INotificationHandler<MainWindowLoaded>
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public DatabaseInstallation(AppDbContext context)
+        public DatabaseInstallation(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public async Task Handle(MainWindowLoaded notification, CancellationToken cancellationToken)

@@ -1,21 +1,19 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.CQRS.Base;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
 using MediatR;
 
-namespace MainCore.UI.Commands
+namespace MainCore.CQRS.Commands
 {
-    public class RestartCommand : IRequest
+    public class RestartAccountByIdCommand : ByAccountIdRequestBase, IRequest
     {
-        public AccountId AccountId { get; }
-
-        public RestartCommand(AccountId accountId)
+        public RestartAccountByIdCommand(AccountId accountId) : base(accountId)
         {
-            AccountId = accountId;
         }
     }
 
-    public class RestartCommandHandler : IRequestHandler<RestartCommand>
+    public class RestartCommandHandler : IRequestHandler<RestartAccountByIdCommand>
     {
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
@@ -26,10 +24,9 @@ namespace MainCore.UI.Commands
             _dialogService = dialogService;
         }
 
-        public async Task Handle(RestartCommand request, CancellationToken cancellationToken)
+        public async Task Handle(RestartAccountByIdCommand request, CancellationToken cancellationToken)
         {
             var accountId = request.AccountId;
-
             var status = _taskManager.GetStatus(accountId);
 
             switch (status)
@@ -46,17 +43,16 @@ namespace MainCore.UI.Commands
                     return;
 
                 case StatusEnums.Paused:
-                    await Handle(accountId);
+                    await Task.Run(() => Handle(accountId), cancellationToken);
                     return;
             }
         }
 
-        private Task Handle(AccountId accountId)
+        private void Handle(AccountId accountId)
         {
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
             _taskManager.Clear(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Online);
-            return Task.CompletedTask;
         }
     }
 }

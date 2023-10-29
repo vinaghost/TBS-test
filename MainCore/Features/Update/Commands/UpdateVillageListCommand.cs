@@ -23,12 +23,12 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IVillageListParser _villageListParser;
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateVillageListCommandCommandHandler(IChromeManager chromeManager, AppDbContext context, IVillageListParser villageListParser)
+        public UpdateVillageListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IVillageListParser villageListParser)
         {
             _chromeManager = chromeManager;
-            _context = context;
+            _contextFactory = contextFactory;
             _villageListParser = villageListParser;
         }
 

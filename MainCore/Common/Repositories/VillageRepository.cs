@@ -9,11 +9,11 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class VillageRepository : IVillageRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public VillageRepository(AppDbContext context)
+        public VillageRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public string GetVillageName(VillageId villageId)

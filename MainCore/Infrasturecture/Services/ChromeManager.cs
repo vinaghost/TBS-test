@@ -11,11 +11,11 @@ namespace MainCore.Infrasturecture.Services
     {
         private readonly ConcurrentDictionary<AccountId, ChromeBrowser> _dictionary = new();
         private string[] _extensionsPath;
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public ChromeManager(AppDbContext context)
+        public ChromeManager(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public IChromeBrowser Get(AccountId accountId)

@@ -11,11 +11,11 @@ namespace MainCore.Infrasturecture.Services
     public class RestClientManager : IRestClientManager
     {
         private readonly Dictionary<int, RestClient> _database = new();
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public RestClientManager(AppDbContext context)
+        public RestClientManager(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public RestClient Get(AccessDto access)

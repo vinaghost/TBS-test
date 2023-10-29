@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
-using MainCore.Common.Repositories;
+using MainCore.CQRS.Commands;
+using MainCore.CQRS.Queries;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -30,13 +31,11 @@ namespace MainCore.UI.ViewModels.Tabs
         public ReactiveCommand<Unit, Unit> DeleteAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccountCommand { get; }
 
-        private readonly IAccountRepository _accountRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly IDialogService _dialogService;
 
-        public EditAccountViewModel(IAccountRepository accountRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IMediator mediator, IDialogService dialogService)
+        public EditAccountViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IMediator mediator, IDialogService dialogService)
         {
-            _accountRepository = accountRepository;
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _accessInputValidator = accessInputValidator;
             _accountInputValidator = accountInputValidator;
@@ -44,10 +43,10 @@ namespace MainCore.UI.ViewModels.Tabs
             _mediator = mediator;
             _dialogService = dialogService;
 
-            AddAccessCommand = ReactiveCommand.CreateFromTask(AddAccessTask);
-            EditAccessCommand = ReactiveCommand.CreateFromTask(EditAccessTask);
-            DeleteAccessCommand = ReactiveCommand.CreateFromTask(DeleteAccessTask);
-            EditAccountCommand = ReactiveCommand.CreateFromTask(EditAccountTask);
+            AddAccessCommand = ReactiveCommand.Create(AddAccessCommandHandler);
+            EditAccessCommand = ReactiveCommand.Create(EditAccessCommandHandler);
+            DeleteAccessCommand = ReactiveCommand.Create(DeleteAccessCommandHandler);
+            EditAccountCommand = ReactiveCommand.CreateFromTask(EditAccountCommandHandler);
 
             this.WhenAnyValue(vm => vm.SelectedAccess)
                 .WhereNotNull()
@@ -60,75 +59,73 @@ namespace MainCore.UI.ViewModels.Tabs
 
         protected override async Task Load(AccountId accountId)
         {
-            var account = await _accountRepository.GetById(accountId);
-
-            var mapper = new AccountInputMapper();
-
-            await Observable.Start(() =>
-            {
-                mapper.Map(account, AccountInput);
-                AccountInput.SetAccesses(account.Accesses);
-            }, RxApp.MainThreadScheduler);
+            await LoadAccount();
         }
 
-        private async Task AddAccessTask()
-        {
-            var results = _accessInputValidator.Validate(AccessInput);
-
-            if (!results.IsValid)
-            {
-                _dialogService.ShowMessageBox("Error", results.ToString());
-            }
-            else
-            {
-                var mapper = new AccessInputMapper();
-                var dto = mapper.Map(AccessInput);
-                AccountInput.Accesses.Add(dto);
-            }
-        }
-
-        private async Task EditAccessTask()
+        private void AddAccessCommandHandler()
         {
             var result = _accessInputValidator.Validate(AccessInput);
 
             if (!result.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", result.ToString());
+                return;
             }
-            else
-            {
-                var mapper = new AccessInputMapper();
-                mapper.Map(SelectedAccess, AccessInput);
-            }
+
+            var mapper = new AccessInputMapper();
+            var dto = mapper.Map(AccessInput);
+            AccountInput.Accesses.Add(dto);
         }
 
-        private Task DeleteAccessTask()
+        private void EditAccessCommandHandler()
+        {
+            var result = _accessInputValidator.Validate(AccessInput);
+
+            if (!result.IsValid)
+            {
+                _dialogService.ShowMessageBox("Error", result.ToString());
+                return;
+            }
+
+            var mapper = new AccessInputMapper();
+            mapper.Map(SelectedAccess, AccessInput);
+        }
+
+        private void DeleteAccessCommandHandler()
         {
             AccountInput.Accesses.Remove(SelectedAccess);
             SelectedAccess = null;
-            return Task.CompletedTask;
         }
 
-        private async Task EditAccountTask()
+        private async Task EditAccountCommandHandler()
         {
             var results = _accountInputValidator.Validate(AccountInput);
 
             if (!results.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", results.ToString());
+                return;
             }
-            else
+            var mapper = new AccountInputMapper();
+            var dto = mapper.Map(AccountInput);
+
+            await _mediator.Send(new EditAccountCommand(dto));
+            _dialogService.ShowMessageBox("Information", "Edited accounts");
+        }
+
+        private async Task LoadAccount()
+        {
+            var account = await _mediator.Send(new GetAccountByIdQuery(AccountId));
+
+            await Observable.Start(() =>
             {
-                var mapper = new AccountInputMapper();
-                var dto = mapper.Map(AccountInput);
-                await _waitingOverlayViewModel.Show(
-                    "editting account ...",
-                    async () =>
-                    {
-                        await Task.Run(() => _accountRepository.Edit(dto));
-                    });
-                _dialogService.ShowMessageBox("Information", "Edited accounts");
-            }
+                AccountInput.Id = account.Id;
+                AccountInput.Username = account.Username;
+                AccountInput.Server = account.Server;
+                AccountInput.SetAccesses(account.Accesses);
+
+                AccessInput.Clear();
+            }, RxApp.MainThreadScheduler);
         }
 
         public AccessDto SelectedAccess

@@ -27,6 +27,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly IDialogService _dialogService;
 
+        private readonly List<BuildingEnums> _availableBuildings = new();
+
         public BuildViewModel(IJobRepository jobRepository, IBuildingRepository buildingRepository, IValidator<NormalBuildInput> normalBuildInputValidator, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager, IDialogService dialogService)
         {
             _buildingRepository = buildingRepository;
@@ -51,24 +53,25 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
             this.WhenAnyValue(vm => vm.Buildings.SelectedItem)
                 .Subscribe(async x => await LoadNormalBuild());
+
+            for (var i = BuildingEnums.Sawmill; i <= BuildingEnums.Hospital; i++)
+            {
+                _availableBuildings.Add(i);
+            }
         }
 
-        public async Task BuildingUpdate(VillageId villageId)
+        public async Task BuildingListRefresh(VillageId villageId)
         {
             if (!IsActive) return;
             if (villageId != VillageId) return;
-            await Observable.Start(
-                async () => await LoadBuildings(villageId),
-                RxApp.MainThreadScheduler);
+            await LoadBuildings(villageId);
         }
 
-        public async Task JobUpdate(VillageId villageId)
+        public async Task JobListRefresh(VillageId villageId)
         {
             if (!IsActive) return;
             if (villageId != VillageId) return;
-            await Observable.Start(
-                async () => await LoadJobs(villageId),
-                RxApp.MainThreadScheduler);
+            await LoadJobs(villageId)
         }
 
         protected override async Task Load(VillageId villageId)
@@ -119,8 +122,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var building = await Task.Run(() => _buildingRepository.GetBuilding(Buildings.SelectedItemId));
             if (building.Type == BuildingEnums.Site)
             {
-                var buildings = _buildingRepository.AvailableBuildings;
-                NormalBuildInput.Set(buildings);
+                NormalBuildInput.Set(_availableBuildings);
             }
             else
             {

@@ -21,12 +21,10 @@ namespace MainCore
 
         public static IServiceCollection AddCoreServices(this IServiceCollection services, ServerEnums server)
         {
-            services.AddDbContext<AppDbContext>(
+            services.AddDbContextFactory<AppDbContext>(
                 options => options
                     .ReplaceService<IValueConverterSelector, StronglyTypedIdValueConverterSelector>()
-                    .UseSqlite(_connectionString),
-                ServiceLifetime.Transient,
-                ServiceLifetime.Transient
+                    .UseSqlite(_connectionString)
             );
 
             services

@@ -23,8 +23,16 @@ namespace MainCore.DTO
             return entity;
         }
 
+        public partial BuildingDto Map(Building entity);
+
         public partial void MapToEntity(BuildingDto dto, Building entity);
 
         private partial Building Map(BuildingDto dto);
+    }
+
+    [Mapper]
+    public static partial class BuildingStaticMapper
+    {
+        public static partial IQueryable<BuildingDto> ProjectToDto(this IQueryable<Building> entities);
     }
 }

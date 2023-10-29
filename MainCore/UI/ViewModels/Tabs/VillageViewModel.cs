@@ -1,39 +1,39 @@
-﻿using MainCore.Common.Repositories;
+﻿using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Features.Update.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Enums;
-using MainCore.UI.Models.Output;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
+using MediatR;
 using ReactiveUI;
-using System.Reactive;
 using System.Reactive.Linq;
+using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.Tabs
 {
     [RegisterAsSingleton(withoutInterface: true)]
     public class VillageViewModel : AccountTabViewModelBase
     {
-        private readonly IVillageRepository _villageRepository;
         private readonly VillageTabStore _villageTabStore;
 
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
+        private readonly IMediator _mediator;
         public ListBoxItemViewModel Villages { get; } = new();
 
-        public VillageViewModel(IVillageRepository villageRepository, VillageTabStore villageTabStore, ITaskManager taskManager, IDialogService dialogService)
+        public VillageViewModel(VillageTabStore villageTabStore, ITaskManager taskManager, IDialogService dialogService)
         {
-            _villageRepository = villageRepository;
             _villageTabStore = villageTabStore;
+            _dialogService = dialogService;
 
             _taskManager = taskManager;
 
-            LoadCurrentCommand = ReactiveCommand.CreateFromTask(LoadCurrentTask);
-            LoadUnloadCommand = ReactiveCommand.CreateFromTask(LoadUnloadTask);
-            LoadAllCommand = ReactiveCommand.CreateFromTask(LoadAllTask);
+            LoadCurrentCommand = ReactiveCommand.Create(LoadCurrentCommandHandler);
+            LoadUnloadCommand = ReactiveCommand.CreateFromTask(LoadUnloadCommandHandler);
+            LoadAllCommand = ReactiveCommand.CreateFromTask(LoadAllCommandHandler);
 
             var villageObservable = this.WhenAnyValue(x => x.Villages.SelectedItem);
             villageObservable.BindTo(_selectedItemStore, vm => vm.Village);
@@ -43,10 +43,9 @@ namespace MainCore.UI.ViewModels.Tabs
                 if (x is null) tabType = VillageTabType.NoVillage;
                 _villageTabStore.SetTabType(tabType);
             });
-            _dialogService = dialogService;
         }
 
-        private async Task LoadCurrentTask()
+        private void LoadCurrentCommandHandler()
         {
             if (!Villages.IsSelected)
             {
@@ -59,15 +58,9 @@ namespace MainCore.UI.ViewModels.Tabs
             return;
         }
 
-        private async Task LoadUnloadTask()
+        private async Task LoadUnloadCommandHandler()
         {
-            if (!Villages.IsSelected)
-            {
-                _dialogService.ShowMessageBox("Warning", "No village selected");
-                return;
-            }
-
-            var villages = await _villageRepository.GetUnloadVillageId(AccountId);
+            var villages = await _mediator.Send(new GetUnloadVillageIdQuery(AccountId));
             foreach (var village in villages)
             {
                 _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
@@ -76,30 +69,15 @@ namespace MainCore.UI.ViewModels.Tabs
             return;
         }
 
-        private async Task LoadAllTask()
+        private async Task LoadAllCommandHandler()
         {
-            if (!Villages.IsSelected)
-            {
-                _dialogService.ShowMessageBox("Warning", "No village selected");
-                return;
-            }
-
-            var villages = await Task.Run(() => _villageRepository.GetAll(AccountId));
+            var villages = await _mediator.Send(new GetAllVillageIdQuery(AccountId));
             foreach (var village in villages)
             {
-                _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village.Id);
+                _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
             }
             _dialogService.ShowMessageBox("Information", $"Added update task");
             return;
-        }
-
-        public async Task VillageUpdate(AccountId accountId)
-        {
-            if (!IsActive) return;
-            if (AccountId != accountId) return;
-            await Observable.Start(
-                async () => await LoadVillageList(accountId),
-                RxApp.MainThreadScheduler);
         }
 
         protected override async Task Load(AccountId accountId)
@@ -107,10 +85,20 @@ namespace MainCore.UI.ViewModels.Tabs
             await LoadVillageList(accountId);
         }
 
+        public async Task VillageListRefresh(AccountId accountId)
+        {
+            if (!IsActive) return;
+            if (accountId != AccountId) return;
+            await LoadVillageList(accountId);
+        }
+
         private async Task LoadVillageList(AccountId accountId)
         {
-            var villages = await Task.Run(() => _villageRepository.GetAll(accountId));
-            Villages.Load(villages.Select(x => new ListBoxItem(x)));
+            var villages = await _mediator.Send(new GetVillageListBoxItemsQuery(accountId));
+            await Observable.Start(() =>
+            {
+                Villages.Load(villages);
+            }, RxApp.MainThreadScheduler);
         }
 
         public VillageTabStore VillageTabStore => _villageTabStore;

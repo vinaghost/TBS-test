@@ -12,24 +12,24 @@ namespace MainCore.Infrasturecture.Services
         ChromeDriver Driver { get; }
         HtmlDocument Html { get; }
 
-        Task<Result> Click(By by);
+        Result Click(By by);
 
-        Task Close();
+        void Close();
 
-        Task<Result> InputTextbox(By by, string content);
+        Result InputTextbox(By by, string content);
 
         bool IsOpen();
 
-        Task Navigate(string url = null);
+        Result Navigate(string url = null);
 
-        void Setup(AccountDto account, AccessDto access);
+        Result Setup(AccountDto account, AccessDto access);
 
         void Shutdown();
 
-        Task<Result> Wait(Func<IWebDriver, bool> condition);
+        Result Wait(Func<IWebDriver, bool> condition);
 
-        Task<Result> WaitPageChanged(string part);
+        Result WaitPageChanged(string part);
 
-        Task<Result> WaitPageLoaded();
+        Result WaitPageLoaded();
     }
 }

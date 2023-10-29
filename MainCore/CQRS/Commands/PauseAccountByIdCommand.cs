@@ -3,30 +3,27 @@ using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
 using MediatR;
 
-namespace MainCore.UI.Commands
+namespace MainCore.CQRS.Commands
 {
-    public class PauseCommand : IRequest
+    public class PauseAccountByIdCommand : ByAccountIdRequestBase, IRequest
     {
-        public AccountId AccountId { get; }
-
-        public PauseCommand(AccountId accountId)
+        public PauseAccountByIdCommand(AccountId accountId) : base(accountId)
         {
-            AccountId = accountId;
         }
     }
 
-    public class PauseCommandHandler : IRequestHandler<PauseCommand>
+    public class PauseAccountByIdCommandHandler : IRequestHandler<PauseAccountByIdCommand>
     {
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
 
-        public PauseCommandHandler(ITaskManager taskManager, IDialogService dialogService)
+        public PauseAccountByIdCommandHandler(ITaskManager taskManager, IDialogService dialogService)
         {
             _taskManager = taskManager;
             _dialogService = dialogService;
         }
 
-        public async Task Handle(PauseCommand request, CancellationToken cancellationToken)
+        public async Task Handle(PauseAccountByIdCommand request, CancellationToken cancellationToken)
         {
             var accountId = request.AccountId;
 

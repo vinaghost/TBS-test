@@ -9,11 +9,11 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class StorageRepository : IStorageRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public StorageRepository(AppDbContext context)
+        public StorageRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public void Update(VillageId villageId, Storage storage)

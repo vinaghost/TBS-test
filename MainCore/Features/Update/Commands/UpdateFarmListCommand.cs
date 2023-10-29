@@ -23,12 +23,12 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IFarmListParser _farmListParser;
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateFarmListCommandCommandHandler(IChromeManager chromeManager, AppDbContext context, IFarmListParser farmListParser)
+        public UpdateFarmListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IFarmListParser farmListParser)
         {
             _chromeManager = chromeManager;
-            _context = context;
+            _contextFactory = contextFactory;
             _farmListParser = farmListParser;
         }
 

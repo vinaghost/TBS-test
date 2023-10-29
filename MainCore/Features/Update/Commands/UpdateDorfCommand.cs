@@ -31,12 +31,12 @@ namespace MainCore.Features.Update.Commands
         private readonly IFieldParser _fieldParser;
         private readonly IInfrastructureParser _infrastructureParser;
         private readonly IStockBarParser _stockBarParser;
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UpdateDorfCommandHandler(IChromeManager chromeManager, AppDbContext context, IQueueBuildingParser queueBuildingParser, IFieldParser fieldParser, IInfrastructureParser infrastructureParser, IStockBarParser stockBarParser)
+        public UpdateDorfCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IQueueBuildingParser queueBuildingParser, IFieldParser fieldParser, IInfrastructureParser infrastructureParser, IStockBarParser stockBarParser)
         {
             _chromeManager = chromeManager;
-            _context = context;
+            _contextFactory = contextFactory;
             _queueBuildingParser = queueBuildingParser;
             _fieldParser = fieldParser;
             _infrastructureParser = infrastructureParser;

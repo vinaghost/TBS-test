@@ -9,11 +9,11 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class FarmListRepository : IFarmListRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public FarmListRepository(AppDbContext context)
+        public FarmListRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public IEnumerable<FarmListDto> GetList(AccountId accountId)

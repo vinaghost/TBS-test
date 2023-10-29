@@ -6,6 +6,16 @@ namespace MainCore.UI.Models.Input
 {
     public class AccessInput : ReactiveObject
     {
+        public void Clear()
+        {
+            Password = "";
+            ProxyHost = "";
+            ProxyPort = 0;
+            ProxyUsername = "";
+            ProxyPassword = "";
+            Useragent = "";
+        }
+
         public int Id { get; set; }
         private string _password;
         private string _proxyHost;

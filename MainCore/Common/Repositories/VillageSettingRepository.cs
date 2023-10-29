@@ -9,7 +9,7 @@ namespace MainCore.Common.Repositories
     [RegisterAsTransient]
     public class VillageSettingRepository : IVillageSettingRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
         private readonly Dictionary<VillageSettingEnums, int> _defaultSettings = new()
         {
@@ -18,9 +18,9 @@ namespace MainCore.Common.Repositories
             { VillageSettingEnums.UseSpecialUpgrade , 0 },
         };
 
-        public VillageSettingRepository(AppDbContext context)
+        public VillageSettingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
-            _context = context;
+            _contextFactory = contextFactory;
         }
 
         public int GetSetting(VillageId villageId, VillageSettingEnums setting)
@@ -44,7 +44,7 @@ namespace MainCore.Common.Repositories
             return settingEntity != 0;
         }
 
-        public void CheckSetting(AppDbContext context, VillageId villageId)
+        public void CheckSetting(IDbContextFactory<AppDbContext> contextFactory, VillageId villageId)
         {
             var settings = _context
                 .VillagesSetting

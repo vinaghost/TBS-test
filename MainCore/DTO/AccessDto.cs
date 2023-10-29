@@ -30,4 +30,10 @@ namespace MainCore.DTO
 
         private partial Access Map(AccessDto dto);
     }
+
+    [Mapper]
+    public static partial class AccessStaticMapper
+    {
+        public static partial IQueryable<AccessDto> ProjectToDto(this IQueryable<Access> entities);
+    }
 }

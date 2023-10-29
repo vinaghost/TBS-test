@@ -1,7 +1,9 @@
 ﻿using MainCore.Common.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Entities
 {
+    [Index(nameof(AccountId), nameof(Setting))]
     public class AccountSetting
     {
         public int Id { get; set; }

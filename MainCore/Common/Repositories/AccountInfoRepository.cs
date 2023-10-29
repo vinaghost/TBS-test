@@ -1,23 +1,29 @@
-﻿using MainCore.DTO;
+﻿using MainCore.Common.Notification;
+using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Common.Repositories
 {
     [RegisterAsTransient]
     public class AccountInfoRepository : IAccountInfoRepository
     {
-        private readonly AppDbContext _context;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IMediator _mediator;
 
-        public AccountInfoRepository(AppDbContext context)
+        public AccountInfoRepository(IDbContextFactory<AppDbContext> contextFactory, IMediator mediator)
         {
-            _context = context;
+            _contextFactory = contextFactory;
+            _mediator = mediator;
         }
 
         public bool IsPlusActive(AccountId accountId)
         {
-            var accountInfo = _context.AccountsInfo
+            using var context = _contextFactory.CreateDbContext();
+            var accountInfo = context.AccountsInfo
                     .FirstOrDefault(x => x.AccountId == accountId);
 
             if (accountInfo is null) return false;
@@ -26,23 +32,27 @@ namespace MainCore.Common.Repositories
 
         public async Task Update(AccountId accountId, AccountInfoDto dto)
         {
-            var dbAccountInfo = await Task.Run(
-                _context.AccountsInfo
-                    .Where(x => x.AccountId == accountId)
-                    .FirstOrDefault);
+            using (var context = _contextFactory.CreateDbContext())
+            {
+                var dbAccountInfo = await Task.Run(
+                    context.AccountsInfo
+                        .Where(x => x.AccountId == accountId)
+                        .FirstOrDefault);
 
-            var mapper = new AccountInfoMapper();
-            if (dbAccountInfo is null)
-            {
-                var accountInfo = mapper.Map(accountId, dto);
-                _context.Add(accountInfo);
+                var mapper = new AccountInfoMapper();
+                if (dbAccountInfo is null)
+                {
+                    var accountInfo = mapper.Map(accountId, dto);
+                    context.Add(accountInfo);
+                }
+                else
+                {
+                    mapper.MapToEntity(dto, dbAccountInfo);
+                    context.Update(dbAccountInfo);
+                }
+                await Task.Run(context.SaveChanges);
             }
-            else
-            {
-                mapper.MapToEntity(dto, dbAccountInfo);
-                _context.Update(dbAccountInfo);
-            }
-            await Task.Run(_context.SaveChanges);
+            await _mediator.Publish(new AccountInfoUpdated(accountId));
         }
     }
 }

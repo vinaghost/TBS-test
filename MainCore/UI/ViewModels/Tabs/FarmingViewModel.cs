@@ -1,58 +1,51 @@
 ﻿using FluentValidation;
-using MainCore.Common.Repositories;
+using MainCore.CQRS.Commands;
+using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Features.Farming.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
-using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
+using MediatR;
 using ReactiveUI;
-using System.Drawing;
-using System.Reactive;
 using System.Reactive.Linq;
+using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.Tabs
 {
     [RegisterAsSingleton(withoutInterface: true)]
     public class FarmingViewModel : AccountTabViewModelBase
     {
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-        private readonly IFarmListRepository _farmListRepository;
-        private readonly IAccountSettingRepository _accountSettingRepository;
         public FarmListSettingInput FarmListSettingInput { get; } = new();
         private readonly IValidator<FarmListSettingInput> _farmListSettingInputValidator;
         public ListBoxItemViewModel FarmLists { get; } = new();
 
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
+        private readonly IMediator _mediator;
 
-        public FarmingViewModel(IFarmListRepository farmListRepository, IAccountSettingRepository accountSettingRepository, IValidator<FarmListSettingInput> farmListSettingInputValidator, WaitingOverlayViewModel waitingOverlayViewModel, ITaskManager taskManager, IDialogService dialogService)
-
+        public FarmingViewModel(IValidator<FarmListSettingInput> farmListSettingInputValidator, ITaskManager taskManager, IDialogService dialogService, IMediator mediator)
         {
-            _farmListRepository = farmListRepository;
-            _accountSettingRepository = accountSettingRepository;
             _farmListSettingInputValidator = farmListSettingInputValidator;
 
-            _waitingOverlayViewModel = waitingOverlayViewModel;
             _taskManager = taskManager;
-
-            LoadFarmListCommand = ReactiveCommand.CreateFromTask(AddLoadTask);
-            SaveCommand = ReactiveCommand.CreateFromTask(SaveTask);
-            ActiveFarmListCommand = ReactiveCommand.CreateFromTask(ActiveFarmListTask);
-            StartCommand = ReactiveCommand.CreateFromTask(StartTask);
-            StopCommand = ReactiveCommand.CreateFromTask(StopTask);
             _dialogService = dialogService;
+            _mediator = mediator;
+
+            UpdateFarmListCommand = ReactiveCommand.Create(UpdateFarmListCommandHandler);
+            SaveCommand = ReactiveCommand.CreateFromTask(SaveCommandHandler);
+            ActiveFarmListCommand = ReactiveCommand.CreateFromTask(ActiveFarmListCommandHandler);
+            StartCommand = ReactiveCommand.CreateFromTask(StartCommandHandler);
+            StopCommand = ReactiveCommand.Create(StopCommandHandler);
         }
 
-        public async Task FarmListsUpdated(AccountId accountId)
+        public async Task FarmListRefresh(AccountId accountId)
         {
             if (!IsActive) return;
             if (accountId != AccountId) return;
-            await Observable.Start(
-                async () => await LoadFarmLists(accountId),
-                RxApp.MainThreadScheduler);
+            await LoadFarmLists(accountId);
         }
 
         protected override async Task Load(AccountId accountId)
@@ -61,34 +54,32 @@ namespace MainCore.UI.ViewModels.Tabs
             await LoadSettings(accountId);
         }
 
-        private async Task AddLoadTask()
+        private void UpdateFarmListCommandHandler()
         {
             _taskManager.AddOrUpdate<UpdateFarmListTask>(AccountId);
             _dialogService.ShowMessageBox("Information", "Added update farm list task");
         }
 
-        private async Task StartTask()
+        private async Task StartCommandHandler()
         {
             if (!FarmListSettingInput.UseStartAllButton)
             {
-                var count = await Task.Run(() => _farmListRepository.CountActiveFarmLists(AccountId));
+                var count = await _mediator.Send(new CountFarmListActiveQuery(AccountId));
                 if (count == 0)
                 {
                     _dialogService.ShowMessageBox("Information", "There is no active farm or use start all button is disable");
                     return;
                 }
             }
-            var task = await Task.Run(() => _taskManager.Get<StartFarmListTask>(AccountId));
-            if (task is null)
-            {
-                _taskManager.AddOrUpdate<StartFarmListTask>(AccountId);
-            }
+
+            _taskManager.AddOrUpdate<StartFarmListTask>(AccountId);
+
             _dialogService.ShowMessageBox("Information", "Added start farm list task");
         }
 
-        private async Task StopTask()
+        private void StopCommandHandler()
         {
-            var task = await Task.Run(() => _taskManager.Get<StartFarmListTask>(AccountId));
+            var task = _taskManager.Get<StartFarmListTask>(AccountId);
 
             if (task is not null)
             {
@@ -97,29 +88,20 @@ namespace MainCore.UI.ViewModels.Tabs
             _dialogService.ShowMessageBox("Information", "Removed start farm list task");
         }
 
-        private async Task Save(AccountId accountId)
-        {
-            var settings = FarmListSettingInput.Get();
-            await Task.Run(() => _accountSettingRepository.Set(accountId, settings));
-        }
-
-        private async Task SaveTask()
+        private async Task SaveCommandHandler()
         {
             var result = _farmListSettingInputValidator.Validate(FarmListSettingInput);
             if (!result.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", result.ToString());
+                return;
             }
-            else
-            {
-                await _waitingOverlayViewModel.Show(
-                    "saving settings ...",
-                    () => Save(AccountId));
-                _dialogService.ShowMessageBox("Information", "Settings saved");
-            }
+            var settings = FarmListSettingInput.Get();
+            await _mediator.Send(new SaveAccountSettingByIdCommand(AccountId, settings));
+            _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 
-        private async Task ActiveFarmListTask()
+        private async Task ActiveFarmListCommandHandler()
         {
             var SelectedFarmList = FarmLists.SelectedItem;
             if (FarmLists.SelectedItem is null)
@@ -127,30 +109,29 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Warning", "No farm list selected");
                 return;
             }
-            await Task.Run(() => _farmListRepository.ActiveFarmList(new FarmListId(SelectedFarmList.Id)));
-            if (SelectedFarmList.Color == Color.Green)
-            {
-                SelectedFarmList.Color = Color.Red;
-            }
-            else
-            {
-                SelectedFarmList.Color = Color.Green;
-            }
+            await _mediator.Send(new ActiveFarmListCommand(AccountId, new FarmListId(SelectedFarmList.Id)));
         }
 
         private async Task LoadSettings(AccountId accountId)
         {
-            var settings = await Task.Run(() => _accountSettingRepository.Get(accountId));
-            FarmListSettingInput.Set(settings);
+            var settings = await _mediator.Send(new GetAccountSettingDictonaryByIdQuery(accountId));
+
+            await Observable.Start(() =>
+            {
+                FarmListSettingInput.Set(settings);
+            }, RxApp.MainThreadScheduler);
         }
 
         private async Task LoadFarmLists(AccountId accountId)
         {
-            var farmLists = await Task.Run(() => _farmListRepository.GetList(accountId));
-            FarmLists.Load(farmLists.Select(x => new ListBoxItem(x)));
+            var farmLists = await _mediator.Send(new GetFarmListListBoxItemsQuery(accountId));
+            await Observable.Start(() =>
+            {
+                FarmLists.Load(farmLists);
+            }, RxApp.MainThreadScheduler);
         }
 
-        public ReactiveCommand<Unit, Unit> LoadFarmListCommand { get; }
+        public ReactiveCommand<Unit, Unit> UpdateFarmListCommand { get; }
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
         public ReactiveCommand<Unit, Unit> ActiveFarmListCommand { get; }
         public ReactiveCommand<Unit, Unit> StartCommand { get; }

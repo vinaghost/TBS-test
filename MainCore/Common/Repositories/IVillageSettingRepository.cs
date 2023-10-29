@@ -6,7 +6,7 @@ namespace MainCore.Common.Repositories
 {
     public interface IVillageSettingRepository
     {
-        void CheckSetting(AppDbContext context, VillageId villageId);
+        void CheckSetting(IDbContextFactory<AppDbContext> contextFactory, VillageId villageId);
 
         Dictionary<VillageSettingEnums, int> Get(VillageId villageId);
 

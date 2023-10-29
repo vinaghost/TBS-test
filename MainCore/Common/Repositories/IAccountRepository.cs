@@ -1,23 +1,24 @@
-﻿using FluentResults;
-using MainCore.DTO;
+﻿using MainCore.DTO;
 using MainCore.Entities;
 
 namespace MainCore.Common.Repositories
 {
     public interface IAccountRepository
     {
-        Task<Result> Add(AccountDto dto);
-
-        Task AddRange(IEnumerable<AccountDto> dtos);
+        Task Add(AccountDto dto);
 
         Task DeleteById(AccountId accountId);
 
         Task Edit(AccountDto dto);
 
-        Task<IEnumerable<AccountDto>> GetAll();
+        Task<List<AccountDto>> GetAll();
 
         Task<AccountDto> GetById(AccountId accountId);
+
         Task<string> GetPasswordById(AccountId accountId);
+
         Task<string> GetUsernameById(AccountId accountId);
+
+        Task<bool> IsExist(AccountDto dto);
     }
 }
