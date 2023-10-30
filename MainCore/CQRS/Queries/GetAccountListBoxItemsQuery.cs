@@ -33,6 +33,7 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
 
             var accounts = context.Accounts
+                .AsNoTracking()
                 .AsEnumerable();
             var items = accounts.Select(x =>
             {

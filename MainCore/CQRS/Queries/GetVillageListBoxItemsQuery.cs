@@ -34,14 +34,15 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
 
             var villages = context.Villages
-                    .Where(x => x.AccountId == accountId)
-                    .OrderBy(x => x.Name)
-                    .Select(x => new ListBoxItem()
-                    {
-                        Id = x.Id.Value,
-                        Content = $"{x.Name}{Environment.NewLine}({x.X}|{x.Y})",
-                    })
-                    .ToList();
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId)
+                .OrderBy(x => x.Name)
+                .Select(x => new ListBoxItem()
+                {
+                    Id = x.Id.Value,
+                    Content = $"{x.Name}{Environment.NewLine}({x.X}|{x.Y})",
+                })
+                .ToList();
             return villages;
         }
     }

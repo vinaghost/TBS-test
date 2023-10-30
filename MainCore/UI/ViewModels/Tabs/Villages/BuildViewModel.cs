@@ -1,44 +1,43 @@
-﻿using FluentValidation;
+﻿using FluentResults;
+using FluentValidation;
+using Humanizer;
 using MainCore.Common.Enums;
+using MainCore.Common.Extensions;
 using MainCore.Common.Models;
 using MainCore.Common.Repositories;
+using MainCore.CQRS.Commands;
+using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
-using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
+using MediatR;
 using ReactiveUI;
-using System.Reactive;
 using System.Reactive.Linq;
+using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.Tabs.Villages
 {
     [RegisterAsSingleton(withoutInterface: true)]
     public class BuildViewModel : VillageTabViewModelBase
     {
-        private readonly IBuildingRepository _buildingRepository;
-        private readonly IJobRepository _jobRepository;
-
         private readonly ITaskManager _taskManager;
-
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
+        private readonly IMediator _mediator;
         private readonly IDialogService _dialogService;
 
         private readonly List<BuildingEnums> _availableBuildings = new();
 
-        public BuildViewModel(IJobRepository jobRepository, IBuildingRepository buildingRepository, IValidator<NormalBuildInput> normalBuildInputValidator, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager, IDialogService dialogService)
+        public BuildViewModel(IValidator<NormalBuildInput> normalBuildInputValidator, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager, IDialogService dialogService, IMediator mediator)
         {
-            _buildingRepository = buildingRepository;
-            _jobRepository = jobRepository;
             _normalBuildInputValidator = normalBuildInputValidator;
             _resourceBuildInputValidator = resourceBuildInputValidator;
 
-            _waitingOverlayViewModel = waitingOverlayViewModel;
             _taskManager = taskManager;
             _dialogService = dialogService;
+            _mediator = mediator;
 
             NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
             ResourceBuildCommand = ReactiveCommand.CreateFromTask(ResourceBuildTask);
@@ -71,7 +70,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         {
             if (!IsActive) return;
             if (villageId != VillageId) return;
-            await LoadJobs(villageId)
+            await LoadJobs(villageId);
+            await LoadBuildings(villageId);
         }
 
         protected override async Task Load(VillageId villageId)
@@ -79,10 +79,10 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             await LoadBuildings(villageId);
             await LoadJobs(villageId);
             LoadResourceBuild();
-            CheckBuildings();
+            ValidateVillage();
         }
 
-        private void CheckBuildings()
+        private void ValidateVillage()
         {
             if (Buildings.Count == 40)
             {
@@ -98,15 +98,21 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task LoadBuildings(VillageId villageId)
         {
-            var buildings = await Task.Run(() => _buildingRepository.GetBuildingItems(villageId));
-            Buildings.Load(buildings.Select(x => new ListBoxItem(x)));
+            var buildings = await _mediator.Send(new GetBuildingListBoxItemsQuery(villageId));
+            await Observable.Start(() =>
+            {
+                Buildings.Load(buildings);
+            }, RxApp.MainThreadScheduler);
         }
 
         private async Task LoadJobs(VillageId villageId)
         {
             IsEnableJob = true;
-            var jobs = await _jobRepository.GetAll(villageId);
-            Jobs.Load(jobs.Select(x => new ListBoxItem(x)));
+            var jobs = await _mediator.Send(new GetJobListBoxItemsQuery(villageId));
+            await Observable.Start(() =>
+            {
+                Jobs.Load(jobs);
+            }, RxApp.MainThreadScheduler);
         }
 
         private async Task LoadNormalBuild()
@@ -119,7 +125,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             IsEnableNormalBuild = true;
 
-            var building = await Task.Run(() => _buildingRepository.GetBuilding(Buildings.SelectedItemId));
+            var building = await _mediator.Send(new GetBuildingByIdQuery(new BuildingId(Buildings.SelectedItemId)));
             if (building.Type == BuildingEnums.Site)
             {
                 NormalBuildInput.Set(_availableBuildings);
@@ -146,12 +152,10 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             if (!result.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", result.ToString());
+                return;
             }
-            else
-            {
-                await NormalBuild(VillageId);
-                AddTask();
-            }
+            await NormalBuild(VillageId);
+            AddTask();
         }
 
         private async Task ResourceBuildTask()
@@ -160,12 +164,10 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             if (!result.IsValid)
             {
                 _dialogService.ShowMessageBox("Error", result.ToString());
+                return;
             }
-            else
-            {
-                await ResourceBuild(VillageId);
-                AddTask();
-            }
+            await ResourceBuild(VillageId);
+            AddTask();
         }
 
         private void AddTask()
@@ -185,10 +187,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            Jobs.Move(oldIndex, newIndex);
+            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
             Jobs.SelectedIndex = newIndex;
-
-            await _jobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id));
         }
 
         private async Task DownTask()
@@ -203,10 +203,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            Jobs.Move(oldIndex, newIndex);
+            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
             Jobs.SelectedIndex = newIndex;
-
-            await _jobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id));
         }
 
         private async Task TopTask()
@@ -221,10 +219,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            Jobs.Move(oldIndex, newIndex);
+            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
             Jobs.SelectedIndex = newIndex;
-
-            await _jobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id));
         }
 
         private async Task BottomTask()
@@ -239,43 +235,53 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            Jobs.Move(oldIndex, newIndex);
+            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
             Jobs.SelectedIndex = newIndex;
-
-            await _jobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id));
         }
 
         private async Task DeleteTask()
         {
             if (!Jobs.IsSelected) return;
+            var oldIndex = Jobs.SelectedIndex;
             var jobId = Jobs.SelectedItemId;
-            Jobs.Delete();
-            await _jobRepository.DeleteById(new JobId(jobId));
+            await _mediator.Send(new DeleteJobByIdCommand(new JobId(jobId)));
+            if (!Jobs.IsSelected) return;
+            if (oldIndex < Jobs.Count)
+            {
+                Jobs.SelectedIndex = oldIndex;
+            }
+            else
+            {
+                Jobs.SelectedIndex = Jobs.Count - 1;
+            }
         }
 
         private async Task DeleteAllTask()
         {
-            await _jobRepository.Clear(VillageId);
+            await _mediator.Send(new DeleteAllJobCommand(VillageId));
         }
 
         private async Task NormalBuild(VillageId villageId)
         {
-            var building = _buildingRepository.GetBuilding(Buildings.SelectedItemId);
+            var location = Buildings.SelectedIndex + 1;
             var (type, level) = NormalBuildInput.Get();
             var plan = new NormalBuildPlan()
             {
-                Location = building.Location,
+                Location = location,
                 Type = type,
                 Level = level,
             };
-            var result = _buildingRepository.CheckRequirements(VillageId, plan);
+
+            var buildings = await _mediator.Send(new GetBuildingsWithPlannedLevelQuery(villageId));
+            var result = CheckRequirements(buildings, plan);
             if (result.IsFailed)
             {
                 _dialogService.ShowMessageBox("Error", result.Errors.First().Message);
                 return;
             }
-            _buildingRepository.Validate(VillageId, plan);
-            await _jobRepository.Add(villageId, plan);
+            Validate(buildings, plan);
+
+            await _mediator.Send(new AddJobCommand<NormalBuildPlan>(VillageId, plan));
         }
 
         private async Task ResourceBuild(VillageId villageId)
@@ -286,7 +292,53 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 Plan = type,
                 Level = level,
             };
-            await _jobRepository.Add(villageId, plan);
+            await _mediator.Send(new AddJobCommand<ResourceBuildPlan>(villageId, plan));
+        }
+
+        private static Result CheckRequirements(List<BuildingItem> buildings, NormalBuildPlan plan)
+        {
+            var prerequisiteBuildings = plan.Type.GetPrerequisiteBuildings();
+            if (prerequisiteBuildings.Count == 0) return Result.Ok();
+            foreach (var prerequisiteBuilding in prerequisiteBuildings)
+            {
+                var building = buildings.FirstOrDefault(x => x.Type == prerequisiteBuilding.Type);
+                if (building is null) return Result.Fail($"Required {prerequisiteBuilding.Type.Humanize()} lvl {prerequisiteBuilding.Level}");
+                if (building.Level < prerequisiteBuilding.Level) return Result.Fail($"Required {prerequisiteBuilding.Type.Humanize()} lvl {prerequisiteBuilding.Level}");
+            }
+            return Result.Ok();
+        }
+
+        private static void Validate(List<BuildingItem> buildings, NormalBuildPlan plan)
+        {
+            if (plan.Type.IsWall())
+            {
+                plan.Location = 40;
+                return;
+            }
+            if (plan.Type.IsMultipleBuilding())
+            {
+                var sameTypeBuildings = buildings.Where(x => x.Type == plan.Type);
+                if (!sameTypeBuildings.Any()) return;
+                if (sameTypeBuildings.Where(x => x.Location == plan.Location).Any()) return;
+                var largestLevelBuilding = sameTypeBuildings.MaxBy(x => x.Level);
+                if (largestLevelBuilding.Level == plan.Type.GetMaxLevel()) return;
+                plan.Location = largestLevelBuilding.Location;
+                return;
+            }
+
+            if (plan.Type.IsResourceField())
+            {
+                var field = buildings.FirstOrDefault(x => x.Location == plan.Location);
+                if (plan.Type == field.Type) return;
+                plan.Type = field.Type;
+            }
+
+            {
+                var building = buildings.FirstOrDefault(x => x.Type == plan.Type);
+                if (building is null) return;
+                if (plan.Location == building.Location) return;
+                plan.Location = building.Location;
+            }
         }
 
         public ReactiveCommand<Unit, Unit> NormalBuildCommand { get; }

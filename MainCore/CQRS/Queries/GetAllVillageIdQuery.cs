@@ -33,6 +33,7 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
 
             var villages = context.Villages
+                .AsNoTracking()
                     .Where(x => x.AccountId == accountId)
                     .Select(x => x.Id)
                     .ToList();

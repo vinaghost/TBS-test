@@ -35,6 +35,7 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
 
             var items = context.FarmLists
+                .AsNoTracking()
                 .Where(x => x.AccountId == accountId)
                 .Select(x => new ListBoxItem()
                 {

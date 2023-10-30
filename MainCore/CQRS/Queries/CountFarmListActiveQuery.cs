@@ -33,6 +33,7 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
 
             var count = context.FarmLists
+                .AsNoTracking()
                 .Where(x => x.AccountId == accountId)
                 .Where(x => x.IsActive)
                 .Count();

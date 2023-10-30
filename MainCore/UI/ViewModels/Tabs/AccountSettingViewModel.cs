@@ -38,6 +38,13 @@ namespace MainCore.UI.ViewModels.Tabs
             ImportCommand = ReactiveCommand.CreateFromTask(ImportCommandHandler);
         }
 
+        public async Task SettingRefresh(AccountId accountId)
+        {
+            if (!IsActive) return;
+            if (accountId != AccountId) return;
+            await LoadSettings(accountId);
+        }
+
         protected override async Task Load(AccountId accountId)
         {
             await LoadSettings(accountId);
@@ -51,7 +58,8 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Error", result.ToString());
                 return;
             }
-            await _mediator.Send(new SaveAccountSettingByIdCommand(AccountId, AccountSettingInput.Get()));
+            var settings = AccountSettingInput.Get();
+            await _mediator.Send(new SaveAccountSettingByIdCommand(AccountId, settings));
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 

@@ -33,12 +33,13 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
 
             var villages = context.Villages
-                    .Where(x => x.AccountId == accountId)
-                    .Include(x => x.Buildings)
-                    .Where(x => x.Buildings.Count < 19)
-                    .OrderBy(x => x.Name)
-                    .Select(x => x.Id)
-                    .ToList();
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId)
+                .Include(x => x.Buildings)
+                .Where(x => x.Buildings.Count < 19)
+                .OrderBy(x => x.Name)
+                .Select(x => x.Id)
+                .ToList();
             return villages;
         }
     }
