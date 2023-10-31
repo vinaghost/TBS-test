@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.Common.Tasks;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.Update.Commands;
@@ -32,7 +32,7 @@ namespace MainCore.Features.Update.Tasks
         {
             if (CancellationToken.IsCancellationRequested) return new Cancel();
             Result result;
-            result = await _switchVillageCommand.Execute(AccountId, VillageId);
+            result = _switchVillageCommand.Execute(AccountId, VillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var chromeBrowser = _chromeManager.Get(AccountId);
@@ -41,7 +41,7 @@ namespace MainCore.Features.Update.Tasks
             {
                 result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _toDorfCommand.Execute(AccountId, 2);
+                result = _toDorfCommand.Execute(AccountId, 2);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
@@ -50,18 +50,18 @@ namespace MainCore.Features.Update.Tasks
             {
                 result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _toDorfCommand.Execute(AccountId, 1);
+                result = _toDorfCommand.Execute(AccountId, 1);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else
             {
-                result = await _toDorfCommand.Execute(AccountId, 2);
+                result = _toDorfCommand.Execute(AccountId, 2);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _toDorfCommand.Execute(AccountId, 1);
+                result = _toDorfCommand.Execute(AccountId, 1);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));

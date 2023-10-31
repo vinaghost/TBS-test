@@ -6,6 +6,6 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 {
     public interface IUpgradeCommand
     {
-        Task<Result> Execute(AccountId accountId, NormalBuildPlan plan);
+        Result Execute(AccountId accountId, NormalBuildPlan plan);
     }
 }

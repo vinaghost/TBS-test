@@ -2,7 +2,7 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -23,24 +23,24 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             _switchTabCommand = switchTabCommand;
         }
 
-        public async Task<Result> Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
+        public Result Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
             Result result;
-            result = await _toBuildingCommand.Execute(accountId, plan.Location);
+            result = _toBuildingCommand.Execute(accountId, plan.Location);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var building = _buildingRepository.GetBuilding(villageId, plan.Location);
             if (building.Type == BuildingEnums.Site)
             {
                 var tabIndex = GetBuildingsCategory(building.Type);
-                result = await _switchTabCommand.Execute(accountId, tabIndex);
+                result = _switchTabCommand.Execute(accountId, tabIndex);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else
             {
                 if (building.Level == 0) return Result.Ok();
                 if (!HasMultipleTabs(building.Type)) return Result.Ok();
-                result = await _switchTabCommand.Execute(accountId, 0);
+                result = _switchTabCommand.Execute(accountId, 0);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             return Result.Ok();

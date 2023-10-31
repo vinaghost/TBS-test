@@ -4,19 +4,12 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace MainCore.Common.Repositories
+namespace MainCore.Repositories
 {
     [RegisterAsTransient]
     public class VillageSettingRepository : IVillageSettingRepository
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
-
-        private readonly Dictionary<VillageSettingEnums, int> _defaultSettings = new()
-        {
-            { VillageSettingEnums.UseHeroResourceForBuilding , 0},
-            { VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding , 0 },
-            { VillageSettingEnums.UseSpecialUpgrade , 0 },
-        };
 
         public VillageSettingRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
@@ -25,7 +18,8 @@ namespace MainCore.Common.Repositories
 
         public int GetSetting(VillageId villageId, VillageSettingEnums setting)
         {
-            var settingEntity = _context.VillagesSetting
+            using var context = _contextFactory.CreateDbContext();
+            var settingEntity = context.VillagesSetting
                .FirstOrDefault(x => x.VillageId == villageId && x.Setting == setting);
             return settingEntity.Value;
         }
@@ -44,39 +38,17 @@ namespace MainCore.Common.Repositories
             return settingEntity != 0;
         }
 
-        public void CheckSetting(IDbContextFactory<AppDbContext> contextFactory, VillageId villageId)
-        {
-            var settings = _context
-                .VillagesSetting
-                .Where(x => x.VillageId == villageId)
-                .ToList();
-            foreach (var setting in _defaultSettings.Keys)
-            {
-                var settingEntity = settings.FirstOrDefault(x => x.Setting == setting);
-                if (settingEntity is null)
-                {
-                    settingEntity = new VillageSetting()
-                    {
-                        VillageId = villageId,
-                        Setting = setting,
-                        Value = _defaultSettings[setting],
-                    };
-
-                    _context.Add(settingEntity);
-                }
-            }
-            _context.SaveChanges();
-        }
-
         public Dictionary<VillageSettingEnums, int> Get(VillageId villageId)
         {
-            var settings = _context.VillagesSetting.Where(x => x.VillageId == villageId).ToDictionary(x => x.Setting, x => x.Value);
+            using var context = _contextFactory.CreateDbContext();
+            var settings = context.VillagesSetting.Where(x => x.VillageId == villageId).ToDictionary(x => x.Setting, x => x.Value);
             return settings;
         }
 
         public void Set(VillageId villageId, Dictionary<VillageSettingEnums, int> settings)
         {
-            var query = _context.VillagesSetting.Where(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.VillagesSetting.Where(x => x.VillageId == villageId);
 
             foreach (var setting in settings)
             {

@@ -1,6 +1,6 @@
 ﻿using MainCore.Entities;
 
-namespace MainCore.Common.Repositories
+namespace MainCore.Repositories
 {
     public interface IQueueBuildingRepository
     {

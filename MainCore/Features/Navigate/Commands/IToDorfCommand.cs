@@ -5,6 +5,6 @@ namespace MainCore.Features.Navigate.Commands
 {
     public interface IToDorfCommand
     {
-        Task<Result> Execute(AccountId accountId, int dorf);
+        Result Execute(AccountId accountId, int dorf);
     }
 }

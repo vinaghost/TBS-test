@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Farming;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.Update.Commands;
@@ -40,32 +40,32 @@ namespace MainCore.Features.Farming.Commands
             result = await _mediator.Send(new UpdateVillageListCommand(accountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            var rallypointVillageId = await GetVillageHasRallypoint(accountId);
+            var rallypointVillageId = GetVillageHasRallypoint(accountId);
             if (rallypointVillageId == VillageId.Empty) return Result.Fail(new NoRallypoint());
 
-            result = await _switchVillageCommand.Execute(accountId, rallypointVillageId);
+            result = _switchVillageCommand.Execute(accountId, rallypointVillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _toDorfCommand.Execute(accountId, 2);
+            result = _toDorfCommand.Execute(accountId, 2);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _toBuildingCommand.Execute(accountId, 39);
+            result = _toBuildingCommand.Execute(accountId, 39);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await _switchTabCommand.Execute(accountId, 4);
+            result = _switchTabCommand.Execute(accountId, 4);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 
-        private async Task<VillageId> GetVillageHasRallypoint(AccountId accountId)
+        private VillageId GetVillageHasRallypoint(AccountId accountId)
         {
-            var activeVillage = await _villageRepository.GetActiveVillageId(accountId);
-            if (_buildingRepository.HasRallyPoint(activeVillage))
+            var activeVillage = _villageRepository.GetActiveVillageId(accountId);
+            if (_buildingRepository.IsRallyPointExists(activeVillage))
             {
                 return activeVillage;
             }
 
-            var inactiveVillages = await _villageRepository.GetInactiveVillageId(accountId);
+            var inactiveVillages = _villageRepository.GetInactiveVillageId(accountId);
             foreach (var village in inactiveVillages)
             {
-                if (_buildingRepository.HasRallyPoint(village))
+                if (_buildingRepository.IsRallyPointExists(village))
                 {
                     return village;
                 }

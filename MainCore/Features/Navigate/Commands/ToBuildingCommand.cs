@@ -20,7 +20,7 @@ namespace MainCore.Features.Navigate.Commands
             _buildingParser = buildingParser;
         }
 
-        public async Task<Result> Execute(AccountId accountId, int location)
+        public Result Execute(AccountId accountId, int location)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -28,9 +28,9 @@ namespace MainCore.Features.Navigate.Commands
             if (node is null) return Result.Fail(Retry.NotFound($"{location}", "nodeBuilding"));
 
             Result result;
-            result = await chromeBrowser.Click(By.XPath(node.XPath));
+            result = chromeBrowser.Click(By.XPath(node.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.WaitPageLoaded();
+            result = chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

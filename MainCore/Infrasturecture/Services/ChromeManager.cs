@@ -1,6 +1,7 @@
 ﻿using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -23,7 +24,8 @@ namespace MainCore.Infrasturecture.Services
             var result = _dictionary.TryGetValue(accountId, out ChromeBrowser browser);
             if (result) return browser;
 
-            var account = _context.Accounts.Find(accountId);
+            using var context = _contextFactory.CreateDbContext();
+            var account = context.Accounts.Find(accountId);
 
             browser = new ChromeBrowser(_extensionsPath);
             _dictionary.TryAdd(accountId, browser);

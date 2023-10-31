@@ -21,7 +21,7 @@ namespace MainCore.Features.Navigate.Commands
             _chromeManager = chromeManager;
         }
 
-        public async Task<Result> Execute(AccountId accountId)
+        public Result Execute(AccountId accountId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -29,10 +29,10 @@ namespace MainCore.Features.Navigate.Commands
             if (avatar is null) return Result.Fail(Retry.ButtonNotFound("avatar hero"));
 
             Result result;
-            result = await chromeBrowser.Click(By.XPath(avatar.XPath));
+            result = chromeBrowser.Click(By.XPath(avatar.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await chromeBrowser.WaitPageChanged("hero");
+            result = chromeBrowser.WaitPageChanged("hero");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             bool tabActived(IWebDriver driver)
@@ -44,7 +44,7 @@ namespace MainCore.Features.Navigate.Commands
                 return _heroParser.IsCurrentTab(tab);
             };
 
-            result = await chromeBrowser.Wait(tabActived);
+            result = chromeBrowser.Wait(tabActived);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

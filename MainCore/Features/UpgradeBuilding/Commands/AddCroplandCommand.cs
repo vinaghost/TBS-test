@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MediatR;

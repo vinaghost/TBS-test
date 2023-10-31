@@ -1,6 +1,7 @@
 ﻿using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -50,7 +51,8 @@ namespace MainCore.Infrasturecture.Services
             var logger = _loggers.GetValueOrDefault(accountId);
             if (logger is null)
             {
-                var account = _context.Accounts.Find(accountId);
+                using var context = _contextFactory.CreateDbContext();
+                var account = context.Accounts.Find(accountId);
 
                 var uri = new Uri(account.Server);
                 logger = Log.ForContext("Account", $"{account.Username}_{uri.Host}")

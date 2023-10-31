@@ -1,6 +1,7 @@
 ﻿using MainCore.Infrasturecture.Persistence;
 using MainCore.UI.Notification;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.UI.Handler
 {
@@ -15,7 +16,8 @@ namespace MainCore.UI.Handler
 
         public async Task Handle(MainWindowLoaded notification, CancellationToken cancellationToken)
         {
-            await _context.Database.EnsureCreatedAsync(cancellationToken);
+            using var context = _contextFactory.CreateDbContext();
+            await context.Database.EnsureCreatedAsync(cancellationToken);
         }
     }
 }

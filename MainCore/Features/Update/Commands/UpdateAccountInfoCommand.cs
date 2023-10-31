@@ -1,8 +1,12 @@
 ﻿using FluentResults;
-using MainCore.Common.Repositories;
+using MainCore.Common.Notification;
+using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
+using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Features.Update.Commands
 {
@@ -10,13 +14,15 @@ namespace MainCore.Features.Update.Commands
     {
         private readonly IChromeManager _chromeManager;
         private readonly IAccountInfoParser _accountInfoParser;
-        private readonly IAccountInfoRepository _accountInfoRepository;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IMediator _mediator;
 
-        public UpdateAccountInfoCommand(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, IAccountInfoRepository accountInfoRepository)
+        public UpdateAccountInfoCommand(IChromeManager chromeManager, IAccountInfoParser accountInfoParser, IDbContextFactory<AppDbContext> contextFactory, IMediator mediator)
         {
             _chromeManager = chromeManager;
             _accountInfoParser = accountInfoParser;
-            _accountInfoRepository = accountInfoRepository;
+            _contextFactory = contextFactory;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(AccountId accountId)
@@ -24,8 +30,31 @@ namespace MainCore.Features.Update.Commands
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
             var dto = _accountInfoParser.Get(html);
-            await _accountInfoRepository.Update(accountId, dto);
+            await Task.Run(() => Update(accountId, dto));
+            await _mediator.Publish(new AccountInfoUpdated(accountId));
             return Result.Ok();
+        }
+
+        public void Update(AccountId accountId, AccountInfoDto dto)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var dbAccountInfo = context.AccountsInfo
+                .Where(x => x.AccountId == accountId)
+                .FirstOrDefault();
+
+            var mapper = new AccountInfoMapper();
+            if (dbAccountInfo is null)
+            {
+                var accountInfo = mapper.Map(accountId, dto);
+                context.Add(accountInfo);
+            }
+            else
+            {
+                mapper.MapToEntity(dto, dbAccountInfo);
+                context.Update(dbAccountInfo);
+            }
+            context.SaveChanges();
         }
     }
 }

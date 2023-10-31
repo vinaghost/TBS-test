@@ -3,8 +3,9 @@ using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
+using Microsoft.EntityFrameworkCore;
 
-namespace MainCore.Common.Repositories
+namespace MainCore.Repositories
 {
     [RegisterAsTransient]
     public class QueueBuildingRepository : IQueueBuildingRepository
@@ -24,7 +25,8 @@ namespace MainCore.Common.Repositories
 
         public QueueBuilding GetFirst(VillageId villageId)
         {
-            var queueBuildings = _context.QueueBuildings
+            using var context = _contextFactory.CreateDbContext();
+            var queueBuildings = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .OrderBy(x => x.Position);
             var queueBuilding = queueBuildings.FirstOrDefault();
@@ -33,7 +35,8 @@ namespace MainCore.Common.Repositories
 
         public List<QueueBuilding> GetList(VillageId villageId)
         {
-            var queueBuildings = _context.QueueBuildings
+            using var context = _contextFactory.CreateDbContext();
+            var queueBuildings = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site)
                 .OrderBy(x => x.Position);
             return queueBuildings.ToList();
@@ -41,7 +44,8 @@ namespace MainCore.Common.Repositories
 
         public void Update(VillageId villageId, List<Building> buildings)
         {
-            var queueBuildings = _context.QueueBuildings
+            using var context = _contextFactory.CreateDbContext();
+            var queueBuildings = context.QueueBuildings
                 .Where(x => x.VillageId == villageId && x.Type != BuildingEnums.Site);
 
             if (buildings.Count == 1)
@@ -53,7 +57,7 @@ namespace MainCore.Common.Repositories
                 {
                     item.Location = building.Location;
                 }
-                _context.UpdateRange(list);
+                context.UpdateRange(list);
             }
             else if (buildings.Count == 2)
             {
@@ -61,15 +65,16 @@ namespace MainCore.Common.Repositories
                 {
                     var queueBuilding = queueBuildings.FirstOrDefault(x => x.Type == building.Type);
                     queueBuilding.Location = building.Location;
-                    _context.Update(queueBuilding);
+                    context.Update(queueBuilding);
                 }
             }
-            _context.SaveChanges();
+            context.SaveChanges();
         }
 
         public void Update(VillageId villageId, List<QueueBuilding> queueBuildings)
         {
-            var dbQueueBuildings = _context.QueueBuildings.Where(x => x.VillageId == villageId);
+            using var context = _contextFactory.CreateDbContext();
+            var dbQueueBuildings = context.QueueBuildings.Where(x => x.VillageId == villageId);
 
             for (var i = 0; i < queueBuildings.Count; i++)
             {
@@ -77,17 +82,17 @@ namespace MainCore.Common.Repositories
                 var dbQueueBuilding = dbQueueBuildings.FirstOrDefault(x => x.Position == i);
                 if (dbQueueBuilding is null)
                 {
-                    _context.Add(queueBuilding);
+                    context.Add(queueBuilding);
                 }
                 else
                 {
                     dbQueueBuilding.Type = queueBuilding.Type;
                     dbQueueBuilding.Level = queueBuilding.Level;
                     dbQueueBuilding.CompleteTime = queueBuilding.CompleteTime;
-                    _context.Update(dbQueueBuilding);
+                    context.Update(dbQueueBuilding);
                 }
             }
-            _context.SaveChanges();
+            context.SaveChanges();
         }
 
         //private Task TriggerInstantUpgrade(VillageId villageId)
@@ -99,9 +104,9 @@ namespace MainCore.Common.Repositories
         //        AccountId accountId, count;
         //        using (var context = _contextFactory.CreateDbContext())
         //        {
-        //            var village = _context.Villages.Find(villageId);
+        //            var village = context.Villages.Find(villageId);
         //            accountId = village.VillageId;
-        //            count = _context.QueueBuildings.Where(x => x.VillageId == villageId).Count();
+        //            count = context.QueueBuildings.Where(x => x.VillageId == villageId).Count();
         //        }
 
         //        var isPlusActive = _accountInfoRepository.IsPlusActive(accountId);

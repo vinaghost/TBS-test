@@ -24,7 +24,7 @@ namespace MainCore.Features.InstantUpgrade.Commands
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(AccountId accountId)
+        public Result Execute(AccountId accountId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -34,7 +34,7 @@ namespace MainCore.Features.InstantUpgrade.Commands
 
             Result result;
 
-            result = await chromeBrowser.Click(By.XPath(completeNowButton.XPath));
+            result = chromeBrowser.Click(By.XPath(completeNowButton.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             bool confirmShown(IWebDriver driver)
@@ -45,14 +45,14 @@ namespace MainCore.Features.InstantUpgrade.Commands
                 return confirmButton is not null;
             };
 
-            result = await chromeBrowser.Wait(confirmShown);
+            result = chromeBrowser.Wait(confirmShown);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             html = chromeBrowser.Html;
             var confirmButton = _instantUpgradeParser.GetConfirmButton(html);
             if (confirmButton is null) return Result.Fail(Retry.ButtonNotFound("complete now"));
 
-            result = await chromeBrowser.Click(By.XPath(completeNowButton.XPath));
+            result = chromeBrowser.Click(By.XPath(completeNowButton.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

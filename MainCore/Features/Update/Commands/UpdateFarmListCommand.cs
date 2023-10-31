@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using MainCore.Common.Notification;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
@@ -24,12 +25,14 @@ namespace MainCore.Features.Update.Commands
         private readonly IChromeManager _chromeManager;
         private readonly IFarmListParser _farmListParser;
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IMediator _mediator;
 
-        public UpdateFarmListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IFarmListParser farmListParser)
+        public UpdateFarmListCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IFarmListParser farmListParser, IMediator mediator)
         {
             _chromeManager = chromeManager;
             _contextFactory = contextFactory;
             _farmListParser = farmListParser;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(UpdateFarmListCommand request, CancellationToken cancellationToken)
@@ -39,12 +42,16 @@ namespace MainCore.Features.Update.Commands
             var html = chromeBrowser.Html;
             var dtos = _farmListParser.Get(html);
             await Task.Run(() => Update(accountId, dtos.ToList()), cancellationToken);
+            await _mediator.Publish(new FarmListUpdated(accountId), cancellationToken);
             return Result.Ok();
         }
 
         private void Update(AccountId accountId, List<FarmListDto> dtos)
         {
-            var query = _context.FarmLists.Where(x => x.AccountId == accountId);
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.FarmLists
+                .Where(x => x.AccountId == accountId);
+
             var ids = query
                 .Select(x => x.Id)
                 .ToList();
@@ -58,19 +65,19 @@ namespace MainCore.Features.Update.Commands
                 if (dbFarmlist is null)
                 {
                     var farmlist = mapper.Map(accountId, dto);
-                    _context.Add(farmlist);
+                    context.Add(farmlist);
                 }
                 else
                 {
                     mapper.MapToEntity(dto, dbFarmlist);
-                    _context.Update(dbFarmlist);
+                    context.Update(dbFarmlist);
                 }
 
                 ids.Remove(dto.Id);
             }
-            _context.SaveChanges();
+            context.SaveChanges();
 
-            _context.FarmLists
+            context.FarmLists
                 .Where(x => ids.Contains(x.Id))
                 .ExecuteDelete();
         }

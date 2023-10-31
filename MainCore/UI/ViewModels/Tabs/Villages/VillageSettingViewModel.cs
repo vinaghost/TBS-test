@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MainCore.Common.Enums;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.CQRS.Commands;
 using MainCore.CQRS.Queries;
 using MainCore.Entities;

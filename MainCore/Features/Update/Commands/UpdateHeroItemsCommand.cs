@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using MainCore.Common.Notification;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
@@ -24,12 +25,14 @@ namespace MainCore.Features.Update.Commands
         private readonly IChromeManager _chromeManager;
         private readonly IHeroParser _heroParser;
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IMediator _mediator;
 
-        public UpdateHeroItemsCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IHeroParser heroParser)
+        public UpdateHeroItemsCommandCommandHandler(IChromeManager chromeManager, IDbContextFactory<AppDbContext> contextFactory, IHeroParser heroParser, IMediator mediator)
         {
             _chromeManager = chromeManager;
             _contextFactory = contextFactory;
             _heroParser = heroParser;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(UpdateHeroItemsCommand request, CancellationToken cancellationToken)
@@ -39,13 +42,15 @@ namespace MainCore.Features.Update.Commands
             var html = chromeBrowser.Html;
             var dtos = _heroParser.GetItems(html);
             await Task.Run(() => Update(accountId, dtos.ToList()), cancellationToken);
+            await _mediator.Publish(new HeroItemUpdated(accountId), cancellationToken);
             return Result.Ok();
         }
 
         private void Update(AccountId accountId, List<HeroItemDto> dtos)
         {
-            var query = _context.HeroItems.Where(x => x.AccountId == accountId);
-            var ids = query
+            using var context = _contextFactory.CreateDbContext();
+            var query = context.HeroItems.Where(x => x.AccountId == accountId);
+            var types = query
                 .Select(x => x.Type)
                 .ToList();
 
@@ -58,21 +63,21 @@ namespace MainCore.Features.Update.Commands
                 if (dbHeroItems is null)
                 {
                     var HeroItems = mapper.Map(accountId, dto);
-                    _context.Add(HeroItems);
+                    context.Add(HeroItems);
                 }
                 else
                 {
                     mapper.MapToEntity(dto, dbHeroItems);
-                    _context.Update(dbHeroItems);
+                    context.Update(dbHeroItems);
                 }
 
-                ids.Remove(dto.Type);
+                types.Remove(dto.Type);
             }
-            _context.SaveChanges();
+            context.SaveChanges();
 
-            _context.HeroItems
+            context.HeroItems
                 .Where(x => x.AccountId == accountId)
-                .Where(x => ids.Contains(x.Type))
+                .Where(x => types.Contains(x.Type))
                 .ExecuteDelete();
         }
     }

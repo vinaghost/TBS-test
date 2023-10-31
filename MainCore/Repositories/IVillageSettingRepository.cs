@@ -1,13 +1,10 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Entities;
-using MainCore.Infrasturecture.Persistence;
 
-namespace MainCore.Common.Repositories
+namespace MainCore.Repositories
 {
     public interface IVillageSettingRepository
     {
-        void CheckSetting(IDbContextFactory<AppDbContext> contextFactory, VillageId villageId);
-
         Dictionary<VillageSettingEnums, int> Get(VillageId villageId);
 
         bool GetBoolSetting(VillageId villageId, VillageSettingEnums setting);

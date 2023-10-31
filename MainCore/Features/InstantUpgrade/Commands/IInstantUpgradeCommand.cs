@@ -5,6 +5,6 @@ namespace MainCore.Features.InstantUpgrade.Commands
 {
     public interface IInstantUpgradeCommand
     {
-        Task<Result> Execute(AccountId accountId);
+        Result Execute(AccountId accountId);
     }
 }

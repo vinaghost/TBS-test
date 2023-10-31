@@ -7,7 +7,7 @@ using MainCore.Infrasturecture.Services;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace MainCore.Common.Repositories
+namespace MainCore.Repositories
 {
     [RegisterAsTransient]
     public class AccountRepository : IAccountRepository

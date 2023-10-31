@@ -37,7 +37,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
             if (button is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} with ads [1]"));
 
-            var result = await chromeBrowser.Click(By.XPath(button.XPath));
+            var result = chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var driver = chromeBrowser.Driver;
@@ -57,7 +57,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 return doc.GetElementbyId("videoFeature") is not null;
             };
 
-            result = await chromeBrowser.Wait(videoFeatureShown);
+            result = chromeBrowser.Wait(videoFeatureShown);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             await Task.Delay(Random.Shared.Next(20000, 25000));
@@ -66,7 +66,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             node = html.GetElementbyId("videoFeature");
             if (node is null) return Result.Fail(Retry.ButtonNotFound($"play ads"));
 
-            result = await chromeBrowser.Click(By.XPath(node.XPath));
+            result = chromeBrowser.Click(By.XPath(node.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             driver.SwitchTo().DefaultContent();
@@ -84,16 +84,16 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 driver.Close();
                 driver.SwitchTo().Window(current);
 
-                result = await chromeBrowser.Click(By.XPath(node.XPath));
+                result = chromeBrowser.Click(By.XPath(node.XPath));
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 driver.SwitchTo().DefaultContent();
             }
             while (true);
 
-            result = await chromeBrowser.WaitPageChanged("dorf");
+            result = chromeBrowser.WaitPageChanged("dorf");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.WaitPageLoaded();
+            result = chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

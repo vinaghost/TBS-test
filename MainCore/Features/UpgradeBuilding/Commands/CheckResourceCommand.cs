@@ -3,7 +3,7 @@ using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;

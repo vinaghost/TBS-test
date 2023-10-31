@@ -20,20 +20,13 @@ namespace MainCore.DTO
         {
             var entity = Map(dto);
             entity.VillageId = villageId;
-            entity.Type = Enum.Parse<BuildingEnums>(dto.Type);
             return entity;
         }
 
-        public void MapToEntity(QueueBuildingDto dto, QueueBuilding entity)
-        {
-            Map(dto, entity);
-            entity.Type = Enum.Parse<BuildingEnums>(dto.Type);
-        }
+        public partial void MapToEntity(QueueBuildingDto dto, QueueBuilding entity);
 
-        [MapperIgnoreSource(nameof(QueueBuildingDto.Type))]
         private partial QueueBuilding Map(QueueBuildingDto dto);
 
-        [MapperIgnoreSource(nameof(QueueBuildingDto.Type))]
-        private partial void Map(QueueBuildingDto dto, QueueBuilding entity);
+        private BuildingEnums StringToBuildingEnums(string str) => Enum.Parse<BuildingEnums>(str);
     }
 }

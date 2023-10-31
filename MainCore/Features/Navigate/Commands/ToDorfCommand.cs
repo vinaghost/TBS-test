@@ -22,7 +22,7 @@ namespace MainCore.Features.Navigate.Commands
             _chromeManager = chromeManager;
         }
 
-        public async Task<Result> Execute(AccountId accountId, int dorf)
+        public Result Execute(AccountId accountId, int dorf)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -31,9 +31,9 @@ namespace MainCore.Features.Navigate.Commands
             if (button is null) return Retry.ButtonNotFound($"dorf{dorf}");
 
             Result result;
-            result = await chromeBrowser.Click(By.XPath(button.XPath));
+            result = chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.WaitPageChanged($"dorf{dorf}");
+            result = chromeBrowser.WaitPageChanged($"dorf{dorf}");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

@@ -4,7 +4,6 @@ using MainCore.Common.Models;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MediatR;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.UpgradeBuilding.Commands
@@ -13,15 +12,13 @@ namespace MainCore.Features.UpgradeBuilding.Commands
     public class UpgradeGoldCommand : IUpgradeGoldCommand
     {
         private readonly IChromeManager _chromeManager;
-        private readonly IMediator _mediator;
 
-        public UpgradeGoldCommand(IChromeManager chromeManager, IMediator mediator)
+        public UpgradeGoldCommand(IChromeManager chromeManager)
         {
             _chromeManager = chromeManager;
-            _mediator = mediator;
         }
 
-        public async Task<Result> Execute(AccountId accountId, NormalBuildPlan plan)
+        public Result Execute(AccountId accountId, NormalBuildPlan plan)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -36,7 +33,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
             if (button is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} [1]"));
 
-            var result = await chromeBrowser.Click(By.XPath(button.XPath));
+            var result = chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

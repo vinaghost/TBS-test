@@ -5,6 +5,6 @@ namespace MainCore.Features.Farming.Commands
 {
     public interface ISendAllFarmListCommand
     {
-        Task<Result> Execute(AccountId accountId);
+        Result Execute(AccountId accountId);
     }
 }

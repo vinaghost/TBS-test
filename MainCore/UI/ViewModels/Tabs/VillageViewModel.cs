@@ -24,12 +24,13 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly IMediator _mediator;
         public ListBoxItemViewModel Villages { get; } = new();
 
-        public VillageViewModel(VillageTabStore villageTabStore, ITaskManager taskManager, IDialogService dialogService)
+        public VillageViewModel(VillageTabStore villageTabStore, ITaskManager taskManager, IDialogService dialogService, IMediator mediator)
         {
             _villageTabStore = villageTabStore;
             _dialogService = dialogService;
 
             _taskManager = taskManager;
+            _mediator = mediator;
 
             LoadCurrentCommand = ReactiveCommand.Create(LoadCurrentCommandHandler);
             LoadUnloadCommand = ReactiveCommand.CreateFromTask(LoadUnloadCommandHandler);

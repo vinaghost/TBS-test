@@ -1,6 +1,6 @@
 ﻿using MainCore.Common.Enums;
 
-namespace MainCore.Common.Repositories
+namespace MainCore.Repositories
 {
     public class BuildingItem
     {

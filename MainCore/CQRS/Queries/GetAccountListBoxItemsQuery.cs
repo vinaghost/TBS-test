@@ -11,7 +11,7 @@ namespace MainCore.CQRS.Queries
     {
     }
 
-    public class GetAccountItemsQueryHandler : IRequestHandler<List<ListBoxItem>>
+    public class GetAccountItemsQueryHandler : IRequestHandler<GetAccountListBoxItemsQuery, List<ListBoxItem>>
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly ITaskManager _taskManager;

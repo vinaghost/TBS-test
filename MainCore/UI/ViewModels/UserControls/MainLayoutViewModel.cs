@@ -1,7 +1,7 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
-using MainCore.CQRS.Commands.AccountByIdCommand;
-using MainCore.CQRS.Queries.ListBoxItemsQuery;
+using MainCore.CQRS.Commands;
+using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;

@@ -4,8 +4,9 @@ using MainCore.Common.Errors.Storage;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using Microsoft.EntityFrameworkCore;
 
-namespace MainCore.Common.Repositories
+namespace MainCore.Repositories
 {
     [RegisterAsTransient]
     public class HeroItemRepository : IHeroItemRepository
@@ -19,7 +20,8 @@ namespace MainCore.Common.Repositories
 
         public Result IsEnoughResource(AccountId accountId, long[] requiredResource)
         {
-            var items = _context.HeroItems.Where(x => x.AccountId == accountId);
+            using var context = _contextFactory.CreateDbContext();
+            var items = context.HeroItems.Where(x => x.AccountId == accountId);
 
             var result = Result.Ok();
             var wood = items.FirstOrDefault(x => x.Type == HeroItemEnums.Wood);
@@ -39,22 +41,23 @@ namespace MainCore.Common.Repositories
 
         public void Update(AccountId accountId, IEnumerable<HeroItem> items)
         {
-            var dbItems = _context.HeroItems.Where(x => x.AccountId == accountId).ToList();
+            using var context = _contextFactory.CreateDbContext();
+            var dbItems = context.HeroItems.Where(x => x.AccountId == accountId).ToList();
             foreach (var item in items)
             {
                 var dbItem = dbItems.FirstOrDefault(x => x.Type == item.Type);
                 if (dbItem is null)
                 {
-                    _context.Add(item);
+                    context.Add(item);
                 }
                 else
                 {
                     dbItem.Type = item.Type;
                     dbItem.Amount = item.Amount;
-                    _context.Update(dbItem);
+                    context.Update(dbItem);
                 }
             }
-            _context.SaveChanges();
+            context.SaveChanges();
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Common.Models;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.CQRS.Base;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;

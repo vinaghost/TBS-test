@@ -4,7 +4,7 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Storage;
 using MainCore.Common.Models;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.Common.Tasks;
 using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
@@ -60,7 +60,7 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
         {
             Result result;
 
-            result = await _switchVillageCommand.Execute(AccountId, VillageId);
+            result = _switchVillageCommand.Execute(AccountId, VillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             while (true)
             {
@@ -86,7 +86,7 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
                 }
 
                 var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-                result = await _goToBuildingPageCommand.Execute(AccountId, VillageId, plan);
+                result = _goToBuildingPageCommand.Execute(AccountId, VillageId, plan);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 result = await _checkResourceCommand.Execute(AccountId, VillageId, plan);
@@ -136,13 +136,13 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
                     }
                     else
                     {
-                        result = await _upgradeCommand.Execute(AccountId, plan);
+                        result = _upgradeCommand.Execute(AccountId, plan);
                         if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                     }
                 }
                 else
                 {
-                    result = await _constructCommand.Execute(AccountId, plan);
+                    result = _constructCommand.Execute(AccountId, plan);
                     if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 }
             }
@@ -155,9 +155,8 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
 
         private bool IsUpgradeable(NormalBuildPlan plan)
         {
-            var building = _buildingRepository.GetBuilding(VillageId, plan.Location);
-            if (building.Type == BuildingEnums.Site) return false;
-            return true;
+            var isEmptySite = _buildingRepository.IsEmptySite(VillageId, plan.Location);
+            return isEmptySite;
         }
 
         private bool IsSpecialUpgrade()
@@ -178,8 +177,8 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
             var html = chromeBrowser.Html;
 
             HtmlNode node;
-            var building = _buildingRepository.GetBuilding(villageId, plan.Location);
-            if (building.Type == BuildingEnums.Site)
+            var isEmptySite = _buildingRepository.IsEmptySite(villageId, plan.Location);
+            if (isEmptySite)
             {
                 node = html.GetElementbyId($"contract_building{(int)plan.Type}");
             }

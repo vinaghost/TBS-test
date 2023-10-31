@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -32,7 +32,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         {
             do
             {
-                var countJob = await _jobRepository.CountBuildingJob(villageId);
+                var countJob = _jobRepository.CountBuildingJob(villageId);
 
                 if (countJob == 0)
                 {
@@ -43,8 +43,8 @@ namespace MainCore.Features.UpgradeBuilding.Commands
 
                 if (countQueueBuilding == 0)
                 {
-                    var job = await _jobRepository.GetFirstJob(villageId);
-                    if (!await Validate(villageId, job)) continue;
+                    var job = _jobRepository.GetBuildingJob(villageId);
+                    if (await IsJobComplete(villageId, job)) continue;
                     Value = job;
                     return Result.Ok();
                 }
@@ -56,16 +56,16 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 {
                     if (isPlusActive)
                     {
-                        var job = await _jobRepository.GetFirstJob(villageId);
-                        if (!await Validate(villageId, job)) continue;
+                        var job = _jobRepository.GetBuildingJob(villageId);
+                        if (await IsJobComplete(villageId, job)) continue;
                         Value = job;
                         return Result.Ok();
                     }
                     if (isApplyRomanQueueLogic)
                     {
-                        var job = await GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
+                        var job = GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
                         if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
-                        if (!await Validate(villageId, job)) continue;
+                        if (await IsJobComplete(villageId, job)) continue;
                         Value = job;
                         return Result.Ok();
                     }
@@ -76,9 +76,9 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 {
                     if (isApplyRomanQueueLogic)
                     {
-                        var job = await GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
+                        var job = GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
                         if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
-                        if (!await Validate(villageId, job)) continue;
+                        if (await IsJobComplete(villageId, job)) continue;
                         Value = job;
                         return Result.Ok();
                     }
@@ -89,27 +89,27 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             while (true);
         }
 
-        private async Task<bool> Validate(VillageId villageId, JobDto job)
+        private async Task<bool> IsJobComplete(VillageId villageId, JobDto job)
         {
-            if (!_buildingRepository.IsJobValid(villageId, job))
+            if (_buildingRepository.IsJobComplete(villageId, job))
             {
                 await _jobRepository.DeleteById(job.Id);
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
 
-        private async Task<JobDto> GetJobBasedOnRomanLogic(VillageId villageId, int countQueueBuilding)
+        private JobDto GetJobBasedOnRomanLogic(VillageId villageId, int countQueueBuilding)
         {
             var countResourceQueueBuilding = _buildingRepository.CountResourceQueueBuilding(villageId);
             var countInfrastructureQueueBuilding = countQueueBuilding - countResourceQueueBuilding;
             if (countResourceQueueBuilding > countInfrastructureQueueBuilding)
             {
-                return await _jobRepository.GetInfrastructureBuildingJob(villageId);
+                return _jobRepository.GetInfrastructureBuildingJob(villageId);
             }
             else
             {
-                return await _jobRepository.GetResourceBuildingJob(villageId);
+                return _jobRepository.GetResourceBuildingJob(villageId);
             }
         }
     }

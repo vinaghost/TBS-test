@@ -43,7 +43,7 @@ namespace MainCore.CQRS.Commands
             await _mediator.Publish(new JobUpdated(request.VillageId), cancellationToken);
         }
 
-        public void Add<T>(VillageId villageId, T content)
+        public void Add(VillageId villageId, T content)
         {
             using var context = _contextFactory.CreateDbContext();
             var count = context.Jobs

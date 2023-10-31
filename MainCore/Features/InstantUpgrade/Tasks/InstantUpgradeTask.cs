@@ -30,13 +30,13 @@ namespace MainCore.Features.InstantUpgrade.Tasks
         public override async Task<Result> Execute()
         {
             Result result;
-            result = await _switchVillageCommand.Execute(AccountId, VillageId);
+            result = _switchVillageCommand.Execute(AccountId, VillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _toDorfCommand.Execute(AccountId, 1);
+            result = _toDorfCommand.Execute(AccountId, 1);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _instantUpgradeCommand.Execute(AccountId);
+            result = _instantUpgradeCommand.Execute(AccountId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = await _mediator.Send(new UpdateDorfCommand(AccountId, VillageId));

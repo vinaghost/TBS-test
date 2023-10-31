@@ -20,7 +20,7 @@ namespace MainCore.Features.Navigate.Commands
             _villageItemParser = villageItemParser;
         }
 
-        public async Task<Result> Execute(AccountId accountId, VillageId villageId)
+        public Result Execute(AccountId accountId, VillageId villageId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -30,9 +30,9 @@ namespace MainCore.Features.Navigate.Commands
             if (_villageItemParser.IsActive(node)) return Result.Ok();
 
             Result result;
-            result = await chromeBrowser.Click(By.XPath(node.XPath));
+            result = chromeBrowser.Click(By.XPath(node.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.WaitPageChanged($"{villageId}");
+            result = chromeBrowser.WaitPageChanged($"{villageId}");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

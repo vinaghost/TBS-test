@@ -6,7 +6,7 @@ namespace MainCore.DTO
 {
     public class BuildingDto
     {
-        public int Id { get; set; }
+        public BuildingId Id { get; set; }
         public BuildingEnums Type { get; set; }
         public int Level { get; set; }
         public bool IsUnderConstruction { get; set; }

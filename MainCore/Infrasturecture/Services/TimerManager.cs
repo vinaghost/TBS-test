@@ -1,7 +1,7 @@
 ﻿using FluentResults;
+using MainCore.Common.Commands;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
-using MainCore.Common.Repositories;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using Polly;
@@ -19,14 +19,14 @@ namespace MainCore.Infrasturecture.Services
         private readonly ITaskManager _taskManager;
         private readonly IChromeManager _chromeManager;
         private readonly ILogService _logService;
-        private readonly IAccountSettingRepository _accountSettingRepository;
+        private readonly IDelayTaskCommand _delayTaskCommand;
 
-        public TimerManager(ITaskManager taskManager, IChromeManager chromeManager, ILogService logService, IAccountSettingRepository accountSettingRepository)
+        public TimerManager(ITaskManager taskManager, IChromeManager chromeManager, ILogService logService, IDelayTaskCommand delayTaskCommand)
         {
             _taskManager = taskManager;
             _chromeManager = chromeManager;
             _logService = logService;
-            _accountSettingRepository = accountSettingRepository;
+            _delayTaskCommand = delayTaskCommand;
         }
 
         public async Task Execute(AccountId accountId)
@@ -128,8 +128,7 @@ namespace MainCore.Infrasturecture.Services
             taskInfo.CancellationTokenSource = null;
             _taskManager.ReOrder(accountId);
 
-            var taskDelayTime = _accountSettingRepository.GetSetting(accountId, AccountSettingEnums.TaskDelayMin, AccountSettingEnums.TaskDelayMax);
-            await Task.Delay(taskDelayTime);
+            await _delayTaskCommand.Execute(accountId);
         }
 
         public void Shutdown()

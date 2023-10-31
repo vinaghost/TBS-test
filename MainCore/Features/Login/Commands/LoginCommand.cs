@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Features.Login.Parsers;
 using MainCore.Features.Navigate.Parsers;
@@ -47,14 +47,14 @@ namespace MainCore.Features.Login.Commands
             var password = await _accountRepository.GetPasswordById(accountId);
 
             Result result;
-            result = await chromeBrowser.InputTextbox(By.XPath(usernameNode.XPath), username);
+            result = chromeBrowser.InputTextbox(By.XPath(usernameNode.XPath), username);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.InputTextbox(By.XPath(passwordNode.XPath), password);
+            result = chromeBrowser.InputTextbox(By.XPath(passwordNode.XPath), password);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = await chromeBrowser.Click(By.XPath(buttonNode.XPath));
+            result = chromeBrowser.Click(By.XPath(buttonNode.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await chromeBrowser.WaitPageChanged("dorf");
+            result = chromeBrowser.WaitPageChanged("dorf");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

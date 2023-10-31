@@ -21,7 +21,7 @@ namespace MainCore.Features.Navigate.Commands
             _navigationTabParser = navigationTabParser;
         }
 
-        public async Task<Result> Execute(AccountId accountId, int index)
+        public Result Execute(AccountId accountId, int index)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
@@ -32,7 +32,7 @@ namespace MainCore.Features.Navigate.Commands
             if (_navigationTabParser.IsTabActive(tab)) return Result.Ok();
 
             Result result;
-            result = await chromeBrowser.Click(By.XPath(tab.XPath));
+            result = chromeBrowser.Click(By.XPath(tab.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             bool tabActived(IWebDriver driver)
@@ -46,7 +46,7 @@ namespace MainCore.Features.Navigate.Commands
                 return true;
             };
 
-            result = await chromeBrowser.Wait(tabActived);
+            result = chromeBrowser.Wait(tabActived);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }

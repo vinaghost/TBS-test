@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
 using MainCore.Common.Notification;
-using MainCore.Common.Repositories;
+using MainCore.Repositories;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;

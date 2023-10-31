@@ -1,4 +1,5 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.CQRS.Base;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
 using MediatR;

@@ -159,7 +159,7 @@ namespace MainCore.CQRS.Queries
 
             var item = new ListBoxItem()
             {
-                Id = building.Id,
+                Id = building.Id.Value,
                 Content = $"[{building.Location}] {building.Type.Humanize()} | lvl {sb}",
                 Color = building.Type.GetColor(),
             };
