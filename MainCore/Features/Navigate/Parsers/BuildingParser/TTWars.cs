@@ -4,7 +4,7 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Features.Navigate.Parsers.BuildingParser
 {
-    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    [RegisterAsTransient(ServerEnums.TTWars)]
     public class TTWars : IBuildingParser
     {
         public HtmlNode GetBuilding(HtmlDocument doc, int location)
@@ -16,8 +16,8 @@ namespace MainCore.Features.Navigate.Parsers.BuildingParser
         private static HtmlNode GetField(HtmlDocument doc, int location)
         {
             var node = doc.DocumentNode
-                               .Descendants("a")
-                               .FirstOrDefault(x => x.HasClass($"buildingSlot{location}"));
+                .Descendants("a")
+                .FirstOrDefault(x => x.HasClass($"buildingSlot{location}"));
             return node;
         }
 
