@@ -5,8 +5,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     mc:Ignorable="d"
+    xmlns:uc="clr-namespace:WPFUI.Views.UserControls"
     d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="#FFE5E5E5">
-        <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="No account, use Add account or Add accounts button to add account" VerticalAlignment="Center" TextAlignment="Center" LineHeight="11" />
+        <!--<TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="No account, use Add account or Add accounts button to add account" VerticalAlignment="Center" TextAlignment="Center" LineHeight="11" />-->
     </Grid>
 </v:NoAccountTabBase>

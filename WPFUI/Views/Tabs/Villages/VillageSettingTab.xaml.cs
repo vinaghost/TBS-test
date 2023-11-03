@@ -25,6 +25,18 @@ namespace WPFUI.Views.Tabs.Villages
                 this.Bind(ViewModel, vm => vm.VillageSettingInput.UseHeroResourceForBuilding, v => v.UseHeroResForBuilding.IsChecked).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.VillageSettingInput.ApplyRomanQueueLogicWhenBuilding, v => v.UseRomanQueueLogic.IsChecked).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.VillageSettingInput.UseSpecialUpgrade, v => v.UseSpecialUpgrade.IsChecked).DisposeWith(d);
+
+                this.Bind(ViewModel, vm => vm.VillageSettingInput.Tribe, v => v.Tribes.ViewModel).DisposeWith(d);
+
+                this.Bind(ViewModel, vm => vm.VillageSettingInput.TrainTroopEnable, v => v.TrainTroopEnable.IsChecked).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.VillageSettingInput.TrainWhenLowResource, v => v.TrainWhenLowResource.IsChecked).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.TrainTroopRepeatTime, v => v.TrainTroopRepeatTime.ViewModel).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.BarrackTroop, v => v.BarrackTroop.ViewModel).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.BarrackAmount, v => v.BarrackAmount.ViewModel).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.StableTroop, v => v.StableTroop.ViewModel).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.StableAmount, v => v.StableAmount.ViewModel).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.WorkshopTroop, v => v.WorkshopTroop.ViewModel).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.WorkshopAmount, v => v.WorkshopAmount.ViewModel).DisposeWith(d);
             });
         }
     }

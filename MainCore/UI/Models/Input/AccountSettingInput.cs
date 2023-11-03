@@ -2,12 +2,12 @@
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
-using System.Collections.Generic;
 
 namespace MainCore.UI.Models.Input
 {
     public class AccountSettingInput : ViewModelBase
     {
+        public TribeSelectorViewModel Tribe { get; } = new();
         public RangeInputViewModel ClickDelay { get; } = new();
         public RangeInputViewModel TaskDelay { get; } = new();
 
@@ -15,6 +15,7 @@ namespace MainCore.UI.Models.Input
 
         public void Set(Dictionary<AccountSettingEnums, int> settings)
         {
+            Tribe.Set((TribeEnums)settings.GetValueOrDefault(AccountSettingEnums.Tribe));
             ClickDelay.Set(settings.GetValueOrDefault(AccountSettingEnums.ClickDelayMin), settings.GetValueOrDefault(AccountSettingEnums.ClickDelayMax));
             TaskDelay.Set(settings.GetValueOrDefault(AccountSettingEnums.TaskDelayMin), settings.GetValueOrDefault(AccountSettingEnums.TaskDelayMax));
             IsAutoLoadVillage = settings.GetValueOrDefault(AccountSettingEnums.IsAutoLoadVillage) == 1;
@@ -22,6 +23,7 @@ namespace MainCore.UI.Models.Input
 
         public Dictionary<AccountSettingEnums, int> Get()
         {
+            var tribe = (int)Tribe.Get();
             var (clickDelayMin, clickDelayMax) = ClickDelay.Get();
             var (taskDelayMin, taskDelayMax) = TaskDelay.Get();
             var isAutoLoadVillage = IsAutoLoadVillage ? 1 : 0;
@@ -33,6 +35,7 @@ namespace MainCore.UI.Models.Input
                 { AccountSettingEnums.TaskDelayMin, taskDelayMin },
                 { AccountSettingEnums.TaskDelayMax, taskDelayMax },
                 { AccountSettingEnums.IsAutoLoadVillage, isAutoLoadVillage },
+                { AccountSettingEnums.Tribe, tribe },
             };
             return settings;
         }

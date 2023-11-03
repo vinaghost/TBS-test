@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MainCore.Common.Enums;
 using MainCore.UI.Models.Input;
 
 namespace MainCore.UI.Models.Validators
@@ -19,6 +20,9 @@ namespace MainCore.UI.Models.Validators
             RuleFor(x => x.TaskDelay.Min)
                 .GreaterThanOrEqualTo(0)
                 .WithMessage("Minimum task delay ({PropertyValue}) should be positive number");
+            RuleFor(x => x.Tribe.SelectedItem.Tribe)
+                .NotEqual(TribeEnums.Any)
+                .WithMessage("Tribe should be specific");
         }
     }
 }

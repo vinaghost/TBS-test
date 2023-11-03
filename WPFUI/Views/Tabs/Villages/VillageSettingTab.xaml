@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:WPFUI.Views.Tabs.Villages"
+    xmlns:uc="clr-namespace:WPFUI.Views.UserControls"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800">
@@ -38,6 +38,33 @@
                         <CheckBox x:Name="UseHeroResForBuilding" Content="Use hero resources" />
                         <CheckBox x:Name="UseRomanQueueLogic" Content="Use Roman queue logic" />
                         <CheckBox x:Name="UseSpecialUpgrade" Content="Use Watch Ads upgrade method" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{DynamicResource Box}">
+                    <StackPanel>
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Village information" VerticalAlignment="Center" FontWeight="Bold" />
+                        <uc:TribeSelectorUc x:Name="Tribes" Text="Tribe" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{DynamicResource Box}">
+                    <StackPanel>
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Troop training settings" VerticalAlignment="Center" FontWeight="Bold" />
+                        <CheckBox x:Name="TrainTroopEnable" Content="Enable train troop" />
+                        <uc:RangeInputUc x:Name="TrainTroopRepeatTime" Text="Next train troop execute after" Unit="mins" />
+                        <CheckBox x:Name="TrainWhenLowResource" Content="Train maximum number if low on resource" />
+                        <StackPanel Orientation="Horizontal">
+                            <uc:TroopSelectorUc x:Name="BarrackTroop" Text="Train in barrack" />
+                            <uc:RangeInputUc x:Name="BarrackAmount" Text="for" Unit="unit(s)" Margin="10,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <uc:TroopSelectorUc x:Name="StableTroop" Text="Train in stable" />
+                            <uc:RangeInputUc x:Name="StableAmount" Text="for" Unit="unit(s)" Margin="10,0,0,0" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <uc:TroopSelectorUc x:Name="WorkshopTroop" Text="Train in workshop" />
+                            <uc:RangeInputUc x:Name="WorkshopAmount" Text="for" Unit="unit(s)" Margin="10,0,0,0" />
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>

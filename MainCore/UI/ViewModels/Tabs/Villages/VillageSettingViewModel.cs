@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MainCore.Common.Enums;
-using MainCore.Repositories;
 using MainCore.CQRS.Commands;
 using MainCore.CQRS.Queries;
 using MainCore.Entities;
@@ -8,7 +7,6 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
-using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 using ReactiveUI;
 using System.Reactive.Linq;
@@ -23,9 +21,6 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         public VillageSettingInput VillageSettingInput { get; } = new();
         private readonly IValidator<VillageSettingInput> _villageSettingInputValidator;
 
-        private readonly IVillageSettingRepository _villageSettingRepository;
-
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
 
@@ -33,11 +28,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public VillageSettingViewModel(IVillageSettingRepository villageSettingRepository, WaitingOverlayViewModel waitingOverlayViewModel, IValidator<VillageSettingInput> villageSettingInputValidator, IDialogService dialogService, IMediator mediator)
+        public VillageSettingViewModel(IValidator<VillageSettingInput> villageSettingInputValidator, IDialogService dialogService, IMediator mediator)
         {
-            _villageSettingRepository = villageSettingRepository;
-
-            _waitingOverlayViewModel = waitingOverlayViewModel;
             _villageSettingInputValidator = villageSettingInputValidator;
             _dialogService = dialogService;
             _mediator = mediator;

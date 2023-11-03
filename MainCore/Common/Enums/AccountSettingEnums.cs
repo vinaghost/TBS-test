@@ -10,5 +10,6 @@
         UseStartAllButton,
         FarmIntervalMin,
         FarmIntervalMax,
+        Tribe,
     }
 }

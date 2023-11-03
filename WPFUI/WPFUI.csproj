@@ -16,6 +16,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
     <PackageReference Include="ReactiveUI.WPF" Version="18.4.1" />
     
