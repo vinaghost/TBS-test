@@ -62,6 +62,11 @@ namespace MainCore.CQRS.Commands
             }
             context.AddRange(accounts);
             context.SaveChanges();
+
+            foreach (var account in accounts)
+            {
+                context.FillAccountSettings(account.Id);
+            }
         }
     }
 }

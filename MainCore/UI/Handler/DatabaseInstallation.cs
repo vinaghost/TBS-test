@@ -17,7 +17,12 @@ namespace MainCore.UI.Handler
         public async Task Handle(MainWindowLoaded notification, CancellationToken cancellationToken)
         {
             using var context = _contextFactory.CreateDbContext();
-            await context.Database.EnsureCreatedAsync(cancellationToken);
+            var created = await context.Database.EnsureCreatedAsync(cancellationToken);
+            if (created)
+            {
+                await Task.Run(context.FillAccountSettings, cancellationToken);
+                await Task.Run(context.FillVillageSettings, cancellationToken);
+            }
         }
     }
 }

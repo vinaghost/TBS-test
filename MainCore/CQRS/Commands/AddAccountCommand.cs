@@ -59,6 +59,7 @@ namespace MainCore.CQRS.Commands
             }
             context.Add(account);
             context.SaveChanges();
+            context.FillAccountSettings(account.Id);
             return true;
         }
     }
