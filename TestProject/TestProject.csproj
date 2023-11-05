@@ -4,6 +4,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>

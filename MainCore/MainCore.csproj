@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
 
     <!--<Server>TRAVIAN_OFFICIAL</Server>-->
@@ -39,6 +41,5 @@
     <PackageReference Include="Splat" Version="14.7.1" />
     <PackageReference Include="Splat.Microsoft.Extensions.DependencyInjection" Version="14.7.1" />
     <PackageReference Include="StronglyTypedId" Version="1.0.0-beta06" PrivateAssets="all" ExcludeAssets="runtime" />
-    
   </ItemGroup>
 </Project>
