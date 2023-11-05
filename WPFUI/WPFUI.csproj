@@ -13,10 +13,15 @@
     <AssemblyName>TravianBotSharp</AssemblyName>
     <AssemblyVersion>1975.4.30</AssemblyVersion>
     <SignAssembly>False</SignAssembly>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <Resource Include="Resources\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="favicon.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />

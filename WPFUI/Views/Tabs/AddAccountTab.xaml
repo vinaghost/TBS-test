@@ -31,25 +31,24 @@
             </Grid>
         </Border>
         <Border Style="{DynamicResource Box}"  Grid.Row="1">
-                <Grid Margin="5,0,5,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="3*" />
-                        <ColumnDefinition Width="5*" />
-                    </Grid.ColumnDefinitions>
-                    <TextBox x:Name="PasswordTextBox"       Grid.Column="0" Grid.Row="0" materialDesign:HintAssist.Hint="Password" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
-                    <TextBox x:Name="ProxyHostTextBox"      Grid.Column="0" Grid.Row="1" materialDesign:HintAssist.Hint="Proxy's host" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
-                    <TextBox x:Name="ProxyPortTextBox"      Grid.Column="2" Grid.Row="1" materialDesign:HintAssist.Hint="Proxy's port" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
-                    <TextBox x:Name="ProxyUsernameTextBox"  Grid.Column="0" Grid.Row="2" materialDesign:HintAssist.Hint="Proxy's username" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
-                    <TextBox x:Name="ProxyPasswordTextBox"  Grid.Column="2" Grid.Row="2" materialDesign:HintAssist.Hint="Proxy's password" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
-                </Grid>
-                
+            <Grid Margin="5,0,5,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="5*" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="PasswordTextBox"       Grid.Column="0" Grid.Row="0" materialDesign:HintAssist.Hint="Password (*)" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                <TextBox x:Name="ProxyHostTextBox"      Grid.Column="0" Grid.Row="1" materialDesign:HintAssist.Hint="Proxy's host" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                <TextBox x:Name="ProxyPortTextBox"      Grid.Column="2" Grid.Row="1" materialDesign:HintAssist.Hint="Proxy's port" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                <TextBox x:Name="ProxyUsernameTextBox"  Grid.Column="0" Grid.Row="2" materialDesign:HintAssist.Hint="Proxy's username" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                <TextBox x:Name="ProxyPasswordTextBox"  Grid.Column="2" Grid.Row="2" materialDesign:HintAssist.Hint="Proxy's password" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+            </Grid>
         </Border>
         <Border Grid.Row="2" Margin="10">
             <Grid>
@@ -78,6 +77,6 @@
             </DataGrid>
         </Border>
 
-        <Button x:Name="AddAccountButton" Content="Add account" Grid.Row="4"  Margin="10"/>
+        <Button x:Name="AddAccountButton" Content="Add account" Grid.Row="4"  Margin="10" />
     </Grid>
 </v:AddAccountTabBase>
