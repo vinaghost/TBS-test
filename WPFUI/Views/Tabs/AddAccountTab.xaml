@@ -5,78 +5,67 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800">
     <Grid Background="#FFE5E5E5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Border Style="{DynamicResource Box}">
-            <Grid>
+            <Grid Margin="5,0,5,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
-                    <RowDefinition Height="10" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="5*" />
                 </Grid.ColumnDefinitions>
-                <Label                              Grid.Column="0" Grid.Row="0" Content="Server url:"  HorizontalContentAlignment="Right" />
-                <TextBox x:Name="ServerTextBox"     Grid.Column="1" Grid.Row="0" />
-                <Label                              Grid.Column="0" Grid.Row="2" Content="Username:"    HorizontalContentAlignment="Right" />
-                <TextBox x:Name="UsernameTextBox"   Grid.Column="1" Grid.Row="2" />
+                <TextBox x:Name="ServerTextBox"    Grid.Row="0" materialDesign:HintAssist.Hint="Server Url" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                <TextBox x:Name="UsernameTextBox"  Grid.Row="1" materialDesign:HintAssist.Hint="Username" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
             </Grid>
         </Border>
         <Border Style="{DynamicResource Box}"  Grid.Row="1">
-            <StackPanel Orientation="Vertical">
-                <Grid>
+                <Grid Margin="5,0,5,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="10" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="10" />
                         <RowDefinition Height="Auto" />
-                        <RowDefinition Height="10" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="3*" />
                         <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="3*" />
                         <ColumnDefinition Width="5*" />
                     </Grid.ColumnDefinitions>
-                    <Label                                  Grid.Column="0" Grid.Row="0" Content="Password (*):"        HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="PasswordTextBox"       Grid.Column="1" Grid.Row="0" />
-                    <Label                                  Grid.Column="0" Grid.Row="2" Content="Proxy's host:"        HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyHostTextBox"      Grid.Column="1" Grid.Row="2" />
-                    <Label                                  Grid.Column="3" Grid.Row="2" Content="Proxy's port:"        HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyPortTextBox"      Grid.Column="4" Grid.Row="2" />
-                    <Label                                  Grid.Column="0" Grid.Row="4" Content="Proxy's username:"    HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyUsernameTextBox"  Grid.Column="1" Grid.Row="4" />
-                    <Label                                  Grid.Column="3" Grid.Row="4" Content="Proxy's password:"    HorizontalContentAlignment="Right" />
-                    <TextBox x:Name="ProxyPasswordTextBox"  Grid.Column="4" Grid.Row="4" />
+                    <TextBox x:Name="PasswordTextBox"       Grid.Column="0" Grid.Row="0" materialDesign:HintAssist.Hint="Password" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                    <TextBox x:Name="ProxyHostTextBox"      Grid.Column="0" Grid.Row="1" materialDesign:HintAssist.Hint="Proxy's host" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                    <TextBox x:Name="ProxyPortTextBox"      Grid.Column="2" Grid.Row="1" materialDesign:HintAssist.Hint="Proxy's port" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                    <TextBox x:Name="ProxyUsernameTextBox"  Grid.Column="0" Grid.Row="2" materialDesign:HintAssist.Hint="Proxy's username" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
+                    <TextBox x:Name="ProxyPasswordTextBox"  Grid.Column="2" Grid.Row="2" materialDesign:HintAssist.Hint="Proxy's password" Style="{DynamicResource MaterialDesignFloatingHintTextBox}" />
                 </Grid>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="4*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="4*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="4*" />
-                    </Grid.ColumnDefinitions>
-                    <Button  x:Name="AddAccessButton"       Grid.Column="0" Content="Add access" />
-                    <Button  x:Name="EditAccessButton"      Grid.Column="2" Content="Edit access" />
-                    <Button  x:Name="DeleteAccessButton"    Grid.Column="4" Content="Delete access" />
-                </Grid>
-            </StackPanel>
+                
         </Border>
-        <Border Style="{DynamicResource Box}"  Grid.Row="2">
+        <Border Grid.Row="2" Margin="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="4*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="4*" />
+                </Grid.ColumnDefinitions>
+                <Button  x:Name="AddAccessButton"       Grid.Column="0" Content="Add access" />
+                <Button  x:Name="EditAccessButton"      Grid.Column="2" Content="Edit access" />
+                <Button  x:Name="DeleteAccessButton"    Grid.Column="4" Content="Delete access" />
+            </Grid>
+        </Border>
+        <Border Style="{DynamicResource Box}"  Grid.Row="3">
             <DataGrid x:Name="ProxiesDataGrid" IsReadOnly="True" AutoGenerateColumns="False">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Password" Binding="{Binding Password}" />
@@ -89,6 +78,6 @@
             </DataGrid>
         </Border>
 
-        <Button x:Name="AddAccountButton" Content="Add account" Grid.Row="3" />
+        <Button x:Name="AddAccountButton" Content="Add account" Grid.Row="4"  Margin="10"/>
     </Grid>
 </v:AddAccountTabBase>

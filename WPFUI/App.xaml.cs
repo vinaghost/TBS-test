@@ -35,12 +35,12 @@ namespace WPFUI
             dialogService.OpenFileDialogFunc = OpenFileDialog;
         }
 
-        private void ShowMessage(string message, string title)
+        private void ShowMessage(string title, string message)
         {
             MessageBox.Show(message, title);
         }
 
-        private bool ShowConfirm(string message, string title)
+        private bool ShowConfirm(string title, string message)
         {
             var answer = MessageBox.Show(message, title, MessageBoxButton.YesNo);
             return answer == MessageBoxResult.Yes;

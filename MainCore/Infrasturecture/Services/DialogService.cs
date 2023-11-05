@@ -14,8 +14,8 @@ namespace MainCore.Infrasturecture.Services
 
         public string SaveFileDialog() => SaveFileDialogFunc?.Invoke();
 
-        public void ShowMessageBox(string message, string title) => MessageBoxFunc?.Invoke(message, title);
+        public void ShowMessageBox(string title, string message) => MessageBoxFunc?.Invoke(title, message);
 
-        public bool ShowConfirmBox(string message, string title) => ConfirmBoxFunc?.Invoke(message, title) ?? false;
+        public bool ShowConfirmBox(string title, string message) => ConfirmBoxFunc?.Invoke(title, message) ?? false;
     }
 }
