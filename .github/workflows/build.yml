@@ -19,6 +19,7 @@ jobs:
       - name: Load cached dependencies
         uses: actions/cache@v3
         with:
+            path: ~/.nuget/packages
             key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
             restore-keys: ${{ runner.os }}-nuget-
 
