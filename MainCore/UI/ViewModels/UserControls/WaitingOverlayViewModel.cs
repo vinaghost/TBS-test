@@ -1,36 +1,41 @@
 ﻿using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.UI.ViewModels.Abstract;
 using ReactiveUI;
+using System.Reactive.Linq;
 
 namespace MainCore.UI.ViewModels.UserControls
 {
     [RegisterAsSingleton(withoutInterface: true)]
     public class WaitingOverlayViewModel : ViewModelBase
     {
-        private readonly IDialogService _dialogService;
-
-        public WaitingOverlayViewModel(IDialogService dialogService)
+        public WaitingOverlayViewModel()
         {
-            _dialogService = dialogService;
-            BusyMessage = "is initializing";
+            Message = "is initializing";
         }
 
-        public async Task<bool> Show(string message, Func<Task> func)
+        public async Task Show()
         {
-            try
+            await Observable.Start(() =>
             {
-                BusyMessage = message;
                 Shown = true;
-                await func();
-                Shown = false;
-                return true;
-            }
-            catch (Exception ex)
+            }, RxApp.MainThreadScheduler);
+        }
+
+        public async Task Hide()
+        {
+            await Observable.Start(() =>
             {
-                _dialogService.ShowMessageBox("Error", $"{ex.Message} \n {ex.StackTrace}");
-                return false;
-            }
+                Shown = false;
+                Message = "is initializing";
+            }, RxApp.MainThreadScheduler);
+        }
+
+        public async Task ChangeMessage(string message)
+        {
+            await Observable.Start(() =>
+            {
+                Message = message;
+            }, RxApp.MainThreadScheduler);
         }
 
         private bool _shown;
@@ -41,15 +46,15 @@ namespace MainCore.UI.ViewModels.UserControls
             set => this.RaiseAndSetIfChanged(ref _shown, value);
         }
 
-        private string _busyMessage;
+        private string _message;
 
-        public string BusyMessage
+        public string Message
         {
-            get => _busyMessage;
+            get => _message;
             set
             {
                 var formattedValue = string.IsNullOrWhiteSpace(value) ? value : $"TBS is {value} ...";
-                this.RaiseAndSetIfChanged(ref _busyMessage, formattedValue);
+                this.RaiseAndSetIfChanged(ref _message, formattedValue);
             }
         }
     }

@@ -1,5 +1,7 @@
 ﻿using MainCore.UI.ViewModels;
+using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
+using Splat;
 using System;
 using System.ComponentModel;
 using System.Reactive.Disposables;
@@ -26,10 +28,11 @@ namespace WPFUI.Views
             Loaded += OnLoaded;
             Closing += OnClosing;
 
+            WaitingOverlay.ViewModel = Locator.Current.GetService<WaitingOverlayViewModel>();
+
             this.WhenActivated(d =>
             {
                 this.Bind(ViewModel, vm => vm.MainLayoutViewModel, v => v.MainLayout.Content).DisposeWith(d);
-                this.Bind(ViewModel, vm => vm.WaitingOverlayViewModel, v => v.WaitingOverlay.Content).DisposeWith(d);
             });
         }
 

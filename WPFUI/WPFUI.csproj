@@ -5,8 +5,11 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+  </PropertyGroup>
+
+  <PropertyGroup>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    
     <AssemblyName>TravianBotSharp</AssemblyName>
     <AssemblyVersion>1975.4.30</AssemblyVersion>
     <SignAssembly>False</SignAssembly>

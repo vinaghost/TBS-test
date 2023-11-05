@@ -22,12 +22,7 @@
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-        <ContentControl x:Name="WaitingOverlay">
-            <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type vm_uc:WaitingOverlayViewModel}">
-                    <v_uc:WaitingOverlayUc ViewModel="{Binding .}" />
-                </DataTemplate>
-            </ContentControl.Resources>
-        </ContentControl>
+
+        <v_uc:WaitingOverlayUc x:Name="WaitingOverlay" />
     </Grid>
 </v:MainWindowBase>

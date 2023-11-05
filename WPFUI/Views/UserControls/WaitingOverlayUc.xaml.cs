@@ -20,7 +20,7 @@ namespace WPFUI.Views.UserControls
             this.WhenActivated(d =>
             {
                 this.OneWayBind(ViewModel, vm => vm.Shown, v => v.Grid.Visibility).DisposeWith(d);
-                this.OneWayBind(ViewModel, vm => vm.BusyMessage, v => v.Message.Text).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.Message, v => v.Message.Text).DisposeWith(d);
             });
         }
     }
