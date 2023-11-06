@@ -16,6 +16,29 @@ namespace MainCore.UI.Models.Input
             Useragent = "";
         }
 
+        public void CopyTo(AccessInput target)
+        {
+            target.Password = Password;
+            target.ProxyHost = ProxyHost;
+            target.ProxyPort = ProxyPort;
+            target.ProxyUsername = ProxyUsername;
+            target.ProxyPassword = ProxyPassword;
+            target.Useragent = Useragent;
+        }
+
+        public AccessInput Clone()
+        {
+            return new AccessInput()
+            {
+                Password = Password,
+                ProxyHost = ProxyHost,
+                ProxyPort = ProxyPort,
+                ProxyUsername = ProxyUsername,
+                ProxyPassword = ProxyPassword,
+                Useragent = Useragent,
+            };
+        }
+
         public int Id { get; set; }
         private string _password;
         private string _proxyHost;
@@ -62,10 +85,10 @@ namespace MainCore.UI.Models.Input
     }
 
     [Mapper]
-    public partial class AccessInputMapper
+    public static partial class AccessInputMapper
     {
-        public partial AccessDto Map(AccessInput input);
+        public static partial AccessDto ToDto(this AccessInput input);
 
-        public partial void Map(AccessDto dto, AccessInput input);
+        public static partial AccessInput ToInput(this AccessDto dto);
     }
 }

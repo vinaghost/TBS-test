@@ -12,12 +12,19 @@ namespace MainCore.UI.Models.Input
         public AccountId Id { get; set; }
         private string _username;
         private string _server;
-        public ObservableCollection<AccessDto> Accesses = new();
+        public ObservableCollection<AccessInput> Accesses = new();
 
-        public void SetAccesses(ICollection<AccessDto> accesses)
+        public void SetAccesses(IEnumerable<AccessInput> accesses)
         {
             Accesses.Clear();
             Accesses.AddRange(accesses);
+        }
+
+        public void Clear()
+        {
+            Server = "";
+            Username = "";
+            Accesses.Clear();
         }
 
         public string Username
@@ -34,18 +41,18 @@ namespace MainCore.UI.Models.Input
     }
 
     [Mapper]
-    public partial class AccountInputMapper
+    public static partial class AccountInputMapper
     {
-        public partial AccountDto Map(AccountInput input);
+        public static partial AccountDto ToDto(this AccountInput input);
 
-        public void Map(AccountDto account, AccountInput input)
+        public static void To(this AccountDto account, AccountInput input)
         {
-            MapInput(account, input);
+            account.MapTo(input);
             input.Accesses.Clear();
-            input.Accesses.AddRange(account.Accesses);
+            input.Accesses.AddRange(account.Accesses.Select(x => x.ToInput()));
         }
 
         [MapperIgnoreTarget(nameof(AccountInput.Accesses))]
-        private partial void MapInput(AccountDto account, AccountInput input);
+        private static partial void MapTo(this AccountDto account, AccountInput input);
     }
 }

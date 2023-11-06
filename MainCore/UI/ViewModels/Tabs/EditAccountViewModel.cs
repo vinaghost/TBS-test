@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MainCore.CQRS.Commands;
 using MainCore.CQRS.Queries;
-using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
@@ -18,21 +17,19 @@ namespace MainCore.UI.ViewModels.Tabs
     [RegisterAsSingleton(withoutInterface: true)]
     public class EditAccountViewModel : AccountTabViewModelBase
     {
-        public AccessInput AccessInput { get; } = new();
-        private readonly IValidator<AccessInput> _accessInputValidator;
         public AccountInput AccountInput { get; } = new();
+        public AccessInput AccessInput { get; } = new();
+
+        private readonly IValidator<AccessInput> _accessInputValidator;
         private readonly IValidator<AccountInput> _accountInputValidator;
+
+        private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
-
-        private AccessDto _selectedAcess;
-
+        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         public ReactiveCommand<Unit, Unit> AddAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccountCommand { get; }
-
-        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-        private readonly IDialogService _dialogService;
 
         public EditAccountViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IMediator mediator, IDialogService dialogService)
         {
@@ -50,11 +47,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             this.WhenAnyValue(vm => vm.SelectedAccess)
                 .WhereNotNull()
-                .Subscribe(x =>
-                {
-                    var mapper = new AccessInputMapper();
-                    mapper.Map(x, AccessInput);
-                });
+                .Subscribe(x => x.CopyTo(AccessInput));
         }
 
         protected override async Task Load(AccountId accountId)
@@ -72,9 +65,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
 
-            var mapper = new AccessInputMapper();
-            var dto = mapper.Map(AccessInput);
-            AccountInput.Accesses.Add(dto);
+            AccountInput.Accesses.Add(AccessInput.Clone());
         }
 
         private void EditAccessCommandHandler()
@@ -87,8 +78,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
 
-            var mapper = new AccessInputMapper();
-            mapper.Map(SelectedAccess, AccessInput);
+            AccessInput.CopyTo(SelectedAccess);
         }
 
         private void DeleteAccessCommandHandler()
@@ -106,10 +96,13 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Error", results.ToString());
                 return;
             }
-            var mapper = new AccountInputMapper();
-            var dto = mapper.Map(AccountInput);
 
+            await _waitingOverlayViewModel.Show("editing account");
+
+            var dto = AccountInput.ToDto();
             await _mediator.Send(new EditAccountCommand(dto));
+
+            await _waitingOverlayViewModel.Hide();
             _dialogService.ShowMessageBox("Information", "Edited accounts");
         }
 
@@ -122,16 +115,18 @@ namespace MainCore.UI.ViewModels.Tabs
                 AccountInput.Id = account.Id;
                 AccountInput.Username = account.Username;
                 AccountInput.Server = account.Server;
-                AccountInput.SetAccesses(account.Accesses);
+                AccountInput.SetAccesses(account.Accesses.Select(x => x.ToInput()));
 
                 AccessInput.Clear();
             }, RxApp.MainThreadScheduler);
         }
 
-        public AccessDto SelectedAccess
+        private AccessInput _selectedAccess;
+
+        public AccessInput SelectedAccess
         {
-            get => _selectedAcess;
-            set => this.RaiseAndSetIfChanged(ref _selectedAcess, value);
+            get => _selectedAccess;
+            set => this.RaiseAndSetIfChanged(ref _selectedAccess, value);
         }
     }
 }

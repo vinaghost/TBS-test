@@ -13,6 +13,15 @@ namespace MainCore.UI.ViewModels.UserControls
             Message = "is initializing";
         }
 
+        public async Task Show(string message)
+        {
+            await Observable.Start(() =>
+            {
+                Shown = true;
+                Message = message;
+            }, RxApp.MainThreadScheduler);
+        }
+
         public async Task Show()
         {
             await Observable.Start(() =>
