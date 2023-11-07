@@ -40,18 +40,17 @@ namespace MainCore.Features.Update.Commands
             using var context = _contextFactory.CreateDbContext();
 
             var dbAccountInfo = context.AccountsInfo
-                .Where(x => x.AccountId == accountId)
+                .Where(x => x.AccountId == accountId.Value)
                 .FirstOrDefault();
 
-            var mapper = new AccountInfoMapper();
             if (dbAccountInfo is null)
             {
-                var accountInfo = mapper.Map(accountId, dto);
+                var accountInfo = dto.ToEntity(accountId);
                 context.Add(accountInfo);
             }
             else
             {
-                mapper.MapToEntity(dto, dbAccountInfo);
+                dto.To(dbAccountInfo);
                 context.Update(dbAccountInfo);
             }
             context.SaveChanges();

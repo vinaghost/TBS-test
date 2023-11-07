@@ -13,23 +13,23 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class JobMapper
+    public static partial class JobMapper
     {
-        public Job Map(VillageId villageId, JobDto dto)
+        public static Job ToEntity(this JobDto dto, VillageId villageId)
         {
-            var entity = Map(dto);
-            entity.VillageId = villageId;
+            var entity = dto.ToEntity();
+            entity.VillageId = villageId.Value;
             return entity;
         }
 
-        public partial JobDto Map(Job dto);
+        public static partial JobDto ToDto(this Job dto);
 
-        private partial Job Map(JobDto dto);
-    }
+        private static partial Job ToEntity(this JobDto dto);
 
-    [Mapper]
-    public static partial class JobStaticMapper
-    {
-        public static partial IQueryable<JobDto> ProjectToDto(this IQueryable<Job> entities);
+        public static partial IQueryable<JobDto> ToDto(this IQueryable<Job> entities);
+
+        private static int ToInt(this JobId jobId) => jobId.Value;
+
+        private static JobId ToJobId(this int value) => new(value);
     }
 }

@@ -15,25 +15,25 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class VillageMapper
+    public static partial class VillageMapper
     {
-        public Village Map(AccountId accountId, VillageDto dto)
+        public static Village ToEntity(this VillageDto dto, AccountId accountId)
         {
-            var entity = Map(dto);
-            entity.AccountId = accountId;
+            var entity = ToEntity(dto);
+            entity.AccountId = accountId.Value;
             return entity;
         }
 
-        public partial void MapToEntity(VillageDto dto, Village entity);
+        public static partial void To(this VillageDto dto, Village entity);
 
-        public partial VillageDto Map(Village dto);
+        public static partial VillageDto ToDto(this Village dto);
 
-        private partial Village Map(VillageDto dto);
-    }
+        private static partial Village ToEntity(this VillageDto dto);
 
-    [Mapper]
-    public static partial class VillageStaticMapper
-    {
-        public static partial IQueryable<VillageDto> ProjectToDto(this IQueryable<Village> entities);
+        public static partial IQueryable<VillageDto> ToDto(this IQueryable<Village> entities);
+
+        private static int ToInt(this VillageId villageId) => villageId.Value;
+
+        private static VillageId ToVillageId(this int value) => new(value);
     }
 }

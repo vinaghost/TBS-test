@@ -34,20 +34,21 @@ namespace MainCore.CQRS.Queries
 
             var accounts = context.Accounts
                 .AsNoTracking()
-                .AsEnumerable();
-            var items = accounts.Select(x =>
-            {
-                var serverUrl = new Uri(x.Server);
-                var status = _taskManager.GetStatus(x.Id);
-                return new ListBoxItem()
+                .AsEnumerable()
+                .Select(x =>
                 {
-                    Id = x.Id.Value,
-                    Color = status.GetColor(),
-                    Content = $"{x.Username}{Environment.NewLine}({serverUrl.Host})"
-                };
-            }).ToList();
+                    var serverUrl = new Uri(x.Server);
+                    var status = _taskManager.GetStatus(new(x.Id));
+                    return new ListBoxItem()
+                    {
+                        Id = x.Id,
+                        Color = status.GetColor(),
+                        Content = $"{x.Username}{Environment.NewLine}({serverUrl.Host})"
+                    };
+                })
+                .ToList();
 
-            return items;
+            return accounts;
         }
     }
 }

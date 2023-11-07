@@ -17,33 +17,12 @@ namespace MainCore.Repositories
             _contextFactory = contextFactory;
         }
 
-        public void Update(VillageId villageId, Storage storage)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            var storageOnDb = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
-            if (storageOnDb is null)
-            {
-                context.Add(storage);
-            }
-            else
-            {
-                storageOnDb.FreeCrop = storage.FreeCrop;
-                storageOnDb.Crop = storage.Crop;
-                storageOnDb.Iron = storage.Iron;
-                storageOnDb.Clay = storage.Clay;
-                storageOnDb.Iron = storage.Iron;
-                storageOnDb.Warehouse = storage.Warehouse;
-                storageOnDb.Granary = storage.Granary;
-                context.Update(storageOnDb);
-            }
-
-            context.SaveChanges();
-        }
-
         public Result IsEnoughResource(VillageId villageId, long[] requiredResource)
         {
             using var context = _contextFactory.CreateDbContext();
-            var storage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
+            var storage = context.Storages
+                .Where(x => x.VillageId == villageId.Value)
+                .FirstOrDefault();
             var result = Result.Ok();
             if (storage.Wood < requiredResource[0]) result.WithError(new Resource("wood", storage.Wood, requiredResource[0]));
             if (storage.Clay < requiredResource[1]) result.WithError(new Resource("clay", storage.Clay, requiredResource[1]));
@@ -60,7 +39,9 @@ namespace MainCore.Repositories
         public long[] GetMissingResource(VillageId villageId, long[] requiredResource)
         {
             using var context = _contextFactory.CreateDbContext();
-            var storage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
+            var storage = context.Storages
+                .Where(x => x.VillageId == villageId.Value)
+                .FirstOrDefault();
 
             var resource = new long[4];
             if (storage.Wood < requiredResource[0]) resource[0] = requiredResource[0] - storage.Wood;

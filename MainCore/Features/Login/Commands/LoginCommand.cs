@@ -1,11 +1,11 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
-using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Features.Login.Parsers;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Login.Commands
@@ -43,8 +43,8 @@ namespace MainCore.Features.Login.Commands
             var passwordNode = _loginPageParser.GetPasswordNode(html);
             if (passwordNode is null) return Retry.TextboxNotFound("password");
 
-            var username = await _accountRepository.GetUsernameById(accountId);
-            var password = await _accountRepository.GetPasswordById(accountId);
+            var username = await Task.Run(() => _accountRepository.GetUsernameById(accountId));
+            var password = await Task.Run(() => _accountRepository.GetPasswordById(accountId));
 
             Result result;
             result = chromeBrowser.InputTextbox(By.XPath(usernameNode.XPath), username);

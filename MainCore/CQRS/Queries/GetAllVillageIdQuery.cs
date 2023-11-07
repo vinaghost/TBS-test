@@ -34,9 +34,11 @@ namespace MainCore.CQRS.Queries
 
             var villages = context.Villages
                 .AsNoTracking()
-                    .Where(x => x.AccountId == accountId)
-                    .Select(x => x.Id)
-                    .ToList();
+                .Where(x => x.AccountId == accountId.Value)
+                .Select(x => x.Id)
+                .AsEnumerable()
+                .Select(x => new VillageId(x))
+                .ToList();
             return villages;
         }
     }

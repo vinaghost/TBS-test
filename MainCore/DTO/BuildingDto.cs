@@ -14,25 +14,25 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class BuildingMapper
+    public static partial class BuildingMapper
     {
-        public Building Map(VillageId villageId, BuildingDto dto)
+        public static Building ToEntity(this BuildingDto dto, VillageId villageId)
         {
-            var entity = Map(dto);
-            entity.VillageId = villageId;
+            var entity = dto.ToEntity();
+            entity.VillageId = villageId.Value;
             return entity;
         }
 
-        public partial BuildingDto Map(Building entity);
+        public static partial BuildingDto ToDto(this Building entity);
 
-        public partial void MapToEntity(BuildingDto dto, Building entity);
+        public static partial void To(this BuildingDto dto, Building entity);
 
-        private partial Building Map(BuildingDto dto);
-    }
+        private static partial Building ToEntity(this BuildingDto dto);
 
-    [Mapper]
-    public static partial class BuildingStaticMapper
-    {
-        public static partial IQueryable<BuildingDto> ProjectToDto(this IQueryable<Building> entities);
+        public static partial IQueryable<BuildingDto> ToDto(this IQueryable<Building> entities);
+
+        private static int ToInt(this BuildingId buildingId) => buildingId.Value;
+
+        private static BuildingId ToBuildingId(this int value) => new(value);
     }
 }

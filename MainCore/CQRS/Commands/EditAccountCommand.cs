@@ -40,8 +40,7 @@ namespace MainCore.CQRS.Commands
         {
             using var context = _contextFactory.CreateDbContext();
 
-            var mapper = new AccountMapper();
-            var account = mapper.Map(dto);
+            var account = dto.ToEntity();
             foreach (var access in account.Accesses)
             {
                 if (string.IsNullOrEmpty(access.Useragent))

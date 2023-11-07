@@ -13,17 +13,17 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class AccountInfoMapper
+    public static partial class AccountInfoMapper
     {
-        public AccountInfo Map(AccountId accountId, AccountInfoDto dto)
+        public static AccountInfo ToEntity(this AccountInfoDto dto, AccountId accountId)
         {
-            var entity = Map(dto);
-            entity.AccountId = accountId;
+            var entity = ToEntity(dto);
+            entity.AccountId = accountId.Value;
             return entity;
         }
 
-        public partial void MapToEntity(AccountInfoDto dto, AccountInfo entity);
+        public static partial void To(this AccountInfoDto dto, AccountInfo entity);
 
-        private partial AccountInfo Map(AccountInfoDto dto);
+        private static partial AccountInfo ToEntity(AccountInfoDto dto);
     }
 }

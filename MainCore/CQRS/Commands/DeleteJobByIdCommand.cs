@@ -40,17 +40,17 @@ namespace MainCore.CQRS.Commands
 
             var job = context.Jobs
                 .AsNoTracking()
-                .Where(x => x.Id == jobId)
+                .Where(x => x.Id == jobId.Value)
                 .FirstOrDefault();
             context.Jobs
-                .Where(x => x.Id == jobId)
+                .Where(x => x.Id == jobId.Value)
                 .ExecuteDelete();
 
             context.Jobs
                 .Where(x => x.VillageId == job.VillageId)
                 .Where(x => x.Position > job.Position)
                 .ExecuteUpdate(x => x.SetProperty(x => x.Position, x => x.Position - 1));
-            return job.VillageId;
+            return new(job.VillageId);
         }
     }
 }

@@ -49,36 +49,32 @@ namespace MainCore.Features.Update.Commands
         private void Update(AccountId accountId, List<FarmListDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
-            var query = context.FarmLists
-                .Where(x => x.AccountId == accountId);
-
-            var ids = query
-                .Select(x => x.Id)
+            var dbFarmLists = context.FarmLists
+                .Where(x => x.AccountId == accountId.Value)
                 .ToList();
 
-            var dbFarmLists = query.ToList();
-
-            var mapper = new FarmListMapper();
             foreach (var dto in dtos)
             {
-                var dbFarmlist = dbFarmLists.FirstOrDefault(x => x.Id == dto.Id);
+                var dbFarmlist = dbFarmLists
+                    .Where(x => x.Id == dto.Id.Value)
+                    .FirstOrDefault();
                 if (dbFarmlist is null)
                 {
-                    var farmlist = mapper.Map(accountId, dto);
+                    var farmlist = dto.ToEntity(accountId);
                     context.Add(farmlist);
                 }
                 else
                 {
-                    mapper.MapToEntity(dto, dbFarmlist);
+                    dto.To(dbFarmlist);
                     context.Update(dbFarmlist);
+                    dbFarmLists.Remove(dbFarmlist);
                 }
-
-                ids.Remove(dto.Id);
             }
             context.SaveChanges();
 
+            var removedFarmLists = dbFarmLists.Select(x => x.Id).AsEnumerable();
             context.FarmLists
-                .Where(x => ids.Contains(x.Id))
+                .Where(x => removedFarmLists.Contains(x.Id))
                 .ExecuteDelete();
         }
     }

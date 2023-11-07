@@ -39,7 +39,7 @@ namespace MainCore.CQRS.Commands
         {
             using var context = _contextFactory.CreateDbContext();
             context.FarmLists
-               .Where(x => x.Id == farmListId)
+               .Where(x => x.Id == farmListId.Value)
                .ExecuteUpdate(x => x.SetProperty(x => x.IsActive, x => !x.IsActive));
         }
     }

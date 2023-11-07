@@ -23,6 +23,9 @@ namespace MainCore
         {
             services.AddDbContextFactory<AppDbContext>(
                 options => options
+#if DEBUG
+                    .EnableSensitiveDataLogging()
+#endif
                     .ReplaceService<IValueConverterSelector, StronglyTypedIdValueConverterSelector>()
                     .UseSqlite(_connectionString)
             );

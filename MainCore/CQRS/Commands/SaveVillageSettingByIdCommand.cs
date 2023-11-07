@@ -28,19 +28,17 @@ namespace MainCore.CQRS.Commands
 
         public async Task Handle(SaveVillageSettingByIdCommand request, CancellationToken cancellationToken)
         {
-            await Task.Run(
-                () => SaveSettings(request.VillageId, request.Settings),
-                cancellationToken);
+            await Task.Run(() => SaveSettings(request.VillageId, request.Settings), cancellationToken);
         }
 
-        private void SaveSettings(VillageId VillageId, Dictionary<VillageSettingEnums, int> settings)
+        private void SaveSettings(VillageId villageId, Dictionary<VillageSettingEnums, int> settings)
         {
             using var context = _contextFactory.CreateDbContext();
 
             foreach (var setting in settings)
             {
                 context.VillagesSetting
-                    .Where(x => x.VillageId == VillageId)
+                    .Where(x => x.VillageId == villageId.Value)
                     .Where(x => x.Setting == setting.Key)
                     .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
             }

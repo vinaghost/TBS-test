@@ -35,7 +35,7 @@ namespace MainCore.CQRS.Commands
         {
             using var context = _contextFactory.CreateDbContext();
             context.Accounts
-                .Where(x => x.Id == accountId)
+                .Where(x => x.Id == accountId.Value)
                 .ExecuteDelete();
         }
     }

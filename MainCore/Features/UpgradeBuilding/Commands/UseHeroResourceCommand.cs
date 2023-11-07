@@ -3,13 +3,13 @@ using HtmlAgilityPack;
 using MainCore.Common.Commands;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
-using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.Navigate.Parsers;
 using MainCore.Features.Update.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
 using MediatR;
 using OpenQA.Selenium;
 

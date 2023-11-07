@@ -17,23 +17,19 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class AccessMapper
+    public static partial class AccessStaticMapper
     {
-        public Access Map(AccountId accountId, AccessDto dto)
+        public static Access ToEntity(this AccessDto dto, AccountId accountId)
         {
-            var entity = Map(dto);
-            entity.AccountId = accountId;
+            var entity = dto.ToEntity();
+            entity.AccountId = accountId.Value;
             return entity;
         }
 
-        public partial AccessDto Map(Access dto);
+        public static partial AccessDto ToDto(this Access entity);
 
-        private partial Access Map(AccessDto dto);
-    }
+        private static partial Access ToEntity(this AccessDto dto);
 
-    [Mapper]
-    public static partial class AccessStaticMapper
-    {
-        public static partial IQueryable<AccessDto> ProjectToDto(this IQueryable<Access> entities);
+        public static partial IQueryable<AccessDto> ToDto(this IQueryable<Access> entities);
     }
 }

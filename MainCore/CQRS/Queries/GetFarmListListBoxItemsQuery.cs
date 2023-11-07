@@ -36,10 +36,10 @@ namespace MainCore.CQRS.Queries
 
             var items = context.FarmLists
                 .AsNoTracking()
-                .Where(x => x.AccountId == accountId)
+                .Where(x => x.AccountId == accountId.Value)
                 .Select(x => new ListBoxItem()
                 {
-                    Id = x.Id.Value,
+                    Id = x.Id,
                     Color = x.IsActive ? Color.Green : Color.Red,
                     Content = x.Name,
                 })

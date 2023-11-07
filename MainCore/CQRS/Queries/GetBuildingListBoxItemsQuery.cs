@@ -41,11 +41,12 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
             var villageBuildings = context.Buildings
                 .AsNoTracking()
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .OrderBy(x => x.Location)
+                .AsEnumerable()
                 .Select(x => new BuildingItemDto()
                 {
-                    Id = x.Id,
+                    Id = new BuildingId(x.Id),
                     Location = x.Location,
                     Type = x.Type,
                     Level = x.Level,
@@ -54,7 +55,7 @@ namespace MainCore.CQRS.Queries
 
             var queueBuildings = context.QueueBuildings
                 .AsNoTracking()
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type != BuildingEnums.Site)
                 .GroupBy(x => x.Location)
                 .Select(x => new Building()
@@ -75,10 +76,12 @@ namespace MainCore.CQRS.Queries
             }
 
             var jobBuildings = context.Jobs
-                .Where(x => x.VillageId == villageId)
+                .AsNoTracking()
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type == JobTypeEnums.NormalBuild)
+                .Select(x => x.Content)
                 .AsEnumerable()
-                .Select(x => JsonSerializer.Deserialize<NormalBuildPlan>(x.Content))
+                .Select(x => JsonSerializer.Deserialize<NormalBuildPlan>(x))
                 .GroupBy(x => x.Location)
                 .Select(x => new Building()
                 {
@@ -97,10 +100,12 @@ namespace MainCore.CQRS.Queries
             }
 
             var resourceJobs = context.Jobs
-               .Where(x => x.VillageId == villageId)
+               .AsNoTracking()
+               .Where(x => x.VillageId == villageId.Value)
                .Where(x => x.Type == JobTypeEnums.ResourceBuild)
+               .Select(x => x.Content)
                .AsEnumerable()
-               .Select(x => JsonSerializer.Deserialize<ResourceBuildPlan>(x.Content))
+               .Select(x => JsonSerializer.Deserialize<ResourceBuildPlan>(x))
                .GroupBy(x => x.Plan)
                .Select(x => new ResourceBuildPlan
                {

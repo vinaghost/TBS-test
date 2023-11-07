@@ -34,11 +34,12 @@ namespace MainCore.CQRS.Queries
 
             var villages = context.Villages
                 .AsNoTracking()
-                .Where(x => x.AccountId == accountId)
+                .Where(x => x.AccountId == accountId.Value)
                 .Include(x => x.Buildings)
                 .Where(x => x.Buildings.Count < 19)
                 .OrderBy(x => x.Name)
-                .Select(x => x.Id)
+                .AsEnumerable()
+                .Select(x => new VillageId(x.Id))
                 .ToList();
             return villages;
         }

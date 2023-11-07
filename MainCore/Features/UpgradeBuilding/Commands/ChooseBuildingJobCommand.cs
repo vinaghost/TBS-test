@@ -1,11 +1,10 @@
 ﻿using FluentResults;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
-using MainCore.Repositories;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MediatR;
+using MainCore.Repositories;
 
 namespace MainCore.Features.UpgradeBuilding.Commands
 {
@@ -16,16 +15,14 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         private readonly IBuildingRepository _buildingRepository;
         private readonly IAccountInfoRepository _accountInfoRepository;
         private readonly IVillageSettingRepository _villageSettingRepository;
-        private readonly IMediator _mediator;
         public JobDto Value { get; private set; }
 
-        public ChooseBuildingJobCommand(IJobRepository jobRepository, IBuildingRepository buildingRepository, IAccountInfoRepository accountInfoRepository, IVillageSettingRepository villageSettingRepository, IMediator mediator)
+        public ChooseBuildingJobCommand(IJobRepository jobRepository, IBuildingRepository buildingRepository, IAccountInfoRepository accountInfoRepository, IVillageSettingRepository villageSettingRepository)
         {
             _jobRepository = jobRepository;
             _buildingRepository = buildingRepository;
             _accountInfoRepository = accountInfoRepository;
             _villageSettingRepository = villageSettingRepository;
-            _mediator = mediator;
         }
 
         public async Task<Result> Execute(AccountId accountId, VillageId villageId)
@@ -50,7 +47,7 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 }
 
                 var isPlusActive = _accountInfoRepository.IsPlusActive(accountId);
-                var isApplyRomanQueueLogic = _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
+                var isApplyRomanQueueLogic = _villageSettingRepository.GetBooleanByName(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
 
                 if (countQueueBuilding == 1)
                 {

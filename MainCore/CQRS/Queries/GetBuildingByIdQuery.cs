@@ -36,8 +36,9 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
 
             var building = context.Buildings
-                .Where(x => x.Id == buildingId)
-                .ProjectToDto()
+                .AsNoTracking()
+                .Where(x => x.Id == buildingId.Value)
+                .ToDto()
                 .FirstOrDefault();
             return building;
         }

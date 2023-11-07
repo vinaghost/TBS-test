@@ -57,14 +57,16 @@ namespace MainCore.CQRS.Commands
 
             using var context = _contextFactory.CreateDbContext();
             var account = context.Accounts
-                .Where(x => x.Id == accountId)
-                .ProjectToDto()
+                .AsNoTracking()
+                .Where(x => x.Id == accountId.Value)
+                .ToDto()
                 .FirstOrDefault();
 
             var access = context.Accesses
-                .Where(x => x.AccountId == accountId)
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
                 .OrderBy(x => x.LastUsed) // get oldest one
-                .ProjectToDto()
+                .ToDto()
                 .FirstOrDefault();
 
             var result = chromeBrowser.Setup(account, access);
@@ -76,23 +78,28 @@ namespace MainCore.CQRS.Commands
         {
             using var context = _contextFactory.CreateDbContext();
 
+            var types = new List<JobTypeEnums>() {
+                JobTypeEnums.NormalBuild,
+                JobTypeEnums.ResourceBuild
+            };
             var hasBuildJobVillages = context.Villages
-                .Where(x => x.AccountId == accountId)
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
                 .Select(x => x.Id)
                 .Join(
                     context.Jobs,
                     villageId => villageId,
                     job => job.VillageId,
-                    (VillageId, job) => new
+                    (villageId, job) => new
                     {
-                        VillageId,
+                        VillageId = villageId,
                         job.Type
                     })
-                .Where(x =>
-                        x.Type == JobTypeEnums.NormalBuild
-                     || x.Type == JobTypeEnums.ResourceBuild)
+                .Where(x => types.Contains(x.Type))
                 .GroupBy(x => x.VillageId)
-                .Select(x => x.Key);
+                .Select(x => x.Key)
+                .AsEnumerable()
+                .Select(x => new VillageId(x));
 
             foreach (var village in hasBuildJobVillages)
             {

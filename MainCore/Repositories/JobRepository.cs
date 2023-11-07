@@ -35,14 +35,14 @@ namespace MainCore.Repositories
             using var context = _contextFactory.CreateDbContext();
 
             context.Jobs
-               .Where(x => x.VillageId == villageId)
+               .Where(x => x.VillageId == villageId.Value)
                .ExecuteUpdate(x =>
                    x.SetProperty(x => x.Position, x => x.Position + 1));
 
             var job = new Job()
             {
                 Position = 0,
-                VillageId = villageId,
+                VillageId = villageId.Value,
                 Type = _jobTypes[typeof(T)],
                 Content = JsonSerializer.Serialize(content),
             };
@@ -60,7 +60,7 @@ namespace MainCore.Repositories
                 JobTypeEnums.ResourceBuild
             };
             var count = context.Jobs
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => types.Contains(x.Type))
                 .Count();
             return count;
@@ -78,9 +78,9 @@ namespace MainCore.Repositories
                 BuildingEnums.Cropland
             };
             var job = context.Jobs
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type == JobTypeEnums.NormalBuild)
-                .ProjectToDto()
+                .ToDto()
                 .AsEnumerable()
                 .Select(x => new
                 {
@@ -93,9 +93,9 @@ namespace MainCore.Repositories
                 .FirstOrDefault();
 
             var resourceBuildJob = context.Jobs
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type == JobTypeEnums.ResourceBuild)
-                .ProjectToDto()
+                .ToDto()
                 .FirstOrDefault();
 
             if (job is null) return resourceBuildJob;
@@ -117,9 +117,9 @@ namespace MainCore.Repositories
             };
 
             var job = context.Jobs
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type == JobTypeEnums.NormalBuild)
-                .ProjectToDto()
+                .ToDto()
                 .AsEnumerable()
                 .Select(x => new
                 {
@@ -142,10 +142,10 @@ namespace MainCore.Repositories
                 JobTypeEnums.ResourceBuild
             };
             var job = context.Jobs
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => types.Contains(x.Type))
-                .ProjectToDto()
                 .OrderBy(x => x.Position)
+                .ToDto()
                 .FirstOrDefault();
             return job;
         }

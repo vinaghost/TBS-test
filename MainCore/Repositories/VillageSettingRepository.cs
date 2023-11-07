@@ -16,46 +16,46 @@ namespace MainCore.Repositories
             _contextFactory = contextFactory;
         }
 
-        public int GetSetting(VillageId villageId, VillageSettingEnums setting)
+        public int GetByName(VillageId villageId, VillageSettingEnums setting)
         {
             using var context = _contextFactory.CreateDbContext();
-            var settingEntity = context.VillagesSetting
-               .FirstOrDefault(x => x.VillageId == villageId && x.Setting == setting);
-            return settingEntity.Value;
+            var settingValue = context.VillagesSetting
+                   .Where(x => x.VillageId == villageId.Value)
+                   .Where(x => x.Setting == setting)
+                   .Select(x => x.Value)
+                   .FirstOrDefault();
+            return settingValue;
         }
 
-        public int GetSetting(VillageId villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax)
+        public int GetByName(VillageId villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax)
         {
-            var settingValueMin = GetSetting(villageId, settingMin);
-            var settingValueMax = GetSetting(villageId, settingMax);
-            return Random.Shared.Next(settingValueMin, settingValueMax);
-        }
-
-        public bool GetBoolSetting(VillageId villageId, VillageSettingEnums setting)
-        {
-            var settingEntity = GetSetting(villageId, setting);
-            //return settingEntity == 0 ? false : true;
-            return settingEntity != 0;
-        }
-
-        public Dictionary<VillageSettingEnums, int> Get(VillageId villageId)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            var settings = context.VillagesSetting.Where(x => x.VillageId == villageId).ToDictionary(x => x.Setting, x => x.Value);
-            return settings;
-        }
-
-        public void Set(VillageId villageId, Dictionary<VillageSettingEnums, int> settings)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            var query = context.VillagesSetting.Where(x => x.VillageId == villageId);
-
-            foreach (var setting in settings)
+            var settings = new List<VillageSettingEnums>
             {
-                query
-                    .Where(x => x.Setting == setting.Key)
-                    .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
-            }
+                settingMin,
+                settingMax,
+            };
+            using var context = _contextFactory.CreateDbContext();
+            var settingValues = context.VillagesSetting
+                   .Where(x => x.VillageId == villageId.Value)
+                   .Where(x => settings.Contains(x.Setting))
+                   .Select(x => x.Value)
+                   .ToList();
+
+            var min = settingValues.Min();
+            var max = settingValues.Max();
+            return Random.Shared.Next(min, max);
+        }
+
+        public bool GetBooleanByName(VillageId villageId, VillageSettingEnums setting)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var settingValue = context.VillagesSetting
+                   .Where(x => x.VillageId == villageId.Value)
+                   .Where(x => x.Setting == setting)
+                   .Select(x => x.Value != 0)
+                   .FirstOrDefault();
+
+            return settingValue;
         }
     }
 }

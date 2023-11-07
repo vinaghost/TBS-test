@@ -49,34 +49,30 @@ namespace MainCore.Features.Update.Commands
         private void Update(AccountId accountId, List<VillageDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
-            var query = context.Villages.Where(x => x.AccountId == accountId);
-            var ids = query
-                .Select(x => x.Id)
+            var dbVillages = context.Villages
+                .Where(x => x.AccountId == accountId.Value)
                 .ToList();
 
-            var dbVillages = query.ToList();
-
-            var mapper = new VillageMapper();
             foreach (var dto in dtos)
             {
-                var dbVillage = dbVillages.FirstOrDefault(x => x.Id == dto.Id);
+                var dbVillage = dbVillages.FirstOrDefault(x => x.Id == dto.Id.Value);
                 if (dbVillage is null)
                 {
-                    var VillageList = mapper.Map(accountId, dto);
-                    context.Add(VillageList);
+                    var entity = dto.ToEntity(accountId);
+                    context.Add(entity);
                 }
                 else
                 {
-                    mapper.MapToEntity(dto, dbVillage);
+                    dto.To(dbVillage);
                     context.Update(dbVillage);
+                    dbVillages.Remove(dbVillage);
                 }
-
-                ids.Remove(dto.Id);
             }
             context.SaveChanges();
 
+            var removedVillage = dbVillages.Select(x => x.Id).AsEnumerable();
             context.Villages
-                .Where(x => ids.Contains(x.Id))
+                .Where(x => removedVillage.Contains(x.Id))
                 .ExecuteDelete();
         }
     }

@@ -4,7 +4,7 @@ namespace MainCore.Entities
 {
     public class Village
     {
-        public VillageId Id { get; set; }
+        public int Id { get; set; }
 
         public string Name { get; set; }
         public int X { get; set; }
@@ -13,7 +13,7 @@ namespace MainCore.Entities
         public bool IsActive { get; set; }
         public bool IsUnderAttack { get; set; }
 
-        public AccountId AccountId { get; set; }
+        public int AccountId { get; set; }
         public ICollection<Building> Buildings { get; set; }
         public ICollection<QueueBuilding> QueueBuildings { get; set; }
         public ICollection<Job> Jobs { get; set; }

@@ -35,11 +35,11 @@ namespace MainCore.CQRS.Queries
 
             var villages = context.Villages
                 .AsNoTracking()
-                .Where(x => x.AccountId == accountId)
+                .Where(x => x.AccountId == accountId.Value)
                 .OrderBy(x => x.Name)
                 .Select(x => new ListBoxItem()
                 {
-                    Id = x.Id.Value,
+                    Id = x.Id,
                     Content = $"{x.Name}{Environment.NewLine}({x.X}|{x.Y})",
                 })
                 .ToList();

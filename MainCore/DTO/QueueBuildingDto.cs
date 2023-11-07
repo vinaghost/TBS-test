@@ -14,19 +14,19 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class QueueBuildingMapper
+    public static partial class QueueBuildingMapper
     {
-        public QueueBuilding Map(VillageId villageId, QueueBuildingDto dto)
+        public static QueueBuilding ToEntity(this QueueBuildingDto dto, VillageId villageId)
         {
-            var entity = Map(dto);
-            entity.VillageId = villageId;
+            var entity = dto.ToEntity();
+            entity.VillageId = villageId.Value;
             return entity;
         }
 
-        public partial void MapToEntity(QueueBuildingDto dto, QueueBuilding entity);
+        public static partial void To(this QueueBuildingDto dto, QueueBuilding entity);
 
-        private partial QueueBuilding Map(QueueBuildingDto dto);
+        private static partial QueueBuilding ToEntity(this QueueBuildingDto dto);
 
-        private BuildingEnums StringToBuildingEnums(string str) => Enum.Parse<BuildingEnums>(str);
+        private static BuildingEnums ToBuildingEnums(string str) => Enum.Parse<BuildingEnums>(str);
     }
 }

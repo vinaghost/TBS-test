@@ -10,9 +10,9 @@ namespace MainCore.CQRS.Commands
 {
     public class AddRangeAccountCommand : IRequest
     {
-        public List<AccountDto> Accounts { get; }
+        public List<AccountDetailDto> Accounts { get; }
 
-        public AddRangeAccountCommand(List<AccountDto> accounts)
+        public AddRangeAccountCommand(List<AccountDetailDto> accounts)
         {
             Accounts = accounts;
         }
@@ -37,20 +37,20 @@ namespace MainCore.CQRS.Commands
             await _mediator.Publish(new AccountUpdated(), cancellationToken);
         }
 
-        private void AddRange(List<AccountDto> dtos)
+        private void AddRange(List<AccountDetailDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
 
-            var mapper = new AccountMapper();
             var accounts = new List<Account>();
             foreach (var dto in dtos)
             {
                 var isExist = context.Accounts
+                    .AsNoTracking()
                     .Where(x => x.Username == dto.Username)
                     .Where(x => x.Server == dto.Server)
                     .Any();
                 if (isExist) continue;
-                var account = mapper.Map(dto);
+                var account = dto.ToEnitty();
                 foreach (var access in account.Accesses)
                 {
                     if (string.IsNullOrEmpty(access.Useragent))
@@ -65,7 +65,7 @@ namespace MainCore.CQRS.Commands
 
             foreach (var account in accounts)
             {
-                context.FillAccountSettings(account.Id);
+                context.FillAccountSettings(new(account.Id));
             }
         }
     }

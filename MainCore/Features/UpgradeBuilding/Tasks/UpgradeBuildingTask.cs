@@ -4,13 +4,13 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Storage;
 using MainCore.Common.Models;
-using MainCore.Repositories;
 using MainCore.Common.Tasks;
 using MainCore.Entities;
 using MainCore.Features.Navigate.Commands;
 using MainCore.Features.UpgradeBuilding.Commands;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
 using System.Text.Json;
 
 namespace MainCore.Features.UpgradeBuilding.Tasks
@@ -161,13 +161,13 @@ namespace MainCore.Features.UpgradeBuilding.Tasks
 
         private bool IsSpecialUpgrade()
         {
-            var useSpecialUpgrade = _villageSettingRepository.GetBoolSetting(VillageId, VillageSettingEnums.UseSpecialUpgrade);
+            var useSpecialUpgrade = _villageSettingRepository.GetBooleanByName(VillageId, VillageSettingEnums.UseSpecialUpgrade);
             return useSpecialUpgrade;
         }
 
         private bool IsUseHeroResource()
         {
-            var useHeroResource = _villageSettingRepository.GetBoolSetting(VillageId, VillageSettingEnums.UseHeroResourceForBuilding);
+            var useHeroResource = _villageSettingRepository.GetBooleanByName(VillageId, VillageSettingEnums.UseHeroResourceForBuilding);
             return useHeroResource;
         }
 

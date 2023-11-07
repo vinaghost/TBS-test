@@ -1,7 +1,10 @@
-﻿namespace MainCore.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MainCore.Entities
 {
     public class Access
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         public string Password { get; set; }
@@ -13,6 +16,6 @@
         public string Useragent { get; set; }
         public DateTime LastUsed { get; set; }
 
-        public AccountId AccountId { get; set; }
+        public int AccountId { get; set; }
     }
 }

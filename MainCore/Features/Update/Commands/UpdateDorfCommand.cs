@@ -100,17 +100,15 @@ namespace MainCore.Features.Update.Commands
 
             using var context = _contextFactory.CreateDbContext();
 
-            var mapper = new QueueBuildingMapper();
-
             context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .ExecuteDelete();
 
             var entities = new List<QueueBuilding>();
 
             foreach (var dto in dtos)
             {
-                var queueBuilding = mapper.Map(villageId, dto);
+                var queueBuilding = dto.ToEntity(villageId);
                 entities.Add(queueBuilding);
             }
             context.AddRange(entities);
@@ -122,7 +120,7 @@ namespace MainCore.Features.Update.Commands
         {
             using var context = _contextFactory.CreateDbContext();
             var queueBuildings = context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type != BuildingEnums.Site);
 
             if (dtos.Count == 1)
@@ -155,22 +153,21 @@ namespace MainCore.Features.Update.Commands
         {
             using var context = _contextFactory.CreateDbContext();
             var dbBuildings = context.Buildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .ToList();
 
-            var mapper = new BuildingMapper();
             foreach (var dto in dtos)
             {
                 var dbBuilding = dbBuildings
                     .FirstOrDefault(x => x.Location == dto.Location);
                 if (dbBuilding is null)
                 {
-                    var building = mapper.Map(villageId, dto);
+                    var building = dto.ToEntity(villageId);
                     context.Add(building);
                 }
                 else
                 {
-                    mapper.MapToEntity(dto, dbBuilding);
+                    dto.To(dbBuilding);
                     context.Update(dbBuilding);
                 }
             }
@@ -180,17 +177,18 @@ namespace MainCore.Features.Update.Commands
         private void UpdateStorage(VillageId villageId, StorageDto dto)
         {
             using var context = _contextFactory.CreateDbContext();
-            var dbStorage = context.Storages.FirstOrDefault(x => x.VillageId == villageId);
+            var dbStorage = context.Storages
+                .Where(x => x.VillageId == villageId.Value)
+                .FirstOrDefault();
 
-            var mapper = new StorageMapper();
             if (dbStorage is null)
             {
-                var storage = mapper.Map(villageId, dto);
+                var storage = dto.ToEntity(villageId);
                 context.Add(storage);
             }
             else
             {
-                mapper.MapToEntity(dto, dbStorage);
+                dto.To(dbStorage);
                 context.Update(dbStorage);
             }
 

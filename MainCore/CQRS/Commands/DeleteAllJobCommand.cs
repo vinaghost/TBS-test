@@ -36,7 +36,7 @@ namespace MainCore.CQRS.Commands
             using var context = _contextFactory.CreateDbContext();
 
             context.Jobs
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .ExecuteDelete();
         }
     }

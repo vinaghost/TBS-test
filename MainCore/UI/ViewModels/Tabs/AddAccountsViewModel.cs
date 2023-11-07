@@ -3,6 +3,7 @@ using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.UI.ViewModels.Abstract;
+using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 using ReactiveUI;
 using System.Collections.Concurrent;
@@ -17,10 +18,11 @@ namespace MainCore.UI.ViewModels.Tabs
     {
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
+        private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
         public ReactiveCommand<string, Unit> UpdateTableCommand { get; }
 
-        public ObservableCollection<AccountDto> Accounts { get; } = new();
+        public ObservableCollection<AccountDetailDto> Accounts { get; } = new();
         private string _input;
 
         public string Input
@@ -29,10 +31,11 @@ namespace MainCore.UI.ViewModels.Tabs
             set => this.RaiseAndSetIfChanged(ref _input, value);
         }
 
-        public AddAccountsViewModel(IDialogService dialogService, IMediator mediator)
+        public AddAccountsViewModel(IDialogService dialogService, IMediator mediator, WaitingOverlayViewModel waitingOverlayViewModel)
         {
             _mediator = mediator;
             _dialogService = dialogService;
+            _waitingOverlayViewModel = waitingOverlayViewModel;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountCommandHandler);
             UpdateTableCommand = ReactiveCommand.CreateFromTask<string>(UpdateTableCommandHandler);
@@ -47,37 +50,36 @@ namespace MainCore.UI.ViewModels.Tabs
             await Observable.Start(() =>
             {
                 Accounts.Clear();
-                foreach (var dto in dtos)
-                {
-                    if (dto is not null) continue;
-                    Accounts.Add(dto);
-                }
+                dtos.ForEach(Accounts.Add);
             }, RxApp.MainThreadScheduler);
         }
 
         private async Task AddAccountCommandHandler()
         {
-            await _mediator.Send(new AddRangeAccountCommand(Accounts.ToList()));
-
+            await _waitingOverlayViewModel.Show("adding accounts");
+            var accounts = Accounts.ToList();
             await Observable.Start(() =>
             {
                 Accounts.Clear();
                 Input = "";
             }, RxApp.MainThreadScheduler);
 
+            await _mediator.Send(new AddRangeAccountCommand(accounts));
+            await _waitingOverlayViewModel.Hide();
+
             _dialogService.ShowMessageBox("Information", "Added accounts");
         }
 
-        private static List<AccountDto> Parse(string input)
+        private static List<AccountDetailDto> Parse(string input)
         {
-            if (string.IsNullOrEmpty(input)) return new List<AccountDto>();
+            if (string.IsNullOrEmpty(input)) return new List<AccountDetailDto>();
             var strArr = input.Trim().Split('\n');
-            var accounts = new ConcurrentBag<AccountDto>();
+            var accounts = new ConcurrentBag<AccountDetailDto>();
             Parallel.ForEach(strArr, str => accounts.Add(ParseLine(str)));
-            return accounts.ToList();
+            return accounts.Where(x => x is not null).ToList();
         }
 
-        private static AccountDto ParseLine(string input)
+        private static AccountDetailDto ParseLine(string input)
         {
             var strAccount = input.Trim().Split(' ');
             Uri url = null;
@@ -102,9 +104,9 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             return strAccount.Length switch
             {
-                3 => AccountDto.Create(url.AbsoluteUri, strAccount[1], strAccount[2]),
-                5 => AccountDto.Create(url.AbsoluteUri, strAccount[1], strAccount[2], strAccount[3], int.Parse(strAccount[4])),
-                7 => AccountDto.Create(url.AbsoluteUri, strAccount[1], strAccount[2], strAccount[3], int.Parse(strAccount[4]), strAccount[5], strAccount[6]),
+                3 => AccountDetailDto.Create(strAccount[1], url.AbsoluteUri, strAccount[2]),
+                5 => AccountDetailDto.Create(strAccount[1], url.AbsoluteUri, strAccount[2], strAccount[3], int.Parse(strAccount[4])),
+                7 => AccountDetailDto.Create(strAccount[1], url.AbsoluteUri, strAccount[2], strAccount[3], int.Parse(strAccount[4]), strAccount[5], strAccount[6]),
                 _ => null,
             }; ;
         }

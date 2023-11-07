@@ -1,17 +1,19 @@
 ﻿using MainCore.Common.Enums;
 using StronglyTypedIds;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MainCore.Entities
 {
     public class Building
     {
-        public BuildingId Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
 
         public BuildingEnums Type { get; set; }
         public int Level { get; set; }
         public bool IsUnderConstruction { get; set; }
         public int Location { get; set; }
-        public VillageId VillageId { get; set; }
+        public int VillageId { get; set; }
     }
 
     [StronglyTypedId]

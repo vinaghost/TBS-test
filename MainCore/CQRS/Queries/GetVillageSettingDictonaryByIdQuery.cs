@@ -29,13 +29,13 @@ namespace MainCore.CQRS.Queries
             return settings;
         }
 
-        private Dictionary<VillageSettingEnums, int> Get(VillageId VillageId)
+        private Dictionary<VillageSettingEnums, int> Get(VillageId villageId)
         {
             using var context = _contextFactory.CreateDbContext();
 
             var settings = context.VillagesSetting
                 .AsNoTracking()
-                .Where(x => x.VillageId == VillageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .ToDictionary(x => x.Setting, x => x.Value);
             return settings;
         }

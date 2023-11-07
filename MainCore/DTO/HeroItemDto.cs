@@ -11,17 +11,17 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class HeroItemMapper
+    public static partial class HeroItemMapper
     {
-        public HeroItem Map(AccountId accountId, HeroItemDto dto)
+        public static HeroItem ToEntity(this HeroItemDto dto, AccountId accountId)
         {
-            var entity = Map(dto);
-            entity.AccountId = accountId;
+            var entity = dto.ToEntity();
+            entity.AccountId = accountId.Value;
             return entity;
         }
 
-        public partial void MapToEntity(HeroItemDto dto, HeroItem entity);
+        public static partial void To(this HeroItemDto dto, HeroItem entity);
 
-        private partial HeroItem Map(HeroItemDto dto);
+        private static partial HeroItem ToEntity(this HeroItemDto dto);
     }
 }

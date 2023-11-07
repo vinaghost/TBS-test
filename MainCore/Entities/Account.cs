@@ -1,10 +1,13 @@
 ﻿using StronglyTypedIds;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MainCore.Entities
 {
     public class Account
     {
-        public AccountId Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
         public string Username { get; set; }
         public string Server { get; set; }
 

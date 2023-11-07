@@ -48,13 +48,13 @@ namespace MainCore.CQRS.Commands
             using var context = _contextFactory.CreateDbContext();
             var count = context.Jobs
                 .AsNoTracking()
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Count();
 
             var job = new Job()
             {
                 Position = count,
-                VillageId = villageId,
+                VillageId = villageId.Value,
                 Type = _jobTypes[typeof(T)],
                 Content = JsonSerializer.Serialize(content),
             };

@@ -103,7 +103,7 @@ namespace MainCore.Infrasturecture.Persistence
             {
                 settings.Add(new AccountSetting
                 {
-                    AccountId = accountId,
+                    AccountId = accountId.Value,
                     Setting = setting,
                     Value = value,
                 });
@@ -195,7 +195,7 @@ namespace MainCore.Infrasturecture.Persistence
                 if (setting == VillageSettingEnums.Tribe)
                 {
                     var accountId = Villages
-                        .Where(x => x.Id == villageId)
+                        .Where(x => x.Id == villageId.Value)
                         .Select(x => x.AccountId)
                         .FirstOrDefault();
                     var tribe = AccountsSetting
@@ -206,7 +206,7 @@ namespace MainCore.Infrasturecture.Persistence
 
                     settings.Add(new VillageSetting
                     {
-                        VillageId = villageId,
+                        VillageId = villageId.Value,
                         Setting = setting,
                         Value = tribe,
                     });
@@ -214,7 +214,7 @@ namespace MainCore.Infrasturecture.Persistence
                 }
                 settings.Add(new VillageSetting
                 {
-                    VillageId = villageId,
+                    VillageId = villageId.Value,
                     Setting = setting,
                     Value = value,
                 });

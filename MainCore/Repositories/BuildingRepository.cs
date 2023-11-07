@@ -23,9 +23,9 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var building = context.Buildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Location == location)
-                .ProjectToDto()
+                .ToDto()
                 .FirstOrDefault();
             return building;
         }
@@ -34,7 +34,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var count = context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type != BuildingEnums.Site)
                 .Count();
             return count;
@@ -52,7 +52,7 @@ namespace MainCore.Repositories
             };
 
             var count = context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => resourceTypes.Contains(x.Type))
                 .Count();
             return count;
@@ -62,7 +62,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var isExists = context.Buildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type == BuildingEnums.RallyPoint)
                 .Where(x => x.Level > 0)
                 .Any();
@@ -73,7 +73,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var isEmptySite = context.Buildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type == BuildingEnums.Site)
                 .Where(x => x.Location == location)
                 .Any();
@@ -88,7 +88,7 @@ namespace MainCore.Repositories
             using var context = _contextFactory.CreateDbContext();
 
             var queueBuilding = context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Location == plan.Location)
                 .OrderByDescending(x => x.Level)
                 .FirstOrDefault();
@@ -96,7 +96,7 @@ namespace MainCore.Repositories
             if (queueBuilding is not null && queueBuilding.Level >= plan.Level) return true;
 
             var villageBuilding = context.Buildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Location == plan.Location)
                 .FirstOrDefault();
             if (villageBuilding is not null && villageBuilding.Level >= plan.Level) return true;
@@ -108,7 +108,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var building = context.Buildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Type == BuildingEnums.Cropland)
                 .OrderBy(x => x.Level)
                 .FirstOrDefault();
@@ -153,13 +153,13 @@ namespace MainCore.Repositories
                     break;
             }
             var buildings = context.Buildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => resourceTypes.Contains(x.Type))
                 .Where(x => x.Level < plan.Level)
                 .ToList();
 
             var queueBuildings = context.QueueBuildings
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .Where(x => resourceTypes.Contains(x.Type))
                 .GroupBy(x => x.Location)
                 .Select(x => new

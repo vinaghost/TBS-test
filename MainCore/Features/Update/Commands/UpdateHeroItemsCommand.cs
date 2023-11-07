@@ -49,35 +49,32 @@ namespace MainCore.Features.Update.Commands
         private void Update(AccountId accountId, List<HeroItemDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
-            var query = context.HeroItems.Where(x => x.AccountId == accountId);
-            var types = query
-                .Select(x => x.Type)
+            var dbHeroItems = context.HeroItems
+                .Where(x => x.AccountId == accountId.Value)
                 .ToList();
 
-            var dbHeroItemss = query.ToList();
-
-            var mapper = new HeroItemMapper();
             foreach (var dto in dtos)
             {
-                var dbHeroItems = dbHeroItemss.FirstOrDefault(x => x.Type == dto.Type);
-                if (dbHeroItems is null)
+                var dbHeroItem = dbHeroItems
+                    .FirstOrDefault(x => x.Type == dto.Type);
+                if (dbHeroItem is null)
                 {
-                    var HeroItems = mapper.Map(accountId, dto);
-                    context.Add(HeroItems);
+                    var heroItem = dto.ToEntity(accountId);
+                    context.Add(heroItem);
                 }
                 else
                 {
-                    mapper.MapToEntity(dto, dbHeroItems);
-                    context.Update(dbHeroItems);
+                    dto.To(dbHeroItem);
+                    context.Update(dbHeroItem);
+                    dbHeroItems.Remove(dbHeroItem);
                 }
-
-                types.Remove(dto.Type);
             }
             context.SaveChanges();
 
+            var removedHeroItems = dbHeroItems.Select(x => x.Type).AsEnumerable();
             context.HeroItems
-                .Where(x => x.AccountId == accountId)
-                .Where(x => types.Contains(x.Type))
+                .Where(x => x.AccountId == accountId.Value)
+                .Where(x => removedHeroItems.Contains(x.Type))
                 .ExecuteDelete();
         }
     }

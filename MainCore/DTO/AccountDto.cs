@@ -9,53 +9,19 @@ namespace MainCore.DTO
         public string Username { get; set; }
         public string Server { get; set; }
         public List<AccessDto> Accesses { get; set; }
-
-        public static AccountDto Create(string username, string server, string password)
-        {
-            return new AccountDto()
-            {
-                Username = username,
-                Server = server,
-                Accesses = new()
-                {
-                    new AccessDto()
-                    {
-                        Password = password,
-                    },
-                },
-            };
-        }
-
-        public static AccountDto Create(string username, string server, string password, string proxyHost, int proxyPort)
-        {
-            var dto = Create(username, server, password);
-            var access = dto.Accesses[0];
-            access.ProxyHost = proxyHost;
-            access.ProxyPort = proxyPort;
-            return dto;
-        }
-
-        public static AccountDto Create(string username, string server, string password, string proxyHost, int proxyPort, string proxyUsername, string proxyPassword)
-        {
-            var dto = Create(username, server, password, proxyHost, proxyPort);
-            var access = dto.Accesses[0];
-            access.ProxyUsername = proxyUsername;
-            access.ProxyPassword = proxyPassword;
-            return dto;
-        }
     }
 
     [Mapper]
-    public partial class AccountMapper
+    public static partial class AccountMapper
     {
-        public partial Account Map(AccountDto dto);
+        public static partial Account ToEntity(this AccountDto dto);
 
-        public partial AccountDto Map(Account entity);
-    }
+        public static partial AccountDto ToDto(this Account entity);
 
-    [Mapper]
-    public static partial class AccountStaticMapper
-    {
-        public static partial IQueryable<AccountDto> ProjectToDto(this IQueryable<Account> entities);
+        private static int ToInt(this AccountId accountId) => accountId.Value;
+
+        private static AccountId ToAccountId(this int value) => new(value);
+
+        public static partial IQueryable<AccountDto> ToDto(this IQueryable<Account> entities);
     }
 }

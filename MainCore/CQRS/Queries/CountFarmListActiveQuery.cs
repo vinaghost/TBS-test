@@ -34,7 +34,7 @@ namespace MainCore.CQRS.Queries
 
             var count = context.FarmLists
                 .AsNoTracking()
-                .Where(x => x.AccountId == accountId)
+                .Where(x => x.AccountId == accountId.Value)
                 .Where(x => x.IsActive)
                 .Count();
             return count;

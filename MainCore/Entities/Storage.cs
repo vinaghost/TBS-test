@@ -1,9 +1,13 @@
-﻿namespace MainCore.Entities
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MainCore.Entities
 {
     public class Storage
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public VillageId VillageId { get; set; }
+
+        public int VillageId { get; set; }
         public long Wood { get; set; }
         public long Clay { get; set; }
         public long Iron { get; set; }

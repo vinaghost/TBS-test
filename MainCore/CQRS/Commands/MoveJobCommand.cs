@@ -40,7 +40,7 @@ namespace MainCore.CQRS.Commands
         {
             using var context = _contextFactory.CreateDbContext();
 
-            var jobIds = new List<JobId>() { oldJobId, newJobId };
+            var jobIds = new List<int>() { oldJobId.Value, newJobId.Value };
 
             var jobs = context.Jobs
                 .Where(x => jobIds.Contains(x.Id))
@@ -50,7 +50,7 @@ namespace MainCore.CQRS.Commands
             (jobs[0].Position, jobs[1].Position) = (jobs[1].Position, jobs[0].Position);
             context.UpdateRange(jobs);
             context.SaveChanges();
-            return jobs[0].VillageId;
+            return new(jobs[0].VillageId);
         }
     }
 }

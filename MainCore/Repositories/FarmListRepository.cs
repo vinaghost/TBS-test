@@ -19,9 +19,11 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var farmListIds = context.FarmLists
-                    .Where(x => x.AccountId == accountId)
+                    .Where(x => x.AccountId == accountId.Value)
                     .Where(x => x.IsActive)
                     .Select(x => x.Id)
+                    .AsEnumerable()
+                    .Select(x => new FarmListId(x))
                     .ToList();
             return farmListIds;
         }

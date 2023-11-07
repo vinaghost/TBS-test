@@ -20,7 +20,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var settingValue = context.AccountsSetting
-                   .Where(x => x.AccountId == accountId)
+                   .Where(x => x.AccountId == accountId.Value)
                    .Where(x => x.Setting == setting)
                    .Select(x => x.Value)
                    .FirstOrDefault();
@@ -36,7 +36,7 @@ namespace MainCore.Repositories
             };
             using var context = _contextFactory.CreateDbContext();
             var settingValues = context.AccountsSetting
-                   .Where(x => x.AccountId == accountId)
+                   .Where(x => x.AccountId == accountId.Value)
                    .Where(x => settings.Contains(x.Setting))
                    .Select(x => x.Value)
                    .ToList();
@@ -50,7 +50,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var settingValue = context.AccountsSetting
-                   .Where(x => x.AccountId == accountId)
+                   .Where(x => x.AccountId == accountId.Value)
                    .Where(x => x.Setting == setting)
                    .Select(x => x.Value != 0)
                    .FirstOrDefault();

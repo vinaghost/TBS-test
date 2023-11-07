@@ -12,17 +12,17 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class AccountSettingMapper
+    public static partial class AccountSettingMapper
     {
-        public AccountSetting Map(AccountId accountId, AccountSettingDto dto)
+        public static AccountSetting ToEntity(this AccountSettingDto dto, AccountId accountId)
         {
-            var entity = Map(dto);
-            entity.AccountId = accountId;
+            var entity = dto.ToEntity();
+            entity.AccountId = accountId.Value;
             return entity;
         }
 
-        public partial AccountSettingDto Map(AccountSetting dto);
+        public static partial AccountSettingDto ToDto(this AccountSetting dto);
 
-        private partial AccountSetting Map(AccountSettingDto dto);
+        private static partial AccountSetting ToEntity(this AccountSettingDto dto);
     }
 }

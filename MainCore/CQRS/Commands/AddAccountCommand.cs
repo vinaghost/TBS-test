@@ -48,8 +48,7 @@ namespace MainCore.CQRS.Commands
 
             if (isExist) return false;
 
-            var mapper = new AccountMapper();
-            var account = mapper.Map(dto);
+            var account = dto.ToEntity();
             foreach (var access in account.Accesses)
             {
                 if (string.IsNullOrEmpty(access.Useragent))
@@ -59,7 +58,7 @@ namespace MainCore.CQRS.Commands
             }
             context.Add(account);
             context.SaveChanges();
-            context.FillAccountSettings(account.Id);
+            context.FillAccountSettings(new(account.Id));
             return true;
         }
     }

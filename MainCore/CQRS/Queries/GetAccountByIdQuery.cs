@@ -34,8 +34,8 @@ namespace MainCore.CQRS.Queries
             using var context = _contextFactory.CreateDbContext();
             var account = context.Accounts
                 .AsNoTracking()
-                .Where(x => x.Id == accountId)
-                .ProjectToDto()
+                .Where(x => x.Id == accountId.Value)
+                .ToDto()
                 .FirstOrDefault();
             return account;
         }

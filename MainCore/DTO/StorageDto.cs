@@ -15,17 +15,17 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class StorageMapper
+    public static partial class StorageMapper
     {
-        public Storage Map(VillageId villageId, StorageDto dto)
+        public static Storage ToEntity(this StorageDto dto, VillageId villageId)
         {
-            var entity = Map(dto);
-            entity.VillageId = villageId;
+            var entity = dto.ToEntity();
+            entity.VillageId = villageId.Value;
             return entity;
         }
 
-        public partial void MapToEntity(StorageDto dto, Storage entity);
+        public static partial void To(this StorageDto dto, Storage entity);
 
-        private partial Storage Map(StorageDto dto);
+        private static partial Storage ToEntity(this StorageDto dto);
     }
 }

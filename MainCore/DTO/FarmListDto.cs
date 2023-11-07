@@ -11,25 +11,25 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class FarmListMapper
+    public static partial class FarmListMapper
     {
-        public FarmList Map(AccountId accountId, FarmListDto dto)
+        public static FarmList ToEntity(this FarmListDto dto, AccountId accountId)
         {
-            var entity = Map(dto);
-            entity.AccountId = accountId;
+            var entity = dto.ToEntity();
+            entity.AccountId = accountId.Value;
             return entity;
         }
 
         [MapperIgnoreSource(nameof(FarmListDto.Id))]
         [MapperIgnoreSource(nameof(FarmListDto.IsActive))]
-        public partial void MapToEntity(FarmListDto dto, FarmList entity);
+        public static partial void To(this FarmListDto dto, FarmList entity);
 
-        private partial FarmList Map(FarmListDto dto);
-    }
+        private static partial FarmList ToEntity(this FarmListDto dto);
 
-    [Mapper]
-    public static partial class FarmListStaticMapper
-    {
-        public static partial IQueryable<FarmListDto> ProjectToDto(this IQueryable<FarmList> entities);
+        public static partial IQueryable<FarmListDto> ToDto(this IQueryable<FarmList> entities);
+
+        private static FarmListId ToFarmListId(this int value) => new(value);
+
+        private static int ToInt(this FarmListId farmListId) => farmListId.Value;
     }
 }

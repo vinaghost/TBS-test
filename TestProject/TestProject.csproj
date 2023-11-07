@@ -37,4 +37,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CQRS\Commands\" />
+  </ItemGroup>
+
 </Project>

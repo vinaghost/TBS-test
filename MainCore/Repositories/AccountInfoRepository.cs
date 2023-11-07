@@ -19,7 +19,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var accountInfo = context.AccountsInfo
-                    .FirstOrDefault(x => x.AccountId == accountId);
+                    .FirstOrDefault(x => x.AccountId == accountId.Value);
 
             if (accountInfo is null) return false;
             return accountInfo.HasPlusAccount;

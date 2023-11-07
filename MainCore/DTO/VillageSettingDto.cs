@@ -12,17 +12,17 @@ namespace MainCore.DTO
     }
 
     [Mapper]
-    public partial class VillageSettingMapper
+    public static partial class VillageSettingMapper
     {
-        public partial VillageSettingDto Map(VillageSetting dto);
+        public static partial VillageSettingDto ToDto(this VillageSetting dto);
 
-        public VillageSetting Map(VillageId villageId, VillageSettingDto dto)
+        public static VillageSetting ToEntity(this VillageSettingDto dto, VillageId villageId)
         {
-            var entity = Map(dto);
-            entity.VillageId = villageId;
+            var entity = ToEntity(dto);
+            entity.VillageId = villageId.Value;
             return entity;
         }
 
-        private partial VillageSetting Map(VillageSettingDto dto);
+        private static partial VillageSetting ToEntity(this VillageSettingDto dto);
     }
 }

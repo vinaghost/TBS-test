@@ -19,7 +19,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var villageName = context.Villages
-                .Where(x => x.Id == villageId)
+                .Where(x => x.Id == villageId.Value)
                 .Select(x => x.Name)
                 .FirstOrDefault();
             return villageName;
@@ -30,9 +30,10 @@ namespace MainCore.Repositories
             using var context = _contextFactory.CreateDbContext();
 
             var village = context.Villages
-                    .Where(x => x.AccountId == accountId)
+                    .Where(x => x.AccountId == accountId.Value)
                     .Where(x => x.IsActive)
-                    .Select(x => x.Id)
+                    .AsEnumerable()
+                    .Select(x => new VillageId(x.Id))
                     .FirstOrDefault();
             return village;
         }
@@ -41,10 +42,11 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var villages = context.Villages
-                    .Where(x => x.AccountId == accountId)
+                    .Where(x => x.AccountId == accountId.Value)
                     .Where(x => !x.IsActive)
                     .OrderBy(x => x.Name)
-                    .Select(x => x.Id)
+                    .AsEnumerable()
+                    .Select(x => new VillageId(x.Id))
                     .ToList();
             return villages;
         }

@@ -40,9 +40,9 @@ namespace MainCore.CQRS.Queries
 
             var items = context.Jobs
                 .AsNoTracking()
-                .Where(x => x.VillageId == villageId)
+                .Where(x => x.VillageId == villageId.Value)
                 .OrderBy(x => x.Position)
-                .ProjectToDto()
+                .ToDto()
                 .AsEnumerable()
                 .Select(x => new ListBoxItem()
                 {

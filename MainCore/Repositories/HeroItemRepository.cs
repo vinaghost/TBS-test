@@ -21,7 +21,18 @@ namespace MainCore.Repositories
         public Result IsEnoughResource(AccountId accountId, long[] requiredResource)
         {
             using var context = _contextFactory.CreateDbContext();
-            var items = context.HeroItems.Where(x => x.AccountId == accountId);
+            var types = new List<HeroItemEnums>() {
+                HeroItemEnums.Wood,
+                HeroItemEnums.Clay,
+                HeroItemEnums.Iron,
+                HeroItemEnums.Crop,
+            };
+
+            var items = context.HeroItems
+                .Where(x => x.AccountId == accountId.Value)
+                .Where(x => types.Contains(x.Type))
+                .OrderBy(x => x.Type)
+                .ToList();
 
             var result = Result.Ok();
             var wood = items.FirstOrDefault(x => x.Type == HeroItemEnums.Wood);
@@ -37,27 +48,6 @@ namespace MainCore.Repositories
             var cropAmount = crop?.Amount ?? 0;
             if (cropAmount < requiredResource[3]) result.WithError(new Resource("crop", cropAmount, requiredResource[3]));
             return result;
-        }
-
-        public void Update(AccountId accountId, IEnumerable<HeroItem> items)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            var dbItems = context.HeroItems.Where(x => x.AccountId == accountId).ToList();
-            foreach (var item in items)
-            {
-                var dbItem = dbItems.FirstOrDefault(x => x.Type == item.Type);
-                if (dbItem is null)
-                {
-                    context.Add(item);
-                }
-                else
-                {
-                    dbItem.Type = item.Type;
-                    dbItem.Amount = item.Amount;
-                    context.Update(dbItem);
-                }
-            }
-            context.SaveChanges();
         }
     }
 }
