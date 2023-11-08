@@ -7,12 +7,6 @@ namespace MainCore.UI.Models.Input
 {
     public class AccountSettingInput : ViewModelBase
     {
-        public TribeSelectorViewModel Tribe { get; } = new();
-        public RangeInputViewModel ClickDelay { get; } = new();
-        public RangeInputViewModel TaskDelay { get; } = new();
-
-        private bool _isAutoLoadVillage;
-
         public void Set(Dictionary<AccountSettingEnums, int> settings)
         {
             Tribe.Set((TribeEnums)settings.GetValueOrDefault(AccountSettingEnums.Tribe));
@@ -39,6 +33,12 @@ namespace MainCore.UI.Models.Input
             };
             return settings;
         }
+
+        public TribeSelectorViewModel Tribe { get; } = new();
+        public RangeInputViewModel ClickDelay { get; } = new();
+        public RangeInputViewModel TaskDelay { get; } = new();
+
+        private bool _isAutoLoadVillage;
 
         public bool IsAutoLoadVillage
         {

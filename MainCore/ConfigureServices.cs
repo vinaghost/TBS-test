@@ -2,9 +2,11 @@
 using MainCore.Common;
 using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Infrasturecture.Mediatr;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.UI.Models.Input;
 using MainCore.UI.Models.Validators;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,7 +36,8 @@ namespace MainCore
                 .AddMediatR(cfg =>
                 {
                     cfg.RegisterServicesFromAssemblyContaining<AppDbContext>();
-                });
+                })
+                .AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionsHandlerBehavior<,>));
             return services;
         }
 

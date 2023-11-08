@@ -37,7 +37,7 @@ namespace MainCore.UI.ViewModels.Tabs
             _logSink.LogEmitted += LogEmitted;
             _taskManager = taskManager;
 
-            _formatter = new("{Timestamp:HH:mm:ss} [{Level:u3}] {Line:lj}{NewLine}{Exception}");
+            _formatter = new("{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
         }
 
         private void LogEmitted(AccountId accountId, LogEvent logEvent)
@@ -55,6 +55,13 @@ namespace MainCore.UI.ViewModels.Tabs
                 RxApp.MainThreadScheduler);
         }
 
+        public async Task TaskListRefresh(AccountId accountId)
+        {
+            if (!IsActive) return;
+            if (accountId != AccountId) return;
+            await LoadTask(accountId);
+        }
+
         protected override async Task Load(AccountId accountId)
         {
             await LoadTask(accountId);
@@ -69,10 +76,10 @@ namespace MainCore.UI.ViewModels.Tabs
 
             await Observable.Start(() =>
             {
-                foreach (var task in tasks)
-                {
-                    Tasks.Add(new(task));
-                }
+                tasks
+                .Select(x => new TaskItem(x))
+                .ToList()
+                .ForEach(Tasks.Add);
             }, RxApp.MainThreadScheduler);
         }
 

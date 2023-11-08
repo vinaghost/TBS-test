@@ -43,7 +43,17 @@ namespace MainCore.UI.Models.Input
     [Mapper]
     public static partial class AccountInputMapper
     {
-        public static partial AccountDto ToDto(this AccountInput input);
+        public static AccountDto ToDto(this AccountInput input)
+        {
+            var dto = input.MapToDto();
+
+            Uri.TryCreate(input.Server, UriKind.Absolute, out var url);
+            dto.Server = url.AbsoluteUri;
+            return dto;
+        }
+
+        [MapperIgnoreTarget(nameof(AccountInput.Server))]
+        private static partial AccountDto MapToDto(this AccountInput input);
 
         public static void To(this AccountDto account, AccountInput input)
         {

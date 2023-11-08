@@ -6,7 +6,7 @@ using System.Reactive.Linq;
 
 namespace MainCore.UI.Stores
 {
-    [RegisterAsTransient(withoutInterface: true)]
+    [RegisterAsSingleton(withoutInterface: true)]
     public class SelectedItemStore : ViewModelBase
     {
         public SelectedItemStore()

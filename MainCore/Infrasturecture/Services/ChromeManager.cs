@@ -1,7 +1,5 @@
 ﻿using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Persistence;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using System.Reflection;
 
@@ -12,20 +10,11 @@ namespace MainCore.Infrasturecture.Services
     {
         private readonly ConcurrentDictionary<AccountId, ChromeBrowser> _dictionary = new();
         private string[] _extensionsPath;
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
-
-        public ChromeManager(IDbContextFactory<AppDbContext> contextFactory)
-        {
-            _contextFactory = contextFactory;
-        }
 
         public IChromeBrowser Get(AccountId accountId)
         {
             var result = _dictionary.TryGetValue(accountId, out ChromeBrowser browser);
             if (result) return browser;
-
-            using var context = _contextFactory.CreateDbContext();
-            var account = context.Accounts.Find(accountId);
 
             browser = new ChromeBrowser(_extensionsPath);
             _dictionary.TryAdd(accountId, browser);

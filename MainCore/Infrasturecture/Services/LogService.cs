@@ -31,7 +31,7 @@ namespace MainCore.Infrasturecture.Services
               .WriteTo.Map("Account", "Other", (acc, wt) =>
                     wt.File($"./logs/log-{acc}-.txt",
                             rollingInterval: RollingInterval.Day,
-                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Line:lj}{NewLine}{Exception}"))
+                            outputTemplate: "{Timestamp:HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"))
               .CreateLogger();
         }
 
@@ -52,11 +52,13 @@ namespace MainCore.Infrasturecture.Services
             if (logger is null)
             {
                 using var context = _contextFactory.CreateDbContext();
-                var account = context.Accounts.Find(accountId);
+                var account = context.Accounts
+                    .Where(x => x.Id == accountId.Value)
+                    .FirstOrDefault();
 
                 var uri = new Uri(account.Server);
                 logger = Log.ForContext("Account", $"{account.Username}_{uri.Host}")
-                            .ForContext("VillageId", accountId);
+                            .ForContext("AccountId", accountId);
                 _loggers.Add(accountId, logger);
             }
             return logger;

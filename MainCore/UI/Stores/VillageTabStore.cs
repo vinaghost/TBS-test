@@ -6,7 +6,7 @@ using ReactiveUI;
 
 namespace MainCore.UI.Stores
 {
-    [RegisterAsTransient(withoutInterface: true)]
+    [RegisterAsSingleton(withoutInterface: true)]
     public class VillageTabStore : ViewModelBase
     {
         private readonly bool[] _tabVisibility = new bool[2];

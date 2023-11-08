@@ -4,14 +4,15 @@ using Humanizer;
 using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Common.Models;
-using MainCore.Repositories;
 using MainCore.CQRS.Commands;
 using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
 using MainCore.UI.Models.Input;
+using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;
@@ -22,7 +23,7 @@ using Unit = System.Reactive.Unit;
 namespace MainCore.UI.ViewModels.Tabs.Villages
 {
     [RegisterAsSingleton(withoutInterface: true)]
-    public class BuildViewModel : VillageTabViewModelBase
+    public class BuildViewModel : VillageTabViewModelBase, IBuildViewModel
     {
         private readonly ITaskManager _taskManager;
         private readonly IMediator _mediator;
@@ -39,19 +40,19 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             _dialogService = dialogService;
             _mediator = mediator;
 
+            LoadNormalBuildCommand = ReactiveCommand.CreateFromTask<ListBoxItem>(LoadNormalBuild);
             NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
             ResourceBuildCommand = ReactiveCommand.CreateFromTask(ResourceBuildTask);
 
-            var jobObservable = this.WhenAnyValue(vm => vm.IsEnableJob);
-            UpCommand = ReactiveCommand.CreateFromTask(UpTask, jobObservable);
-            DownCommand = ReactiveCommand.CreateFromTask(DownTask, jobObservable);
-            TopCommand = ReactiveCommand.CreateFromTask(TopTask, jobObservable);
-            BottomCommand = ReactiveCommand.CreateFromTask(BottomTask, jobObservable);
-            DeleteCommand = ReactiveCommand.CreateFromTask(DeleteTask, jobObservable);
-            DeleteAllCommand = ReactiveCommand.CreateFromTask(DeleteAllTask, jobObservable);
+            UpCommand = ReactiveCommand.CreateFromTask(UpTask);
+            DownCommand = ReactiveCommand.CreateFromTask(DownTask);
+            TopCommand = ReactiveCommand.CreateFromTask(TopTask);
+            BottomCommand = ReactiveCommand.CreateFromTask(BottomTask);
+            DeleteCommand = ReactiveCommand.CreateFromTask(DeleteTask);
+            DeleteAllCommand = ReactiveCommand.CreateFromTask(DeleteAllTask);
 
             this.WhenAnyValue(vm => vm.Buildings.SelectedItem)
-                .Subscribe(async x => await LoadNormalBuild());
+                .InvokeCommand(LoadNormalBuildCommand);
 
             for (var i = BuildingEnums.Sawmill; i <= BuildingEnums.Hospital; i++)
             {
@@ -76,24 +77,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         protected override async Task Load(VillageId villageId)
         {
-            await LoadBuildings(villageId);
             await LoadJobs(villageId);
-            LoadResourceBuild();
-            ValidateVillage();
-        }
-
-        private void ValidateVillage()
-        {
-            if (Buildings.Count == 40)
-            {
-                IsEnableNormalBuild = true;
-                IsEnableResourceBuild = true;
-            }
-            else
-            {
-                IsEnableNormalBuild = false;
-                IsEnableResourceBuild = false;
-            }
+            await LoadBuildings(villageId);
         }
 
         private async Task LoadBuildings(VillageId villageId)
@@ -107,7 +92,6 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task LoadJobs(VillageId villageId)
         {
-            IsEnableJob = true;
             var jobs = await _mediator.Send(new GetJobListBoxItemsQuery(villageId));
             await Observable.Start(() =>
             {
@@ -115,35 +99,28 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }, RxApp.MainThreadScheduler);
         }
 
-        private async Task LoadNormalBuild()
+        private async Task LoadNormalBuild(ListBoxItem item)
         {
-            if (!Buildings.IsSelected)
+            Action func;
+            if (item is null)
             {
-                IsEnableNormalBuild = false;
-                NormalBuildInput.Clear();
-                return;
-            }
-            IsEnableNormalBuild = true;
-
-            var building = await _mediator.Send(new GetBuildingByIdQuery(new BuildingId(Buildings.SelectedItemId)));
-            if (building.Type == BuildingEnums.Site)
-            {
-                NormalBuildInput.Set(_availableBuildings);
+                func = () => NormalBuildInput.Clear();
             }
             else
             {
-                NormalBuildInput.Set(new List<BuildingEnums>() { building.Type }, building.Level + 1);
-            }
-        }
+                var building = await _mediator.Send(new GetBuildingByIdQuery(new BuildingId(Buildings.SelectedItemId)));
 
-        private void LoadResourceBuild()
-        {
-            if (Buildings.Count == 0)
-            {
-                IsEnableResourceBuild = false;
-                return;
+                if (building.Type == BuildingEnums.Site)
+                {
+                    func = () => NormalBuildInput.Set(_availableBuildings);
+                }
+                else
+                {
+                    func = () => NormalBuildInput.Set(new List<BuildingEnums>() { building.Type }, building.Level + 1);
+                }
             }
-            IsEnableResourceBuild = true;
+
+            await Observable.Start(func, RxApp.MainThreadScheduler);
         }
 
         private async Task NormalBuildTask()
@@ -341,6 +318,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
         }
 
+        public ReactiveCommand<ListBoxItem, Unit> LoadNormalBuildCommand { get; }
+
         public ReactiveCommand<Unit, Unit> NormalBuildCommand { get; }
         public ReactiveCommand<Unit, Unit> ResourceBuildCommand { get; }
 
@@ -351,44 +330,13 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteAllCommand { get; }
 
-        #region Normal build input
-
         public NormalBuildInput NormalBuildInput { get; } = new();
         private readonly IValidator<NormalBuildInput> _normalBuildInputValidator;
 
-        private bool _isEnableNormalBuild;
-
-        public bool IsEnableNormalBuild
-        {
-            get => _isEnableNormalBuild;
-            set => this.RaiseAndSetIfChanged(ref _isEnableNormalBuild, value);
-        }
-
-        #endregion Normal build input
-
-        #region Resource build input
-
         public ResourceBuildInput ResourceBuildInput { get; } = new();
         private readonly IValidator<ResourceBuildInput> _resourceBuildInputValidator;
-        private bool _isEnableResourceBuild;
-
-        public bool IsEnableResourceBuild
-        {
-            get => _isEnableResourceBuild;
-            set => this.RaiseAndSetIfChanged(ref _isEnableResourceBuild, value);
-        }
-
-        #endregion Resource build input
 
         public ListBoxItemViewModel Buildings { get; } = new();
         public ListBoxItemViewModel Jobs { get; } = new();
-
-        private bool _isEnableJob;
-
-        public bool IsEnableJob
-        {
-            get => _isEnableJob;
-            set => this.RaiseAndSetIfChanged(ref _isEnableJob, value);
-        }
     }
 }

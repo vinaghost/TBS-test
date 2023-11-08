@@ -80,7 +80,7 @@ namespace MainCore.Infrasturecture.Services
         public async Task StopCurrentTask(AccountId accountId)
         {
             var cts = GetCancellationTokenSource(accountId);
-            cts.Cancel();
+            cts?.Cancel();
             TaskBase currentTask;
             do
             {
@@ -203,13 +203,13 @@ namespace MainCore.Infrasturecture.Services
         {
             var tasks = GetTaskList(accountId);
             tasks.Clear();
-            _mediator.Send(new TaskUpdated(accountId));
+            _mediator.Publish(new TaskUpdated(accountId));
         }
 
         private void ReOrder(AccountId accountId, List<TaskBase> tasks)
         {
             tasks.Sort((x, y) => DateTime.Compare(x.ExecuteAt, y.ExecuteAt));
-            _mediator.Send(new TaskUpdated(accountId));
+            _mediator.Publish(new TaskUpdated(accountId));
         }
     }
 }

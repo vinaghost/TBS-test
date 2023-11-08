@@ -76,7 +76,7 @@ namespace MainCore.Infrasturecture.Services
             _driver.Manage().Timeouts().PageLoad = TimeSpan.FromMinutes(1);
             _wait = new WebDriverWait(_driver, TimeSpan.FromMinutes(3));
 
-            var result = Navigate($"{account.Server}/dorf1.php");
+            var result = Navigate($"{account.Server}dorf1.php");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
