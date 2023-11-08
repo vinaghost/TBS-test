@@ -37,11 +37,12 @@ namespace MainCore.CQRS.Commands
             await _mediator.Publish(new AccountUpdated(), cancellationToken);
         }
 
-        private bool Add(AccountDto dto)
+        public bool Add(AccountDto dto)
         {
             using var context = _contextFactory.CreateDbContext();
 
             var isExist = context.Accounts
+                .AsNoTracking()
                 .Where(x => x.Username == dto.Username)
                 .Where(x => x.Server == dto.Server)
                 .Any();

@@ -33,11 +33,11 @@ namespace MainCore.CQRS.Commands
 
         public async Task Handle(AddRangeAccountCommand request, CancellationToken cancellationToken)
         {
-            await Task.Run(() => AddRange(request.Accounts), cancellationToken);
+            await Task.Run(() => Add(request.Accounts), cancellationToken);
             await _mediator.Publish(new AccountUpdated(), cancellationToken);
         }
 
-        private void AddRange(List<AccountDetailDto> dtos)
+        public void Add(List<AccountDetailDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
 

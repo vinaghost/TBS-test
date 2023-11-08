@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace TestProject.Infrasturecture.Persistence
 {
@@ -14,7 +13,6 @@ namespace TestProject.Infrasturecture.Persistence
         public void AppDbContext_Create_ShouldNotThrow()
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>()
-                .ReplaceService<IValueConverterSelector, StronglyTypedIdValueConverterSelector>()
                 .UseSqlite(_connectionString);
 
             using var context = new AppDbContext(optionsBuilder.Options);
