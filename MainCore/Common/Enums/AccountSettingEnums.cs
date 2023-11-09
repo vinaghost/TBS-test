@@ -6,7 +6,7 @@
         ClickDelayMax,
         TaskDelayMin,
         TaskDelayMax,
-        IsAutoLoadVillage,
+        AutoLoadVillageBuilding,
         UseStartAllButton,
         FarmIntervalMin,
         FarmIntervalMax,

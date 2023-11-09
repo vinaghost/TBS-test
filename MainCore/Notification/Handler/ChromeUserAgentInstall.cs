@@ -5,12 +5,12 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class ChromeUserAgentInstallation : INotificationHandler<MainWindowLoaded>
+    public class ChromeUserAgentInstall : INotificationHandler<MainWindowLoaded>
     {
         private readonly IUseragentManager _useragentManager;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
-        public ChromeUserAgentInstallation(IUseragentManager useragentManager, WaitingOverlayViewModel waitingOverlayViewModel)
+        public ChromeUserAgentInstall(IUseragentManager useragentManager, WaitingOverlayViewModel waitingOverlayViewModel)
         {
             _useragentManager = useragentManager;
             _waitingOverlayViewModel = waitingOverlayViewModel;

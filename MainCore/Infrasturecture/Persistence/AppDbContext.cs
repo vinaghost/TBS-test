@@ -41,7 +41,7 @@ namespace MainCore.Infrasturecture.Persistence
             {AccountSettingEnums.ClickDelayMax, 900 },
             {AccountSettingEnums.TaskDelayMin, 1000 },
             {AccountSettingEnums.TaskDelayMax, 1500 },
-            {AccountSettingEnums.IsAutoLoadVillage, 1 },
+            {AccountSettingEnums.AutoLoadVillageBuilding, 1 },
             {AccountSettingEnums.UseStartAllButton, 0 },
             {AccountSettingEnums.FarmIntervalMin, 540 },
             {AccountSettingEnums.FarmIntervalMax, 660 },

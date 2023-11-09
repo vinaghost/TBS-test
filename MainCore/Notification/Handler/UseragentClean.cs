@@ -4,11 +4,11 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class UseragentCleaning : INotificationHandler<MainWindowUnloaded>
+    public class UseragentClean : INotificationHandler<MainWindowUnloaded>
     {
         private readonly IUseragentManager _useragentManager;
 
-        public UseragentCleaning(IUseragentManager useragentManager)
+        public UseragentClean(IUseragentManager useragentManager)
         {
             _useragentManager = useragentManager;
         }

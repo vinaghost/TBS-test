@@ -5,12 +5,12 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class ChromeExtensionInstallation : INotificationHandler<MainWindowLoaded>
+    public class ChromeExtensionInstall : INotificationHandler<MainWindowLoaded>
     {
         private readonly IChromeManager _chromeManager;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
-        public ChromeExtensionInstallation(IChromeManager chromeManager, WaitingOverlayViewModel waitingOverlayViewModel)
+        public ChromeExtensionInstall(IChromeManager chromeManager, WaitingOverlayViewModel waitingOverlayViewModel)
         {
             _chromeManager = chromeManager;
             _waitingOverlayViewModel = waitingOverlayViewModel;

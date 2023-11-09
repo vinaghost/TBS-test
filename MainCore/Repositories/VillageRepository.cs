@@ -19,6 +19,7 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var villageName = context.Villages
+                .AsNoTracking()
                 .Where(x => x.Id == villageId.Value)
                 .Select(x => x.Name)
                 .FirstOrDefault();
@@ -30,11 +31,13 @@ namespace MainCore.Repositories
             using var context = _contextFactory.CreateDbContext();
 
             var village = context.Villages
-                    .Where(x => x.AccountId == accountId.Value)
-                    .Where(x => x.IsActive)
-                    .AsEnumerable()
-                    .Select(x => new VillageId(x.Id))
-                    .FirstOrDefault();
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
+                .Where(x => x.IsActive)
+                .Select(x => x.Id)
+                .AsEnumerable()
+                .Select(x => new VillageId(x))
+                .FirstOrDefault();
             return village;
         }
 
@@ -42,13 +45,31 @@ namespace MainCore.Repositories
         {
             using var context = _contextFactory.CreateDbContext();
             var villages = context.Villages
-                    .Where(x => x.AccountId == accountId.Value)
-                    .Where(x => !x.IsActive)
-                    .OrderBy(x => x.Name)
-                    .AsEnumerable()
-                    .Select(x => new VillageId(x.Id))
-                    .ToList();
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
+                .Where(x => !x.IsActive)
+                .OrderBy(x => x.Name)
+                .Select(x => x.Id)
+                .AsEnumerable()
+                .Select(x => new VillageId(x))
+                .ToList();
             return villages;
+        }
+
+        public List<VillageId> GetMissingBuildingVillages(AccountId accountId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var missingBuildingVillages = context.Villages
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
+                .Include(x => x.Buildings)
+                .Where(x => x.Buildings.Count != 40)
+                .Select(x => x.Id)
+                .AsEnumerable()
+                .Select(x => new VillageId(x))
+                .ToList();
+            return missingBuildingVillages;
         }
     }
 }

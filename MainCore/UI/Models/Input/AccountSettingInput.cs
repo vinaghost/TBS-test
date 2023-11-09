@@ -12,7 +12,7 @@ namespace MainCore.UI.Models.Input
             Tribe.Set((TribeEnums)settings.GetValueOrDefault(AccountSettingEnums.Tribe));
             ClickDelay.Set(settings.GetValueOrDefault(AccountSettingEnums.ClickDelayMin), settings.GetValueOrDefault(AccountSettingEnums.ClickDelayMax));
             TaskDelay.Set(settings.GetValueOrDefault(AccountSettingEnums.TaskDelayMin), settings.GetValueOrDefault(AccountSettingEnums.TaskDelayMax));
-            IsAutoLoadVillage = settings.GetValueOrDefault(AccountSettingEnums.IsAutoLoadVillage) == 1;
+            IsAutoLoadVillage = settings.GetValueOrDefault(AccountSettingEnums.AutoLoadVillageBuilding) == 1;
         }
 
         public Dictionary<AccountSettingEnums, int> Get()
@@ -28,7 +28,7 @@ namespace MainCore.UI.Models.Input
                 { AccountSettingEnums.ClickDelayMax, clickDelayMax },
                 { AccountSettingEnums.TaskDelayMin, taskDelayMin },
                 { AccountSettingEnums.TaskDelayMax, taskDelayMax },
-                { AccountSettingEnums.IsAutoLoadVillage, isAutoLoadVillage },
+                { AccountSettingEnums.AutoLoadVillageBuilding, isAutoLoadVillage },
                 { AccountSettingEnums.Tribe, tribe },
             };
             return settings;

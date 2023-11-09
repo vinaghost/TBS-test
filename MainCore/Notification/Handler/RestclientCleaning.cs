@@ -4,11 +4,11 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class RestclientCleaningpublic : INotificationHandler<MainWindowUnloaded>
+    public class RestclientClean : INotificationHandler<MainWindowUnloaded>
     {
         private readonly IRestClientManager _restClientManager;
 
-        public RestclientCleaningpublic(IRestClientManager restClientManager)
+        public RestclientClean(IRestClientManager restClientManager)
         {
             _restClientManager = restClientManager;
         }

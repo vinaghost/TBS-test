@@ -4,11 +4,11 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class ChromeCleaning : INotificationHandler<MainWindowUnloaded>
+    public class ChromeClean : INotificationHandler<MainWindowUnloaded>
     {
         private readonly IChromeManager _chromeManager;
 
-        public ChromeCleaning(IChromeManager chromeManager)
+        public ChromeClean(IChromeManager chromeManager)
         {
             _chromeManager = chromeManager;
         }

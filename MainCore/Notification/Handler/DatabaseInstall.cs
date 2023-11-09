@@ -6,12 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Notification.Handler
 {
-    public class DatabaseInstallation : INotificationHandler<MainWindowLoaded>
+    public class DatabaseInstall : INotificationHandler<MainWindowLoaded>
     {
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public DatabaseInstallation(IDbContextFactory<AppDbContext> contextFactory, WaitingOverlayViewModel waitingOverlayViewModel)
+        public DatabaseInstall(IDbContextFactory<AppDbContext> contextFactory, WaitingOverlayViewModel waitingOverlayViewModel)
         {
             _contextFactory = contextFactory;
             _waitingOverlayViewModel = waitingOverlayViewModel;

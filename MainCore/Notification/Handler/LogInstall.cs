@@ -5,12 +5,12 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class LogInstallation : INotificationHandler<MainWindowLoaded>
+    public class LogInstall : INotificationHandler<MainWindowLoaded>
     {
         private readonly ILogService _logService;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
-        public LogInstallation(ILogService logService, WaitingOverlayViewModel waitingOverlayViewModel)
+        public LogInstall(ILogService logService, WaitingOverlayViewModel waitingOverlayViewModel)
         {
             _logService = logService;
             _waitingOverlayViewModel = waitingOverlayViewModel;

@@ -3,7 +3,7 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class ProxyCacheCleaning : INotificationHandler<MainWindowUnloaded>
+    public class ProxyCacheClean : INotificationHandler<MainWindowUnloaded>
     {
         public async Task Handle(MainWindowUnloaded notification, CancellationToken cancellationToken)
         {

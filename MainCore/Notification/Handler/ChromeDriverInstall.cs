@@ -5,12 +5,12 @@ using MediatR;
 
 namespace MainCore.Notification.Handler
 {
-    public class ChromeDriverInstallation : INotificationHandler<MainWindowLoaded>
+    public class ChromeDriverInstall : INotificationHandler<MainWindowLoaded>
     {
         private readonly IChromeDriverInstaller _chromeDriverInstaller;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
 
-        public ChromeDriverInstallation(IChromeDriverInstaller chromeDriverInstaller, WaitingOverlayViewModel waitingOverlayViewModel)
+        public ChromeDriverInstall(IChromeDriverInstaller chromeDriverInstaller, WaitingOverlayViewModel waitingOverlayViewModel)
         {
             _chromeDriverInstaller = chromeDriverInstaller;
             _waitingOverlayViewModel = waitingOverlayViewModel;

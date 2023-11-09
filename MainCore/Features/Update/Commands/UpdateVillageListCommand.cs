@@ -49,31 +49,27 @@ namespace MainCore.Features.Update.Commands
         private void Update(AccountId accountId, List<VillageDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
-            var dbVillages = context.Villages
+            var villages = context.Villages
                 .Where(x => x.AccountId == accountId.Value)
                 .ToList();
 
-            foreach (var dto in dtos)
-            {
-                var dbVillage = dbVillages.FirstOrDefault(x => x.Id == dto.Id.Value);
-                if (dbVillage is null)
-                {
-                    var entity = dto.ToEntity(accountId);
-                    context.Add(entity);
-                }
-                else
-                {
-                    dto.To(dbVillage);
-                    context.Update(dbVillage);
-                    dbVillages.Remove(dbVillage);
-                }
-            }
-            context.SaveChanges();
+            var ids = dtos.Select(x => x.Id.Value).ToList();
 
-            var removedVillage = dbVillages.Select(x => x.Id).AsEnumerable();
-            context.Villages
-                .Where(x => removedVillage.Contains(x.Id))
-                .ExecuteDelete();
+            var villageDeleted = villages.Where(x => !ids.Contains(x.Id)).ToList();
+            var villageInserted = dtos.Where(x => !villages.Any(v => v.Id == x.Id.Value)).ToList();
+            var villageUpdated = villages.Where(x => ids.Contains(x.Id)).ToList();
+
+            villageDeleted.ForEach(x => context.Remove(x));
+            villageInserted.ForEach(x => context.Add(x.ToEntity(accountId)));
+
+            foreach (var village in villageUpdated)
+            {
+                var dto = dtos.FirstOrDefault(x => x.Id.Value == village.Id);
+                dto.To(village);
+                context.Update(village);
+            }
+
+            context.SaveChanges();
         }
     }
 }
