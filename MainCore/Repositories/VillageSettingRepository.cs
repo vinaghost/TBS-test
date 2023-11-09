@@ -70,5 +70,16 @@ namespace MainCore.Repositories
                     .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
             }
         }
+
+        public Dictionary<VillageSettingEnums, int> Get(VillageId villageId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var settings = context.VillagesSetting
+                .AsNoTracking()
+                .Where(x => x.VillageId == villageId.Value)
+                .ToDictionary(x => x.Setting, x => x.Value);
+            return settings;
+        }
     }
 }

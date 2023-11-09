@@ -27,6 +27,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
         public void Load(IEnumerable<ListBoxItem> items)
         {
+            var oldIndex = SelectedIndex;
             Items.Clear();
             foreach (var item in items)
             {
@@ -35,7 +36,18 @@ namespace MainCore.UI.ViewModels.UserControls
 
             if (Items.Count > 0)
             {
-                SelectedItem = Items[0];
+                if (oldIndex == -1)
+                {
+                    SelectedItem = Items.First();
+                }
+                else if (oldIndex < Items.Count)
+                {
+                    SelectedItem = Items.ElementAt(oldIndex);
+                }
+                else
+                {
+                    SelectedItem = Items.Last();
+                }
             }
             else
             {
@@ -50,30 +62,5 @@ namespace MainCore.UI.ViewModels.UserControls
         }
 
         public int Count => Items.Count;
-
-        public void Move(int oldIndex, int newIndex)
-        {
-            Items.Move(oldIndex, newIndex);
-        }
-
-        public void Delete()
-        {
-            var oldIndex = SelectedIndex;
-            Items.RemoveAt(oldIndex);
-            if (Items.Count > 0)
-            {
-                if (oldIndex == Items.Count)
-                {
-                    oldIndex = Items.Count - 1;
-                }
-
-                SelectedIndex = oldIndex;
-            }
-        }
-
-        public void Clear()
-        {
-            Items.Clear();
-        }
     }
 }

@@ -2,6 +2,7 @@
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using MainCore.UI.Models.Output;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Repositories
@@ -57,6 +58,20 @@ namespace MainCore.Repositories
             return villages;
         }
 
+        public List<VillageId> Get(AccountId accountId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var villages = context.Villages
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
+                .Select(x => x.Id)
+                .AsEnumerable()
+                .Select(x => new VillageId(x))
+                .ToList();
+            return villages;
+        }
+
         public List<VillageId> GetMissingBuildingVillages(AccountId accountId)
         {
             using var context = _contextFactory.CreateDbContext();
@@ -90,6 +105,23 @@ namespace MainCore.Repositories
                 .Select(x => new VillageId(x))
                 .ToList();
             return hasBuildingJobVillages;
+        }
+
+        public List<ListBoxItem> GetItems(AccountId accountId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var villages = context.Villages
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
+                .OrderBy(x => x.Name)
+                .Select(x => new ListBoxItem()
+                {
+                    Id = x.Id,
+                    Content = $"{x.Name}{Environment.NewLine}({x.X}|{x.Y})",
+                })
+                .ToList();
+            return villages;
         }
     }
 }

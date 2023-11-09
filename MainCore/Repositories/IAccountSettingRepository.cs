@@ -5,6 +5,7 @@ namespace MainCore.Repositories
 {
     public interface IAccountSettingRepository
     {
+        Dictionary<AccountSettingEnums, int> Get(AccountId accountId);
         bool GetBooleanByName(AccountId accountId, AccountSettingEnums setting);
 
         int GetByName(AccountId accountId, AccountSettingEnums setting);

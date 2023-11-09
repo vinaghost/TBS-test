@@ -1,7 +1,8 @@
-﻿using MainCore.CQRS.Commands;
-using MainCore.DTO;
+﻿using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;
@@ -18,6 +19,7 @@ namespace MainCore.UI.ViewModels.Tabs
     {
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
         public ReactiveCommand<string, Unit> UpdateTableCommand { get; }
@@ -31,16 +33,18 @@ namespace MainCore.UI.ViewModels.Tabs
             set => this.RaiseAndSetIfChanged(ref _input, value);
         }
 
-        public AddAccountsViewModel(IDialogService dialogService, IMediator mediator, WaitingOverlayViewModel waitingOverlayViewModel)
+        public AddAccountsViewModel(IDialogService dialogService, IMediator mediator, WaitingOverlayViewModel waitingOverlayViewModel, IUnitOfWork unitOfWork)
         {
             _mediator = mediator;
             _dialogService = dialogService;
             _waitingOverlayViewModel = waitingOverlayViewModel;
+            _unitOfWork = unitOfWork;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountCommandHandler);
             UpdateTableCommand = ReactiveCommand.CreateFromTask<string>(UpdateTableCommandHandler);
 
-            this.WhenAnyValue(x => x.Input).InvokeCommand(UpdateTableCommand);
+            this.WhenAnyValue(x => x.Input)
+                .InvokeCommand(UpdateTableCommand);
         }
 
         private async Task UpdateTableCommandHandler(string input)
@@ -64,7 +68,8 @@ namespace MainCore.UI.ViewModels.Tabs
                 Input = "";
             }, RxApp.MainThreadScheduler);
 
-            await _mediator.Send(new AddRangeAccountCommand(accounts));
+            await Task.Run(() => _unitOfWork.AccountRepository.Add(accounts));
+            await _mediator.Publish(new AccountUpdated());
             await _waitingOverlayViewModel.Hide();
 
             _dialogService.ShowMessageBox("Information", "Added accounts");

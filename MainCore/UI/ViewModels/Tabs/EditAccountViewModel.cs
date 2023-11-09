@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using MainCore.CQRS.Commands;
-using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -25,13 +25,14 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         public ReactiveCommand<Unit, Unit> AddAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccountCommand { get; }
 
-        public EditAccountViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IMediator mediator, IDialogService dialogService)
+        public EditAccountViewModel(WaitingOverlayViewModel waitingOverlayViewModel, IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IMediator mediator, IDialogService dialogService, IUnitOfWork unitOfWork)
         {
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _accessInputValidator = accessInputValidator;
@@ -39,6 +40,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
             _mediator = mediator;
             _dialogService = dialogService;
+            _unitOfWork = unitOfWork;
 
             AddAccessCommand = ReactiveCommand.Create(AddAccessCommandHandler);
             EditAccessCommand = ReactiveCommand.Create(EditAccessCommandHandler);
@@ -100,7 +102,8 @@ namespace MainCore.UI.ViewModels.Tabs
             await _waitingOverlayViewModel.Show("editing account");
 
             var dto = AccountInput.ToDto();
-            await _mediator.Send(new EditAccountCommand(dto));
+            await Task.Run(() => _unitOfWork.AccountRepository.Update(dto));
+            await _mediator.Publish(new AccountUpdated());
 
             await _waitingOverlayViewModel.Hide();
             _dialogService.ShowMessageBox("Information", "Edited accounts");
@@ -108,7 +111,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadAccount()
         {
-            var account = await _mediator.Send(new GetAccountByIdQuery(AccountId));
+            var account = await Task.Run(() => _unitOfWork.AccountRepository.Get(AccountId, true));
 
             await Observable.Start(() =>
             {

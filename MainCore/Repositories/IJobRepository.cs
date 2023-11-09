@@ -1,5 +1,6 @@
 ﻿using MainCore.DTO;
 using MainCore.Entities;
+using MainCore.UI.Models.Output;
 
 namespace MainCore.Repositories
 {
@@ -13,13 +14,16 @@ namespace MainCore.Repositories
 
         void Delete(VillageId villageId);
 
-        VillageId Delete(JobId jobId);
+        void Delete(JobId jobId);
 
         JobDto GetBuildingJob(VillageId villageId);
 
         JobDto GetInfrastructureBuildingJob(VillageId villageId);
 
+        List<ListBoxItem> GetItems(VillageId villageId);
+
         JobDto GetResourceBuildingJob(VillageId villageId);
-        VillageId Move(JobId oldJobId, JobId newJobId);
+
+        void Move(JobId oldJobId, JobId newJobId);
     }
 }

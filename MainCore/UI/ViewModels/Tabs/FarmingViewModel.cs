@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
-using MainCore.CQRS.Commands;
-using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Features.Farming.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -25,14 +25,16 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public FarmingViewModel(IValidator<FarmListSettingInput> farmListSettingInputValidator, ITaskManager taskManager, IDialogService dialogService, IMediator mediator)
+        public FarmingViewModel(IValidator<FarmListSettingInput> farmListSettingInputValidator, ITaskManager taskManager, IDialogService dialogService, IMediator mediator, IUnitOfWork unitOfWork)
         {
             _farmListSettingInputValidator = farmListSettingInputValidator;
 
             _taskManager = taskManager;
             _dialogService = dialogService;
             _mediator = mediator;
+            _unitOfWork = unitOfWork;
 
             UpdateFarmListCommand = ReactiveCommand.Create(UpdateFarmListCommandHandler);
             SaveCommand = ReactiveCommand.CreateFromTask(SaveCommandHandler);
@@ -64,7 +66,7 @@ namespace MainCore.UI.ViewModels.Tabs
         {
             if (!FarmListSettingInput.UseStartAllButton)
             {
-                var count = await _mediator.Send(new CountFarmListActiveQuery(AccountId));
+                var count = await Task.Run(() => _unitOfWork.FarmListRepository.CountActive(AccountId));
                 if (count == 0)
                 {
                     _dialogService.ShowMessageBox("Information", "There is no active farm or use start all button is disable");
@@ -97,7 +99,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
             var settings = FarmListSettingInput.Get();
-            await _mediator.Send(new SaveAccountSettingByIdCommand(AccountId, settings));
+            await Task.Run(() => _unitOfWork.AccountSettingRepository.Update(AccountId, settings));
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 
@@ -109,13 +111,13 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Warning", "No farm list selected");
                 return;
             }
-            await _mediator.Send(new ActiveFarmListCommand(AccountId, new FarmListId(SelectedFarmList.Id)));
+            await Task.Run(() => _unitOfWork.FarmListRepository.ChangeActive(new FarmListId(SelectedFarmList.Id)));
+            await _mediator.Publish(new FarmListUpdated(AccountId));
         }
 
         private async Task LoadSettings(AccountId accountId)
         {
-            var settings = await _mediator.Send(new GetAccountSettingDictonaryByIdQuery(accountId));
-
+            var settings = await Task.Run(() => _unitOfWork.AccountSettingRepository.Get(accountId));
             await Observable.Start(() =>
             {
                 FarmListSettingInput.Set(settings);
@@ -124,7 +126,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadFarmLists(AccountId accountId)
         {
-            var farmLists = await _mediator.Send(new GetFarmListListBoxItemsQuery(accountId));
+            var farmLists = await Task.Run(() => _unitOfWork.FarmListRepository.GetItems(accountId));
             await Observable.Start(() =>
             {
                 FarmLists.Load(farmLists);

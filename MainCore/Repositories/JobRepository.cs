@@ -1,9 +1,11 @@
-﻿using MainCore.Common.Enums;
+﻿using Humanizer;
+using MainCore.Common.Enums;
 using MainCore.Common.Models;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
+using MainCore.UI.Models.Output;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -167,7 +169,7 @@ namespace MainCore.Repositories
             return job;
         }
 
-        public VillageId Delete(JobId jobId)
+        public void Delete(JobId jobId)
         {
             using var context = _contextFactory.CreateDbContext();
 
@@ -184,7 +186,6 @@ namespace MainCore.Repositories
                 .Where(x => x.VillageId == job.VillageId)
                 .Where(x => x.Position > job.Position)
                 .ExecuteUpdate(x => x.SetProperty(x => x.Position, x => x.Position - 1));
-            return new(job.VillageId);
         }
 
         public void Delete(VillageId villageId)
@@ -196,7 +197,7 @@ namespace MainCore.Repositories
                 .ExecuteDelete();
         }
 
-        public VillageId Move(JobId oldJobId, JobId newJobId)
+        public void Move(JobId oldJobId, JobId newJobId)
         {
             using var context = _contextFactory.CreateDbContext();
 
@@ -205,12 +206,49 @@ namespace MainCore.Repositories
             var jobs = context.Jobs
                 .Where(x => jobIds.Contains(x.Id))
                 .ToList();
-            if (jobs.Count != 2) return VillageId.Empty;
 
             (jobs[0].Position, jobs[1].Position) = (jobs[1].Position, jobs[0].Position);
             context.UpdateRange(jobs);
             context.SaveChanges();
-            return new(jobs[0].VillageId);
+        }
+
+        public List<ListBoxItem> GetItems(VillageId villageId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var items = context.Jobs
+                .AsNoTracking()
+                .Where(x => x.VillageId == villageId.Value)
+                .OrderBy(x => x.Position)
+                .ToDto()
+                .AsEnumerable()
+                .Select(x => new ListBoxItem()
+                {
+                    Id = x.Id.Value,
+                    Content = GetContent(x),
+                })
+                .ToList();
+
+            return items;
+        }
+
+        private static string GetContent(JobDto job)
+        {
+            switch (job.Type)
+            {
+                case JobTypeEnums.NormalBuild:
+                    {
+                        var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
+                        return $"Build {plan.Type.Humanize()} to level {plan.Level} at location {plan.Location}";
+                    }
+                case JobTypeEnums.ResourceBuild:
+                    {
+                        var plan = JsonSerializer.Deserialize<ResourceBuildPlan>(job.Content);
+                        return $"Build {plan.Plan.Humanize()} to level {plan.Level}";
+                    }
+                default:
+                    return job.Content;
+            }
         }
     }
 }

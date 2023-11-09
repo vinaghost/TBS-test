@@ -39,7 +39,7 @@ namespace MainCore.Features.Farming.Tasks
             }
             else
             {
-                var farmLists = _farmListRepository.GetActiveFarmLists(AccountId);
+                var farmLists = _farmListRepository.GetActive(AccountId);
                 if (farmLists.Count == 0) return Result.Fail(new Skip("No farmlist is active"));
 
                 var clickDelay = _accountSettingRepository.GetByName(AccountId, AccountSettingEnums.ClickDelayMin, AccountSettingEnums.ClickDelayMax);

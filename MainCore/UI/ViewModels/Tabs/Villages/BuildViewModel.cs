@@ -4,12 +4,11 @@ using Humanizer;
 using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Common.Models;
-using MainCore.CQRS.Commands;
-using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Notification;
 using MainCore.Repositories;
 using MainCore.UI.Models.Input;
 using MainCore.UI.Models.Output;
@@ -28,16 +27,18 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private readonly ITaskManager _taskManager;
         private readonly IMediator _mediator;
         private readonly IDialogService _dialogService;
+        private readonly IUnitOfWork _unitOfWork;
 
         private readonly List<BuildingEnums> _availableBuildings = new();
 
-        public BuildViewModel(IValidator<NormalBuildInput> normalBuildInputValidator, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager, IDialogService dialogService, IMediator mediator)
+        public BuildViewModel(IValidator<NormalBuildInput> normalBuildInputValidator, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager, IDialogService dialogService, IMediator mediator, IUnitOfWork unitOfWork)
         {
             _normalBuildInputValidator = normalBuildInputValidator;
             _resourceBuildInputValidator = resourceBuildInputValidator;
 
             _taskManager = taskManager;
             _dialogService = dialogService;
+            _unitOfWork = unitOfWork;
             _mediator = mediator;
 
             LoadNormalBuildCommand = ReactiveCommand.CreateFromTask<ListBoxItem>(LoadNormalBuild);
@@ -83,7 +84,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task LoadBuildings(VillageId villageId)
         {
-            var buildings = await _mediator.Send(new GetBuildingListBoxItemsQuery(villageId));
+            var buildings = await Task.Run(() => _unitOfWork.BuildingRepository.GetItems(villageId));
             await Observable.Start(() =>
             {
                 Buildings.Load(buildings);
@@ -92,7 +93,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task LoadJobs(VillageId villageId)
         {
-            var jobs = await _mediator.Send(new GetJobListBoxItemsQuery(villageId));
+            var jobs = await Task.Run(() => _unitOfWork.JobRepository.GetItems(villageId));
             await Observable.Start(() =>
             {
                 Jobs.Load(jobs);
@@ -108,15 +109,15 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             else
             {
-                var building = await _mediator.Send(new GetBuildingByIdQuery(new BuildingId(Buildings.SelectedItemId)));
+                var (type, level) = await Task.Run(() => _unitOfWork.BuildingRepository.GetBuildingInfo(new BuildingId(Buildings.SelectedItemId)));
 
-                if (building.Type == BuildingEnums.Site)
+                if (type == BuildingEnums.Site)
                 {
                     func = () => NormalBuildInput.Set(_availableBuildings);
                 }
                 else
                 {
-                    func = () => NormalBuildInput.Set(new List<BuildingEnums>() { building.Type }, building.Level + 1);
+                    func = () => NormalBuildInput.Set(new List<BuildingEnums>() { type }, level + 1);
                 }
             }
 
@@ -164,8 +165,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            Jobs.SelectedIndex = newIndex;
+            await Task.Run(() => _unitOfWork.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
+            await _mediator.Publish(new JobUpdated(VillageId));
         }
 
         private async Task DownTask()
@@ -180,8 +181,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            Jobs.SelectedIndex = newIndex;
+            await Task.Run(() => _unitOfWork.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
+            await _mediator.Publish(new JobUpdated(VillageId));
         }
 
         private async Task TopTask()
@@ -196,8 +197,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            Jobs.SelectedIndex = newIndex;
+            await Task.Run(() => _unitOfWork.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
+            await _mediator.Publish(new JobUpdated(VillageId));
         }
 
         private async Task BottomTask()
@@ -212,8 +213,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var oldJob = Jobs[oldIndex];
             var newJob = Jobs[newIndex];
 
-            await _mediator.Send(new MoveJobCommand(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            Jobs.SelectedIndex = newIndex;
+            await Task.Run(() => _unitOfWork.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
+            await _mediator.Publish(new JobUpdated(VillageId));
         }
 
         private async Task DeleteTask()
@@ -221,21 +222,15 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             if (!Jobs.IsSelected) return;
             var oldIndex = Jobs.SelectedIndex;
             var jobId = Jobs.SelectedItemId;
-            await _mediator.Send(new DeleteJobByIdCommand(new JobId(jobId)));
-            if (!Jobs.IsSelected) return;
-            if (oldIndex < Jobs.Count)
-            {
-                Jobs.SelectedIndex = oldIndex;
-            }
-            else
-            {
-                Jobs.SelectedIndex = Jobs.Count - 1;
-            }
+
+            await Task.Run(() => _unitOfWork.JobRepository.Delete(new JobId(jobId)));
+            await _mediator.Publish(new JobUpdated(VillageId));
         }
 
         private async Task DeleteAllTask()
         {
-            await _mediator.Send(new DeleteAllJobCommand(VillageId));
+            await Task.Run(() => _unitOfWork.JobRepository.Delete(VillageId));
+            await _mediator.Publish(new JobUpdated(VillageId));
         }
 
         private async Task NormalBuild(VillageId villageId)
@@ -249,7 +244,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 Level = level,
             };
 
-            var buildings = await _mediator.Send(new GetBuildingsWithPlannedLevelQuery(villageId));
+            var buildings = await Task.Run(() => _unitOfWork.BuildingRepository.GetLevelBuildings(villageId));
             var result = CheckRequirements(buildings, plan);
             if (result.IsFailed)
             {
@@ -258,7 +253,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             Validate(buildings, plan);
 
-            await _mediator.Send(new AddJobCommand<NormalBuildPlan>(VillageId, plan));
+            await Task.Run(() => _unitOfWork.JobRepository.Add(villageId, plan));
+            await _mediator.Publish(new JobUpdated(villageId));
         }
 
         private async Task ResourceBuild(VillageId villageId)
@@ -269,7 +265,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 Plan = type,
                 Level = level,
             };
-            await _mediator.Send(new AddJobCommand<ResourceBuildPlan>(villageId, plan));
+            await Task.Run(() => _unitOfWork.JobRepository.Add(villageId, plan));
+            await _mediator.Publish(new JobUpdated(villageId));
         }
 
         private static Result CheckRequirements(List<BuildingItem> buildings, NormalBuildPlan plan)

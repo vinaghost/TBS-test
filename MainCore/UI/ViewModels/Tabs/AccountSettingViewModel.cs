@@ -1,13 +1,11 @@
 ﻿using FluentValidation;
 using MainCore.Common.Enums;
-using MainCore.CQRS.Commands;
-using MainCore.CQRS.Queries;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
-using MediatR;
 using ReactiveUI;
 using System.Reactive.Linq;
 using System.Text.Json;
@@ -21,17 +19,17 @@ namespace MainCore.UI.ViewModels.Tabs
         public AccountSettingInput AccountSettingInput { get; } = new();
         private readonly IValidator<AccountSettingInput> _accountsettingInputValidator;
 
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IDialogService _dialogService;
-        private readonly IMediator _mediator;
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public AccountSettingViewModel(IValidator<AccountSettingInput> accountsettingInputValidator, IDialogService dialogService, IMediator mediator)
+        public AccountSettingViewModel(IValidator<AccountSettingInput> accountsettingInputValidator, IDialogService dialogService, IUnitOfWork unitOfWork)
         {
             _accountsettingInputValidator = accountsettingInputValidator;
             _dialogService = dialogService;
-            _mediator = mediator;
+            _unitOfWork = unitOfWork;
 
             SaveCommand = ReactiveCommand.CreateFromTask(SaveCommandHandler);
             ExportCommand = ReactiveCommand.CreateFromTask(ExportCommandHandler);
@@ -59,7 +57,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
             var settings = AccountSettingInput.Get();
-            await _mediator.Send(new SaveAccountSettingByIdCommand(AccountId, settings));
+            await Task.Run(() => _unitOfWork.AccountSettingRepository.Update(AccountId, settings));
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 
@@ -85,14 +83,15 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Error", result.ToString());
                 return;
             }
-            await _mediator.Send(new SaveAccountSettingByIdCommand(AccountId, AccountSettingInput.Get()));
+            settings = AccountSettingInput.Get();
+            await Task.Run(() => _unitOfWork.AccountSettingRepository.Update(AccountId, settings));
             _dialogService.ShowMessageBox("Information", "Settings imported");
         }
 
         private async Task ExportCommandHandler()
         {
             var path = _dialogService.SaveFileDialog();
-            var settings = await _mediator.Send(new GetAccountSettingDictonaryByIdQuery(AccountId));
+            var settings = await Task.Run(() => _unitOfWork.AccountSettingRepository.Get(AccountId));
             var jsonString = JsonSerializer.Serialize(settings);
             await File.WriteAllTextAsync(path, jsonString);
             _dialogService.ShowMessageBox("Settings exported", "Information");
@@ -100,7 +99,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadSettings(AccountId accountId)
         {
-            var settings = await _mediator.Send(new GetAccountSettingDictonaryByIdQuery(accountId));
+            var settings = await Task.Run(() => _unitOfWork.AccountSettingRepository.Get(accountId));
             await Observable.Start(() =>
             {
                 AccountSettingInput.Set(settings);

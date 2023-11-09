@@ -1,8 +1,10 @@
-﻿using MainCore.DTO;
+﻿using MainCore.Common.Extensions;
+using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;
+using MainCore.UI.Models.Output;
 using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.Repositories
@@ -12,19 +14,28 @@ namespace MainCore.Repositories
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
         private readonly IUseragentManager _useragentManager;
+        private readonly ITaskManager _taskManager;
 
-        public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager)
+        public AccountRepository(IDbContextFactory<AppDbContext> contextFactory, IUseragentManager useragentManager, ITaskManager taskManager)
         {
             _contextFactory = contextFactory;
             _useragentManager = useragentManager;
+            _taskManager = taskManager;
         }
 
-        public AccountDto Get(AccountId accountId)
+        public AccountDto Get(AccountId accountId, bool includeAccess = false)
         {
             using var context = _contextFactory.CreateDbContext();
-            var account = context.Accounts
+            var query = context.Accounts
                 .AsNoTracking()
-                .Where(x => x.Id == accountId.Value)
+                .Where(x => x.Id == accountId.Value);
+
+            if (includeAccess)
+            {
+                query = query
+                    .Include(x => x.Accesses);
+            }
+            var account = query
                 .ToDto()
                 .FirstOrDefault();
             return account;
@@ -143,6 +154,29 @@ namespace MainCore.Repositories
             }
             context.Update(account);
             context.SaveChanges();
+        }
+
+        public List<ListBoxItem> GetItems()
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var accounts = context.Accounts
+                .AsNoTracking()
+                .AsEnumerable()
+                .Select(x =>
+                {
+                    var serverUrl = new Uri(x.Server);
+                    var status = _taskManager.GetStatus(new(x.Id));
+                    return new ListBoxItem()
+                    {
+                        Id = x.Id,
+                        Color = status.GetColor(),
+                        Content = $"{x.Username}{Environment.NewLine}({serverUrl.Host})"
+                    };
+                })
+                .ToList();
+
+            return accounts;
         }
     }
 }
