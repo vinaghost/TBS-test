@@ -1,6 +1,6 @@
-﻿using MainCore.Common.Notification;
-using MainCore.Entities;
+﻿using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;
+using MainCore.Notification;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,4 +1,4 @@
-﻿using MainCore.Common.Notification;
+﻿using MainCore.Notification;
 using MainCore.DTO;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.Infrasturecture.Services;

@@ -1,5 +1,5 @@
 ﻿using MainCore.Common.Enums;
-using MainCore.Common.Notification;
+using MainCore.Notification;
 using MainCore.Common.Tasks;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;

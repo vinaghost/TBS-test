@@ -1,5 +1,5 @@
 ﻿using FluentResults;
-using MainCore.Common.Notification;
+using MainCore.Notification;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Features.Update.Parsers;

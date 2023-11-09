@@ -1,4 +1,4 @@
-﻿using MainCore.Common.Notification;
+﻿using MainCore.Notification;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;
 using MediatR;

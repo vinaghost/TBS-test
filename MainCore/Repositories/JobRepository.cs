@@ -1,6 +1,6 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Models;
-using MainCore.Common.Notification;
+using MainCore.Notification;
 using MainCore.CQRS.Commands;
 using MainCore.DTO;
 using MainCore.Entities;

@@ -1,6 +1,6 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Models;
-using MainCore.Common.Notification;
+using MainCore.Notification;
 using MainCore.CQRS.Base;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;

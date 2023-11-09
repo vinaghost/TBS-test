@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
-using MainCore.Common.Notification;
+using MainCore.Notification;
 using MainCore.Repositories;
 using MainCore.DTO;
 using MainCore.Entities;

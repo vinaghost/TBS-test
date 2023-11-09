@@ -2,7 +2,7 @@
 using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
-using MainCore.Common.Notification;
+using MainCore.Notification;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Features.Update.Parsers;
