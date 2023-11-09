@@ -43,8 +43,8 @@ namespace MainCore.Features.Login.Commands
             var passwordNode = _loginPageParser.GetPasswordNode(html);
             if (passwordNode is null) return Retry.TextboxNotFound("password");
 
-            var username = await Task.Run(() => _accountRepository.GetUsernameById(accountId));
-            var password = await Task.Run(() => _accountRepository.GetPasswordById(accountId));
+            var username = await Task.Run(() => _accountRepository.GetUsername(accountId));
+            var password = await Task.Run(() => _accountRepository.GetPassword(accountId));
 
             Result result;
             result = chromeBrowser.InputTextbox(By.XPath(usernameNode.XPath), username);

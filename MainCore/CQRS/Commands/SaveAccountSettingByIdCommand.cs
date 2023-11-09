@@ -1,9 +1,8 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.CQRS.Base;
 using MainCore.Entities;
-using MainCore.Infrasturecture.Persistence;
+using MainCore.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.CQRS.Commands
 {
@@ -19,31 +18,16 @@ namespace MainCore.CQRS.Commands
 
     public class SaveAccountSettingByIdCommandHandler : IRequestHandler<SaveAccountSettingByIdCommand>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SaveAccountSettingByIdCommandHandler(IDbContextFactory<AppDbContext> contextFactory)
+        public SaveAccountSettingByIdCommandHandler(IUnitOfWork unitOfWork)
         {
-            _contextFactory = contextFactory;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(SaveAccountSettingByIdCommand request, CancellationToken cancellationToken)
         {
-            await Task.Run(
-                () => SaveSettings(request.AccountId, request.Settings),
-                cancellationToken);
-        }
-
-        private void SaveSettings(AccountId accountId, Dictionary<AccountSettingEnums, int> settings)
-        {
-            using var context = _contextFactory.CreateDbContext();
-
-            foreach (var setting in settings)
-            {
-                context.AccountsSetting
-                    .Where(x => x.AccountId == accountId.Value)
-                    .Where(x => x.Setting == setting.Key)
-                    .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
-            }
+            await Task.Run(() => _unitOfWork.AccountSettingRepository.Update(request.AccountId, request.Settings), cancellationToken);
         }
     }
 }

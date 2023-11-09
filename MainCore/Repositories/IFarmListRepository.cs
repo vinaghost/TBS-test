@@ -5,5 +5,6 @@ namespace MainCore.Repositories
     public interface IFarmListRepository
     {
         List<FarmListId> GetActiveFarmLists(AccountId accountId);
+        void ChangeActiveFarmList(FarmListId farmListId);
     }
 }

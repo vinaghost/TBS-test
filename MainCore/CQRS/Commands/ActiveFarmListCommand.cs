@@ -1,8 +1,7 @@
 ﻿using MainCore.Entities;
-using MainCore.Infrasturecture.Persistence;
 using MainCore.Notification;
+using MainCore.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.CQRS.Commands
 {
@@ -20,27 +19,19 @@ namespace MainCore.CQRS.Commands
 
     public class ActiveFarmListCommandHandler : IRequestHandler<ActiveFarmListCommand>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
 
-        public ActiveFarmListCommandHandler(IDbContextFactory<AppDbContext> contextFactory, IMediator mediator)
+        public ActiveFarmListCommandHandler(IMediator mediator, IUnitOfWork unitOfWork)
         {
-            _contextFactory = contextFactory;
             _mediator = mediator;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(ActiveFarmListCommand request, CancellationToken cancellationToken)
         {
-            await Task.Run(() => ActiveFarmList(request.FarmListId), cancellationToken);
+            await Task.Run(() => _unitOfWork.FarmListRepository.ChangeActiveFarmList(request.FarmListId), cancellationToken);
             await _mediator.Publish(new FarmListUpdated(request.AccountId), cancellationToken);
-        }
-
-        public void ActiveFarmList(FarmListId farmListId)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            context.FarmLists
-               .Where(x => x.Id == farmListId.Value)
-               .ExecuteUpdate(x => x.SetProperty(x => x.IsActive, x => !x.IsActive));
         }
     }
 }

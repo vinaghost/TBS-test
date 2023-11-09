@@ -56,13 +56,13 @@ namespace MainCore.Features.Farming.Commands
 
         private VillageId GetVillageHasRallypoint(AccountId accountId)
         {
-            var activeVillage = _villageRepository.GetActiveVillageId(accountId);
+            var activeVillage = _villageRepository.GetActiveVillages(accountId);
             if (_buildingRepository.IsRallyPointExists(activeVillage))
             {
                 return activeVillage;
             }
 
-            var inactiveVillages = _villageRepository.GetInactiveVillageId(accountId);
+            var inactiveVillages = _villageRepository.GetInactiveVillages(accountId);
             foreach (var village in inactiveVillages)
             {
                 if (_buildingRepository.IsRallyPointExists(village))

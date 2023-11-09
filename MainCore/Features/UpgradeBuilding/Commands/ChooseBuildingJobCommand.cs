@@ -4,7 +4,9 @@ using MainCore.Common.Errors;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Notification;
 using MainCore.Repositories;
+using MediatR;
 
 namespace MainCore.Features.UpgradeBuilding.Commands
 {
@@ -15,14 +17,17 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         private readonly IBuildingRepository _buildingRepository;
         private readonly IAccountInfoRepository _accountInfoRepository;
         private readonly IVillageSettingRepository _villageSettingRepository;
+
+        private readonly IMediator _mediator;
         public JobDto Value { get; private set; }
 
-        public ChooseBuildingJobCommand(IJobRepository jobRepository, IBuildingRepository buildingRepository, IAccountInfoRepository accountInfoRepository, IVillageSettingRepository villageSettingRepository)
+        public ChooseBuildingJobCommand(IJobRepository jobRepository, IBuildingRepository buildingRepository, IAccountInfoRepository accountInfoRepository, IVillageSettingRepository villageSettingRepository, IMediator mediator)
         {
             _jobRepository = jobRepository;
             _buildingRepository = buildingRepository;
             _accountInfoRepository = accountInfoRepository;
             _villageSettingRepository = villageSettingRepository;
+            _mediator = mediator;
         }
 
         public async Task<Result> Execute(AccountId accountId, VillageId villageId)
@@ -90,7 +95,8 @@ namespace MainCore.Features.UpgradeBuilding.Commands
         {
             if (_buildingRepository.IsJobComplete(villageId, job))
             {
-                await _jobRepository.DeleteById(job.Id);
+                _jobRepository.Delete(job.Id);
+                await _mediator.Publish(new JobUpdated(villageId));
                 return true;
             }
             return false;

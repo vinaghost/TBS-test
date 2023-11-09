@@ -1,9 +1,8 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.CQRS.Base;
 using MainCore.Entities;
-using MainCore.Infrasturecture.Persistence;
+using MainCore.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.CQRS.Commands
 {
@@ -19,29 +18,16 @@ namespace MainCore.CQRS.Commands
 
     public class SaveVillageSettingByIdCommandHandler : IRequestHandler<SaveVillageSettingByIdCommand>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SaveVillageSettingByIdCommandHandler(IDbContextFactory<AppDbContext> contextFactory)
+        public SaveVillageSettingByIdCommandHandler(IUnitOfWork unitOfWork)
         {
-            _contextFactory = contextFactory;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(SaveVillageSettingByIdCommand request, CancellationToken cancellationToken)
         {
-            await Task.Run(() => SaveSettings(request.VillageId, request.Settings), cancellationToken);
-        }
-
-        private void SaveSettings(VillageId villageId, Dictionary<VillageSettingEnums, int> settings)
-        {
-            using var context = _contextFactory.CreateDbContext();
-
-            foreach (var setting in settings)
-            {
-                context.VillagesSetting
-                    .Where(x => x.VillageId == villageId.Value)
-                    .Where(x => x.Setting == setting.Key)
-                    .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
-            }
+            await Task.Run(() => _unitOfWork.VillageSettingRepository.Update(request.VillageId, request.Settings), cancellationToken);
         }
     }
 }

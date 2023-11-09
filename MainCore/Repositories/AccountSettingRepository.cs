@@ -57,5 +57,18 @@ namespace MainCore.Repositories
 
             return settingValue;
         }
+
+        public void Update(AccountId accountId, Dictionary<AccountSettingEnums, int> settings)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            foreach (var setting in settings)
+            {
+                context.AccountsSetting
+                    .Where(x => x.AccountId == accountId.Value)
+                    .Where(x => x.Setting == setting.Key)
+                    .ExecuteUpdate(x => x.SetProperty(x => x.Value, setting.Value));
+            }
+        }
     }
 }

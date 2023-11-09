@@ -1,11 +1,18 @@
-﻿using MainCore.Entities;
+﻿using MainCore.DTO;
+using MainCore.Entities;
 
 namespace MainCore.Repositories
 {
     public interface IAccountRepository
     {
-        string GetPasswordById(AccountId accountId);
+        bool Add(AccountDto dto);
+        void Add(List<AccountDetailDto> dtos);
+        void Delete(AccountId accountId);
+        AccountDto Get(AccountId accountId);
+        AccessDto GetAccess(AccountId accountId);
+        string GetPassword(AccountId accountId);
 
-        string GetUsernameById(AccountId accountId);
+        string GetUsername(AccountId accountId);
+        void Update(AccountDto dto);
     }
 }

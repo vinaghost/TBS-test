@@ -1,10 +1,10 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
-using MainCore.Notification;
-using MainCore.Repositories;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MediatR;
 using System.Text.Json;
 
@@ -30,11 +30,11 @@ namespace MainCore.Features.UpgradeBuilding.Commands
             var normalBuildPlan = await Task.Run(() => _buildingRepository.GetNormalBuildPlan(villageId, resourceBuildPlan));
             if (normalBuildPlan is null)
             {
-                await _jobRepository.DeleteById(job.Id);
+                _jobRepository.Delete(job.Id);
             }
             else
             {
-                await _jobRepository.AddToTop(villageId, normalBuildPlan);
+                _jobRepository.AddToTop(villageId, normalBuildPlan);
             }
             await _mediator.Publish(new JobUpdated(villageId));
             return Result.Ok();

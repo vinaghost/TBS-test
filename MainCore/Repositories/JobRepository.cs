@@ -1,7 +1,5 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Models;
-using MainCore.Notification;
-using MainCore.CQRS.Commands;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
@@ -30,7 +28,7 @@ namespace MainCore.Repositories
             _mediator = mediator;
         }
 
-        public async Task AddToTop<T>(VillageId villageId, T content)
+        public void AddToTop<T>(VillageId villageId, T content)
         {
             using var context = _contextFactory.CreateDbContext();
 
@@ -48,7 +46,26 @@ namespace MainCore.Repositories
             };
             context.Add(job);
             context.SaveChanges();
-            await _mediator.Publish(new JobUpdated(villageId));
+        }
+
+        public void Add<T>(VillageId villageId, T content)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.Jobs
+                .AsNoTracking()
+                .Where(x => x.VillageId == villageId.Value)
+                .Count();
+
+            var job = new Job()
+            {
+                Position = count,
+                VillageId = villageId.Value,
+                Type = _jobTypes[typeof(T)],
+                Content = JsonSerializer.Serialize(content),
+            };
+
+            context.Add(job);
+            context.SaveChanges();
         }
 
         public int CountBuildingJob(VillageId villageId)
@@ -150,9 +167,50 @@ namespace MainCore.Repositories
             return job;
         }
 
-        public async Task DeleteById(JobId jobId)
+        public VillageId Delete(JobId jobId)
         {
-            await _mediator.Send(new DeleteJobByIdCommand(jobId));
+            using var context = _contextFactory.CreateDbContext();
+
+            var job = context.Jobs
+                .AsNoTracking()
+                .Where(x => x.Id == jobId.Value)
+                .FirstOrDefault();
+
+            context.Jobs
+                .Where(x => x.Id == jobId.Value)
+                .ExecuteDelete();
+
+            context.Jobs
+                .Where(x => x.VillageId == job.VillageId)
+                .Where(x => x.Position > job.Position)
+                .ExecuteUpdate(x => x.SetProperty(x => x.Position, x => x.Position - 1));
+            return new(job.VillageId);
+        }
+
+        public void Delete(VillageId villageId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            context.Jobs
+                .Where(x => x.VillageId == villageId.Value)
+                .ExecuteDelete();
+        }
+
+        public VillageId Move(JobId oldJobId, JobId newJobId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var jobIds = new List<int>() { oldJobId.Value, newJobId.Value };
+
+            var jobs = context.Jobs
+                .Where(x => jobIds.Contains(x.Id))
+                .ToList();
+            if (jobs.Count != 2) return VillageId.Empty;
+
+            (jobs[0].Position, jobs[1].Position) = (jobs[1].Position, jobs[0].Position);
+            context.UpdateRange(jobs);
+            context.SaveChanges();
+            return new(jobs[0].VillageId);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MainCore.Entities;
+﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -26,7 +27,7 @@ namespace MainCore.Repositories
             return villageName;
         }
 
-        public VillageId GetActiveVillageId(AccountId accountId)
+        public VillageId GetActiveVillages(AccountId accountId)
         {
             using var context = _contextFactory.CreateDbContext();
 
@@ -41,7 +42,7 @@ namespace MainCore.Repositories
             return village;
         }
 
-        public List<VillageId> GetInactiveVillageId(AccountId accountId)
+        public List<VillageId> GetInactiveVillages(AccountId accountId)
         {
             using var context = _contextFactory.CreateDbContext();
             var villages = context.Villages
@@ -70,6 +71,25 @@ namespace MainCore.Repositories
                 .Select(x => new VillageId(x))
                 .ToList();
             return missingBuildingVillages;
+        }
+
+        public List<VillageId> GetHasBuildingJobVillages(AccountId accountId)
+        {
+            var types = new List<JobTypeEnums>() {
+                JobTypeEnums.NormalBuild,
+                JobTypeEnums.ResourceBuild
+            };
+            using var context = _contextFactory.CreateDbContext();
+            var hasBuildingJobVillages = context.Villages
+                .AsNoTracking()
+                .Where(x => x.AccountId == accountId.Value)
+                .Include(x => x.Jobs.Where(x => types.Contains(x.Type)))
+                .Where(x => x.Jobs.Count() > 0)
+                .Select(x => x.Id)
+                .AsEnumerable()
+                .Select(x => new VillageId(x))
+                .ToList();
+            return hasBuildingJobVillages;
         }
     }
 }

@@ -4,9 +4,9 @@ namespace MainCore.Repositories
 {
     public interface IVillageRepository
     {
-        VillageId GetActiveVillageId(AccountId accountId);
-
-        List<VillageId> GetInactiveVillageId(AccountId accountId);
+        VillageId GetActiveVillages(AccountId accountId);
+        List<VillageId> GetHasBuildingJobVillages(AccountId accountId);
+        List<VillageId> GetInactiveVillages(AccountId accountId);
         List<VillageId> GetMissingBuildingVillages(AccountId accountId);
         string GetVillageName(VillageId villageId);
     }

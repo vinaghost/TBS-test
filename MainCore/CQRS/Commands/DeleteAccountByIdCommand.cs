@@ -1,9 +1,8 @@
-﻿using MainCore.Notification;
-using MainCore.CQRS.Base;
+﻿using MainCore.CQRS.Base;
 using MainCore.Entities;
-using MainCore.Infrasturecture.Persistence;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.CQRS.Commands
 {
@@ -16,27 +15,19 @@ namespace MainCore.CQRS.Commands
 
     public class DeleteAccountByIdCommandHandler : IRequestHandler<DeleteAccountByIdCommand>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
 
-        public DeleteAccountByIdCommandHandler(IDbContextFactory<AppDbContext> contextFactory, IMediator mediator)
+        public DeleteAccountByIdCommandHandler(IMediator mediator, IUnitOfWork unitOfWork)
         {
-            _contextFactory = contextFactory;
             _mediator = mediator;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(DeleteAccountByIdCommand request, CancellationToken cancellationToken)
         {
-            await Task.Run(() => DeleteAccount(request.AccountId), cancellationToken);
+            await Task.Run(() => _unitOfWork.AccountRepository.Delete(request.AccountId), cancellationToken);
             await _mediator.Publish(new AccountUpdated(), cancellationToken);
-        }
-
-        private void DeleteAccount(AccountId accountId)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            context.Accounts
-                .Where(x => x.Id == accountId.Value)
-                .ExecuteDelete();
         }
     }
 }

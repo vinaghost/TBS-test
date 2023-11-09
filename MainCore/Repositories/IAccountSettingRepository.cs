@@ -10,5 +10,6 @@ namespace MainCore.Repositories
         int GetByName(AccountId accountId, AccountSettingEnums setting);
 
         int GetByName(AccountId accountId, AccountSettingEnums settingMin, AccountSettingEnums settingMax);
+        void Update(AccountId accountId, Dictionary<AccountSettingEnums, int> settings);
     }
 }

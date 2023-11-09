@@ -1,8 +1,9 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
-using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MediatR;
 
 namespace MainCore.Features.UpgradeBuilding.Commands
@@ -32,7 +33,8 @@ namespace MainCore.Features.UpgradeBuilding.Commands
                 Level = cropland.Level + 1,
             };
 
-            await _jobRepository.AddToTop(villageId, plan);
+            _jobRepository.AddToTop(villageId, plan);
+            await _mediator.Publish(new JobUpdated(villageId));
             return Result.Ok();
         }
     }

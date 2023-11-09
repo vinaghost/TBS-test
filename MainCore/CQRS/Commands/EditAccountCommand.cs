@@ -1,9 +1,7 @@
-﻿using MainCore.Notification;
-using MainCore.DTO;
-using MainCore.Infrasturecture.Persistence;
-using MainCore.Infrasturecture.Services;
+﻿using MainCore.DTO;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.CQRS.Commands
 {
@@ -19,37 +17,19 @@ namespace MainCore.CQRS.Commands
 
     public class EditAccountCommandHandler : IRequestHandler<EditAccountCommand>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
-        private readonly IUseragentManager _useragentManager;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
 
-        public EditAccountCommandHandler(IDbContextFactory<AppDbContext> contextFactory, IMediator mediator, IUseragentManager useragentManager)
+        public EditAccountCommandHandler(IMediator mediator, IUnitOfWork unitOfWork)
         {
-            _contextFactory = contextFactory;
             _mediator = mediator;
-            _useragentManager = useragentManager;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(EditAccountCommand request, CancellationToken cancellationToken)
         {
-            await Task.Run(() => Edit(request.Account), cancellationToken);
+            await Task.Run(() => _unitOfWork.AccountRepository.Update(request.Account), cancellationToken);
             await _mediator.Publish(new AccountUpdated(), cancellationToken);
-        }
-
-        private void Edit(AccountDto dto)
-        {
-            using var context = _contextFactory.CreateDbContext();
-
-            var account = dto.ToEntity();
-            foreach (var access in account.Accesses)
-            {
-                if (string.IsNullOrEmpty(access.Useragent))
-                {
-                    access.Useragent = _useragentManager.Get();
-                }
-            }
-            context.Update(account);
-            context.SaveChanges();
         }
     }
 }

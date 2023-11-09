@@ -1,8 +1,7 @@
-﻿using MainCore.Notification;
-using MainCore.Entities;
-using MainCore.Infrasturecture.Persistence;
+﻿using MainCore.Entities;
+using MainCore.Notification;
+using MainCore.Repositories;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace MainCore.CQRS.Commands
 {
@@ -20,37 +19,20 @@ namespace MainCore.CQRS.Commands
 
     public class MoveJobCommandHanlder : IRequestHandler<MoveJobCommand>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator _mediator;
 
-        public MoveJobCommandHanlder(IDbContextFactory<AppDbContext> contextFactory, IMediator mediator)
+        public MoveJobCommandHanlder(IMediator mediator, IUnitOfWork unitOfWork)
         {
-            _contextFactory = contextFactory;
             _mediator = mediator;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task Handle(MoveJobCommand request, CancellationToken cancellationToken)
         {
-            var villageId = await Task.Run(() => Move(request.OldJobId, request.NewJobId), cancellationToken);
+            var villageId = await Task.Run(() => _unitOfWork.JobRepository.Move(request.OldJobId, request.NewJobId), cancellationToken);
             if (villageId == VillageId.Empty) return;
             await _mediator.Publish(new JobUpdated(villageId), cancellationToken);
-        }
-
-        private VillageId Move(JobId oldJobId, JobId newJobId)
-        {
-            using var context = _contextFactory.CreateDbContext();
-
-            var jobIds = new List<int>() { oldJobId.Value, newJobId.Value };
-
-            var jobs = context.Jobs
-                .Where(x => jobIds.Contains(x.Id))
-                .ToList();
-            if (jobs.Count != 2) return VillageId.Empty;
-
-            (jobs[0].Position, jobs[1].Position) = (jobs[1].Position, jobs[0].Position);
-            context.UpdateRange(jobs);
-            context.SaveChanges();
-            return new(jobs[0].VillageId);
         }
     }
 }
