@@ -1,7 +1,7 @@
 ﻿using FluentResults;
+using MainCore.Common;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Features.Farming.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using OpenQA.Selenium;
@@ -12,19 +12,19 @@ namespace MainCore.Features.Farming.Commands
     public class SendFarmListCommand : ISendFarmListCommand
     {
         private readonly IChromeManager _chromeManager;
-        private readonly IFarmListParser _farmListParser;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public SendFarmListCommand(IChromeManager chromeManager, IFarmListParser farmListParser)
+        public SendFarmListCommand(IChromeManager chromeManager, IUnitOfWork unitOfWork)
         {
             _chromeManager = chromeManager;
-            _farmListParser = farmListParser;
+            _unitOfWork = unitOfWork;
         }
 
         public Result Execute(AccountId accountId, FarmId farmListId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-            var startButton = _farmListParser.GetStartButton(html, farmListId);
+            var startButton = _unitOfWork.FarmParser.GetStartButton(html, farmListId);
             if (startButton is null)
             {
                 return Result.Fail(new Retry("Cannot found start button"));

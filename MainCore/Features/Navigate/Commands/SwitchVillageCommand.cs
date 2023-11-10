@@ -1,9 +1,9 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Parsers;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands
@@ -12,9 +12,9 @@ namespace MainCore.Features.Navigate.Commands
     public class SwitchVillageCommand : ISwitchVillageCommand
     {
         private readonly IChromeManager _chromeManager;
-        private readonly IVillageItemParser _villageItemParser;
+        private readonly IVillagePanelParser _villageItemParser;
 
-        public SwitchVillageCommand(IChromeManager chromeManager, IVillageItemParser villageItemParser)
+        public SwitchVillageCommand(IChromeManager chromeManager, IVillagePanelParser villageItemParser)
         {
             _chromeManager = chromeManager;
             _villageItemParser = villageItemParser;

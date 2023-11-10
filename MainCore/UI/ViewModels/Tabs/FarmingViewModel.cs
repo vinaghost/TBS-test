@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
+using MainCore.Common;
 using MainCore.Entities;
 using MainCore.Features.Farming.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
-using MainCore.Repositories;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -66,7 +66,7 @@ namespace MainCore.UI.ViewModels.Tabs
         {
             if (!FarmListSettingInput.UseStartAllButton)
             {
-                var count = await Task.Run(() => _unitOfWork.FarmListRepository.CountActive(AccountId));
+                var count = await Task.Run(() => _unitOfWork.FarmRepository.CountActive(AccountId));
                 if (count == 0)
                 {
                     _dialogService.ShowMessageBox("Information", "There is no active farm or use start all button is disable");
@@ -111,7 +111,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Warning", "No farm list selected");
                 return;
             }
-            await Task.Run(() => _unitOfWork.FarmListRepository.ChangeActive(new FarmId(SelectedFarmList.Id)));
+            await Task.Run(() => _unitOfWork.FarmRepository.ChangeActive(new FarmId(SelectedFarmList.Id)));
             await _mediator.Publish(new FarmListUpdated(AccountId));
         }
 
@@ -126,7 +126,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadFarmLists(AccountId accountId)
         {
-            var farmLists = await Task.Run(() => _unitOfWork.FarmListRepository.GetItems(accountId));
+            var farmLists = await Task.Run(() => _unitOfWork.FarmRepository.GetItems(accountId));
             await Observable.Start(() =>
             {
                 FarmLists.Load(farmLists);

@@ -42,7 +42,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="CQRS\Queries\" />
     <Folder Include="UI\Handler\" />
   </ItemGroup>
 </Project>

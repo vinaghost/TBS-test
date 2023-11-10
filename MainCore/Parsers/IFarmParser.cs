@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using MainCore.DTO;
 using MainCore.Entities;
 
 namespace MainCore.Parsers
@@ -8,5 +9,7 @@ namespace MainCore.Parsers
         HtmlNode GetStartAllButton(HtmlDocument doc);
 
         HtmlNode GetStartButton(HtmlDocument doc, FarmId raidId);
+
+        IEnumerable<FarmDto> Get(HtmlDocument doc);
     }
 }

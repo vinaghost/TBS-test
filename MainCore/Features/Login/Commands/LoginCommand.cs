@@ -1,10 +1,9 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Features.Login.Parsers;
-using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Parsers;
 using MainCore.Repositories;
 using OpenQA.Selenium;
 

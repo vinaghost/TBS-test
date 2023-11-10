@@ -432,5 +432,30 @@ namespace MainCore.Repositories
             }
             return buildings;
         }
+
+        public void Update(VillageId villageId, List<BuildingDto> dtos)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var dbBuildings = context.Buildings
+                .Where(x => x.VillageId == villageId.Value)
+                .ToList();
+
+            foreach (var dto in dtos)
+            {
+                var dbBuilding = dbBuildings
+                    .FirstOrDefault(x => x.Location == dto.Location);
+                if (dbBuilding is null)
+                {
+                    var building = dto.ToEntity(villageId);
+                    context.Add(building);
+                }
+                else
+                {
+                    dto.To(dbBuilding);
+                    context.Update(dbBuilding);
+                }
+            }
+            context.SaveChanges();
+        }
     }
 }

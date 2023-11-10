@@ -1,8 +1,8 @@
-﻿using MainCore.Entities;
+﻿using MainCore.Common;
+using MainCore.Entities;
 using MainCore.Features.Update.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MainCore.Repositories;
 using MainCore.UI.Enums;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;

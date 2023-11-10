@@ -1,8 +1,8 @@
-﻿using MainCore.DTO;
+﻿using MainCore.Common;
+using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
-using MainCore.Repositories;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;

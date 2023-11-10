@@ -21,5 +21,6 @@ namespace MainCore.Repositories
         bool IsJobComplete(VillageId villageId, JobDto job);
         bool IsRallyPointExists(VillageId villageId);
         List<BuildingItem> GetLevelBuildings(VillageId villageId);
+        void Update(VillageId villageId, List<BuildingDto> dtos);
     }
 }

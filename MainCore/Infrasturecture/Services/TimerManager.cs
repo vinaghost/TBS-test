@@ -1,5 +1,5 @@
 ﻿using FluentResults;
-using MainCore.Common.Commands;
+using MainCore.Commands.General;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Entities;

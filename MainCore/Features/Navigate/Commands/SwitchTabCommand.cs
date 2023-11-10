@@ -2,9 +2,9 @@
 using HtmlAgilityPack;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Features.Navigate.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Parsers;
 using OpenQA.Selenium;
 
 namespace MainCore.Features.Navigate.Commands

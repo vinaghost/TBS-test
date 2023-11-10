@@ -1,4 +1,5 @@
-﻿using MainCore.Entities;
+﻿using MainCore.DTO;
+using MainCore.Entities;
 using MainCore.UI.Models.Output;
 
 namespace MainCore.Repositories
@@ -12,5 +13,6 @@ namespace MainCore.Repositories
         List<VillageId> GetMissingBuildingVillages(AccountId accountId);
         List<ListBoxItem> GetItems(AccountId accountId);
         string GetVillageName(VillageId villageId);
+        void Update(AccountId accountId, List<VillageDto> dtos);
     }
 }

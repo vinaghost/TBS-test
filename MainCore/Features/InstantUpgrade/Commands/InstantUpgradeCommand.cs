@@ -2,9 +2,9 @@
 using HtmlAgilityPack;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Features.InstantUpgrade.Parsers;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Parsers;
 using MediatR;
 using OpenQA.Selenium;
 
@@ -14,10 +14,10 @@ namespace MainCore.Features.InstantUpgrade.Commands
     public class InstantUpgradeCommand : IInstantUpgradeCommand
     {
         private readonly IChromeManager _chromeManager;
-        private readonly IInstantUpgradeParser _instantUpgradeParser;
+        private readonly ICompleteImmediatelyParser _instantUpgradeParser;
         private readonly IMediator _mediator;
 
-        public InstantUpgradeCommand(IInstantUpgradeParser instantUpgradeParser, IChromeManager chromeManager, IMediator mediator)
+        public InstantUpgradeCommand(ICompleteImmediatelyParser instantUpgradeParser, IChromeManager chromeManager, IMediator mediator)
         {
             _instantUpgradeParser = instantUpgradeParser;
             _chromeManager = chromeManager;

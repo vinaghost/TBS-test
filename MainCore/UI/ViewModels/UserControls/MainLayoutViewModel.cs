@@ -1,11 +1,11 @@
-﻿using MainCore.Common.Enums;
+﻿using MainCore.Common;
+using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.CQRS.Commands;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
-using MainCore.Repositories;
 using MainCore.UI.Enums;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;

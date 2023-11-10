@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors.Storage;
+using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
@@ -49,6 +50,27 @@ namespace MainCore.Repositories
             if (storage.Iron < requiredResource[2]) resource[2] = requiredResource[2] - storage.Iron;
             if (storage.Crop < requiredResource[3]) resource[3] = requiredResource[3] - storage.Crop;
             return resource;
+        }
+
+        public void Update(VillageId villageId, StorageDto dto)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var dbStorage = context.Storages
+                .Where(x => x.VillageId == villageId.Value)
+                .FirstOrDefault();
+
+            if (dbStorage is null)
+            {
+                var storage = dto.ToEntity(villageId);
+                context.Add(storage);
+            }
+            else
+            {
+                dto.To(dbStorage);
+                context.Update(dbStorage);
+            }
+
+            context.SaveChanges();
         }
     }
 }
