@@ -9,7 +9,7 @@ namespace MainCore.Features.Update.Parsers.FarmListParser
     [RegisterAsTransient(ServerEnums.TTWars)]
     public class TTWars : IFarmListParser
     {
-        public IEnumerable<FarmListDto> Get(HtmlDocument doc)
+        public IEnumerable<FarmDto> Get(HtmlDocument doc)
         {
             var nodes = GetFarmNodes(doc);
             foreach (var node in nodes)
@@ -42,11 +42,11 @@ namespace MainCore.Features.Update.Parsers.FarmListParser
             return name.InnerText.Trim();
         }
 
-        private static FarmListId GetId(HtmlNode node)
+        private static FarmId GetId(HtmlNode node)
         {
             var id = node.Id;
             var value = new string(id.Where(c => char.IsDigit(c)).ToArray());
-            return new FarmListId(int.Parse(value));
+            return new FarmId(int.Parse(value));
         }
     }
 }

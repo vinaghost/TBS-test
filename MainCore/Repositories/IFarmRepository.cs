@@ -3,10 +3,10 @@ using MainCore.UI.Models.Output;
 
 namespace MainCore.Repositories
 {
-    public interface IFarmListRepository
+    public interface IFarmRepository
     {
-        List<FarmListId> GetActive(AccountId accountId);
-        void ChangeActive(FarmListId farmListId);
+        List<FarmId> GetActive(AccountId accountId);
+        void ChangeActive(FarmId farmListId);
         int CountActive(AccountId accountId);
         List<ListBoxItem> GetItems(AccountId accountId);
     }

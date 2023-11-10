@@ -111,7 +111,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 _dialogService.ShowMessageBox("Warning", "No farm list selected");
                 return;
             }
-            await Task.Run(() => _unitOfWork.FarmListRepository.ChangeActive(new FarmListId(SelectedFarmList.Id)));
+            await Task.Run(() => _unitOfWork.FarmListRepository.ChangeActive(new FarmId(SelectedFarmList.Id)));
             await _mediator.Publish(new FarmListUpdated(AccountId));
         }
 

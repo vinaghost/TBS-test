@@ -5,6 +5,6 @@ namespace MainCore.Features.Update.Parsers
 {
     public interface IFarmListParser
     {
-        IEnumerable<FarmListDto> Get(HtmlDocument doc);
+        IEnumerable<FarmDto> Get(HtmlDocument doc);
     }
 }

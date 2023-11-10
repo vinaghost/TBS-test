@@ -46,7 +46,7 @@ namespace MainCore.Features.Update.Commands
             return Result.Ok();
         }
 
-        private void Update(AccountId accountId, List<FarmListDto> dtos)
+        private void Update(AccountId accountId, List<FarmDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
             var dbFarmLists = context.FarmLists

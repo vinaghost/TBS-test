@@ -24,7 +24,7 @@ namespace TestProject.Features.Farming.FarmListParser
             var path = Helper.GetPath(parts, "TTWars.html");
             html.Load(path);
 
-            var node = parser.GetStartButton(html, new FarmListId(54));
+            var node = parser.GetStartButton(html, new FarmId(54));
             node.Should().NotBeNull();
         }
 

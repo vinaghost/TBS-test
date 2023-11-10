@@ -2,14 +2,16 @@
 
 namespace MainCore.Repositories
 {
-    [RegisterAsSingleton]
+    [RegisterAsTransient]
     public class UnitOfWork : IUnitOfWork
     {
+        #region repository
+
         public IAccountInfoRepository AccountInfoRepository { get; }
         public IAccountRepository AccountRepository { get; }
         public IAccountSettingRepository AccountSettingRepository { get; }
         public IBuildingRepository BuildingRepository { get; }
-        public IFarmListRepository FarmListRepository { get; }
+        public IFarmRepository FarmListRepository { get; }
         public IHeroItemRepository HeroItemRepository { get; }
         public IJobRepository JobRepository { get; }
         public IQueueBuildingRepository QueueBuildingRepository { get; }
@@ -17,7 +19,9 @@ namespace MainCore.Repositories
         public IVillageRepository VillageRepository { get; }
         public IVillageSettingRepository VillageSettingRepository { get; }
 
-        public UnitOfWork(IAccountInfoRepository accountInfoRepository, IAccountRepository accountRepository, IAccountSettingRepository accountSettingRepository, IBuildingRepository buildingRepository, IFarmListRepository farmListRepository, IHeroItemRepository heroItemRepository, IJobRepository jobRepository, IQueueBuildingRepository queueBuildingRepository, IStorageRepository storageRepository, IVillageSettingRepository villageSettingRepository, IVillageRepository villageRepository)
+        #endregion repository
+
+        public UnitOfWork(IAccountInfoRepository accountInfoRepository, IAccountRepository accountRepository, IAccountSettingRepository accountSettingRepository, IBuildingRepository buildingRepository, IFarmRepository farmListRepository, IHeroItemRepository heroItemRepository, IJobRepository jobRepository, IQueueBuildingRepository queueBuildingRepository, IStorageRepository storageRepository, IVillageSettingRepository villageSettingRepository, IVillageRepository villageRepository)
         {
             AccountInfoRepository = accountInfoRepository;
             AccountRepository = accountRepository;

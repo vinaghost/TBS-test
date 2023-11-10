@@ -37,7 +37,7 @@ namespace TestProject.Features.Update.Parsers.FarmListParser
             html.Load(path);
             var dto = parser.Get(html).FirstOrDefault();
 
-            dto.Id.Should().Be(new FarmListId(1233));
+            dto.Id.Should().Be(new FarmId(1233));
             dto.Name.Should().Be("Inactive");
         }
     }

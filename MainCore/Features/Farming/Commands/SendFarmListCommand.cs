@@ -20,7 +20,7 @@ namespace MainCore.Features.Farming.Commands
             _farmListParser = farmListParser;
         }
 
-        public Result Execute(AccountId accountId, FarmListId farmListId)
+        public Result Execute(AccountId accountId, FarmId farmListId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;

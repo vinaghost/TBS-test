@@ -29,7 +29,7 @@ namespace MainCore.Infrasturecture.Persistence
         public DbSet<Job> Jobs { get; set; }
         public DbSet<Storage> Storages { get; set; }
         public DbSet<VillageSetting> VillagesSetting { get; set; }
-        public DbSet<FarmList> FarmLists { get; set; }
+        public DbSet<Farm> FarmLists { get; set; }
 
         #endregion table
 

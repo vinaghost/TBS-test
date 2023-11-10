@@ -8,16 +8,16 @@ using System.Drawing;
 namespace MainCore.Repositories
 {
     [RegisterAsTransient]
-    public class FarmListRepository : IFarmListRepository
+    public class FarmRepository : IFarmRepository
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public FarmListRepository(IDbContextFactory<AppDbContext> contextFactory)
+        public FarmRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
         }
 
-        public List<FarmListId> GetActive(AccountId accountId)
+        public List<FarmId> GetActive(AccountId accountId)
         {
             using var context = _contextFactory.CreateDbContext();
             var farmListIds = context.FarmLists
@@ -25,7 +25,7 @@ namespace MainCore.Repositories
                     .Where(x => x.IsActive)
                     .Select(x => x.Id)
                     .AsEnumerable()
-                    .Select(x => new FarmListId(x))
+                    .Select(x => new FarmId(x))
                     .ToList();
             return farmListIds;
         }
@@ -42,7 +42,7 @@ namespace MainCore.Repositories
             return count;
         }
 
-        public void ChangeActive(FarmListId farmListId)
+        public void ChangeActive(FarmId farmListId)
         {
             using var context = _contextFactory.CreateDbContext();
             context.FarmLists

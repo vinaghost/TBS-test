@@ -2,7 +2,7 @@
 
 namespace MainCore.Entities
 {
-    public class FarmList
+    public class Farm
     {
         public int Id { get; set; }
 
@@ -12,6 +12,6 @@ namespace MainCore.Entities
     }
 
     [StronglyTypedId]
-    public partial struct FarmListId
+    public partial struct FarmId
     { }
 }

@@ -24,7 +24,7 @@ namespace TestProject.Features.Farming.FarmListParser
             var path = Helper.GetPath(parts, "TravianOfficial.html");
             html.Load(path);
 
-            var node = parser.GetStartButton(html, new FarmListId(1233));
+            var node = parser.GetStartButton(html, new FarmId(1233));
             node.Should().NotBeNull();
         }
 

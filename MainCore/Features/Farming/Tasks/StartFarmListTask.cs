@@ -13,11 +13,11 @@ namespace MainCore.Features.Farming.Tasks
     {
         private readonly IToFarmListPageCommand _toFarmListPageCommand;
         private readonly IAccountSettingRepository _accountSettingRepository;
-        private readonly IFarmListRepository _farmListRepository;
+        private readonly IFarmRepository _farmListRepository;
         private readonly ISendFarmListCommand _sendFarmListCommand;
         private readonly ISendAllFarmListCommand _sendAllFarmListCommand;
 
-        public StartFarmListTask(IToFarmListPageCommand toFarmListPageCommand, IAccountSettingRepository accountSettingRepository, ISendFarmListCommand sendFarmListCommand, ISendAllFarmListCommand sendAllFarmListCommand, IFarmListRepository farmListRepository)
+        public StartFarmListTask(IToFarmListPageCommand toFarmListPageCommand, IAccountSettingRepository accountSettingRepository, ISendFarmListCommand sendFarmListCommand, ISendAllFarmListCommand sendAllFarmListCommand, IFarmRepository farmListRepository)
         {
             _toFarmListPageCommand = toFarmListPageCommand;
             _accountSettingRepository = accountSettingRepository;

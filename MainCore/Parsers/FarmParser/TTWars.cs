@@ -3,12 +3,12 @@ using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
-namespace MainCore.Features.Farming.Parsers.FarmListParser
+namespace MainCore.Parsers.FarmParser
 {
-    [RegisterAsTransient(ServerEnums.TravianOfficial)]
-    public class TravianOfficial : IFarmListParser
+    [RegisterAsTransient(ServerEnums.TTWars)]
+    public class TTWars : IFarmParser
     {
-        public HtmlNode GetStartButton(HtmlDocument doc, FarmListId raidId)
+        public HtmlNode GetStartButton(HtmlDocument doc, FarmId raidId)
         {
             var farmNode = doc.GetElementbyId($"raidList{raidId}");
             if (farmNode is null) return null;
@@ -19,10 +19,7 @@ namespace MainCore.Features.Farming.Parsers.FarmListParser
 
         public HtmlNode GetStartAllButton(HtmlDocument doc)
         {
-            var raidList = doc.GetElementbyId("raidList");
-            if (raidList is null) return null;
-            var startAll = raidList.Descendants("button").FirstOrDefault(x => x.HasClass("startAll"));
-            return startAll;
+            return null;
         }
     }
 }

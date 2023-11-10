@@ -6,7 +6,6 @@ using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
 using MainCore.UI.Models.Output;
-using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
@@ -16,7 +15,6 @@ namespace MainCore.Repositories
     public class JobRepository : IJobRepository
     {
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
-        private readonly IMediator _mediator;
 
         private readonly Dictionary<Type, JobTypeEnums> _jobTypes = new()
         {
@@ -24,10 +22,9 @@ namespace MainCore.Repositories
             { typeof(ResourceBuildPlan),JobTypeEnums.ResourceBuild },
         };
 
-        public JobRepository(IDbContextFactory<AppDbContext> contextFactory, IMediator mediator)
+        public JobRepository(IDbContextFactory<AppDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
-            _mediator = mediator;
         }
 
         public void AddToTop<T>(VillageId villageId, T content)

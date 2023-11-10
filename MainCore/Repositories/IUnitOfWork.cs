@@ -6,7 +6,7 @@
         IAccountRepository AccountRepository { get; }
         IAccountSettingRepository AccountSettingRepository { get; }
         IBuildingRepository BuildingRepository { get; }
-        IFarmListRepository FarmListRepository { get; }
+        IFarmRepository FarmListRepository { get; }
         IHeroItemRepository HeroItemRepository { get; }
         IJobRepository JobRepository { get; }
         IQueueBuildingRepository QueueBuildingRepository { get; }
