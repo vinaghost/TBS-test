@@ -1,5 +1,8 @@
-﻿namespace MainCore.Parsers
+﻿using MainCore.Infrasturecture.AutoRegisterDi;
+
+namespace MainCore.Parsers
 {
+    [RegisterAsTransient]
     public class UnitOfParser : IUnitOfParser
     {
         public UnitOfParser(IAccountInfoParser accountInfoParser, IBuildingParser buildingParser, ICompleteImmediatelyParser completeImmediatelyParser, IFarmParser farmParser, IFieldParser fieldParser, IHeroParser heroParser, IInfrastructureParser infrastructureParser, ILoginPageParser loginPageParser, INavigationBarParser navigationBarParser, IQueueBuildingParser queueBuildingParser, IStockBarParser stockBarParser, ITroopPageParser troopPageParser, IVillagePanelParser villagePanelParser, INavigationTabParser navigationTabParser)

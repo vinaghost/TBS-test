@@ -2,9 +2,11 @@
 using MainCore.Commands.Navigate;
 using MainCore.Commands.Special;
 using MainCore.Commands.Update;
+using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Commands
 {
+    [RegisterAsTransient]
     public class UnitOfCommand : IUnitOfCommand
     {
         public UnitOfCommand(IDelayClickCommand delayClickCommand, IDelayTaskCommand delayTaskCommand, ISwitchTabCommand switchTabCommand, ISwitchVillageCommand switchVillageCommand, IToBuildingCommand toBuildingCommand, IToDorfCommand toDorfCommand, IToHeroInventoryCommand toHeroInventoryCommand, IUpdateAccountInfoCommand updateAccountInfoCommand, IUpdateDorfCommand updateDorfCommand, IUpdateFarmListCommand updateFarmListCommand, IUpdateHeroItemsCommand updateHeroItemsCommand, IUpdateVillageListCommand updateVillageListCommand, ILoginCommand loginCommand)

@@ -1,9 +1,11 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.DTO;
+using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Parsers.InfrastructureParser
 {
+    [RegisterAsTransient]
     public class TravianOfficial : IInfrastructureParser
     {
         public IEnumerable<BuildingDto> Get(HtmlDocument doc)
