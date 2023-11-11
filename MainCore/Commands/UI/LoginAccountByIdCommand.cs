@@ -1,12 +1,11 @@
 ﻿using FluentResults;
 using MainCore.Commands.Base;
-using MainCore.Common;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Features.Login.Tasks;
-using MainCore.Features.UpgradeBuilding.Tasks;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
+using MainCore.Tasks;
 using MediatR;
 
 namespace MainCore.Commands.UI
@@ -23,14 +22,14 @@ namespace MainCore.Commands.UI
         private readonly ITaskManager _taskManager;
         private readonly ITimerManager _timerManager;
         private readonly IChromeManager _chromeManager;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
 
-        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IChromeManager chromeManager, IUnitOfWork unitOfWork)
+        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IChromeManager chromeManager, IUnitOfRepository unitOfRepository)
         {
             _taskManager = taskManager;
             _timerManager = timerManager;
             _chromeManager = chromeManager;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
         }
 
         public async Task<Result> Handle(LoginAccountByIdCommand request, CancellationToken cancellationToken)
@@ -53,8 +52,8 @@ namespace MainCore.Commands.UI
         {
             var chromeBrowser = _chromeManager.Get(accountId);
 
-            var account = _unitOfWork.AccountRepository.Get(accountId);
-            var access = _unitOfWork.AccountRepository.GetAccess(accountId);
+            var account = _unitOfRepository.AccountRepository.Get(accountId);
+            var access = _unitOfRepository.AccountRepository.GetAccess(accountId);
 
             var result = chromeBrowser.Setup(account, access);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
@@ -63,7 +62,7 @@ namespace MainCore.Commands.UI
 
         private void AddUpgradeBuildingTask(AccountId accountId)
         {
-            var hasBuildingJobVillages = _unitOfWork.VillageRepository.GetHasBuildingJobVillages(accountId);
+            var hasBuildingJobVillages = _unitOfRepository.VillageRepository.GetHasBuildingJobVillages(accountId);
             foreach (var village in hasBuildingJobVillages)
             {
                 _taskManager.AddOrUpdate<UpgradeBuildingTask>(accountId, village);

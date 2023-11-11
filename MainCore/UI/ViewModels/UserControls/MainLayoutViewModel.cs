@@ -1,11 +1,11 @@
-﻿using MainCore.Common;
+﻿using MainCore.Commands.UI;
 using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
-using MainCore.CQRS.Commands;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
+using MainCore.Repositories;
 using MainCore.UI.Enums;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;
@@ -20,7 +20,7 @@ namespace MainCore.UI.ViewModels.UserControls
     public class MainLayoutViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
 
         private readonly AccountTabStore _accountTabStore;
         private readonly SelectedItemStore _selectedItemStore;
@@ -29,13 +29,13 @@ namespace MainCore.UI.ViewModels.UserControls
         public ListBoxItemViewModel Accounts { get; } = new();
         public AccountTabStore AccountTabStore => _accountTabStore;
 
-        public MainLayoutViewModel(AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IMediator mediator, IDialogService dialogService, IUnitOfWork unitOfWork)
+        public MainLayoutViewModel(AccountTabStore accountTabStore, SelectedItemStore selectedItemStore, IMediator mediator, IDialogService dialogService, IUnitOfRepository unitOfRepository)
         {
             _accountTabStore = accountTabStore;
             _selectedItemStore = selectedItemStore;
             _dialogService = dialogService;
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
 
             AddAccountCommand = ReactiveCommand.Create(AddAccountCommandHandler);
             AddAccountsCommand = ReactiveCommand.Create(AddAccountsCommandHandler);
@@ -85,7 +85,7 @@ namespace MainCore.UI.ViewModels.UserControls
             var result = _dialogService.ShowConfirmBox("Information", $"Are you sure want to delete \n {Accounts.SelectedItem.Content}");
             if (!result) return;
             var accountId = new AccountId(Accounts.SelectedItemId);
-            await Task.Run(() => _unitOfWork.AccountRepository.Delete(accountId));
+            await Task.Run(() => _unitOfRepository.AccountRepository.Delete(accountId));
             await _mediator.Publish(new AccountUpdated());
         }
 
@@ -144,7 +144,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
         public async Task LoadAccountList()
         {
-            var items = await Task.Run(() => _unitOfWork.AccountRepository.GetItems());
+            var items = await Task.Run(() => _unitOfRepository.AccountRepository.GetItems());
 
             await Observable.Start(() =>
             {

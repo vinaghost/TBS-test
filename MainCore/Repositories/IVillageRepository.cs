@@ -14,5 +14,6 @@ namespace MainCore.Repositories
         List<ListBoxItem> GetItems(AccountId accountId);
         string GetVillageName(VillageId villageId);
         void Update(AccountId accountId, List<VillageDto> dtos);
+        VillageId GetVillageHasRallypoint(AccountId accountId);
     }
 }

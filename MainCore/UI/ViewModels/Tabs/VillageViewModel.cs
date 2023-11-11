@@ -1,8 +1,8 @@
-﻿using MainCore.Common;
-using MainCore.Entities;
-using MainCore.Features.Update.Tasks;
+﻿using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
+using MainCore.Tasks;
 using MainCore.UI.Enums;
 using MainCore.UI.Stores;
 using MainCore.UI.ViewModels.Abstract;
@@ -21,18 +21,18 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
         private readonly IMediator _mediator;
         public ListBoxItemViewModel Villages { get; } = new();
 
-        public VillageViewModel(VillageTabStore villageTabStore, ITaskManager taskManager, IDialogService dialogService, IMediator mediator, IUnitOfWork unitOfWork)
+        public VillageViewModel(VillageTabStore villageTabStore, ITaskManager taskManager, IDialogService dialogService, IMediator mediator, IUnitOfRepository unitOfRepository)
         {
             _villageTabStore = villageTabStore;
             _dialogService = dialogService;
 
             _taskManager = taskManager;
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
 
             LoadCurrentCommand = ReactiveCommand.Create(LoadCurrentCommandHandler);
             LoadUnloadCommand = ReactiveCommand.CreateFromTask(LoadUnloadCommandHandler);
@@ -63,7 +63,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadUnloadCommandHandler()
         {
-            var villages = await Task.Run(() => _unitOfWork.VillageRepository.GetMissingBuildingVillages(AccountId));
+            var villages = await Task.Run(() => _unitOfRepository.VillageRepository.GetMissingBuildingVillages(AccountId));
             foreach (var village in villages)
             {
                 _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
@@ -74,7 +74,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadAllCommandHandler()
         {
-            var villages = await Task.Run(() => _unitOfWork.VillageRepository.Get(AccountId));
+            var villages = await Task.Run(() => _unitOfRepository.VillageRepository.Get(AccountId));
             foreach (var village in villages)
             {
                 _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
@@ -97,7 +97,7 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private async Task LoadVillageList(AccountId accountId)
         {
-            var villages = await Task.Run(() => _unitOfWork.VillageRepository.GetItems(accountId));
+            var villages = await Task.Run(() => _unitOfRepository.VillageRepository.GetItems(accountId));
             await Observable.Start(() =>
             {
                 Villages.Load(villages);

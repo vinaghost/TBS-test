@@ -1,9 +1,10 @@
 ﻿using FluentResults;
-using MainCore.Common;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
+using MainCore.Parsers;
+using MainCore.Repositories;
 using MediatR;
 
 namespace MainCore.Commands.Update
@@ -13,21 +14,23 @@ namespace MainCore.Commands.Update
     {
         private readonly IChromeManager _chromeManager;
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
+        private readonly IUnitOfParser _unitOfParser;
 
-        public UpdateHeroItemsCommand(IChromeManager chromeManager, IMediator mediator, IUnitOfWork unitOfWork)
+        public UpdateHeroItemsCommand(IChromeManager chromeManager, IMediator mediator, IUnitOfRepository unitOfRepository, IUnitOfParser unitOfParser)
         {
             _chromeManager = chromeManager;
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
+            _unitOfParser = unitOfParser;
         }
 
         public async Task<Result> Execute(AccountId accountId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-            var dtos = _unitOfWork.HeroParser.Get(html);
-            await Task.Run(() => _unitOfWork.HeroItemRepository.Update(accountId, dtos.ToList()));
+            var dtos = _unitOfParser.HeroParser.Get(html);
+            await Task.Run(() => _unitOfRepository.HeroItemRepository.Update(accountId, dtos.ToList()));
             await _mediator.Publish(new HeroItemUpdated(accountId));
             return Result.Ok();
         }

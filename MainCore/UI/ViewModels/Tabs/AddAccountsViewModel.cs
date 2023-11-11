@@ -1,8 +1,8 @@
-﻿using MainCore.Common;
-using MainCore.DTO;
+﻿using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
+using MainCore.Repositories;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;
@@ -19,7 +19,7 @@ namespace MainCore.UI.ViewModels.Tabs
     {
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
         public ReactiveCommand<string, Unit> UpdateTableCommand { get; }
@@ -33,12 +33,12 @@ namespace MainCore.UI.ViewModels.Tabs
             set => this.RaiseAndSetIfChanged(ref _input, value);
         }
 
-        public AddAccountsViewModel(IDialogService dialogService, IMediator mediator, WaitingOverlayViewModel waitingOverlayViewModel, IUnitOfWork unitOfWork)
+        public AddAccountsViewModel(IDialogService dialogService, IMediator mediator, WaitingOverlayViewModel waitingOverlayViewModel, IUnitOfRepository unitOfRepository)
         {
             _mediator = mediator;
             _dialogService = dialogService;
             _waitingOverlayViewModel = waitingOverlayViewModel;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
 
             AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountCommandHandler);
             UpdateTableCommand = ReactiveCommand.CreateFromTask<string>(UpdateTableCommandHandler);
@@ -68,7 +68,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 Input = "";
             }, RxApp.MainThreadScheduler);
 
-            await Task.Run(() => _unitOfWork.AccountRepository.Add(accounts));
+            await Task.Run(() => _unitOfRepository.AccountRepository.Add(accounts));
             await _mediator.Publish(new AccountUpdated());
             await _waitingOverlayViewModel.Hide();
 

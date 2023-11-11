@@ -107,7 +107,7 @@ namespace MainCore.Repositories
         //        }
         //        if (count == needCount)
         //        {
-        //            _taskManager.AddOrUpdate<InstantUpgradeTask>(accountId, villageId);
+        //            _taskManager.AddOrUpdate<CompleteImmediatelyTask>(accountId, villageId);
         //        }
         //    }
         //}

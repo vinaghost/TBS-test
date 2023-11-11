@@ -1,6 +1,5 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Common;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.DTO;
@@ -8,6 +7,8 @@ using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
+using MainCore.Parsers;
+using MainCore.Repositories;
 using MediatR;
 
 namespace MainCore.Commands.Update
@@ -17,13 +18,15 @@ namespace MainCore.Commands.Update
     {
         private readonly IChromeManager _chromeManager;
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
+        private readonly IUnitOfParser _unitOfParser;
 
-        public UpdateDorfCommand(IChromeManager chromeManager, IMediator mediator, IUnitOfWork unitOfWork)
+        public UpdateDorfCommand(IChromeManager chromeManager, IMediator mediator, IUnitOfRepository unitOfRepository, IUnitOfParser unitOfParser)
         {
             _chromeManager = chromeManager;
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
+            _unitOfParser = unitOfParser;
         }
 
         public async Task<Result> Execute(AccountId accountId, VillageId villageId)
@@ -31,23 +34,23 @@ namespace MainCore.Commands.Update
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
-            var dtoQueueBuilding = _unitOfWork.QueueBuildingParser.Get(html);
+            var dtoQueueBuilding = _unitOfParser.QueueBuildingParser.Get(html);
             var dtoBuilding = GetBuildings(chromeBrowser.CurrentUrl, html);
-            var dtoStorage = _unitOfWork.StockBarParser.Get(html);
+            var dtoStorage = _unitOfParser.StockBarParser.Get(html);
 
             var queueBuildings = dtoQueueBuilding.ToList();
             var result = IsVaild(queueBuildings);
             if (result.IsFailed) return result;
 
-            await Task.Run(() => _unitOfWork.QueueBuildingRepository.Update(villageId, queueBuildings));
+            await Task.Run(() => _unitOfRepository.QueueBuildingRepository.Update(villageId, queueBuildings));
 
-            await Task.Run(() => _unitOfWork.BuildingRepository.Update(villageId, dtoBuilding.ToList()));
+            await Task.Run(() => _unitOfRepository.BuildingRepository.Update(villageId, dtoBuilding.ToList()));
 
             var dtoUnderConstructionBuildings = dtoBuilding.Where(x => x.IsUnderConstruction).ToList();
-            await Task.Run(() => _unitOfWork.QueueBuildingRepository.Update(villageId, dtoUnderConstructionBuildings));
+            await Task.Run(() => _unitOfRepository.QueueBuildingRepository.Update(villageId, dtoUnderConstructionBuildings));
             await _mediator.Publish(new QueueBuildingUpdated(villageId));
 
-            await Task.Run(() => _unitOfWork.StorageRepository.Update(villageId, dtoStorage));
+            await Task.Run(() => _unitOfRepository.StorageRepository.Update(villageId, dtoStorage));
 
             return Result.Ok();
         }
@@ -55,10 +58,10 @@ namespace MainCore.Commands.Update
         private IEnumerable<BuildingDto> GetBuildings(string url, HtmlDocument html)
         {
             if (url.Contains("dorf1"))
-                return _unitOfWork.FieldParser.Get(html);
+                return _unitOfParser.FieldParser.Get(html);
 
             if (url.Contains("dorf2"))
-                return _unitOfWork.InfrastructureParser.Get(html);
+                return _unitOfParser.InfrastructureParser.Get(html);
 
             return Enumerable.Empty<BuildingDto>();
         }

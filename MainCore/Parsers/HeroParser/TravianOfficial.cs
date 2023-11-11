@@ -16,6 +16,14 @@ namespace MainCore.Parsers.HeroParser
             return aNode;
         }
 
+        public bool HeroInventoryLoading(HtmlDocument doc)
+        {
+            var inventoryPageWrapper = doc.DocumentNode
+                .Descendants("div")
+                .FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
+            return inventoryPageWrapper.HasClass("loading");
+        }
+
         public bool IsCurrentTab(HtmlNode tabNode)
         {
             return tabNode.HasClass("active");

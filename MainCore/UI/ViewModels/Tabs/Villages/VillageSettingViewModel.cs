@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using MainCore.Common;
 using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MediatR;
@@ -22,18 +22,18 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
 
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public VillageSettingViewModel(IValidator<VillageSettingInput> villageSettingInputValidator, IDialogService dialogService, IMediator mediator, IUnitOfWork unitOfWork)
+        public VillageSettingViewModel(IValidator<VillageSettingInput> villageSettingInputValidator, IDialogService dialogService, IMediator mediator, IUnitOfRepository unitOfRepository)
         {
             _villageSettingInputValidator = villageSettingInputValidator;
             _dialogService = dialogService;
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
 
             SaveCommand = ReactiveCommand.CreateFromTask(SaveCommandHandler);
             ExportCommand = ReactiveCommand.CreateFromTask(ExportCommandHandler);
@@ -61,7 +61,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 return;
             }
             var settings = VillageSettingInput.Get();
-            await Task.Run(() => _unitOfWork.VillageSettingRepository.Update(VillageId, settings));
+            await Task.Run(() => _unitOfRepository.VillageSettingRepository.Update(VillageId, settings));
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 
@@ -88,7 +88,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 return;
             }
             settings = VillageSettingInput.Get();
-            await Task.Run(() => _unitOfWork.VillageSettingRepository.Update(VillageId, settings));
+            await Task.Run(() => _unitOfRepository.VillageSettingRepository.Update(VillageId, settings));
 
             _dialogService.ShowMessageBox("Information", "Settings imported");
         }
@@ -96,7 +96,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private async Task ExportCommandHandler()
         {
             var path = _dialogService.SaveFileDialog();
-            var settings = await Task.Run(() => _unitOfWork.VillageSettingRepository.Get(VillageId));
+            var settings = await Task.Run(() => _unitOfRepository.VillageSettingRepository.Get(VillageId));
             var jsonString = JsonSerializer.Serialize(settings);
             await File.WriteAllTextAsync(path, jsonString);
             _dialogService.ShowMessageBox("Settings exported", "Information");
@@ -104,7 +104,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task LoadSettings(VillageId villageId)
         {
-            var settings = await Task.Run(() => _unitOfWork.VillageSettingRepository.Get(VillageId));
+            var settings = await Task.Run(() => _unitOfRepository.VillageSettingRepository.Get(VillageId));
             await Observable.Start(() =>
             {
                 VillageSettingInput.Set(settings);

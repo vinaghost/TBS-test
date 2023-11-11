@@ -1,7 +1,7 @@
-﻿using MainCore.Common;
-using MainCore.Common.Enums;
-using MainCore.Features.Update.Tasks;
+﻿using MainCore.Common.Enums;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
+using MainCore.Tasks;
 using MediatR;
 
 namespace MainCore.Notification.Handler
@@ -9,21 +9,21 @@ namespace MainCore.Notification.Handler
     public class TriggerBuildingUpdate : INotificationHandler<VillageUpdated>
     {
         private readonly ITaskManager _taskManager;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
 
-        public TriggerBuildingUpdate(ITaskManager taskManager, IUnitOfWork unitOfWork)
+        public TriggerBuildingUpdate(ITaskManager taskManager, IUnitOfRepository unitOfRepository)
         {
             _taskManager = taskManager;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
         }
 
         public async Task Handle(VillageUpdated notification, CancellationToken cancellationToken)
         {
             var accountId = notification.AccountId;
-            var autoLoadVillageBuilding = await Task.Run(() => _unitOfWork.AccountSettingRepository.GetBooleanByName(accountId, AccountSettingEnums.AutoLoadVillageBuilding));
+            var autoLoadVillageBuilding = await Task.Run(() => _unitOfRepository.AccountSettingRepository.GetBooleanByName(accountId, AccountSettingEnums.AutoLoadVillageBuilding));
             if (!autoLoadVillageBuilding) return;
 
-            var villages = await Task.Run(() => _unitOfWork.VillageRepository.GetMissingBuildingVillages(accountId));
+            var villages = await Task.Run(() => _unitOfRepository.VillageRepository.GetMissingBuildingVillages(accountId));
 
             foreach (var village in villages)
             {

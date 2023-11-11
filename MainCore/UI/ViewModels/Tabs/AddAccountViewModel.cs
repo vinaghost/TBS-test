@@ -1,8 +1,8 @@
 ﻿using FluentValidation;
-using MainCore.Common;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
+using MainCore.Repositories;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
@@ -24,14 +24,14 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IUnitOfRepository _unitOfRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
         public ReactiveCommand<Unit, Unit> AddAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> EditAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> DeleteAccessCommand { get; }
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
 
-        public AddAccountViewModel(IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IDialogService dialogService, IMediator mediator, WaitingOverlayViewModel waitingOverlayViewModel, IUnitOfWork unitOfWork)
+        public AddAccountViewModel(IValidator<AccessInput> accessInputValidator, IValidator<AccountInput> accountInputValidator, IDialogService dialogService, IMediator mediator, WaitingOverlayViewModel waitingOverlayViewModel, IUnitOfRepository unitOfRepository)
         {
             _mediator = mediator;
             _waitingOverlayViewModel = waitingOverlayViewModel;
@@ -39,7 +39,7 @@ namespace MainCore.UI.ViewModels.Tabs
             _accessInputValidator = accessInputValidator;
             _accountInputValidator = accountInputValidator;
             _dialogService = dialogService;
-            _unitOfWork = unitOfWork;
+            _unitOfRepository = unitOfRepository;
 
             AddAccessCommand = ReactiveCommand.Create(AddAccessCommandHandler);
             EditAccessCommand = ReactiveCommand.Create(EditAccessCommandHandler);
@@ -103,7 +103,7 @@ namespace MainCore.UI.ViewModels.Tabs
             await _waitingOverlayViewModel.Show("adding account");
 
             var dto = AccountInput.ToDto();
-            var success = await Task.Run(() => _unitOfWork.AccountRepository.Add(dto));
+            var success = await Task.Run(() => _unitOfRepository.AccountRepository.Add(dto));
             if (success) await _mediator.Publish(new AccountUpdated());
 
             await _waitingOverlayViewModel.Hide();

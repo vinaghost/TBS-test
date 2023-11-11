@@ -19,5 +19,6 @@ namespace MainCore.Parsers
         bool IsCurrentTab(HtmlNode tabNode);
 
         IEnumerable<HeroItemDto> Get(HtmlDocument doc);
+        bool HeroInventoryLoading(HtmlDocument doc);
     }
 }
