@@ -15,6 +15,7 @@ namespace TestProject.Repositories
         protected override AccountRepository GetRepository()
         {
             var contextFactory = new FakeDbContextFactory();
+            contextFactory.Setup();
             var useragentManager = A.Fake<IUseragentManager>();
             A.CallTo(() => useragentManager.Get()).Returns("empty useragent");
             var taskManager = A.Fake<ITaskManager>();

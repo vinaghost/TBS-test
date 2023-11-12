@@ -1,22 +1,26 @@
 ﻿using MainCore.Entities;
 using MainCore.Infrasturecture.Persistence;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 namespace TestProject.Fake
 {
-    [TestClass]
     public class FakeDbContextFactory : IDbContextFactory<AppDbContext>
     {
-        private static DbContextOptionsBuilder<AppDbContext> _options;
+        private readonly DbContextOptionsBuilder<AppDbContext> _options;
 
-        [AssemblyInitialize]
-        public static void Setup(TestContext _)
+        public FakeDbContextFactory()
         {
-            var connectionString = $"DataSource=TBS-test.db;Cache=Shared";
+            var keepAliveConnection = new SqliteConnection("DataSource=:memory:");
+            keepAliveConnection.Open();
+
             _options = new DbContextOptionsBuilder<AppDbContext>()
                 .EnableSensitiveDataLogging()
-                .UseSqlite(connectionString);
+                .UseSqlite(keepAliveConnection);
+        }
 
+        public void Setup()
+        {
             using var context = new AppDbContext(_options.Options);
             Create(context);
             SeedData(context);

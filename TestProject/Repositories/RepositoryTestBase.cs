@@ -7,6 +7,7 @@ namespace TestProject.Repositories
         protected virtual TRepository GetRepository()
         {
             var contextFactory = new FakeDbContextFactory();
+            contextFactory.Setup();
             var t = (TRepository)Activator.CreateInstance(typeof(TRepository), contextFactory);
             return t;
         }
