@@ -1,14 +1,11 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Parsers.QueueBuildingParser;
 
 namespace TestProject.Parsers.QueueBuildingParser
 {
     [TestClass]
-    public class TravianOfficialTest
+    public class TravianOfficialTest : ParserTestBase<TravianOfficial>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -18,10 +15,8 @@ namespace TestProject.Parsers.QueueBuildingParser
         [TestMethod]
         public void Get_Count_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
+
             var dto = parser.Get(html).ToList();
 
             dto.Count.Should().Be(4);
@@ -30,10 +25,8 @@ namespace TestProject.Parsers.QueueBuildingParser
         [TestMethod]
         public void Get_Content_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
+
             var dto = parser.Get(html).FirstOrDefault();
 
             dto.Position.Should().Be(0);

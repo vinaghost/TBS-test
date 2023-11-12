@@ -1,15 +1,12 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Parsers.FieldParser;
 
 namespace TestProject.Parsers.FieldParser
 {
     [TestClass]
-    public class TTWarsTest
+    public class TTWarsTest : ParserTestBase<TTWars>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -19,10 +16,8 @@ namespace TestProject.Parsers.FieldParser
         [TestMethod]
         public void Get_Count_ShouldBeCorrect()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
+
             var dto = parser.Get(html);
 
             dto.Count().Should().Be(18);
@@ -31,10 +26,8 @@ namespace TestProject.Parsers.FieldParser
         [TestMethod]
         public void Get_Content_ShouldBeCorrect()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
+
             var dto = parser.Get(html).FirstOrDefault();
 
             dto.Type.Should().Be(BuildingEnums.Woodcutter);

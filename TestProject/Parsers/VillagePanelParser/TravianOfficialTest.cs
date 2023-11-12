@@ -1,15 +1,12 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Entities;
 using MainCore.Parsers.VillagePanelParser;
 
 namespace TestProject.Parsers.VillagePanelParser
 {
     [TestClass]
-    public class TravianOfficialTest
+    public class TravianOfficialTest : ParserTestBase<TravianOfficial>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -19,10 +16,8 @@ namespace TestProject.Parsers.VillagePanelParser
         [TestMethod]
         public void Get_Count_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
+
             var dto = parser.Get(html);
 
             dto.Count().Should().Be(15);
@@ -31,10 +26,8 @@ namespace TestProject.Parsers.VillagePanelParser
         [TestMethod]
         public void Get_Content_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
+
             var dto = parser.Get(html).FirstOrDefault();
 
             dto.Id.Should().Be(new VillageId(19501));
@@ -50,10 +43,7 @@ namespace TestProject.Parsers.VillagePanelParser
         [DataRow(21180)]
         public void GetVillageNode_ShouldBeNotNull(int villageId)
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
 
             var node = parser.GetVillageNode(html, new VillageId(villageId));
             node.Should().NotBeNull();
@@ -64,10 +54,7 @@ namespace TestProject.Parsers.VillagePanelParser
         [DataRow(21180, false)]
         public void IsActive_ShouldBeCorrect(int villageId, bool expected)
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
 
             var node = parser.GetVillageNode(html, new VillageId(villageId));
             var result = parser.IsActive(node);

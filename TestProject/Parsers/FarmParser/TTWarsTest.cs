@@ -1,15 +1,12 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Entities;
 using MainCore.Parsers.FarmParser;
 
 namespace TestProject.Parsers.FarmParser
 {
     [TestClass]
-    public class TTWarsTest
+    public class TTWarsTest : ParserTestBase<TTWars>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -19,22 +16,16 @@ namespace TestProject.Parsers.FarmParser
         [TestMethod]
         public void GetStartButton_ShouldNotBeNull()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
 
             var node = parser.GetStartButton(html, new FarmId(54));
             node.Should().NotBeNull();
         }
 
         [TestMethod]
-        public void GetStartAllButton_ShouldNotBeNull()
+        public void GetStartAllButton_ShouldBeNull()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
 
             var node = parser.GetStartAllButton(html);
             node.Should().BeNull();
@@ -43,10 +34,8 @@ namespace TestProject.Parsers.FarmParser
         [TestMethod]
         public void Get_Count_ShouldBeCorrect()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
+
             var dto = parser.Get(html);
 
             dto.Count().Should().Be(5);
@@ -55,10 +44,8 @@ namespace TestProject.Parsers.FarmParser
         [TestMethod]
         public void Get_Content_ShouldBeCorrect()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
+
             var dto = parser.Get(html).FirstOrDefault();
 
             dto.Id.Should().Be(new FarmId(54));

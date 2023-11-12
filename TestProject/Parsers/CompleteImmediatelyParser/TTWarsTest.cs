@@ -1,14 +1,11 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Parsers.CompleteImmediatelyParser;
 
 namespace TestProject.Parsers.CompleteImmediatelyParser
 {
     [TestClass]
-    public class TTWarsTest
+    public class TTWarsTest : ParserTestBase<TTWars>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -18,10 +15,7 @@ namespace TestProject.Parsers.CompleteImmediatelyParser
         [TestMethod]
         public void GetCompleteButton_ShouldNotBeNull()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
 
             var node = parser.GetCompleteButton(html);
             node.Should().NotBeNull();
@@ -30,10 +24,7 @@ namespace TestProject.Parsers.CompleteImmediatelyParser
         [TestMethod]
         public void GetConfirmButton_ShouldNotBeNull()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars_dialogue.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars_dialogue.html");
 
             var node = parser.GetConfirmButton(html);
             node.Should().NotBeNull();

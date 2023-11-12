@@ -1,15 +1,12 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Parsers.HeroParser;
 
 namespace TestProject.Parsers.HeroParser
 {
     [TestClass]
-    public class TravianOfficialTest
+    public class TravianOfficialTest : ParserTestBase<TravianOfficial>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -19,26 +16,21 @@ namespace TestProject.Parsers.HeroParser
         [TestMethod]
         public void Get_Count_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial_inventory.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial_inventory.html");
             var dto = parser.Get(html);
 
-            dto.Count().Should().Be(9);
+            dto.Count().Should().Be(13);
         }
 
         [TestMethod]
         public void Get_Content_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial_inventory.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial_inventory.html");
+
             var dto = parser.Get(html).FirstOrDefault();
 
             dto.Type.Should().Be(HeroItemEnums.Wood);
-            dto.Amount.Should().Be(86_197);
+            dto.Amount.Should().Be(118_226);
         }
     }
 }

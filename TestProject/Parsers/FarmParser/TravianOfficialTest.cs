@@ -1,15 +1,12 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Entities;
 using MainCore.Parsers.FarmParser;
 
 namespace TestProject.Parsers.FarmParser
 {
     [TestClass]
-    public class TravianOfficialTest
+    public class TravianOfficialTest : ParserTestBase<TravianOfficial>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -19,10 +16,7 @@ namespace TestProject.Parsers.FarmParser
         [TestMethod]
         public void GetStartButton_ShouldNotBeNull()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
 
             var node = parser.GetStartButton(html, new FarmId(1233));
             node.Should().NotBeNull();
@@ -31,10 +25,7 @@ namespace TestProject.Parsers.FarmParser
         [TestMethod]
         public void GetStartAllButton_ShouldNotBeNull()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
 
             var node = parser.GetStartAllButton(html);
             node.Should().NotBeNull();
@@ -43,10 +34,7 @@ namespace TestProject.Parsers.FarmParser
         [TestMethod]
         public void Get_Count_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
             var dto = parser.Get(html);
 
             dto.Count().Should().Be(8);
@@ -55,10 +43,7 @@ namespace TestProject.Parsers.FarmParser
         [TestMethod]
         public void Get_Content_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
             var dto = parser.Get(html).FirstOrDefault();
 
             dto.Id.Should().Be(new FarmId(1233));

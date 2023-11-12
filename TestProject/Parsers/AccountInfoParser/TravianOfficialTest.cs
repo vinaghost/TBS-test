@@ -1,14 +1,11 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Parsers.AccountInfoParser;
 
 namespace TestProject.Parsers.AccountInfoParser
 {
     [TestClass]
-    public class TravianOfficialTest
+    public class TravianOfficialTest : ParserTestBase<TravianOfficial>
     {
-        private static string[] parts;
-
         [ClassInitialize]
         public static void ClassInitialize(TestContext _)
         {
@@ -18,14 +15,11 @@ namespace TestProject.Parsers.AccountInfoParser
         [TestMethod]
         public void Get_ShouldBeCorrect()
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TravianOfficial.html");
-            html.Load(path);
+            var (parser, html) = Setup("TravianOfficial.html");
             var dto = parser.Get(html);
 
-            dto.Gold.Should().Be(37);
-            dto.Silver.Should().Be(562);
+            dto.Gold.Should().Be(326);
+            dto.Silver.Should().Be(2_060);
             dto.HasPlusAccount.Should().Be(true);
         }
     }

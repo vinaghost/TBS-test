@@ -1,7 +1,6 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Parsers;
 
 namespace MainCore.Parsers.BuildingParser
 {
@@ -17,16 +16,16 @@ namespace MainCore.Parsers.BuildingParser
         private static HtmlNode GetField(HtmlDocument doc, int location)
         {
             var node = doc.DocumentNode
-                .Descendants("a")
+                .Descendants("div")
                 .FirstOrDefault(x => x.HasClass($"buildingSlot{location}"));
             return node;
         }
 
         private static HtmlNode GetInfrastructure(HtmlDocument doc, int location)
         {
-            var tmpLocation = location - 18;
+            var tmpLocation = location - 1;
             var node = doc.DocumentNode
-                .SelectSingleNode($"//*[@id='villageContent']/div[{tmpLocation}]");
+                .SelectSingleNode($"//*[@id='village_map']/div[{tmpLocation}]");
 
             return node;
         }

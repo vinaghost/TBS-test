@@ -1,15 +1,12 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Common.Enums;
 using MainCore.Parsers.TroopPageParser;
 
 namespace TestProject.Parsers.TroopPageParser
 {
     [TestClass]
-    public class TravianOfficialTest
+    public class TravianOfficialTest : ParserTestBase<TravianOfficial>
     {
-        private static string[] parts;
-
         private const string BARRACK = "barrack";
         private const string STABLE = "stable";
         private const string WORKSHOP = "workshop";
@@ -26,10 +23,7 @@ namespace TestProject.Parsers.TroopPageParser
         [DataRow(WORKSHOP, TroopEnums.GaulCatapult)]
         public void GetNode_ShouldNotBeNull(string type, TroopEnums troop)
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, $"TravianOfficial_{type}.html");
-            html.Load(path);
+            var (parser, html) = Setup($"TravianOfficial_{type}.html");
 
             var node = parser.GetNode(html, troop);
             node.Should().NotBeNull();
@@ -41,10 +35,7 @@ namespace TestProject.Parsers.TroopPageParser
         [DataRow(WORKSHOP, TroopEnums.TeutonSettler)]
         public void GetNode_ShouldBeNull(string type, TroopEnums troop)
         {
-            var parser = new TravianOfficial();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, $"TravianOfficial_{type}.html");
-            html.Load(path);
+            var (parser, html) = Setup($"TravianOfficial_{type}.html");
 
             var node = parser.GetNode(html, troop);
             node.Should().BeNull();
