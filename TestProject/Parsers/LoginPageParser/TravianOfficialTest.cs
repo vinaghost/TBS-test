@@ -13,7 +13,7 @@ namespace TestProject.Parsers.LoginPageParser
         }
 
         [TestMethod]
-        public void GetUsernameNode_ShouldBeNotNull()
+        public void GetUsernameNode_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TravianOfficial.html");
 
@@ -22,7 +22,7 @@ namespace TestProject.Parsers.LoginPageParser
         }
 
         [TestMethod]
-        public void GetPasswordNode_ShouldBeNotNull()
+        public void GetPasswordNode_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TravianOfficial.html");
 
@@ -31,7 +31,7 @@ namespace TestProject.Parsers.LoginPageParser
         }
 
         [TestMethod]
-        public void GetLoginButton_ShouldBeNotNull()
+        public void GetLoginButton_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TravianOfficial.html");
 

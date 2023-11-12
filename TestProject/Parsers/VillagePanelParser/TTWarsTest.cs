@@ -40,7 +40,7 @@ namespace TestProject.Parsers.VillagePanelParser
 
         [DataTestMethod]
         [DataRow(255_147)]
-        public void GetVillageNode_ShouldBeNotNull(int villageId)
+        public void GetVillageNode_ShouldNotBeNull(int villageId)
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -50,7 +50,7 @@ namespace TestProject.Parsers.VillagePanelParser
 
         [DataTestMethod]
         [DataRow(255147, true)]
-        public void IsActive_ShouldBeNotNull(int villageId, bool expected)
+        public void IsActive_ShouldNotBeNull(int villageId, bool expected)
         {
             var (parser, html) = Setup("TTWars.html");
 

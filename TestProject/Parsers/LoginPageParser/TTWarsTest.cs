@@ -14,7 +14,7 @@ namespace TestProject.Parsers.LoginPageParser
         }
 
         [TestMethod]
-        public void GetUsernameNode_Vailidate_ShouldBeNotNull()
+        public void GetUsernameNode_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -23,7 +23,7 @@ namespace TestProject.Parsers.LoginPageParser
         }
 
         [TestMethod]
-        public void GetPasswordNode_Vailidate_ShouldBeNotNull()
+        public void GetPasswordNode_ShouldNotBeNull()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();
@@ -35,7 +35,7 @@ namespace TestProject.Parsers.LoginPageParser
         }
 
         [TestMethod]
-        public void GetLoginButton_Vailidate_ShouldBeNotNull()
+        public void GetLoginButton_ShouldNotBeNull()
         {
             var parser = new TTWars();
             var html = new HtmlDocument();

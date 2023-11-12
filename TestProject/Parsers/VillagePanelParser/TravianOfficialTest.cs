@@ -41,7 +41,7 @@ namespace TestProject.Parsers.VillagePanelParser
         [DataTestMethod]
         [DataRow(19501)]
         [DataRow(21180)]
-        public void GetVillageNode_ShouldBeNotNull(int villageId)
+        public void GetVillageNode_ShouldNotBeNull(int villageId)
         {
             var (parser, html) = Setup("TravianOfficial.html");
 

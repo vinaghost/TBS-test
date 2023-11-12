@@ -2,12 +2,11 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Parsers;
 
 namespace MainCore.Parsers.TroopPageParser
 {
     [RegisterAsTransient(ServerEnums.TTWars)]
-    public class TroopPageParser : ITroopPageParser
+    public class TTWars : ITroopPageParser
     {
         public HtmlNode GetInputBox(HtmlNode node)
         {

@@ -12,7 +12,7 @@ namespace TestProject.Parsers.NavigationBarParser
         }
 
         [TestMethod]
-        public void GetBuildingButton_Vailidate_ShouldBeNotNull()
+        public void GetBuildingButton_Vailidate_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -21,7 +21,7 @@ namespace TestProject.Parsers.NavigationBarParser
         }
 
         [TestMethod]
-        public void GetDailyButton_Vailidate_ShouldBeNotNull()
+        public void GetDailyButton_Vailidate_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -30,7 +30,7 @@ namespace TestProject.Parsers.NavigationBarParser
         }
 
         [TestMethod]
-        public void GetMapButton_Vailidate_ShouldBeNotNull()
+        public void GetMapButton_Vailidate_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -39,7 +39,7 @@ namespace TestProject.Parsers.NavigationBarParser
         }
 
         [TestMethod]
-        public void GetMessageButton_Vailidate_ShouldBeNotNull()
+        public void GetMessageButton_Vailidate_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -48,7 +48,7 @@ namespace TestProject.Parsers.NavigationBarParser
         }
 
         [TestMethod]
-        public void GetReportsButton_Vailidate_ShouldBeNotNull()
+        public void GetReportsButton_Vailidate_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -57,7 +57,7 @@ namespace TestProject.Parsers.NavigationBarParser
         }
 
         [TestMethod]
-        public void GetResourceButton_Vailidate_ShouldBeNotNull()
+        public void GetResourceButton_Vailidate_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
@@ -66,7 +66,7 @@ namespace TestProject.Parsers.NavigationBarParser
         }
 
         [TestMethod]
-        public void GetStatisticsButton_Vailidate_ShouldBeNotNull()
+        public void GetStatisticsButton_Vailidate_ShouldNotBeNull()
         {
             var (parser, html) = Setup("TTWars.html");
 
