@@ -173,7 +173,14 @@ namespace MainCore.Repositories
             var job = context.Jobs
                 .AsNoTracking()
                 .Where(x => x.Id == jobId.Value)
+                .Select(x => new
+                {
+                    x.VillageId,
+                    x.Position
+                })
                 .FirstOrDefault();
+
+            if (job is null) return;
 
             context.Jobs
                 .Where(x => x.Id == jobId.Value)
@@ -203,6 +210,8 @@ namespace MainCore.Repositories
             var jobs = context.Jobs
                 .Where(x => jobIds.Contains(x.Id))
                 .ToList();
+
+            if (jobs.Count != 2) return;
 
             (jobs[0].Position, jobs[1].Position) = (jobs[1].Position, jobs[0].Position);
             context.UpdateRange(jobs);

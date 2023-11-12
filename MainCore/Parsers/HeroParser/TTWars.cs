@@ -15,10 +15,7 @@ namespace MainCore.Parsers.HeroParser
 
         public bool HeroInventoryLoading(HtmlDocument doc)
         {
-            var inventoryPageWrapper = doc.DocumentNode
-                .Descendants("div")
-                .FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
-            return inventoryPageWrapper.HasClass("loading");
+            return true;
         }
 
         public HtmlNode GetHeroAvatar(HtmlDocument doc)

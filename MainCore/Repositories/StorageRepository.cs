@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using MainCore.Common.Errors;
 using MainCore.Common.Errors.Storage;
 using MainCore.DTO;
 using MainCore.Entities;
@@ -24,6 +25,7 @@ namespace MainCore.Repositories
             var storage = context.Storages
                 .Where(x => x.VillageId == villageId.Value)
                 .FirstOrDefault();
+            if (storage is null) return Result.Fail(new Stop("Storage is not updated correctly"));
             var result = Result.Ok();
             if (storage.Wood < requiredResource[0]) result.WithError(new Resource("wood", storage.Wood, requiredResource[0]));
             if (storage.Clay < requiredResource[1]) result.WithError(new Resource("clay", storage.Clay, requiredResource[1]));
@@ -43,6 +45,7 @@ namespace MainCore.Repositories
             var storage = context.Storages
                 .Where(x => x.VillageId == villageId.Value)
                 .FirstOrDefault();
+            if (storage is null) return new long[4] { 0, 0, 0, 0 };
 
             var resource = new long[4];
             if (storage.Wood < requiredResource[0]) resource[0] = requiredResource[0] - storage.Wood;

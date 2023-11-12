@@ -209,7 +209,7 @@ namespace MainCore.Repositories
                     x.Level,
                 })
                 .FirstOrDefault();
-
+            if (building is null) return (BuildingEnums.Site, -1);
             return (building.Type, building.Level);
         }
 

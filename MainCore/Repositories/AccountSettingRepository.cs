@@ -40,7 +40,7 @@ namespace MainCore.Repositories
                    .Where(x => settings.Contains(x.Setting))
                    .Select(x => x.Value)
                    .ToList();
-
+            if (settingValues.Count != 2) return 0;
             var min = settingValues.Min();
             var max = settingValues.Max();
             return Random.Shared.Next(min, max);

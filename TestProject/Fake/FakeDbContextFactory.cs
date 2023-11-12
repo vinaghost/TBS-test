@@ -1,31 +1,55 @@
-﻿using MainCore.Infrasturecture.Persistence;
+﻿using MainCore.Entities;
+using MainCore.Infrasturecture.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace TestProject.Fake
 {
+    [TestClass]
     public class FakeDbContextFactory : IDbContextFactory<AppDbContext>
     {
-        private readonly DbContextOptionsBuilder<AppDbContext> _options;
+        private static DbContextOptionsBuilder<AppDbContext> _options;
 
-        public FakeDbContextFactory(string testname)
+        [AssemblyInitialize]
+        public static void Setup(TestContext _)
         {
-            var connectionString = $"DataSource=TBS-{testname}.db;Cache=Shared";
+            var connectionString = $"DataSource=TBS-test.db;Cache=Shared";
             _options = new DbContextOptionsBuilder<AppDbContext>()
                 .EnableSensitiveDataLogging()
                 .UseSqlite(connectionString);
-        }
 
-        public void Setup()
-        {
             using var context = new AppDbContext(_options.Options);
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
+            Create(context);
+            SeedData(context);
         }
 
         public AppDbContext CreateDbContext()
         {
             var context = new AppDbContext(_options.Options);
             return context;
+        }
+
+        public static void Create(AppDbContext context)
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+        }
+
+        public static void SeedData(AppDbContext context)
+        {
+            context.Add(new Account()
+            {
+                Username = "test_account",
+                Server = "https://thisisatestserver.com",
+                Villages = new List<Village>()
+                {
+                    new Village()
+                    {
+                        Name = "test_village",
+                    },
+                },
+            });
+
+            context.SaveChanges();
         }
     }
 }
