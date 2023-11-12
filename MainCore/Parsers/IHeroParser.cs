@@ -12,13 +12,12 @@ namespace MainCore.Parsers
 
         HtmlNode GetHeroAvatar(HtmlDocument doc);
 
-        HtmlNode GetHeroTab(HtmlDocument doc, int index);
-
         HtmlNode GetItemSlot(HtmlDocument doc, HeroItemEnums type);
 
-        bool IsCurrentTab(HtmlNode tabNode);
+        bool InventoryTabActive(HtmlDocument doc);
 
         IEnumerable<HeroItemDto> Get(HtmlDocument doc);
+
         bool HeroInventoryLoading(HtmlDocument doc);
     }
 }

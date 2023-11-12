@@ -8,12 +8,14 @@ namespace MainCore.Parsers.HeroParser
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
     public class TravianOfficial : IHeroParser
     {
-        public HtmlNode GetHeroTab(HtmlDocument doc, int index)
+        public bool InventoryTabActive(HtmlDocument doc)
         {
             var heroDiv = doc.GetElementbyId("heroV2");
-            if (heroDiv is null) return null;
-            var aNode = heroDiv.Descendants("a").FirstOrDefault(x => x.GetAttributeValue("data-tab", 0) == index);
-            return aNode;
+            if (heroDiv is null) return false;
+            var aNode = heroDiv.Descendants("a")
+                .FirstOrDefault(x => x.GetAttributeValue("data-tab", 0) == 1);
+            if (aNode is null) return false;
+            return aNode.HasClass("active");
         }
 
         public bool HeroInventoryLoading(HtmlDocument doc)
@@ -22,11 +24,6 @@ namespace MainCore.Parsers.HeroParser
                 .Descendants("div")
                 .FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
             return inventoryPageWrapper.HasClass("loading");
-        }
-
-        public bool IsCurrentTab(HtmlNode tabNode)
-        {
-            return tabNode.HasClass("active");
         }
 
         public HtmlNode GetHeroAvatar(HtmlDocument doc)

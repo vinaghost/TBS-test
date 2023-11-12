@@ -8,13 +8,9 @@ namespace MainCore.Parsers.HeroParser
     [RegisterAsTransient(ServerEnums.TTWars)]
     public class TTWars : IHeroParser
     {
-        public HtmlNode GetHeroTab(HtmlDocument doc, int index)
+        public bool InventoryTabActive(HtmlDocument doc)
         {
-            var heroDiv = doc.GetElementbyId("content");
-            if (heroDiv is null) return null;
-            var aNode = heroDiv.Descendants("a").ToList();
-            if (index >= aNode.Count) return null;
-            return aNode[index];
+            return true;
         }
 
         public bool HeroInventoryLoading(HtmlDocument doc)
@@ -23,11 +19,6 @@ namespace MainCore.Parsers.HeroParser
                 .Descendants("div")
                 .FirstOrDefault(x => x.HasClass("inventoryPageWrapper"));
             return inventoryPageWrapper.HasClass("loading");
-        }
-
-        public bool IsCurrentTab(HtmlNode tabNode)
-        {
-            return tabNode.HasClass("active");
         }
 
         public HtmlNode GetHeroAvatar(HtmlDocument doc)

@@ -32,5 +32,54 @@ namespace TestProject.Parsers.HeroParser
             dto.Type.Should().Be(HeroItemEnums.Wood);
             dto.Amount.Should().Be(118_226);
         }
+
+        [TestMethod]
+        public void GetAmountBox_ShoulNotBeNull()
+        {
+            var (parser, html) = Setup("TravianOfficial_dialog.html");
+            var node = parser.GetAmountBox(html);
+
+            node.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void GetConfirmButton_ShoulNotBeNull()
+        {
+            var (parser, html) = Setup("TravianOfficial_dialog.html");
+            var node = parser.GetConfirmButton(html);
+
+            node.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void GetHeroAvatar_ShoulNotBeNull()
+        {
+            var (parser, html) = Setup("TravianOfficial_inventory.html");
+            var node = parser.GetHeroAvatar(html);
+
+            node.Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void InventoryTabActive_ShoulBeTrue()
+        {
+            var (parser, html) = Setup("TravianOfficial_inventory.html");
+            var node = parser.InventoryTabActive(html);
+
+            node.Should().BeTrue();
+        }
+
+        [DataTestMethod]
+        [DataRow(HeroItemEnums.Wood)]
+        [DataRow(HeroItemEnums.Clay)]
+        [DataRow(HeroItemEnums.Iron)]
+        [DataRow(HeroItemEnums.Crop)]
+        public void GetItemSlot_ShoulNotBeNull(HeroItemEnums type)
+        {
+            var (parser, html) = Setup("TravianOfficial_inventory.html");
+            var node = parser.GetItemSlot(html, type);
+
+            node.Should().NotBeNull();
+        }
     }
 }

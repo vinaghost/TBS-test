@@ -39,9 +39,7 @@ namespace MainCore.Commands.Navigate
             {
                 var doc = new HtmlDocument();
                 doc.LoadHtml(driver.PageSource);
-                var tab = _unitOfParser.HeroParser.GetHeroTab(doc, 1); // data-index not index in list
-                if (tab is null) return false;
-                return _unitOfParser.HeroParser.IsCurrentTab(tab);
+                return _unitOfParser.HeroParser.InventoryTabActive(doc);
             };
 
             result = chromeBrowser.Wait(tabActived);
