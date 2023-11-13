@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using MainCore.Common.Enums;
 using MainCore.Common.Models;
 using MainCore.DTO;
 using MainCore.Repositories;
@@ -66,6 +67,14 @@ namespace TestProject.Repositories
         }
 
         [TestMethod]
+        public void GetBuildingLocation_ShouldNotThrow()
+        {
+            var repository = GetRepository();
+            var func = () => repository.GetBuildingLocation(Constants.VillageId, BuildingEnums.Academy);
+            func.Should().NotThrow();
+        }
+
+        [TestMethod]
         public void IsEmptySite_ShouldNotThrow()
         {
             var repository = GetRepository();
@@ -97,6 +106,14 @@ namespace TestProject.Repositories
         {
             var repository = GetRepository();
             var func = () => repository.GetLevelBuildings(Constants.VillageId);
+            func.Should().NotThrow();
+        }
+
+        [TestMethod]
+        public void GetTrainTroopBuilding_ShouldNotThrow()
+        {
+            var repository = GetRepository();
+            var func = () => repository.GetTrainTroopBuilding(Constants.VillageId);
             func.Should().NotThrow();
         }
 

@@ -2,15 +2,15 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Parsers;
 
 namespace MainCore.Parsers.TroopPageParser
 {
     [RegisterAsTransient(ServerEnums.TravianOfficial)]
     public class TravianOfficial : ITroopPageParser
     {
-        public HtmlNode GetInputBox(HtmlNode node)
+        public HtmlNode GetInputBox(HtmlDocument doc, TroopEnums troop)
         {
+            var node = GetNode(doc, troop);
             var cta = node.Descendants("div")
                 .FirstOrDefault(x => x.HasClass("cta"));
             if (cta is null) return null;
@@ -19,8 +19,9 @@ namespace MainCore.Parsers.TroopPageParser
             return input;
         }
 
-        public int GetMaxAmount(HtmlNode node)
+        public int GetMaxAmount(HtmlDocument doc, TroopEnums troop)
         {
+            var node = GetNode(doc, troop);
             var cta = node.Descendants("div")
                 .FirstOrDefault(x => x.HasClass("cta"));
             if (cta is null) return 0;
@@ -47,8 +48,9 @@ namespace MainCore.Parsers.TroopPageParser
             return doc.GetElementbyId("s1");
         }
 
-        public long[] GetTrainCost(HtmlNode node)
+        public long[] GetTrainCost(HtmlDocument doc, TroopEnums troop)
         {
+            var node = GetNode(doc, troop);
             var resource = node.Descendants("div")
                 .Where(x => x.HasClass("inlineIcon"))
                 .Where(x => x.HasClass("resource"))
@@ -66,8 +68,9 @@ namespace MainCore.Parsers.TroopPageParser
             return resources;
         }
 
-        public TimeSpan GetTrainTime(HtmlNode node)
+        public TimeSpan GetTrainTime(HtmlDocument doc, TroopEnums troop)
         {
+            var node = GetNode(doc, troop);
             var durationDiv = node.Descendants("div")
                 .Where(x => x.HasClass("duration"))
                 .FirstOrDefault();
@@ -77,7 +80,7 @@ namespace MainCore.Parsers.TroopPageParser
             return durationSpan.InnerText.ToDuration();
         }
 
-        public HtmlNode GetNode(HtmlDocument doc, TroopEnums troop)
+        private static HtmlNode GetNode(HtmlDocument doc, TroopEnums troop)
         {
             var nodes = doc.DocumentNode.Descendants("div")
                .Where(x => x.HasClass("troop"))

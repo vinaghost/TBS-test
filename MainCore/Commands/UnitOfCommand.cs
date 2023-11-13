@@ -1,6 +1,7 @@
 ﻿using MainCore.Commands.General;
 using MainCore.Commands.Navigate;
 using MainCore.Commands.Special;
+using MainCore.Commands.Step.TrainTroop;
 using MainCore.Commands.Update;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
@@ -9,7 +10,7 @@ namespace MainCore.Commands
     [RegisterAsTransient]
     public class UnitOfCommand : IUnitOfCommand
     {
-        public UnitOfCommand(IDelayClickCommand delayClickCommand, IDelayTaskCommand delayTaskCommand, ISwitchTabCommand switchTabCommand, ISwitchVillageCommand switchVillageCommand, IToBuildingCommand toBuildingCommand, IToDorfCommand toDorfCommand, IToHeroInventoryCommand toHeroInventoryCommand, IUpdateAccountInfoCommand updateAccountInfoCommand, IUpdateDorfCommand updateDorfCommand, IUpdateFarmListCommand updateFarmListCommand, IUpdateHeroItemsCommand updateHeroItemsCommand, IUpdateVillageListCommand updateVillageListCommand, ILoginCommand loginCommand)
+        public UnitOfCommand(IDelayClickCommand delayClickCommand, IDelayTaskCommand delayTaskCommand, ISwitchTabCommand switchTabCommand, ISwitchVillageCommand switchVillageCommand, IToBuildingCommand toBuildingCommand, IToDorfCommand toDorfCommand, IToHeroInventoryCommand toHeroInventoryCommand, IUpdateAccountInfoCommand updateAccountInfoCommand, IUpdateDorfCommand updateDorfCommand, IUpdateFarmListCommand updateFarmListCommand, IUpdateHeroItemsCommand updateHeroItemsCommand, IUpdateVillageListCommand updateVillageListCommand, ILoginCommand loginCommand, IGetMaximumTroopCommand updateMaximumTroopCommand, IInputAmountTroopCommand inputAmountTroopCommand)
         {
             DelayClickCommand = delayClickCommand;
             DelayTaskCommand = delayTaskCommand;
@@ -24,6 +25,8 @@ namespace MainCore.Commands
             UpdateHeroItemsCommand = updateHeroItemsCommand;
             UpdateVillageListCommand = updateVillageListCommand;
             LoginCommand = loginCommand;
+            GetMaximumTroopCommand = updateMaximumTroopCommand;
+            InputAmountTroopCommand = inputAmountTroopCommand;
         }
 
         public IDelayClickCommand DelayClickCommand { get; }
@@ -39,5 +42,7 @@ namespace MainCore.Commands
         public IUpdateHeroItemsCommand UpdateHeroItemsCommand { get; }
         public IUpdateVillageListCommand UpdateVillageListCommand { get; }
         public ILoginCommand LoginCommand { get; }
+        public IGetMaximumTroopCommand GetMaximumTroopCommand { get; }
+        public IInputAmountTroopCommand InputAmountTroopCommand { get; }
     }
 }

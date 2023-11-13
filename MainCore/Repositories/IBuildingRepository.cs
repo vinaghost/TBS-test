@@ -31,5 +31,7 @@ namespace MainCore.Repositories
         List<BuildingItem> GetLevelBuildings(VillageId villageId);
 
         void Update(VillageId villageId, List<BuildingDto> dtos);
+        List<BuildingEnums> GetTrainTroopBuilding(VillageId villageId);
+        int GetBuildingLocation(VillageId villageId, BuildingEnums building);
     }
 }

@@ -60,6 +60,7 @@ namespace MainCore.Repositories
 
         public void Update(VillageId villageId, Dictionary<VillageSettingEnums, int> settings)
         {
+            if (settings.Count == 0) return;
             using var context = _contextFactory.CreateDbContext();
 
             foreach (var setting in settings)

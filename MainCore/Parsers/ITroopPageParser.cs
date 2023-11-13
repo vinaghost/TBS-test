@@ -5,18 +5,16 @@ namespace MainCore.Parsers
 {
     public interface ITroopPageParser
     {
-        HtmlNode GetInputBox(HtmlNode node);
+        HtmlNode GetInputBox(HtmlDocument doc, TroopEnums troop);
 
-        int GetMaxAmount(HtmlNode node);
-
-        HtmlNode GetNode(HtmlDocument doc, TroopEnums troop);
+        int GetMaxAmount(HtmlDocument doc, TroopEnums troop);
 
         TimeSpan GetQueueTrainTime(HtmlDocument doc);
 
         HtmlNode GetTrainButton(HtmlDocument doc);
 
-        long[] GetTrainCost(HtmlNode node);
+        long[] GetTrainCost(HtmlDocument doc, TroopEnums troop);
 
-        TimeSpan GetTrainTime(HtmlNode node);
+        TimeSpan GetTrainTime(HtmlDocument doc, TroopEnums troop);
     }
 }

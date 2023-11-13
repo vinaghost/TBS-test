@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using MainCore.Common.Enums;
-using MainCore.Parsers.TroopPageParser;
+﻿using MainCore.Parsers.TroopPageParser;
 
 namespace TestProject.Parsers.TroopPageParser
 {
@@ -17,28 +15,28 @@ namespace TestProject.Parsers.TroopPageParser
             parts = Helper.GetParts<TravianOfficialTest>();
         }
 
-        [DataTestMethod]
-        [DataRow(BARRACK, TroopEnums.Phalanx)]
-        [DataRow(STABLE, TroopEnums.Pathfinder)]
-        [DataRow(WORKSHOP, TroopEnums.GaulCatapult)]
-        public void GetNode_ShouldNotBeNull(string type, TroopEnums troop)
-        {
-            var (parser, html) = Setup($"TravianOfficial_{type}.html");
+        //[DataTestMethod]
+        //[DataRow(BARRACK, TroopEnums.Phalanx)]
+        //[DataRow(STABLE, TroopEnums.Pathfinder)]
+        //[DataRow(WORKSHOP, TroopEnums.GaulCatapult)]
+        //public void GetNode_ShouldNotBeNull(string type, TroopEnums troop)
+        //{
+        //    var (parser, html) = Setup($"TravianOfficial_{type}.html");
 
-            var node = parser.GetNode(html, troop);
-            node.Should().NotBeNull();
-        }
+        //    var node = parser.GetNode(html, troop);
+        //    node.Should().NotBeNull();
+        //}
 
-        [DataTestMethod]
-        [DataRow(BARRACK, TroopEnums.TeutonSettler)]
-        [DataRow(STABLE, TroopEnums.TeutonSettler)]
-        [DataRow(WORKSHOP, TroopEnums.TeutonSettler)]
-        public void GetNode_ShouldBeNull(string type, TroopEnums troop)
-        {
-            var (parser, html) = Setup($"TravianOfficial_{type}.html");
+        //[DataTestMethod]
+        //[DataRow(BARRACK, TroopEnums.TeutonSettler)]
+        //[DataRow(STABLE, TroopEnums.TeutonSettler)]
+        //[DataRow(WORKSHOP, TroopEnums.TeutonSettler)]
+        //public void GetNode_ShouldBeNull(string type, TroopEnums troop)
+        //{
+        //    var (parser, html) = Setup($"TravianOfficial_{type}.html");
 
-            var node = parser.GetNode(html, troop);
-            node.Should().BeNull();
-        }
+        //    var node = parser.GetNode(html, troop);
+        //    node.Should().BeNull();
+        //}
     }
 }
