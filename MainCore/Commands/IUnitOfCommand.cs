@@ -1,6 +1,6 @@
 ﻿using MainCore.Commands.General;
 using MainCore.Commands.Navigate;
-using MainCore.Commands.Special;
+using MainCore.Commands.Step.Login;
 using MainCore.Commands.Step.TrainTroop;
 using MainCore.Commands.Update;
 
@@ -20,7 +20,7 @@ namespace MainCore.Commands
         IUpdateFarmListCommand UpdateFarmListCommand { get; }
         IUpdateHeroItemsCommand UpdateHeroItemsCommand { get; }
         IUpdateVillageListCommand UpdateVillageListCommand { get; }
-        ILoginCommand LoginCommand { get; }
+        IInputLoginCommand InputLoginCommand { get; }
         IGetMaximumTroopCommand GetMaximumTroopCommand { get; }
         IInputAmountTroopCommand InputAmountTroopCommand { get; }
     }

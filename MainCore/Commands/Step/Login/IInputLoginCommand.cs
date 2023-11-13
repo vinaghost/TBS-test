@@ -1,9 +1,9 @@
 ﻿using FluentResults;
 using MainCore.Entities;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.Login
 {
-    public interface IStartAllFarmListCommand
+    public interface IInputLoginCommand
     {
         Result Execute(AccountId accountId);
     }

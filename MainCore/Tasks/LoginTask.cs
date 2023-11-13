@@ -4,18 +4,19 @@ using MainCore.Commands.Special;
 using MainCore.Common.Errors;
 using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MediatR;
 
 namespace MainCore.Tasks
 {
     [RegisterAsTransient(withoutInterface: true)]
     public sealed class LoginTask : AccountTask
     {
-        private readonly ILoginCommand _loginCommand;
+        private readonly IMediator _mediator;
         private readonly IUnitOfCommand _unitOfCommand;
 
-        public LoginTask(ILoginCommand loginCommand, IUnitOfCommand unitOfCommand)
+        public LoginTask(IMediator mediator, IUnitOfCommand unitOfCommand)
         {
-            _loginCommand = loginCommand;
+            _mediator = mediator;
             _unitOfCommand = unitOfCommand;
         }
 
@@ -23,7 +24,7 @@ namespace MainCore.Tasks
         {
             if (CancellationToken.IsCancellationRequested) return new Cancel();
             Result result;
-            result = await _loginCommand.Execute(AccountId);
+            result = await _mediator.Send(new LoginCommand(AccountId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = await _unitOfCommand.UpdateVillageListCommand.Execute(AccountId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));

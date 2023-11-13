@@ -6,7 +6,7 @@ using MainCore.Infrasturecture.Services;
 using MainCore.Parsers;
 using OpenQA.Selenium;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.StartFarmlist
 {
     [RegisterAsTransient]
     public class StartSingleFarmListCommand : IStartSingleFarmListCommand
