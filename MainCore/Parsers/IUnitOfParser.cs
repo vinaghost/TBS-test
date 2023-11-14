@@ -16,5 +16,6 @@
         ITroopPageParser TroopPageParser { get; }
         IVillagePanelParser VillagePanelParser { get; }
         INavigationTabParser NavigationTabParser { get; }
+        IUpgradeBuildingParser UpgradeBuildingParser { get; }
     }
 }

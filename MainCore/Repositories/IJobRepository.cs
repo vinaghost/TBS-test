@@ -23,7 +23,7 @@ namespace MainCore.Repositories
         List<ListBoxItem> GetItems(VillageId villageId);
 
         JobDto GetResourceBuildingJob(VillageId villageId);
-
+        bool JobComplete(VillageId villageId, JobDto job);
         void Move(JobId oldJobId, JobId newJobId);
     }
 }

@@ -95,30 +95,6 @@ namespace MainCore.Repositories
             return isEmptySite;
         }
 
-        public bool IsJobComplete(VillageId villageId, JobDto job)
-        {
-            if (job.Type == JobTypeEnums.ResourceBuild) return false;
-            var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-
-            using var context = _contextFactory.CreateDbContext();
-
-            var queueBuilding = context.QueueBuildings
-                .Where(x => x.VillageId == villageId.Value)
-                .Where(x => x.Location == plan.Location)
-                .OrderByDescending(x => x.Level)
-                .FirstOrDefault();
-
-            if (queueBuilding is not null && queueBuilding.Level >= plan.Level) return true;
-
-            var villageBuilding = context.Buildings
-                .Where(x => x.VillageId == villageId.Value)
-                .Where(x => x.Location == plan.Location)
-                .FirstOrDefault();
-            if (villageBuilding is not null && villageBuilding.Level >= plan.Level) return true;
-
-            return false;
-        }
-
         public Building GetCropland(VillageId villageId)
         {
             using var context = _contextFactory.CreateDbContext();
@@ -167,6 +143,7 @@ namespace MainCore.Repositories
                 default:
                     break;
             }
+
             var buildings = context.Buildings
                 .Where(x => x.VillageId == villageId.Value)
                 .Where(x => resourceTypes.Contains(x.Type))
@@ -193,7 +170,9 @@ namespace MainCore.Repositories
             buildings = buildings
                 .Where(x => x.Level < plan.Level)
                 .ToList();
+
             if (!buildings.Any()) return null;
+
             var chosenOne = buildings
                 .OrderBy(x => x.Level)
                 .FirstOrDefault();

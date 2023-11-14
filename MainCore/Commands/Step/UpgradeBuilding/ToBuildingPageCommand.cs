@@ -2,44 +2,42 @@
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Models;
-using MainCore.Repositories;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Repositories;
 
-namespace MainCore.Commands.Navigate
+namespace MainCore.Commands.Step.UpgradeBuilding
 {
     [RegisterAsTransient]
-    public class GoToBuildingPageCommand : IGoToBuildingPageCommand
+    public class ToBuildingPageCommand : IToBuildingPageCommand
     {
-        private readonly IToBuildingCommand _toBuildingCommand;
-        private readonly ISwitchTabCommand _switchTabCommand;
-        private readonly IBuildingRepository _buildingRepository;
+        private readonly IUnitOfCommand _unitOfCommand;
+        private readonly IUnitOfRepository _unitOfRepository;
 
-        public GoToBuildingPageCommand(IToBuildingCommand toBuildingCommand, IBuildingRepository buildingRepository, ISwitchTabCommand switchTabCommand)
+        public ToBuildingPageCommand(IUnitOfCommand unitOfCommand, IUnitOfRepository unitOfRepository)
         {
-            _toBuildingCommand = toBuildingCommand;
-            _buildingRepository = buildingRepository;
-            _switchTabCommand = switchTabCommand;
+            _unitOfCommand = unitOfCommand;
+            _unitOfRepository = unitOfRepository;
         }
 
         public Result Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
             Result result;
-            result = _toBuildingCommand.Execute(accountId, plan.Location);
+            result = _unitOfCommand.ToBuildingCommand.Execute(accountId, plan.Location);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            var building = _buildingRepository.GetBuilding(villageId, plan.Location);
+            var building = _unitOfRepository.BuildingRepository.GetBuilding(villageId, plan.Location);
             if (building.Type == BuildingEnums.Site)
             {
                 var tabIndex = GetBuildingsCategory(building.Type);
-                result = _switchTabCommand.Execute(accountId, tabIndex);
+                result = _unitOfCommand.SwitchTabCommand.Execute(accountId, tabIndex);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             else
             {
                 if (building.Level == 0) return Result.Ok();
                 if (!HasMultipleTabs(building.Type)) return Result.Ok();
-                result = _switchTabCommand.Execute(accountId, 0);
+                result = _unitOfCommand.SwitchTabCommand.Execute(accountId, 0);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
             return Result.Ok();

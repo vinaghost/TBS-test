@@ -16,6 +16,11 @@ namespace MainCore.Commands.Special
     {
         private readonly IUnitOfCommand _unitOfCommand;
 
+        public LoginCommandHandler(IUnitOfCommand unitOfCommand)
+        {
+            _unitOfCommand = unitOfCommand;
+        }
+
         public async Task<Result> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
             var result = await Task.Run(() => _unitOfCommand.InputLoginCommand.Execute(request.AccountId), cancellationToken);

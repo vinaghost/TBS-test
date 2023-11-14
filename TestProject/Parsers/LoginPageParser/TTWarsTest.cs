@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using HtmlAgilityPack;
 using MainCore.Parsers.LoginPageParser;
 
 namespace TestProject.Parsers.LoginPageParser
@@ -25,10 +24,7 @@ namespace TestProject.Parsers.LoginPageParser
         [TestMethod]
         public void GetPasswordNode_ShouldNotBeNull()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
 
             var node = parser.GetPasswordNode(html);
             node.Should().NotBeNull();
@@ -37,10 +33,7 @@ namespace TestProject.Parsers.LoginPageParser
         [TestMethod]
         public void GetLoginButton_ShouldNotBeNull()
         {
-            var parser = new TTWars();
-            var html = new HtmlDocument();
-            var path = Helper.GetPath(parts, "TTWars.html");
-            html.Load(path);
+            var (parser, html) = Setup("TTWars.html");
 
             var node = parser.GetLoginButton(html);
             node.Should().NotBeNull();

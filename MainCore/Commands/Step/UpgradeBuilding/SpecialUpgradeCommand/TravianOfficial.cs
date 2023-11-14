@@ -1,42 +1,32 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
+using MainCore.Common.Enums;
 using MainCore.Common.Errors;
-using MainCore.Common.Models;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MediatR;
+using MainCore.Parsers;
 using OpenQA.Selenium;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.UpgradeBuilding.SpecialUpgradeCommand
 {
-    [RegisterAsTransient]
-    public class UpgradeAdsCommand : IUpgradeAdsCommand
+    [RegisterAsTransient(ServerEnums.TravianOfficial)]
+    public class TravianOfficial : ISpecialUpgradeCommand
     {
         private readonly IChromeManager _chromeManager;
-        private readonly IMediator _mediator;
+        private readonly IUnitOfParser _unitOfParser;
 
-        public UpgradeAdsCommand(IChromeManager chromeManager, IMediator mediator)
+        public TravianOfficial(IChromeManager chromeManager, IUnitOfParser unitOfParser)
         {
             _chromeManager = chromeManager;
-            _mediator = mediator;
+            _unitOfParser = unitOfParser;
         }
 
-        public async Task<Result> Execute(AccountId accountId, NormalBuildPlan plan)
+        public async Task<Result> Execute(AccountId accountId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-            var node = html.DocumentNode
-                .Descendants("div")
-                .FirstOrDefault(x => x.HasClass("upgradeButtonsContainer"));
-            if (node is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} with ads [0]"));
-
-            var button = node
-                .Descendants("button")
-                .FirstOrDefault(x => x.HasClass("videoFeatureButton") && x.HasClass("green"));
-
-            if (button is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} with ads [1]"));
-
+            var button = _unitOfParser.UpgradeBuildingParser.GetSpecialUpgradeButton(html);
             var result = chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
@@ -63,7 +53,7 @@ namespace MainCore.Commands.Special
             await Task.Delay(Random.Shared.Next(20000, 25000));
 
             html = chromeBrowser.Html;
-            node = html.GetElementbyId("videoFeature");
+            var node = html.GetElementbyId("videoFeature");
             if (node is null) return Result.Fail(Retry.ButtonNotFound($"play ads"));
 
             result = chromeBrowser.Click(By.XPath(node.XPath));
@@ -92,8 +82,6 @@ namespace MainCore.Commands.Special
             while (true);
 
             result = chromeBrowser.WaitPageChanged("dorf");
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

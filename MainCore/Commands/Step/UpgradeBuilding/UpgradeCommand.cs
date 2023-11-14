@@ -1,44 +1,36 @@
 ﻿using FluentResults;
 using MainCore.Common.Errors;
-using MainCore.Common.Models;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
+using MainCore.Parsers;
 using OpenQA.Selenium;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.UpgradeBuilding
 {
     [RegisterAsTransient]
     public class UpgradeCommand : IUpgradeCommand
     {
         private readonly IChromeManager _chromeManager;
+        private readonly IUnitOfParser _unitOfParser;
 
-        public UpgradeCommand(IChromeManager chromeManager)
+        public UpgradeCommand(IChromeManager chromeManager, IUnitOfParser unitOfParser)
         {
             _chromeManager = chromeManager;
+            _unitOfParser = unitOfParser;
         }
 
-        public Result Execute(AccountId accountId, NormalBuildPlan plan)
+        public Result Execute(AccountId accountId)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-            var node = html.DocumentNode
-                .Descendants("div")
-                .FirstOrDefault(x => x.HasClass("upgradeButtonsContainer"));
-            if (node is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} [0]"));
 
-            var button = node
-                .Descendants("button")
-                .FirstOrDefault(x => x.HasClass("build"));
-
-            if (button is null) return Result.Fail(Retry.ButtonNotFound($"upgrade {plan.Type} [1]"));
+            var button = _unitOfParser.UpgradeBuildingParser.GetUpgradeButton(html);
 
             var result = chromeBrowser.Click(By.XPath(button.XPath));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             result = chromeBrowser.WaitPageChanged("dorf");
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            result = chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             return Result.Ok();

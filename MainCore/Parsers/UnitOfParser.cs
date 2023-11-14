@@ -5,7 +5,7 @@ namespace MainCore.Parsers
     [RegisterAsTransient]
     public class UnitOfParser : IUnitOfParser
     {
-        public UnitOfParser(IAccountInfoParser accountInfoParser, IBuildingParser buildingParser, ICompleteImmediatelyParser completeImmediatelyParser, IFarmParser farmParser, IFieldParser fieldParser, IHeroParser heroParser, IInfrastructureParser infrastructureParser, ILoginPageParser loginPageParser, INavigationBarParser navigationBarParser, IQueueBuildingParser queueBuildingParser, IStockBarParser stockBarParser, ITroopPageParser troopPageParser, IVillagePanelParser villagePanelParser, INavigationTabParser navigationTabParser)
+        public UnitOfParser(IAccountInfoParser accountInfoParser, IBuildingParser buildingParser, ICompleteImmediatelyParser completeImmediatelyParser, IFarmParser farmParser, IFieldParser fieldParser, IHeroParser heroParser, IInfrastructureParser infrastructureParser, ILoginPageParser loginPageParser, INavigationBarParser navigationBarParser, IQueueBuildingParser queueBuildingParser, IStockBarParser stockBarParser, ITroopPageParser troopPageParser, IVillagePanelParser villagePanelParser, INavigationTabParser navigationTabParser, IUpgradeBuildingParser upgradeBuildingParser)
         {
             AccountInfoParser = accountInfoParser;
             BuildingParser = buildingParser;
@@ -21,6 +21,7 @@ namespace MainCore.Parsers
             TroopPageParser = troopPageParser;
             VillagePanelParser = villagePanelParser;
             NavigationTabParser = navigationTabParser;
+            UpgradeBuildingParser = upgradeBuildingParser;
         }
 
         public IAccountInfoParser AccountInfoParser { get; }
@@ -37,5 +38,6 @@ namespace MainCore.Parsers
         public IStockBarParser StockBarParser { get; }
         public ITroopPageParser TroopPageParser { get; }
         public IVillagePanelParser VillagePanelParser { get; }
+        public IUpgradeBuildingParser UpgradeBuildingParser { get; }
     }
 }

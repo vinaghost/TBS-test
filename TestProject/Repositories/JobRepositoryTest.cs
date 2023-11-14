@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using MainCore.Common.Models;
+using MainCore.DTO;
 using MainCore.Repositories;
+using System.Text.Json;
 
 namespace TestProject.Repositories
 {
@@ -84,6 +86,17 @@ namespace TestProject.Repositories
         {
             var repository = GetRepository();
             var func = () => repository.Move(Constants.JobId, Constants.JobId);
+            func.Should().NotThrow();
+        }
+
+        [TestMethod]
+        public void IsJobComplete_ShouldNotThrow()
+        {
+            var repository = GetRepository();
+            var func = () => repository.JobComplete(Constants.VillageId, new JobDto()
+            {
+                Content = JsonSerializer.Serialize(new NormalBuildPlan())
+            });
             func.Should().NotThrow();
         }
     }

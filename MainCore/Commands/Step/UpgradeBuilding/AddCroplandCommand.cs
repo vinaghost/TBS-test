@@ -6,25 +6,23 @@ using MainCore.Notification;
 using MainCore.Repositories;
 using MediatR;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.UpgradeBuilding
 {
     [RegisterAsTransient]
     public class AddCroplandCommand : IAddCroplandCommand
     {
-        private readonly IBuildingRepository _buildingRepository;
-        private readonly IJobRepository _jobRepository;
+        private readonly IUnitOfRepository _unitOfRepository;
         private readonly IMediator _mediator;
 
-        public AddCroplandCommand(IBuildingRepository buildingRepository, IJobRepository jobRepository, IMediator mediator)
+        public AddCroplandCommand(IUnitOfRepository unitOfRepository, IMediator mediator)
         {
-            _buildingRepository = buildingRepository;
-            _jobRepository = jobRepository;
+            _unitOfRepository = unitOfRepository;
             _mediator = mediator;
         }
 
         public async Task<Result> Execute(VillageId villageId)
         {
-            var cropland = _buildingRepository.GetCropland(villageId);
+            var cropland = _unitOfRepository.BuildingRepository.GetCropland(villageId);
 
             var plan = new NormalBuildPlan()
             {
@@ -33,7 +31,7 @@ namespace MainCore.Commands.Special
                 Level = cropland.Level + 1,
             };
 
-            _jobRepository.AddToTop(villageId, plan);
+            _unitOfRepository.JobRepository.AddToTop(villageId, plan);
             await _mediator.Publish(new JobUpdated(villageId));
             return Result.Ok();
         }

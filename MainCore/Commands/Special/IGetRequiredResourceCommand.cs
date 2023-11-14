@@ -4,10 +4,10 @@ using MainCore.Entities;
 
 namespace MainCore.Commands.Special
 {
-    public interface ICheckResourceCommand
+    public interface IGetRequiredResourceCommand
     {
         long[] Value { get; }
 
-        Task<Result> Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan);
+        Result Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan);
     }
 }

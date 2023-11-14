@@ -1,8 +1,7 @@
 ﻿using FluentResults;
-using HtmlAgilityPack;
-using MainCore.Commands.Navigate;
+using MainCore.Commands;
 using MainCore.Commands.Special;
-using MainCore.Commands.Update;
+using MainCore.Commands.Step.UpgradeBuilding;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Storage;
@@ -10,7 +9,6 @@ using MainCore.Common.Models;
 using MainCore.Common.Tasks;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Repositories;
 using System.Text.Json;
 
@@ -19,54 +17,50 @@ namespace MainCore.Tasks
     [RegisterAsTransient(withoutInterface: true)]
     public class UpgradeBuildingTask : VillageTask
     {
+        private readonly IUnitOfCommand _unitOfCommand;
+        private readonly IUnitOfRepository _unitOfRepository;
+
         private readonly IChooseBuildingJobCommand _chooseBuildingJobCommand;
         private readonly IExtractResourceFieldCommand _extractResourceFieldCommand;
-        private readonly IGoToBuildingPageCommand _goToBuildingPageCommand;
-        private readonly IUpgradeCommand _upgradeCommand;
-        private readonly IConstructCommand _constructCommand;
-        private readonly IBuildingRepository _buildingRepository;
-        private readonly ICheckResourceCommand _checkResourceCommand;
+        private readonly IToBuildingPageCommand _toBuildingPageCommand;
+        private readonly IGetRequiredResourceCommand _getRequiredResourceCommand;
         private readonly IAddCroplandCommand _addCroplandCommand;
-        private readonly IChromeManager _chromeManager;
+        private readonly IGetTimeWhenEnoughResourceCommand _getTimeWhenEnoughResourceCommand;
+        private readonly IConstructCommand _constructCommand;
+        private readonly IUpgradeCommand _upgradeCommand;
+        private readonly ISpecialUpgradeCommand _specialUpgradeCommand;
+
         private readonly IUseHeroResourceCommand _useHeroResourceCommand;
-        private readonly IStorageRepository _storageRepository;
-        private readonly IUpdateDorfCommand _updateDorfCommand;
-        private readonly IQueueBuildingRepository _queueBuildingRepository;
-        private readonly ISwitchVillageCommand _switchVillageCommand;
-        private readonly IUpgradeAdsCommand _upgradeAdsCommand;
-        private readonly IVillageSettingRepository _villageSettingRepository;
 
-        public UpgradeBuildingTask(IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IGoToBuildingPageCommand goToBuildingPageCommand, IUpgradeCommand upgradeCommand, IBuildingRepository buildingRepository, IConstructCommand constructCommand, IChromeManager chromeManager, ICheckResourceCommand checkResourceCommand, IAddCroplandCommand addCroplandCommand, IUseHeroResourceCommand useHeroResourceCommand, IStorageRepository storageRepository, IUpdateDorfCommand updateDorfCommand, IQueueBuildingRepository queueBuildingRepository, ISwitchVillageCommand switchVillageCommand, IVillageSettingRepository villageSettingRepository, IUpgradeAdsCommand upgradeAdsCommand)
-
+        public UpgradeBuildingTask(IUnitOfCommand unitOfCommand, IUnitOfRepository unitOfRepository, IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IToBuildingPageCommand toBuildingPageCommand, IGetRequiredResourceCommand getRequiredResourceCommand, IAddCroplandCommand addCroplandCommand, IGetTimeWhenEnoughResourceCommand getTimeWhenEnoughResourceCommand, IConstructCommand constructCommand, IUpgradeCommand upgradeCommand, ISpecialUpgradeCommand specialUpgradeCommand, IUseHeroResourceCommand useHeroResourceCommand)
         {
+            _unitOfCommand = unitOfCommand;
+            _unitOfRepository = unitOfRepository;
             _chooseBuildingJobCommand = chooseBuildingJobCommand;
             _extractResourceFieldCommand = extractResourceFieldCommand;
-            _goToBuildingPageCommand = goToBuildingPageCommand;
-            _upgradeCommand = upgradeCommand;
-            _buildingRepository = buildingRepository;
-            _constructCommand = constructCommand;
-            _chromeManager = chromeManager;
-            _checkResourceCommand = checkResourceCommand;
+            _toBuildingPageCommand = toBuildingPageCommand;
+            _getRequiredResourceCommand = getRequiredResourceCommand;
             _addCroplandCommand = addCroplandCommand;
+            _getTimeWhenEnoughResourceCommand = getTimeWhenEnoughResourceCommand;
+            _constructCommand = constructCommand;
+            _upgradeCommand = upgradeCommand;
+            _specialUpgradeCommand = specialUpgradeCommand;
             _useHeroResourceCommand = useHeroResourceCommand;
-            _storageRepository = storageRepository;
-            _updateDorfCommand = updateDorfCommand;
-            _queueBuildingRepository = queueBuildingRepository;
-            _switchVillageCommand = switchVillageCommand;
-            _villageSettingRepository = villageSettingRepository;
-            _upgradeAdsCommand = upgradeAdsCommand;
         }
 
         public override async Task<Result> Execute()
         {
+            if (CancellationToken.IsCancellationRequested) return new Cancel();
             Result result;
 
-            result = _switchVillageCommand.Execute(AccountId, VillageId);
+            result = _unitOfCommand.SwitchVillageCommand.Execute(AccountId, VillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
             while (true)
             {
                 if (CancellationToken.IsCancellationRequested) return new Cancel();
-                result = await _updateDorfCommand.Execute(AccountId, VillageId);
+
+                result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 result = await _chooseBuildingJobCommand.Execute(AccountId, VillageId);
@@ -87,10 +81,14 @@ namespace MainCore.Tasks
                 }
 
                 var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-                result = _goToBuildingPageCommand.Execute(AccountId, VillageId, plan);
+                result = _toBuildingPageCommand.Execute(AccountId, VillageId, plan);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-                result = await _checkResourceCommand.Execute(AccountId, VillageId, plan);
+                result = _getRequiredResourceCommand.Execute(AccountId, VillageId, plan);
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
+                var requiredResource = _getRequiredResourceCommand.Value;
+                result = _unitOfRepository.StorageRepository.IsEnoughResource(VillageId, requiredResource);
                 if (result.IsFailed)
                 {
                     if (result.HasError<FreeCrop>())
@@ -110,7 +108,7 @@ namespace MainCore.Tasks
 
                     if (IsUseHeroResource())
                     {
-                        var missingResource = _storageRepository.GetMissingResource(VillageId, _checkResourceCommand.Value);
+                        var missingResource = _unitOfRepository.StorageRepository.GetMissingResource(VillageId, _getRequiredResourceCommand.Value);
                         var heroResourceResult = await _useHeroResourceCommand.Execute(AccountId, missingResource);
                         if (heroResourceResult.IsFailed)
                         {
@@ -132,12 +130,12 @@ namespace MainCore.Tasks
                 {
                     if (IsSpecialUpgrade())
                     {
-                        result = await _upgradeAdsCommand.Execute(AccountId, plan);
+                        result = await _specialUpgradeCommand.Execute(AccountId);
                         if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                     }
                     else
                     {
-                        result = _upgradeCommand.Execute(AccountId, plan);
+                        result = _upgradeCommand.Execute(AccountId);
                         if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                     }
                 }
@@ -156,52 +154,34 @@ namespace MainCore.Tasks
 
         private bool IsUpgradeable(NormalBuildPlan plan)
         {
-            var isEmptySite = _buildingRepository.IsEmptySite(VillageId, plan.Location);
+            var isEmptySite = _unitOfRepository.BuildingRepository.IsEmptySite(VillageId, plan.Location);
             return isEmptySite;
         }
 
         private bool IsSpecialUpgrade()
         {
-            var useSpecialUpgrade = _villageSettingRepository.GetBooleanByName(VillageId, VillageSettingEnums.UseSpecialUpgrade);
+            var useSpecialUpgrade = _unitOfRepository.VillageSettingRepository.GetBooleanByName(VillageId, VillageSettingEnums.UseSpecialUpgrade);
             return useSpecialUpgrade;
         }
 
         private bool IsUseHeroResource()
         {
-            var useHeroResource = _villageSettingRepository.GetBooleanByName(VillageId, VillageSettingEnums.UseHeroResourceForBuilding);
+            var useHeroResource = _unitOfRepository.VillageSettingRepository.GetBooleanByName(VillageId, VillageSettingEnums.UseHeroResourceForBuilding);
             return useHeroResource;
         }
 
         private Result SetEnoughResourcesTime(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
-            var chromeBrowser = _chromeManager.Get(accountId);
-            var html = chromeBrowser.Html;
-
-            HtmlNode node;
-            var isEmptySite = _buildingRepository.IsEmptySite(villageId, plan.Location);
-            if (isEmptySite)
-            {
-                node = html.GetElementbyId($"contract_building{(int)plan.Type}");
-            }
-            else
-            {
-                node = html.GetElementbyId("contract");
-            }
-            if (node is null) return Result.Fail(new Retry("Cannot read when resource enough [0]"));
-            node = node.Descendants("div")
-                .FirstOrDefault(x => x.HasClass("errorMessage"));
-            if (node is null) return Result.Fail(new Retry("Cannot read when resource enough [1]"));
-            node = node.Descendants("span")
-                .FirstOrDefault(x => x.HasClass("timer"));
-            if (node is null) return Result.Fail(new Retry("Cannot read when resource enough [2]"));
-            var time = node.GetAttributeValue("value", 0);
-            ExecuteAt = DateTime.Now.Add(TimeSpan.FromSeconds(time + 10));
+            var result = _getTimeWhenEnoughResourceCommand.Execute(accountId, villageId, plan);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+            var time = _getTimeWhenEnoughResourceCommand.Value;
+            ExecuteAt = DateTime.Now.Add(time);
             return Result.Ok();
         }
 
         private void SetTimeQueueBuildingComplete(VillageId villageId)
         {
-            var buildingQueue = _queueBuildingRepository.GetFirst(villageId);
+            var buildingQueue = _unitOfRepository.QueueBuildingRepository.GetFirst(villageId);
             if (buildingQueue is null)
             {
                 ExecuteAt = DateTime.Now.AddSeconds(1);

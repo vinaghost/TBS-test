@@ -8,7 +8,7 @@ using MainCore.Repositories;
 using MediatR;
 using System.Text.Json;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.UpgradeBuilding
 {
     [RegisterAsTransient]
     public class ExtractResourceFieldCommand : IExtractResourceFieldCommand
@@ -27,7 +27,7 @@ namespace MainCore.Commands.Special
         public async Task<Result> Execute(VillageId villageId, JobDto job)
         {
             var resourceBuildPlan = JsonSerializer.Deserialize<ResourceBuildPlan>(job.Content);
-            var normalBuildPlan = await Task.Run(() => _buildingRepository.GetNormalBuildPlan(villageId, resourceBuildPlan));
+            var normalBuildPlan = _buildingRepository.GetNormalBuildPlan(villageId, resourceBuildPlan);
             if (normalBuildPlan is null)
             {
                 _jobRepository.Delete(job.Id);

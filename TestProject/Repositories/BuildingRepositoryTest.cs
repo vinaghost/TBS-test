@@ -3,7 +3,6 @@ using MainCore.Common.Enums;
 using MainCore.Common.Models;
 using MainCore.DTO;
 using MainCore.Repositories;
-using System.Text.Json;
 
 namespace TestProject.Repositories
 {
@@ -79,17 +78,6 @@ namespace TestProject.Repositories
         {
             var repository = GetRepository();
             var func = () => repository.IsEmptySite(Constants.VillageId, 2);
-            func.Should().NotThrow();
-        }
-
-        [TestMethod]
-        public void IsJobComplete_ShouldNotThrow()
-        {
-            var repository = GetRepository();
-            var func = () => repository.IsJobComplete(Constants.VillageId, new JobDto()
-            {
-                Content = JsonSerializer.Serialize(new NormalBuildPlan())
-            });
             func.Should().NotThrow();
         }
 

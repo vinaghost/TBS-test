@@ -256,5 +256,29 @@ namespace MainCore.Repositories
                     return job.Content;
             }
         }
+
+        public bool JobComplete(VillageId villageId, JobDto job)
+        {
+            if (job.Type == JobTypeEnums.ResourceBuild) return false;
+            var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
+
+            using var context = _contextFactory.CreateDbContext();
+
+            var queueBuilding = context.QueueBuildings
+                .Where(x => x.VillageId == villageId.Value)
+                .Where(x => x.Location == plan.Location)
+                .OrderByDescending(x => x.Level)
+                .FirstOrDefault();
+
+            if (queueBuilding is not null && queueBuilding.Level >= plan.Level) return true;
+
+            var villageBuilding = context.Buildings
+                .Where(x => x.VillageId == villageId.Value)
+                .Where(x => x.Location == plan.Location)
+                .FirstOrDefault();
+            if (villageBuilding is not null && villageBuilding.Level >= plan.Level) return true;
+
+            return false;
+        }
     }
 }
