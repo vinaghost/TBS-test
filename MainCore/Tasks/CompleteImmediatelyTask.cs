@@ -26,6 +26,7 @@ namespace MainCore.Tasks
 
         public override async Task<Result> Execute()
         {
+            if (CancellationToken.IsCancellationRequested) return new Cancel();
             Result result;
             result = _unitOfCommand.SwitchVillageCommand.Execute(AccountId, VillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));

@@ -35,6 +35,7 @@ namespace MainCore.Tasks
         public override async Task<Result> Execute()
         {
             if (CancellationToken.IsCancellationRequested) return Result.Fail(new Cancel());
+
             var buildings = _unitOfRepository.BuildingRepository.GetTrainTroopBuilding(VillageId);
             if (buildings.Count == 0) return Result.Ok();
 

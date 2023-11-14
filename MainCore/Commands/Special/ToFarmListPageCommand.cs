@@ -6,7 +6,7 @@ using MainCore.Entities;
 using MainCore.Repositories;
 using MediatR;
 
-namespace MainCore.Commands.Navigate
+namespace MainCore.Commands.Special
 {
     public class ToFarmListPageCommand : ByAccountIdRequestBase, IRequest<Result>
     {

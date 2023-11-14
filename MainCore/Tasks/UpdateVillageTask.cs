@@ -1,66 +1,38 @@
 ﻿using FluentResults;
 using MainCore.Commands;
+using MainCore.Commands.Special;
 using MainCore.Common.Errors;
 using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Repositories;
+using MediatR;
 
 namespace MainCore.Tasks
 {
     [RegisterAsTransient(withoutInterface: true)]
     public class UpdateVillageTask : VillageTask
     {
-        private readonly IChromeManager _chromeManager;
-        private readonly IUnitOfCommand _unitOfCommand;
         private readonly IUnitOfRepository _unitOfRepository;
+        private readonly IUnitOfCommand _unitOfCommand;
+        private readonly IMediator _mediator;
 
-        public UpdateVillageTask(IChromeManager chromeManager, IUnitOfCommand unitOfCommand, IUnitOfRepository unitOfRepository)
+        public UpdateVillageTask(IUnitOfRepository unitOfRepository, IMediator mediator, IUnitOfCommand unitOfCommand)
         {
-            _chromeManager = chromeManager;
-            _unitOfCommand = unitOfCommand;
             _unitOfRepository = unitOfRepository;
+            _mediator = mediator;
+            _unitOfCommand = unitOfCommand;
         }
 
         public override async Task<Result> Execute()
         {
             if (CancellationToken.IsCancellationRequested) return new Cancel();
+
             Result result;
             result = _unitOfCommand.SwitchVillageCommand.Execute(AccountId, VillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            var chromeBrowser = _chromeManager.Get(AccountId);
-            var url = chromeBrowser.CurrentUrl;
-            if (url.Contains("dorf1"))
-            {
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = _unitOfCommand.ToDorfCommand.Execute(AccountId, 2);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            }
-            else if (url.Contains("dorf2"))
-            {
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = _unitOfCommand.ToDorfCommand.Execute(AccountId, 1);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            }
-            else
-            {
-                result = _unitOfCommand.ToDorfCommand.Execute(AccountId, 2);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = _unitOfCommand.ToDorfCommand.Execute(AccountId, 1);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            }
-
+            result = await _mediator.Send(new UpdateVillageCommand(AccountId, VillageId));
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 

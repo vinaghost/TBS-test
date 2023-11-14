@@ -1,6 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Commands;
-using MainCore.Commands.Navigate;
+using MainCore.Commands.Special;
 using MainCore.Common.Errors;
 using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
