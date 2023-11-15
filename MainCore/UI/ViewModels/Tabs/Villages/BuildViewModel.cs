@@ -167,6 +167,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
             await _mediator.Publish(new JobUpdated(VillageId));
+            Jobs.SelectedIndex = newIndex;
         }
 
         private async Task DownTask()
@@ -183,6 +184,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
             await _mediator.Publish(new JobUpdated(VillageId));
+            Jobs.SelectedIndex = newIndex;
         }
 
         private async Task TopTask()
@@ -199,6 +201,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
             await _mediator.Publish(new JobUpdated(VillageId));
+            Jobs.SelectedIndex = newIndex;
         }
 
         private async Task BottomTask()
@@ -215,6 +218,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
             await _mediator.Publish(new JobUpdated(VillageId));
+            Jobs.SelectedIndex = newIndex;
         }
 
         private async Task DeleteTask()
