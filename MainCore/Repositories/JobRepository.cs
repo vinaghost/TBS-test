@@ -268,15 +268,17 @@ namespace MainCore.Repositories
                 .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Location == plan.Location)
                 .OrderByDescending(x => x.Level)
+                .Select(x => x.Level)
                 .FirstOrDefault();
 
-            if (queueBuilding is not null && queueBuilding.Level >= plan.Level) return true;
+            if (queueBuilding >= plan.Level) return true;
 
             var villageBuilding = context.Buildings
                 .Where(x => x.VillageId == villageId.Value)
                 .Where(x => x.Location == plan.Location)
+                .Select(x => x.Level)
                 .FirstOrDefault();
-            if (villageBuilding is not null && villageBuilding.Level >= plan.Level) return true;
+            if (villageBuilding >= plan.Level) return true;
 
             return false;
         }

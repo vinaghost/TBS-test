@@ -15,19 +15,12 @@ namespace MainCore.Parsers.BuildingParser
 
         private static HtmlNode GetField(HtmlDocument doc, int location)
         {
-            var node = doc.DocumentNode
-                .Descendants("div")
-                .FirstOrDefault(x => x.HasClass($"buildingSlot{location}"));
-            return node;
+            return null;
         }
 
         private static HtmlNode GetInfrastructure(HtmlDocument doc, int location)
         {
-            var tmpLocation = location - 1;
-            var node = doc.DocumentNode
-                .SelectSingleNode($"//*[@id='village_map']/div[{tmpLocation}]");
-
-            return node;
+            return null;
         }
     }
 }

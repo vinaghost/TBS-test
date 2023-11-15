@@ -25,6 +25,7 @@ namespace MainCore.DTO
 
         public static partial BuildingDto ToDto(this Building entity);
 
+        [MapperIgnoreSource(nameof(BuildingDto.Id))]
         public static partial void To(this BuildingDto dto, Building entity);
 
         private static partial Building ToEntity(this BuildingDto dto);

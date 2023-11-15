@@ -7,9 +7,12 @@ using MainCore.Common.Errors;
 using MainCore.Common.Errors.Storage;
 using MainCore.Common.Models;
 using MainCore.Common.Tasks;
+using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Notification;
 using MainCore.Repositories;
+using MediatR;
 using System.Text.Json;
 
 namespace MainCore.Tasks
@@ -19,6 +22,7 @@ namespace MainCore.Tasks
     {
         private readonly IUnitOfCommand _unitOfCommand;
         private readonly IUnitOfRepository _unitOfRepository;
+        private readonly IMediator _mediator;
 
         private readonly IChooseBuildingJobCommand _chooseBuildingJobCommand;
         private readonly IExtractResourceFieldCommand _extractResourceFieldCommand;
@@ -32,7 +36,7 @@ namespace MainCore.Tasks
 
         private readonly IUseHeroResourceCommand _useHeroResourceCommand;
 
-        public UpgradeBuildingTask(IUnitOfCommand unitOfCommand, IUnitOfRepository unitOfRepository, IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IToBuildingPageCommand toBuildingPageCommand, IGetRequiredResourceCommand getRequiredResourceCommand, IAddCroplandCommand addCroplandCommand, IGetTimeWhenEnoughResourceCommand getTimeWhenEnoughResourceCommand, IConstructCommand constructCommand, IUpgradeCommand upgradeCommand, ISpecialUpgradeCommand specialUpgradeCommand, IUseHeroResourceCommand useHeroResourceCommand)
+        public UpgradeBuildingTask(IUnitOfCommand unitOfCommand, IUnitOfRepository unitOfRepository, IChooseBuildingJobCommand chooseBuildingJobCommand, IExtractResourceFieldCommand extractResourceFieldCommand, IToBuildingPageCommand toBuildingPageCommand, IGetRequiredResourceCommand getRequiredResourceCommand, IAddCroplandCommand addCroplandCommand, IGetTimeWhenEnoughResourceCommand getTimeWhenEnoughResourceCommand, IConstructCommand constructCommand, IUpgradeCommand upgradeCommand, ISpecialUpgradeCommand specialUpgradeCommand, IUseHeroResourceCommand useHeroResourceCommand, IMediator mediator)
         {
             _unitOfCommand = unitOfCommand;
             _unitOfRepository = unitOfRepository;
@@ -46,6 +50,7 @@ namespace MainCore.Tasks
             _upgradeCommand = upgradeCommand;
             _specialUpgradeCommand = specialUpgradeCommand;
             _useHeroResourceCommand = useHeroResourceCommand;
+            _mediator = mediator;
         }
 
         public override async Task<Result> Execute()
@@ -59,6 +64,9 @@ namespace MainCore.Tasks
             while (true)
             {
                 if (CancellationToken.IsCancellationRequested) return new Cancel();
+
+                result = await _unitOfCommand.UpdateAccountInfoCommand.Execute(AccountId);
+                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
                 result = await _unitOfCommand.UpdateDorfCommand.Execute(AccountId, VillageId);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
@@ -81,8 +89,13 @@ namespace MainCore.Tasks
                 }
 
                 var plan = JsonSerializer.Deserialize<NormalBuildPlan>(job.Content);
-                result = _toBuildingPageCommand.Execute(AccountId, VillageId, plan);
+                result = await _toBuildingPageCommand.Execute(AccountId, VillageId, plan);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
+                if (await JobComplete(VillageId, job))
+                {
+                    continue;
+                }
 
                 result = _getRequiredResourceCommand.Execute(AccountId, VillageId, plan);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
@@ -154,8 +167,8 @@ namespace MainCore.Tasks
 
         private bool IsUpgradeable(NormalBuildPlan plan)
         {
-            var isEmptySite = _unitOfRepository.BuildingRepository.IsEmptySite(VillageId, plan.Location);
-            return isEmptySite;
+            var emptySite = _unitOfRepository.BuildingRepository.EmptySite(VillageId, plan.Location);
+            return !emptySite;
         }
 
         private bool IsSpecialUpgrade()
@@ -188,7 +201,18 @@ namespace MainCore.Tasks
                 return;
             }
 
-            ExecuteAt = buildingQueue.CompleteTime.AddSeconds(1);
+            ExecuteAt = buildingQueue.CompleteTime.AddSeconds(3);
+        }
+
+        private async Task<bool> JobComplete(VillageId villageId, JobDto job)
+        {
+            if (_unitOfRepository.JobRepository.JobComplete(villageId, job))
+            {
+                _unitOfRepository.JobRepository.Delete(job.Id);
+                await _mediator.Publish(new JobUpdated(villageId));
+                return true;
+            }
+            return false;
         }
     }
 }

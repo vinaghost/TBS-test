@@ -1,34 +1,29 @@
 ﻿using FluentResults;
+using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
-using MainCore.Parsers;
-using OpenQA.Selenium;
 
-namespace MainCore.Commands.Navigate
+namespace MainCore.Commands.Navigate.ToBuildingCommand
 {
-    [RegisterAsTransient]
-    public class ToBuildingCommand : IToBuildingCommand
+    [RegisterAsTransient(ServerEnums.TTWars)]
+    public class TTWars : IToBuildingCommand
     {
         private readonly IChromeManager _chromeManager;
-        private readonly IUnitOfParser _unitOfParser;
 
-        public ToBuildingCommand(IChromeManager chromeManager, IUnitOfParser unitOfParser)
+        public TTWars(IChromeManager chromeManager)
         {
             _chromeManager = chromeManager;
-            _unitOfParser = unitOfParser;
         }
 
         public Result Execute(AccountId accountId, int location)
         {
             var chromeBrowser = _chromeManager.Get(accountId);
-            var html = chromeBrowser.Html;
-            var node = _unitOfParser.BuildingParser.GetBuilding(html, location);
-            if (node is null) return Result.Fail(Retry.NotFound($"{location}", "nodeBuilding"));
-
+            var currentUrl = new Uri(chromeBrowser.CurrentUrl);
+            var host = currentUrl.GetLeftPart(UriPartial.Authority);
             Result result;
-            result = chromeBrowser.Click(By.XPath(node.XPath));
+            result = chromeBrowser.Navigate($"{host}/build.php?id={location}");
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             result = chromeBrowser.WaitPageLoaded();
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));

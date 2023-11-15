@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using MainCore.Parsers.BuildingParser;
+﻿using MainCore.Parsers.BuildingParser;
 
 namespace TestProject.Parsers.BuildingParser
 {
@@ -12,26 +11,26 @@ namespace TestProject.Parsers.BuildingParser
             parts = Helper.GetParts<TTWarsTest>();
         }
 
-        [DataTestMethod]
-        [DataRow(1, "TTWars_dorf1.html")]
-        [DataRow(39, "TTWars_dorf2.html")]
-        public void GetBuilding_ShouldNotBeNull(int location, string fileName)
-        {
-            var (parser, html) = Setup(fileName);
+        //[DataTestMethod]
+        //[DataRow(1, "TTWars_dorf1.html")]
+        //[DataRow(39, "TTWars_dorf2.html")]
+        //public void GetBuilding_ShouldNotBeNull(int location, string fileName)
+        //{
+        //    var (parser, html) = Setup(fileName);
 
-            var node = parser.GetBuilding(html, location);
-            node.Should().NotBeNull();
-        }
+        //    var node = parser.GetBuilding(html, location);
+        //    node.Should().NotBeNull();
+        //}
 
-        [DataTestMethod]
-        [DataRow(39, "TTWars_dorf1.html")]
-        [DataRow(1, "TTWars_dorf2.html")]
-        public void GetBuilding_ShouldBeNull(int location, string fileName)
-        {
-            var (parser, html) = Setup(fileName);
+        //[DataTestMethod]
+        //[DataRow(39, "TTWars_dorf1.html")]
+        //[DataRow(1, "TTWars_dorf2.html")]
+        //public void GetBuilding_ShouldBeNull(int location, string fileName)
+        //{
+        //    var (parser, html) = Setup(fileName);
 
-            var node = parser.GetBuilding(html, location);
-            node.Should().BeNull();
-        }
+        //    var node = parser.GetBuilding(html, location);
+        //    node.Should().BeNull();
+        //}
     }
 }

@@ -1,8 +1,8 @@
 ﻿using HtmlAgilityPack;
 using MainCore.Common.Enums;
+using MainCore.Common.Extensions;
 using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Parsers;
 
 namespace MainCore.Parsers.QueueBuildingParser
 {
@@ -16,9 +16,23 @@ namespace MainCore.Parsers.QueueBuildingParser
             for (int i = 0; i < nodes.Count; i++)
             {
                 var node = nodes[i];
+                var duration = GetDuration(node);
+                if (duration < TimeSpan.Zero)
+                {
+                    yield return new()
+                    {
+                        Position = i,
+                        Type = "Site",
+                        Level = -1,
+                        CompleteTime = DateTime.MaxValue,
+                        Location = -1,
+                    };
+                    continue;
+                }
+
                 var type = GetBuildingType(node);
                 var level = GetLevel(node);
-                var duration = GetDuration(node);
+
                 yield return new()
                 {
                     Position = i,
@@ -69,9 +83,8 @@ namespace MainCore.Parsers.QueueBuildingParser
         {
             var nodeTimer = node.Descendants().FirstOrDefault(x => x.HasClass("timer"));
             if (nodeTimer is null) return TimeSpan.Zero;
-            var strSec = new string(nodeTimer.GetAttributeValue("value", "0").Where(c => char.IsNumber(c)).ToArray());
-            if (string.IsNullOrEmpty(strSec)) return TimeSpan.Zero;
-            int sec = int.Parse(strSec);
+            var secStr = nodeTimer.GetAttributeValue("value", "");
+            var sec = secStr.ToInt();
             return TimeSpan.FromSeconds(sec);
         }
     }

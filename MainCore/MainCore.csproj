@@ -6,8 +6,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
 
-    <Server>TRAVIAN_OFFICIAL</Server>
-    <!--<Server>TTWARS</Server>-->
+    <!--<Server>TRAVIAN_OFFICIAL</Server>-->
+    <Server>TTWARS</Server>
 
     <DefineConstants Condition="'$(Server)' != ''">$(DefineConstants);$(Server)</DefineConstants>
   </PropertyGroup>

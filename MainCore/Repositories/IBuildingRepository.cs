@@ -22,7 +22,7 @@ namespace MainCore.Repositories
 
         NormalBuildPlan GetNormalBuildPlan(VillageId villageId, ResourceBuildPlan plan);
 
-        bool IsEmptySite(VillageId villageId, int location);
+        bool EmptySite(VillageId villageId, int location);
 
         bool IsRallyPointExists(VillageId villageId);
 

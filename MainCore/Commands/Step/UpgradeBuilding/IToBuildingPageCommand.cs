@@ -6,6 +6,6 @@ namespace MainCore.Commands.Step.UpgradeBuilding
 {
     public interface IToBuildingPageCommand
     {
-        Result Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan);
+        Task<Result> Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan);
     }
 }

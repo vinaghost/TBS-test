@@ -20,9 +20,17 @@ namespace MainCore.Commands.Step.UpgradeBuilding
             _unitOfRepository = unitOfRepository;
         }
 
-        public Result Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId, NormalBuildPlan plan)
         {
             Result result;
+
+            var dorf = plan.Location < 19 ? 1 : 2;
+            result = _unitOfCommand.ToDorfCommand.Execute(accountId, dorf);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
+            result = await _unitOfCommand.UpdateDorfCommand.Execute(accountId, villageId);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
             result = _unitOfCommand.ToBuildingCommand.Execute(accountId, plan.Location);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 

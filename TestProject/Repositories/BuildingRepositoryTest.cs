@@ -77,7 +77,7 @@ namespace TestProject.Repositories
         public void IsEmptySite_ShouldNotThrow()
         {
             var repository = GetRepository();
-            var func = () => repository.IsEmptySite(Constants.VillageId, 2);
+            var func = () => repository.EmptySite(Constants.VillageId, 2);
             func.Should().NotThrow();
         }
 

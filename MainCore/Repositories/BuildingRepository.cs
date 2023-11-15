@@ -84,7 +84,7 @@ namespace MainCore.Repositories
             return isExists;
         }
 
-        public bool IsEmptySite(VillageId villageId, int location)
+        public bool EmptySite(VillageId villageId, int location)
         {
             using var context = _contextFactory.CreateDbContext();
             var isEmptySite = context.Buildings

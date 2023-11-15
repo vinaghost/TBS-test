@@ -27,7 +27,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
         {
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
-            var isEmptySite = _unitOfRepository.BuildingRepository.IsEmptySite(villageId, plan.Location);
+            var isEmptySite = _unitOfRepository.BuildingRepository.EmptySite(villageId, plan.Location);
             Value = _unitOfParser.UpgradeBuildingParser.GetTimeWhenEnoughResource(html, isEmptySite, plan.Type);
             return Result.Ok();
         }
