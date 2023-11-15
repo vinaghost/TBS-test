@@ -1,12 +1,14 @@
 ﻿using FluentResults;
 using MainCore.Common.Models;
 using MainCore.Entities;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using MainCore.Parsers;
 using MainCore.Repositories;
 
 namespace MainCore.Commands.Step.UpgradeBuilding
 {
+    [RegisterAsTransient]
     public class GetTimeWhenEnoughResourceCommand : IGetTimeWhenEnoughResourceCommand
     {
         private readonly IChromeManager _chromeManager;
