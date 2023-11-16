@@ -1,8 +1,8 @@
 ﻿using MainCore.Common.Enums;
-using MainCore.Notification;
 using MainCore.Common.Tasks;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Notification;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Splat;
@@ -92,43 +92,45 @@ namespace MainCore.Infrasturecture.Services
             SetStatus(accountId, StatusEnums.Offline);
         }
 
-        public void AddOrUpdate<T>(AccountId accountId, bool first = false) where T : AccountTask
+        public void AddOrUpdate<T>(AccountId accountId, bool first = false, DateTime executeTime = default) where T : AccountTask
         {
             var task = Get<T>(accountId);
             if (task is null)
             {
-                Add<T>(accountId, first);
+                Add<T>(accountId, first, executeTime);
             }
             else
             {
-                Update(accountId, task, first);
+                Update(accountId, task, first, executeTime);
             }
         }
 
-        public void AddOrUpdate<T>(AccountId accountId, VillageId villageId, bool first = false) where T : VillageTask
+        public void AddOrUpdate<T>(AccountId accountId, VillageId villageId, bool first = false, DateTime executeTime = default) where T : VillageTask
         {
             var task = Get<T>(accountId, villageId);
             if (task is null)
             {
-                Add<T>(accountId, villageId, first);
+                Add<T>(accountId, villageId, first, executeTime);
             }
             else
             {
-                Update(accountId, task, first);
+                Update(accountId, task, first, executeTime);
             }
         }
 
-        public void Add<T>(AccountId accountId, bool first = false) where T : AccountTask
+        public void Add<T>(AccountId accountId, bool first = false, DateTime executeTime = default) where T : AccountTask
         {
             var task = Locator.Current.GetService<T>();
             task.Setup(accountId);
+            task.ExecuteAt = executeTime;
             Add(accountId, task, first);
         }
 
-        public void Add<T>(AccountId accountId, VillageId villageId, bool first = false) where T : VillageTask
+        public void Add<T>(AccountId accountId, VillageId villageId, bool first = false, DateTime executeTime = default) where T : VillageTask
         {
             var task = Locator.Current.GetService<T>();
             task.Setup(accountId, villageId);
+            task.ExecuteAt = executeTime;
             Add(accountId, task, first);
         }
 

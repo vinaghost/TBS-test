@@ -46,6 +46,10 @@ namespace MainCore.Infrasturecture.Persistence
             {AccountSettingEnums.FarmIntervalMin, 540 },
             {AccountSettingEnums.FarmIntervalMax, 660 },
             {AccountSettingEnums.Tribe, 0 },
+            {AccountSettingEnums.SleepTimeMin, 480 },
+            {AccountSettingEnums.SleepTimeMax, 600 },
+            {AccountSettingEnums.WorkTimeMin, 340 },
+            {AccountSettingEnums.WorkTimeMax, 380 },
         };
 
         private List<AccountSettingEnums> GetMissingAccountSettings()

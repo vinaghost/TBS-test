@@ -7,9 +7,9 @@ namespace MainCore.Infrasturecture.Services
 {
     public interface ITaskManager
     {
-        void AddOrUpdate<T>(AccountId accountId, VillageId villageId, bool first = false) where T : VillageTask;
+        void AddOrUpdate<T>(AccountId accountId, VillageId villageId, bool first = false, DateTime executeTime = default) where T : VillageTask;
 
-        void AddOrUpdate<T>(AccountId accountId, bool first = false) where T : AccountTask;
+        void AddOrUpdate<T>(AccountId accountId, bool first = false, DateTime executeTime = default) where T : AccountTask;
 
         void Clear(AccountId accountId);
 

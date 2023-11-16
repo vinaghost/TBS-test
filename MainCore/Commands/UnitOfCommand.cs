@@ -3,6 +3,7 @@ using MainCore.Commands.Navigate;
 using MainCore.Commands.Step.Login;
 using MainCore.Commands.Step.TrainTroop;
 using MainCore.Commands.Update;
+using MainCore.Commands.Validate;
 using MainCore.Infrasturecture.AutoRegisterDi;
 
 namespace MainCore.Commands
@@ -10,7 +11,7 @@ namespace MainCore.Commands
     [RegisterAsTransient]
     public class UnitOfCommand : IUnitOfCommand
     {
-        public UnitOfCommand(IDelayClickCommand delayClickCommand, IDelayTaskCommand delayTaskCommand, ISwitchTabCommand switchTabCommand, ISwitchVillageCommand switchVillageCommand, IToBuildingCommand toBuildingCommand, IToDorfCommand toDorfCommand, IToHeroInventoryCommand toHeroInventoryCommand, IUpdateAccountInfoCommand updateAccountInfoCommand, IUpdateDorfCommand updateDorfCommand, IUpdateFarmListCommand updateFarmListCommand, IUpdateHeroItemsCommand updateHeroItemsCommand, IUpdateVillageListCommand updateVillageListCommand, IInputLoginCommand loginCommand, IGetMaximumTroopCommand updateMaximumTroopCommand, IInputAmountTroopCommand inputAmountTroopCommand)
+        public UnitOfCommand(IDelayClickCommand delayClickCommand, IDelayTaskCommand delayTaskCommand, ISwitchTabCommand switchTabCommand, ISwitchVillageCommand switchVillageCommand, IToBuildingCommand toBuildingCommand, IToDorfCommand toDorfCommand, IToHeroInventoryCommand toHeroInventoryCommand, IUpdateAccountInfoCommand updateAccountInfoCommand, IUpdateDorfCommand updateDorfCommand, IUpdateFarmListCommand updateFarmListCommand, IUpdateHeroItemsCommand updateHeroItemsCommand, IUpdateVillageListCommand updateVillageListCommand, IInputLoginCommand loginCommand, IGetMaximumTroopCommand updateMaximumTroopCommand, IInputAmountTroopCommand inputAmountTroopCommand, IValidateProxyCommand validateProxyCommand)
         {
             DelayClickCommand = delayClickCommand;
             DelayTaskCommand = delayTaskCommand;
@@ -27,6 +28,7 @@ namespace MainCore.Commands
             InputLoginCommand = loginCommand;
             GetMaximumTroopCommand = updateMaximumTroopCommand;
             InputAmountTroopCommand = inputAmountTroopCommand;
+            ValidateProxyCommand = validateProxyCommand;
         }
 
         public IDelayClickCommand DelayClickCommand { get; }
@@ -44,5 +46,6 @@ namespace MainCore.Commands
         public IInputLoginCommand InputLoginCommand { get; }
         public IGetMaximumTroopCommand GetMaximumTroopCommand { get; }
         public IInputAmountTroopCommand InputAmountTroopCommand { get; }
+        public IValidateProxyCommand ValidateProxyCommand { get; }
     }
 }

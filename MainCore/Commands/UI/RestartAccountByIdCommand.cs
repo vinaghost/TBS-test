@@ -2,6 +2,8 @@
 using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
+using MainCore.Repositories;
+using MainCore.Tasks;
 using MediatR;
 
 namespace MainCore.Commands.UI
@@ -17,11 +19,13 @@ namespace MainCore.Commands.UI
     {
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
+        private readonly IUnitOfRepository _unitOfRepository;
 
-        public RestartCommandHandler(ITaskManager taskManager, IDialogService dialogService)
+        public RestartCommandHandler(ITaskManager taskManager, IDialogService dialogService, IUnitOfRepository unitOfRepository)
         {
             _taskManager = taskManager;
             _dialogService = dialogService;
+            _unitOfRepository = unitOfRepository;
         }
 
         public async Task Handle(RestartAccountByIdCommand request, CancellationToken cancellationToken)
@@ -52,7 +56,25 @@ namespace MainCore.Commands.UI
         {
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
             _taskManager.Clear(accountId);
+            _taskManager.AddOrUpdate<LoginTask>(accountId, first: true);
+            AddUpgradeBuildingTask(accountId);
+            AddSleepTask(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Online);
+        }
+
+        private void AddUpgradeBuildingTask(AccountId accountId)
+        {
+            var hasBuildingJobVillages = _unitOfRepository.VillageRepository.GetHasBuildingJobVillages(accountId);
+            foreach (var village in hasBuildingJobVillages)
+            {
+                _taskManager.AddOrUpdate<UpgradeBuildingTask>(accountId, village);
+            }
+        }
+
+        private void AddSleepTask(AccountId accountId)
+        {
+            var workTime = _unitOfRepository.AccountSettingRepository.GetByName(accountId, AccountSettingEnums.WorkTimeMin, AccountSettingEnums.WorkTimeMax);
+            _taskManager.AddOrUpdate<SleepTask>(accountId, executeTime: DateTime.Now.AddMinutes(workTime));
         }
     }
 }

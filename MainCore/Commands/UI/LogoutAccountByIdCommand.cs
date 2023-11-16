@@ -1,4 +1,5 @@
 ﻿using MainCore.Commands.Base;
+using MainCore.Commands.General;
 using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.Services;
@@ -16,12 +17,12 @@ namespace MainCore.Commands.UI
     public class LogoutAccountByIdCommandHandler : IRequestHandler<LogoutAccountByIdCommand>
     {
         private readonly ITaskManager _taskManager;
-        private readonly IChromeManager _chromeManager;
+        private readonly ICloseCommand _closeCommand;
 
-        public LogoutAccountByIdCommandHandler(IChromeManager chromeManager, ITaskManager taskManager)
+        public LogoutAccountByIdCommandHandler(ITaskManager taskManager, ICloseCommand closeCommand)
         {
-            _chromeManager = chromeManager;
             _taskManager = taskManager;
+            _closeCommand = closeCommand;
         }
 
         public async Task Handle(LogoutAccountByIdCommand request, CancellationToken cancellationToken)
@@ -31,8 +32,8 @@ namespace MainCore.Commands.UI
             _taskManager.SetStatus(accountId, StatusEnums.Stopping);
             await _taskManager.StopCurrentTask(accountId);
 
-            var chrome = _chromeManager.Get(accountId);
-            await Task.Run(chrome.Close, cancellationToken);
+            await Task.Run(() => _closeCommand.Execute(accountId));
+
             _taskManager.SetStatus(accountId, StatusEnums.Offline);
         }
     }

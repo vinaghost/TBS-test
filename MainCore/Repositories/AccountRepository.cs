@@ -53,6 +53,32 @@ namespace MainCore.Repositories
             return access;
         }
 
+        public List<AccessDto> GetAccesses(AccountId accountId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var accessess = context.Accesses
+               .AsNoTracking()
+               .Where(x => x.AccountId == accountId.Value)
+               .OrderBy(x => x.LastUsed) // get oldest one
+               .ToDto()
+               .ToList();
+            return accessess;
+        }
+
+        public void UpdateAccess(AccountId accountId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var access = context.Accesses
+               .Where(x => x.AccountId == accountId.Value)
+               .OrderByDescending(x => x.LastUsed) // get newest one
+               .FirstOrDefault();
+
+            access.LastUsed = DateTime.Now;
+
+            context.Update(access);
+            context.SaveChanges();
+        }
+
         public string GetUsername(AccountId accountId)
         {
             using var context = _contextFactory.CreateDbContext();

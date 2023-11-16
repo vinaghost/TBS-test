@@ -14,6 +14,8 @@ namespace MainCore.DTO
         public string ProxyPassword { get; set; }
         public string Useragent { get; set; }
         public DateTime LastUsed { get; set; }
+
+        public string Proxy => string.IsNullOrEmpty(ProxyHost) ? "[default]" : ProxyHost;
     }
 
     [Mapper]

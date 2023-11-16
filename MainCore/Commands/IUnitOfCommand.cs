@@ -3,6 +3,7 @@ using MainCore.Commands.Navigate;
 using MainCore.Commands.Step.Login;
 using MainCore.Commands.Step.TrainTroop;
 using MainCore.Commands.Update;
+using MainCore.Commands.Validate;
 
 namespace MainCore.Commands
 {
@@ -23,5 +24,6 @@ namespace MainCore.Commands
         IInputLoginCommand InputLoginCommand { get; }
         IGetMaximumTroopCommand GetMaximumTroopCommand { get; }
         IInputAmountTroopCommand InputAmountTroopCommand { get; }
+        IValidateProxyCommand ValidateProxyCommand { get; }
     }
 }

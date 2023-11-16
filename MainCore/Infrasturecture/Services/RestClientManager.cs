@@ -43,7 +43,7 @@ namespace MainCore.Infrasturecture.Services
 
             var clientOptions = new RestClientOptions
             {
-                MaxTimeout = 10000,
+                MaxTimeout = 3000,
                 BaseUrl = new Uri("https://api.ipify.org/"),
                 Proxy = proxy,
             };

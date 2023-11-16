@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MainCore.Commands.Base;
+using MainCore.Commands.General;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Entities;
@@ -24,12 +25,19 @@ namespace MainCore.Commands.UI
         private readonly IChromeManager _chromeManager;
         private readonly IUnitOfRepository _unitOfRepository;
 
-        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IChromeManager chromeManager, IUnitOfRepository unitOfRepository)
+        private readonly IChooseAccessCommand _chooseAccessCommand;
+        private readonly IWorkCommand _workCommand;
+        private readonly ILogService _logService;
+
+        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IChromeManager chromeManager, IUnitOfRepository unitOfRepository, IWorkCommand workCommand, IChooseAccessCommand chooseAccessCommand, ILogService logService)
         {
             _taskManager = taskManager;
             _timerManager = timerManager;
             _chromeManager = chromeManager;
             _unitOfRepository = unitOfRepository;
+            _workCommand = workCommand;
+            _chooseAccessCommand = chooseAccessCommand;
+            _logService = logService;
         }
 
         public async Task<Result> Handle(LoginAccountByIdCommand request, CancellationToken cancellationToken)
@@ -37,26 +45,20 @@ namespace MainCore.Commands.UI
             var accountId = request.AccountId;
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
 
-            var result = await Task.Run(() => SetupBrowser(accountId), cancellationToken);
+            var resultAccessChooser = await _chooseAccessCommand.Execute(accountId, true);
+            if (resultAccessChooser.IsFailed) return Result.Fail(resultAccessChooser.Errors).WithError(new TraceMessage(TraceMessage.Line()));
+            var logger = _logService.GetLogger(accountId);
+            var access = resultAccessChooser.Value;
+            logger.Information("Using connection {proxy} to start chrome", access.Proxy);
+            var result = await Task.Run(() => _workCommand.Execute(accountId, access), cancellationToken);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             _taskManager.AddOrUpdate<LoginTask>(accountId, first: true);
             await Task.Run(() => AddUpgradeBuildingTask(accountId), cancellationToken);
+            AddSleepTask(accountId);
 
             _timerManager.Start(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Online);
-            return Result.Ok();
-        }
-
-        private Result SetupBrowser(AccountId accountId)
-        {
-            var chromeBrowser = _chromeManager.Get(accountId);
-
-            var account = _unitOfRepository.AccountRepository.Get(accountId);
-            var access = _unitOfRepository.AccountRepository.GetAccess(accountId);
-
-            var result = chromeBrowser.Setup(account, access);
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
 
@@ -67,6 +69,12 @@ namespace MainCore.Commands.UI
             {
                 _taskManager.AddOrUpdate<UpgradeBuildingTask>(accountId, village);
             }
+        }
+
+        private void AddSleepTask(AccountId accountId)
+        {
+            var workTime = _unitOfRepository.AccountSettingRepository.GetByName(accountId, AccountSettingEnums.WorkTimeMin, AccountSettingEnums.WorkTimeMax);
+            _taskManager.AddOrUpdate<SleepTask>(accountId, executeTime: DateTime.Now.AddMinutes(workTime));
         }
     }
 }

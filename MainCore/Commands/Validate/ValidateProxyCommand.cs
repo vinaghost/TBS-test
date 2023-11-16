@@ -1,6 +1,4 @@
-﻿using FluentResults;
-using MainCore.Common.Errors;
-using MainCore.DTO;
+﻿using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Services;
 using Polly;
@@ -23,13 +21,13 @@ namespace MainCore.Commands.Validate
                 .Handle<Exception>()
                 .WaitAndRetryAsync(retryCount: 3, sleepDurationProvider: _ => TimeSpan.FromSeconds(10));
 
-        public async Task<Result> Execute(AccessDto access)
+        public async Task<bool> Execute(AccessDto access)
         {
             var poliResult = await _retryPolicy
                 .ExecuteAndCaptureAsync(() => Validate(access));
 
-            if (!poliResult.Result) return Result.Fail(new ProxyNotWork(access));
-            return Result.Ok();
+            if (!poliResult.Result) return false;
+            return true;
         }
 
         private async Task<bool> Validate(AccessDto access)
