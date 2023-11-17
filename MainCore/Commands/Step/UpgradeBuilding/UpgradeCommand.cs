@@ -2,8 +2,8 @@
 using MainCore.Common.Errors;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Parsers;
+using MainCore.Services;
 using OpenQA.Selenium;
 
 namespace MainCore.Commands.Step.UpgradeBuilding

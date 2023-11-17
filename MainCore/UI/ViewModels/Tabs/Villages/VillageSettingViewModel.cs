@@ -2,8 +2,8 @@
 using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Repositories;
+using MainCore.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MediatR;

@@ -3,8 +3,8 @@ using FluentAssertions;
 using MainCore.Common.Enums;
 using MainCore.DTO;
 using MainCore.Entities;
-using MainCore.Infrasturecture.Services;
 using MainCore.Repositories;
+using MainCore.Services;
 using TestProject.Fake;
 
 namespace TestProject.Repositories

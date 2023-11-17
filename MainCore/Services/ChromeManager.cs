@@ -3,7 +3,7 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 using System.Collections.Concurrent;
 using System.Reflection;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     [RegisterAsSingleton]
     public sealed class ChromeManager : IChromeManager

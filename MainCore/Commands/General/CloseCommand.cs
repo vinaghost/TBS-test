@@ -1,8 +1,8 @@
 ﻿using FluentResults;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Repositories;
+using MainCore.Services;
 
 namespace MainCore.Commands.General
 {

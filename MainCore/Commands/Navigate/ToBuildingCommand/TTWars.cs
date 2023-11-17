@@ -3,7 +3,7 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
+using MainCore.Services;
 
 namespace MainCore.Commands.Navigate.ToBuildingCommand
 {

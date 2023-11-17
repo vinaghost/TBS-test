@@ -1,7 +1,7 @@
 ﻿using MainCore.DTO;
 using RestSharp;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     public interface IRestClientManager
     {

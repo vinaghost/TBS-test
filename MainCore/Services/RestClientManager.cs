@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RestSharp;
 using System.Net;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     [RegisterAsSingleton]
     public class RestClientManager : IRestClientManager

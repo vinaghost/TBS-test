@@ -3,7 +3,7 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     [RegisterAsSingleton]
     public sealed class LogSink : ILogEventSink

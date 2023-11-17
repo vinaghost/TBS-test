@@ -4,7 +4,7 @@ using MainCore.DTO;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     public interface IChromeBrowser
     {

@@ -7,7 +7,7 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 using Polly;
 using Timer = System.Timers.Timer;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     [RegisterAsSingleton]
     public sealed class TimerManager : ITimerManager

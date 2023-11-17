@@ -1,5 +1,5 @@
 ﻿using MainCore;
-using MainCore.Infrasturecture.Services;
+using MainCore.Services;
 using MainCore.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;

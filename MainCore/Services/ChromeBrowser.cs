@@ -8,7 +8,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Chrome.ChromeDriverExtensions;
 using OpenQA.Selenium.Support.UI;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     [DoNotAutoRegister]
     public sealed class ChromeBrowser : IChromeBrowser

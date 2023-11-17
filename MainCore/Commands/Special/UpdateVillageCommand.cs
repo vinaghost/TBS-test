@@ -2,7 +2,7 @@
 using MainCore.Commands.Base;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Infrasturecture.Services;
+using MainCore.Services;
 using MediatR;
 
 namespace MainCore.Commands.Special

@@ -1,4 +1,4 @@
-﻿using MainCore.Infrasturecture.Services;
+﻿using MainCore.Services;
 using MediatR;
 
 namespace MainCore.Infrasturecture.Mediatr

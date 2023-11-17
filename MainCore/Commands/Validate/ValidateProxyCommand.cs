@@ -1,6 +1,6 @@
 ﻿using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
+using MainCore.Services;
 using Polly;
 using Polly.Retry;
 using RestSharp;

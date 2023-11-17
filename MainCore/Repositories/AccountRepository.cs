@@ -3,7 +3,7 @@ using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Infrasturecture.Persistence;
-using MainCore.Infrasturecture.Services;
+using MainCore.Services;
 using MainCore.UI.Models.Output;
 using Microsoft.EntityFrameworkCore;
 

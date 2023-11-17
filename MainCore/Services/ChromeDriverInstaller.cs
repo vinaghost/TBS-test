@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     [RegisterAsSingleton]
     public sealed class ChromeDriverInstaller : IChromeDriverInstaller

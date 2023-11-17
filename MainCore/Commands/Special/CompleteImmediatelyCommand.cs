@@ -3,8 +3,8 @@ using HtmlAgilityPack;
 using MainCore.Commands.Base;
 using MainCore.Common.Errors;
 using MainCore.Entities;
-using MainCore.Infrasturecture.Services;
 using MainCore.Parsers;
+using MainCore.Services;
 using MediatR;
 using OpenQA.Selenium;
 

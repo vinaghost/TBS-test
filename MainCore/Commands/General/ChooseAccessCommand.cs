@@ -4,8 +4,8 @@ using MainCore.Common.Errors;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Repositories;
+using MainCore.Services;
 using Serilog;
 
 namespace MainCore.Commands.General

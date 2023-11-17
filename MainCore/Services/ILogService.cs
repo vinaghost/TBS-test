@@ -2,7 +2,7 @@
 using Serilog;
 using Serilog.Events;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     public interface ILogService
     {

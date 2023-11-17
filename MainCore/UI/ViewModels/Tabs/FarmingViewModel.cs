@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
 using MainCore.Repositories;
+using MainCore.Services;
 using MainCore.Tasks;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;

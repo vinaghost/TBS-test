@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Splat;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     [RegisterAsSingleton]
     public sealed class TaskManager : ITaskManager
@@ -169,7 +169,7 @@ namespace MainCore.Infrasturecture.Services
             ReOrder(accountId, tasks);
         }
 
-        private void Update(AccountId accountId, TaskBase task, bool first = false)
+        private void Update(AccountId accountId, TaskBase task, bool first = false, DateTime executeTime = default)
         {
             var tasks = GetTaskList(accountId);
 
@@ -183,7 +183,14 @@ namespace MainCore.Infrasturecture.Services
             }
             else
             {
-                task.ExecuteAt = DateTime.Now;
+                if (executeTime == default)
+                {
+                    task.ExecuteAt = DateTime.Now;
+                }
+                else
+                {
+                    task.ExecuteAt = executeTime;
+                }
             }
             ReOrder(accountId, tasks);
         }

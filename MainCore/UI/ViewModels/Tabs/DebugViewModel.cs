@@ -1,6 +1,6 @@
 ﻿using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
+using MainCore.Services;
 using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
 using ReactiveUI;

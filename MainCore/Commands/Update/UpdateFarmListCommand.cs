@@ -1,10 +1,10 @@
 ﻿using FluentResults;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Notification;
 using MainCore.Parsers;
 using MainCore.Repositories;
+using MainCore.Services;
 using MediatR;
 
 namespace MainCore.Commands.Update

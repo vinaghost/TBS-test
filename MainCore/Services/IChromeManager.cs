@@ -1,6 +1,6 @@
 ﻿using MainCore.Entities;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     public interface IChromeManager
     {

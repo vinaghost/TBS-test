@@ -2,8 +2,8 @@
 using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Infrasturecture.Services;
 using MainCore.Parsers;
+using MainCore.Services;
 
 namespace MainCore.Commands.Step.TrainTroop
 {

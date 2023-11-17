@@ -1,9 +1,9 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.Tasks;
 using MainCore.Entities;
-using static MainCore.Infrasturecture.Services.TaskManager;
+using static MainCore.Services.TaskManager;
 
-namespace MainCore.Infrasturecture.Services
+namespace MainCore.Services
 {
     public interface ITaskManager
     {
