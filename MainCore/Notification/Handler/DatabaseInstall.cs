@@ -21,8 +21,8 @@ namespace MainCore.Notification.Handler
         {
             await _waitingOverlayViewModel.ChangeMessage("loading database");
             using var context = _contextFactory.CreateDbContext();
-            var created = await context.Database.EnsureCreatedAsync(cancellationToken);
-            if (created)
+            var notExist = await context.Database.EnsureCreatedAsync(cancellationToken);
+            if (!notExist)
             {
                 await Task.Run(context.FillAccountSettings, cancellationToken);
                 await Task.Run(context.FillVillageSettings, cancellationToken);
