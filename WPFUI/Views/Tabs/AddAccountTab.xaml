@@ -71,7 +71,7 @@
                     <DataGridTextColumn Header="Proxy's host" Binding="{Binding ProxyHost}" />
                     <DataGridTextColumn Header="Proxy's port" Binding="{Binding ProxyPort}" />
                     <DataGridTextColumn Header="Proxy's username" Binding="{Binding ProxyUsername}" />
-                    <DataGridTextColumn Header="Proxy's assword" Binding="{Binding ProxyPassword}" />
+                    <DataGridTextColumn Header="Proxy's password" Binding="{Binding ProxyPassword}" />
                     <!--<DataGridTextColumn Header="Status" Binding="{Binding ProxyStatus}" />-->
                 </DataGrid.Columns>
             </DataGrid>

@@ -3,12 +3,14 @@ using MainCore.Commands;
 using MainCore.Commands.Special;
 using MainCore.Common.Errors;
 using MainCore.Common.Tasks;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Repositories;
 using MainCore.Services;
 using MediatR;
 
 namespace MainCore.Tasks
 {
+    [RegisterAsTransient(withoutInterface: true)]
     public class CompleteImmediatelyTask : VillageTask
     {
         private readonly IUnitOfCommand _unitOfCommand;
