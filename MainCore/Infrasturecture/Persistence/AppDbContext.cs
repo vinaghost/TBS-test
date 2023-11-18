@@ -48,8 +48,8 @@ namespace MainCore.Infrasturecture.Persistence
             {AccountSettingEnums.Tribe, 0 },
             {AccountSettingEnums.SleepTimeMin, 480 },
             {AccountSettingEnums.SleepTimeMax, 600 },
-            {AccountSettingEnums.WorkTimeMin, 340 },
-            {AccountSettingEnums.WorkTimeMax, 380 },
+            {AccountSettingEnums.WorkTimeMin, 600 },
+            {AccountSettingEnums.WorkTimeMax, 720 },
         };
 
         private List<AccountSettingEnums> GetMissingAccountSettings()
@@ -141,6 +141,14 @@ namespace MainCore.Infrasturecture.Persistence
             {VillageSettingEnums.WorkshopTroop, 0 },
             {VillageSettingEnums.WorkshopAmountMin, 1 },
             {VillageSettingEnums.WorkshopAmountMax, 10 },
+
+            {VillageSettingEnums.AutoNPCEnable, 0 },
+            {VillageSettingEnums.AutoNPCOverflow, 0 },
+            {VillageSettingEnums.AutoNPCGranaryPercent, 95 },
+            {VillageSettingEnums.AutoNPCWood, 1 },
+            {VillageSettingEnums.AutoNPCClay, 1 },
+            {VillageSettingEnums.AutoNPCIron, 1 },
+            {VillageSettingEnums.AutoNPCCrop, 0 },
         };
 
         private List<VillageSettingEnums> GetMissingVillageSettings()

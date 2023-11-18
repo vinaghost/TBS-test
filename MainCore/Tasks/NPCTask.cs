@@ -2,11 +2,13 @@
 using MainCore.Commands.Special;
 using MainCore.Common.Errors;
 using MainCore.Common.Tasks;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Repositories;
 using MediatR;
 
 namespace MainCore.Tasks
 {
+    [RegisterAsTransient(withoutInterface: true)]
     public class NPCTask : VillageTask
     {
         private readonly IUnitOfRepository _unitOfRepository;

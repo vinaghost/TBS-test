@@ -34,7 +34,7 @@
             <StackPanel>
                 <Border Style="{DynamicResource Box}">
                     <StackPanel>
-                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Village information" VerticalAlignment="Center" FontWeight="Bold" />
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Account information" VerticalAlignment="Center" FontWeight="Bold" />
                         <uc:TribeSelectorUc x:Name="Tribes" Text="Tribe" />
                     </StackPanel>
                 </Border>

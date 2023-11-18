@@ -37,6 +37,11 @@ namespace WPFUI.Views.Tabs.Villages
                 this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.StableAmount, v => v.StableAmount.ViewModel).DisposeWith(d);
                 this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.WorkshopTroop, v => v.WorkshopTroop.ViewModel).DisposeWith(d);
                 this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.WorkshopAmount, v => v.WorkshopAmount.ViewModel).DisposeWith(d);
+
+                this.Bind(ViewModel, vm => vm.VillageSettingInput.AutoNPCEnable, v => v.AutoNPCEnable.IsChecked).DisposeWith(d);
+                this.Bind(ViewModel, vm => vm.VillageSettingInput.AutoNPCOverflow, v => v.AutoNPCOverflow.IsChecked).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.AutoNPCGranaryPercent, v => v.AutoNPCGranaryPercent.ViewModel).DisposeWith(d);
+                this.OneWayBind(ViewModel, vm => vm.VillageSettingInput.AutoNPCRatio, v => v.AutoNPCRatio.ViewModel).DisposeWith(d);
             });
         }
     }

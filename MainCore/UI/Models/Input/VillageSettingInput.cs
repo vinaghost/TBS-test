@@ -25,26 +25,49 @@ namespace MainCore.UI.Models.Input
         public RangeInputViewModel StableAmount { get; } = new();
         public RangeInputViewModel WorkshopAmount { get; } = new();
 
+        private bool _autoNPCEnable;
+        private bool _autoNPCOverflow;
+        public AmountInputViewModel AutoNPCGranaryPercent { get; } = new();
+        public ResourceInputViewModel AutoNPCRatio { get; } = new();
+
         public void Set(Dictionary<VillageSettingEnums, int> settings)
         {
+            var tribe = (TribeEnums)settings.GetValueOrDefault(VillageSettingEnums.Tribe);
+            Tribe.Set(tribe);
+
             UseHeroResourceForBuilding = settings.GetValueOrDefault(VillageSettingEnums.UseHeroResourceForBuilding) == 1;
             ApplyRomanQueueLogicWhenBuilding = settings.GetValueOrDefault(VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding) == 1;
             UseSpecialUpgrade = settings.GetValueOrDefault(VillageSettingEnums.UseSpecialUpgrade) == 1;
 
             TrainTroopEnable = settings.GetValueOrDefault(VillageSettingEnums.TrainTroopEnable) == 1;
             TrainWhenLowResource = settings.GetValueOrDefault(VillageSettingEnums.TrainWhenLowResource) == 1;
-            TrainTroopRepeatTime.Set(settings.GetValueOrDefault(VillageSettingEnums.TrainTroopRepeatTimeMin), settings.GetValueOrDefault(VillageSettingEnums.TrainTroopRepeatTimeMax));
-            var tribe = (TribeEnums)settings.GetValueOrDefault(VillageSettingEnums.Tribe);
-            Tribe.Set(tribe);
+            TrainTroopRepeatTime.Set(
+                settings.GetValueOrDefault(VillageSettingEnums.TrainTroopRepeatTimeMin),
+                settings.GetValueOrDefault(VillageSettingEnums.TrainTroopRepeatTimeMax));
             var barrackTroop = (TroopEnums)settings.GetValueOrDefault(VillageSettingEnums.BarrackTroop);
             BarrackTroop.Set(barrackTroop, BuildingEnums.Barracks, tribe);
-            BarrackAmount.Set(settings.GetValueOrDefault(VillageSettingEnums.BarrackAmountMin), settings.GetValueOrDefault(VillageSettingEnums.BarrackAmountMax));
+            BarrackAmount.Set(
+                settings.GetValueOrDefault(VillageSettingEnums.BarrackAmountMin),
+                settings.GetValueOrDefault(VillageSettingEnums.BarrackAmountMax));
             var stableTroop = (TroopEnums)settings.GetValueOrDefault(VillageSettingEnums.StableTroop);
             StableTroop.Set(stableTroop, BuildingEnums.Stable, tribe);
-            StableAmount.Set(settings.GetValueOrDefault(VillageSettingEnums.StableAmountMin), settings.GetValueOrDefault(VillageSettingEnums.StableAmountMax));
+            StableAmount.Set(
+                settings.GetValueOrDefault(VillageSettingEnums.StableAmountMin),
+                settings.GetValueOrDefault(VillageSettingEnums.StableAmountMax));
             var workshopTroop = (TroopEnums)settings.GetValueOrDefault(VillageSettingEnums.WorkshopTroop);
             WorkshopTroop.Set(workshopTroop, BuildingEnums.Workshop, tribe);
-            WorkshopAmount.Set(settings.GetValueOrDefault(VillageSettingEnums.WorkshopAmountMin), settings.GetValueOrDefault(VillageSettingEnums.WorkshopAmountMax));
+            WorkshopAmount.Set(
+                settings.GetValueOrDefault(VillageSettingEnums.WorkshopAmountMin),
+                settings.GetValueOrDefault(VillageSettingEnums.WorkshopAmountMax));
+
+            AutoNPCEnable = settings.GetValueOrDefault(VillageSettingEnums.AutoNPCEnable) == 1;
+            AutoNPCOverflow = settings.GetValueOrDefault(VillageSettingEnums.AutoNPCOverflow) == 1;
+            AutoNPCGranaryPercent.Set(settings.GetValueOrDefault(VillageSettingEnums.AutoNPCGranaryPercent));
+            AutoNPCRatio.Set(
+                settings.GetValueOrDefault(VillageSettingEnums.AutoNPCWood),
+                settings.GetValueOrDefault(VillageSettingEnums.AutoNPCClay),
+                settings.GetValueOrDefault(VillageSettingEnums.AutoNPCIron),
+                settings.GetValueOrDefault(VillageSettingEnums.AutoNPCCrop));
         }
 
         public Dictionary<VillageSettingEnums, int> Get()
@@ -64,6 +87,12 @@ namespace MainCore.UI.Models.Input
             var (stableAmountMin, stableAmountMax) = StableAmount.Get();
             var workshopTroop = (int)WorkshopTroop.Get();
             var (workshopAmountMin, workshopAmountMax) = WorkshopAmount.Get();
+
+            var autoNPCEnable = AutoNPCEnable ? 1 : 0;
+            var autoNPCOverflow = AutoNPCOverflow ? 1 : 0;
+            var autoNPCGranaryPercent = AutoNPCGranaryPercent.Get();
+            var (autoNPCWood, autoNPCClay, autoNPCIron, autoNPCCrop) = AutoNPCRatio.Get();
+
             var settings = new Dictionary<VillageSettingEnums, int>()
             {
                 { VillageSettingEnums.UseHeroResourceForBuilding, useHeroResourceForBuilding },
@@ -83,6 +112,13 @@ namespace MainCore.UI.Models.Input
                 { VillageSettingEnums.WorkshopTroop, workshopTroop },
                 { VillageSettingEnums.WorkshopAmountMin, workshopAmountMin },
                 { VillageSettingEnums.WorkshopAmountMax, workshopAmountMax },
+                { VillageSettingEnums.AutoNPCEnable, autoNPCEnable },
+                { VillageSettingEnums.AutoNPCOverflow, autoNPCOverflow },
+                { VillageSettingEnums.AutoNPCGranaryPercent, autoNPCGranaryPercent },
+                { VillageSettingEnums.AutoNPCWood, autoNPCWood },
+                { VillageSettingEnums.AutoNPCClay, autoNPCClay },
+                { VillageSettingEnums.AutoNPCIron, autoNPCIron },
+                { VillageSettingEnums.AutoNPCCrop, autoNPCCrop },
             };
             return settings;
         }
@@ -115,6 +151,18 @@ namespace MainCore.UI.Models.Input
         {
             get => _trainWhenLowResource;
             set => this.RaiseAndSetIfChanged(ref _trainWhenLowResource, value);
+        }
+
+        public bool AutoNPCEnable
+        {
+            get => _autoNPCEnable;
+            set => this.RaiseAndSetIfChanged(ref _autoNPCEnable, value);
+        }
+
+        public bool AutoNPCOverflow
+        {
+            get => _autoNPCOverflow;
+            set => this.RaiseAndSetIfChanged(ref _autoNPCOverflow, value);
         }
     }
 }
