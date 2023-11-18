@@ -2,12 +2,14 @@
 using HtmlAgilityPack;
 using MainCore.Common.Errors;
 using MainCore.Entities;
+using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Parsers;
 using MainCore.Services;
 using OpenQA.Selenium;
 
 namespace MainCore.Commands.Step.NPC
 {
+    [RegisterAsTransient]
     public class OpenNPCDialogCommand : IOpenNPCDialogCommand
     {
         private readonly IChromeManager _chromeManager;

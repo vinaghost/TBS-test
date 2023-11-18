@@ -14,6 +14,7 @@
     <AssemblyVersion>1975.4.30</AssemblyVersion>
     <SignAssembly>False</SignAssembly>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
