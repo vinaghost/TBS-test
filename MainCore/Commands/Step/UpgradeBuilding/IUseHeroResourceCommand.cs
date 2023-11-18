@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Entities;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.UpgradeBuilding
 {
     public interface IUseHeroResourceCommand
     {

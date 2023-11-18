@@ -5,7 +5,7 @@ namespace MainCore.Parsers
     [RegisterAsTransient]
     public class UnitOfParser : IUnitOfParser
     {
-        public UnitOfParser(IAccountInfoParser accountInfoParser, IBuildingParser buildingParser, ICompleteImmediatelyParser completeImmediatelyParser, IFarmParser farmParser, IFieldParser fieldParser, IHeroParser heroParser, IInfrastructureParser infrastructureParser, ILoginPageParser loginPageParser, INavigationBarParser navigationBarParser, IQueueBuildingParser queueBuildingParser, IStockBarParser stockBarParser, ITroopPageParser troopPageParser, IVillagePanelParser villagePanelParser, INavigationTabParser navigationTabParser, IUpgradeBuildingParser upgradeBuildingParser)
+        public UnitOfParser(IAccountInfoParser accountInfoParser, IBuildingParser buildingParser, ICompleteImmediatelyParser completeImmediatelyParser, IFarmParser farmParser, IFieldParser fieldParser, IHeroParser heroParser, IInfrastructureParser infrastructureParser, ILoginPageParser loginPageParser, INavigationBarParser navigationBarParser, IQueueBuildingParser queueBuildingParser, IStockBarParser stockBarParser, ITroopPageParser troopPageParser, IVillagePanelParser villagePanelParser, INavigationTabParser navigationTabParser, IUpgradeBuildingParser upgradeBuildingParser, IMarketParser marketParser)
         {
             AccountInfoParser = accountInfoParser;
             BuildingParser = buildingParser;
@@ -22,6 +22,7 @@ namespace MainCore.Parsers
             VillagePanelParser = villagePanelParser;
             NavigationTabParser = navigationTabParser;
             UpgradeBuildingParser = upgradeBuildingParser;
+            MarketParser = marketParser;
         }
 
         public IAccountInfoParser AccountInfoParser { get; }
@@ -39,5 +40,6 @@ namespace MainCore.Parsers
         public ITroopPageParser TroopPageParser { get; }
         public IVillagePanelParser VillagePanelParser { get; }
         public IUpgradeBuildingParser UpgradeBuildingParser { get; }
+        public IMarketParser MarketParser { get; }
     }
 }

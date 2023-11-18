@@ -17,5 +17,6 @@
         IVillagePanelParser VillagePanelParser { get; }
         INavigationTabParser NavigationTabParser { get; }
         IUpgradeBuildingParser UpgradeBuildingParser { get; }
+        IMarketParser MarketParser { get; }
     }
 }

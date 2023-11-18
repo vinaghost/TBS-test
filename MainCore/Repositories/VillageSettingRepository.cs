@@ -46,6 +46,16 @@ namespace MainCore.Repositories
             return Random.Shared.Next(min, max);
         }
 
+        public Dictionary<VillageSettingEnums, int> GetByName(VillageId villageId, List<VillageSettingEnums> settings)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var settingValues = context.VillagesSetting
+                   .Where(x => x.VillageId == villageId.Value)
+                   .Where(x => settings.Contains(x.Setting))
+                   .ToDictionary(x => x.Setting, x => x.Value);
+            return settingValues;
+        }
+
         public bool GetBooleanByName(VillageId villageId, VillageSettingEnums setting)
         {
             using var context = _contextFactory.CreateDbContext();

@@ -6,7 +6,7 @@ using MainCore.Parsers;
 using MainCore.Repositories;
 using MainCore.Services;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.UpgradeBuilding
 {
     [RegisterAsTransient]
     public class GetRequiredResourceCommand : IGetRequiredResourceCommand

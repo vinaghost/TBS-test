@@ -9,7 +9,7 @@ using MainCore.Repositories;
 using MainCore.Services;
 using OpenQA.Selenium;
 
-namespace MainCore.Commands.Special
+namespace MainCore.Commands.Step.UpgradeBuilding
 {
     [RegisterAsTransient]
     public class UseHeroResourceCommand : IUseHeroResourceCommand

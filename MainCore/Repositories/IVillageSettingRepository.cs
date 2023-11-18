@@ -11,6 +11,7 @@ namespace MainCore.Repositories
         int GetByName(VillageId villageId, VillageSettingEnums setting);
 
         int GetByName(VillageId villageId, VillageSettingEnums settingMin, VillageSettingEnums settingMax);
+        Dictionary<VillageSettingEnums, int> GetByName(VillageId villageId, List<VillageSettingEnums> settings);
         void Update(VillageId villageId, Dictionary<VillageSettingEnums, int> settings);
     }
 }

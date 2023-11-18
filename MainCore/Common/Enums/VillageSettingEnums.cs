@@ -11,6 +11,7 @@
         // Complete now
         InstantUpgrade,
 
+        // General
         Tribe,
 
         // Train troop
@@ -31,5 +32,15 @@
         WorkshopTroop,
         WorkshopAmountMin,
         WorkshopAmountMax,
+
+        // NPC
+        AutoNPCEnable,
+
+        AutoNPCOverflow,
+        AutoNPCGranaryPercent,
+        AutoNPCWood,
+        AutoNPCClay,
+        AutoNPCIron,
+        AutoNPCCrop,
     }
 }
