@@ -7,25 +7,25 @@ using MediatR;
 
 namespace MainCore.Commands.Special
 {
-    public class UpdateVillageCommand : ByAccountVillageIdRequestBase, IRequest<Result>
+    public class UpdateDorf1Command : ByAccountVillageIdRequestBase, IRequest<Result>
     {
-        public UpdateVillageCommand(AccountId accountId, VillageId villageId) : base(accountId, villageId)
+        public UpdateDorf1Command(AccountId accountId, VillageId villageId) : base(accountId, villageId)
         {
         }
     }
 
-    public class UpdateVillageCommandHandler : IRequestHandler<UpdateVillageCommand, Result>
+    public class UpdateDorf1CommandHandler : IRequestHandler<UpdateDorf1Command, Result>
     {
         private readonly IChromeManager _chromeManager;
         private readonly IUnitOfCommand _unitOfCommand;
 
-        public UpdateVillageCommandHandler(IChromeManager chromeManager, IUnitOfCommand unitOfCommand)
+        public UpdateDorf1CommandHandler(IChromeManager chromeManager, IUnitOfCommand unitOfCommand)
         {
             _chromeManager = chromeManager;
             _unitOfCommand = unitOfCommand;
         }
 
-        public async Task<Result> Handle(UpdateVillageCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateDorf1Command request, CancellationToken cancellationToken)
         {
             return await Execute(request.AccountId, request.VillageId);
         }
@@ -37,10 +37,6 @@ namespace MainCore.Commands.Special
             Result result;
             if (url.Contains("dorf1"))
             {
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(accountId, villageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = _unitOfCommand.ToDorfCommand.Execute(accountId, 2);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _unitOfCommand.UpdateDorfCommand.Execute(accountId, villageId);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             }
@@ -55,10 +51,6 @@ namespace MainCore.Commands.Special
             }
             else
             {
-                result = _unitOfCommand.ToDorfCommand.Execute(accountId, 2);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-                result = await _unitOfCommand.UpdateDorfCommand.Execute(accountId, villageId);
-                if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = _unitOfCommand.ToDorfCommand.Execute(accountId, 1);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                 result = await _unitOfCommand.UpdateDorfCommand.Execute(accountId, villageId);

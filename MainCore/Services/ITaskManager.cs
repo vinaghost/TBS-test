@@ -1,6 +1,6 @@
 ﻿using MainCore.Common.Enums;
-using MainCore.Common.Tasks;
 using MainCore.Entities;
+using MainCore.Tasks.Base;
 using static MainCore.Services.TaskManager;
 
 namespace MainCore.Services

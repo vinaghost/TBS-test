@@ -2,9 +2,9 @@
 using MainCore.Commands;
 using MainCore.Commands.Special;
 using MainCore.Common.Errors;
-using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Repositories;
+using MainCore.Tasks.Base;
 using MediatR;
 
 namespace MainCore.Tasks
@@ -31,7 +31,7 @@ namespace MainCore.Tasks
             result = _unitOfCommand.SwitchVillageCommand.Execute(AccountId, VillageId);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            result = await _mediator.Send(new UpdateVillageCommand(AccountId, VillageId));
+            result = await _mediator.Send(new UpdateBothDorfCommand(AccountId, VillageId));
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             return Result.Ok();
         }
@@ -39,7 +39,7 @@ namespace MainCore.Tasks
         protected override void SetName()
         {
             var village = _unitOfRepository.VillageRepository.GetVillageName(VillageId);
-            _name = $"Update buildings in {village}";
+            _name = $"Update all buildings in {village}";
         }
     }
 }

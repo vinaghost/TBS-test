@@ -2,8 +2,8 @@
 using MainCore.Commands;
 using MainCore.Commands.Special;
 using MainCore.Common.Errors;
-using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Tasks.Base;
 using MediatR;
 
 namespace MainCore.Tasks

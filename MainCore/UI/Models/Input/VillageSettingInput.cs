@@ -30,6 +30,9 @@ namespace MainCore.UI.Models.Input
         public AmountInputViewModel AutoNPCGranaryPercent { get; } = new();
         public ResourceInputViewModel AutoNPCRatio { get; } = new();
 
+        private bool _autoRefreshEnable;
+        public RangeInputViewModel AutoRefreshTime { get; } = new();
+
         public void Set(Dictionary<VillageSettingEnums, int> settings)
         {
             var tribe = (TribeEnums)settings.GetValueOrDefault(VillageSettingEnums.Tribe);
@@ -68,6 +71,11 @@ namespace MainCore.UI.Models.Input
                 settings.GetValueOrDefault(VillageSettingEnums.AutoNPCClay),
                 settings.GetValueOrDefault(VillageSettingEnums.AutoNPCIron),
                 settings.GetValueOrDefault(VillageSettingEnums.AutoNPCCrop));
+
+            AutoRefreshEnable = settings.GetValueOrDefault(VillageSettingEnums.AutoRefreshEnable) == 1;
+            AutoRefreshTime.Set(
+                settings.GetValueOrDefault(VillageSettingEnums.AutoRefreshMin),
+                settings.GetValueOrDefault(VillageSettingEnums.AutoRefreshMax));
         }
 
         public Dictionary<VillageSettingEnums, int> Get()
@@ -92,6 +100,9 @@ namespace MainCore.UI.Models.Input
             var autoNPCOverflow = AutoNPCOverflow ? 1 : 0;
             var autoNPCGranaryPercent = AutoNPCGranaryPercent.Get();
             var (autoNPCWood, autoNPCClay, autoNPCIron, autoNPCCrop) = AutoNPCRatio.Get();
+
+            var autoRefreshEnable = AutoRefreshEnable ? 1 : 0;
+            var (autoRefreshMin, autoRefreshMax) = AutoRefreshTime.Get();
 
             var settings = new Dictionary<VillageSettingEnums, int>()
             {
@@ -119,6 +130,9 @@ namespace MainCore.UI.Models.Input
                 { VillageSettingEnums.AutoNPCClay, autoNPCClay },
                 { VillageSettingEnums.AutoNPCIron, autoNPCIron },
                 { VillageSettingEnums.AutoNPCCrop, autoNPCCrop },
+                { VillageSettingEnums.AutoRefreshEnable, autoRefreshEnable },
+                { VillageSettingEnums.AutoRefreshMin, autoRefreshMin },
+                { VillageSettingEnums.AutoRefreshMax, autoRefreshMax },
             };
             return settings;
         }
@@ -163,6 +177,12 @@ namespace MainCore.UI.Models.Input
         {
             get => _autoNPCOverflow;
             set => this.RaiseAndSetIfChanged(ref _autoNPCOverflow, value);
+        }
+
+        public bool AutoRefreshEnable
+        {
+            get => _autoRefreshEnable;
+            set => this.RaiseAndSetIfChanged(ref _autoRefreshEnable, value);
         }
     }
 }

@@ -149,6 +149,10 @@ namespace MainCore.Infrasturecture.Persistence
             {VillageSettingEnums.AutoNPCClay, 1 },
             {VillageSettingEnums.AutoNPCIron, 1 },
             {VillageSettingEnums.AutoNPCCrop, 0 },
+
+            {VillageSettingEnums.AutoRefreshEnable, 0 },
+            {VillageSettingEnums.AutoRefreshMin, 45 },
+            {VillageSettingEnums.AutoRefreshMax, 75 },
         };
 
         private List<VillageSettingEnums> GetMissingVillageSettings()

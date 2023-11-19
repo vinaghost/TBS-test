@@ -4,9 +4,9 @@ using MainCore.Commands.Special;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.TrainTroop;
-using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Repositories;
+using MainCore.Tasks.Base;
 using MediatR;
 
 namespace MainCore.Tasks

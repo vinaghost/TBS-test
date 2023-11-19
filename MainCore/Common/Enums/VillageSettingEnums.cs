@@ -42,5 +42,11 @@
         AutoNPCClay,
         AutoNPCIron,
         AutoNPCCrop,
+
+        // Refresh
+        AutoRefreshEnable,
+
+        AutoRefreshMin,
+        AutoRefreshMax,
     }
 }

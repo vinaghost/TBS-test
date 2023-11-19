@@ -2,9 +2,9 @@
 using MainCore.Commands.General;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
-using MainCore.Common.Tasks;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Repositories;
+using MainCore.Tasks.Base;
 
 namespace MainCore.Tasks
 {

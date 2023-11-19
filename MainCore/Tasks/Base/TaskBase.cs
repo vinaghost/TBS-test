@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using MainCore.Common.Enums;
 
-namespace MainCore.Common.Tasks
+namespace MainCore.Tasks.Base
 {
     public abstract class TaskBase
     {

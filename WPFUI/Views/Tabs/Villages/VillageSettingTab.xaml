@@ -40,7 +40,13 @@
                         <CheckBox x:Name="UseSpecialUpgrade" Content="Use Watch Ads upgrade method" />
                     </StackPanel>
                 </Border>
-
+                <Border Style="{DynamicResource Box}">
+                    <StackPanel>
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Auto refresh" VerticalAlignment="Center" FontWeight="Bold" />
+                        <CheckBox x:Name="AutoRefreshEnable" Content="Enable auto refresh" />
+                        <uc:RangeInputUc x:Name="AutoRefreshTime" Text="Refresh every" Unit="minutes" />
+                    </StackPanel>
+                </Border>
                 <Border Style="{DynamicResource Box}">
                     <StackPanel>
                         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="NPC Crop exchange settings" VerticalAlignment="Center" FontWeight="Bold" />
@@ -65,15 +71,15 @@
                         <CheckBox x:Name="TrainWhenLowResource" Content="Train maximum number if low on resource" />
                         <StackPanel Orientation="Horizontal">
                             <uc:TroopSelectorUc x:Name="BarrackTroop" Text="Train in barrack" />
-                            <uc:RangeInputUc x:Name="BarrackAmount" Text="for" Unit="unit(s)" Margin="10,0,0,0" />
+                            <uc:RangeInputUc x:Name="BarrackAmount" Text="for" Unit="units" Margin="10,0,0,0" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <uc:TroopSelectorUc x:Name="StableTroop" Text="Train in stable" />
-                            <uc:RangeInputUc x:Name="StableAmount" Text="for" Unit="unit(s)" Margin="10,0,0,0" />
+                            <uc:RangeInputUc x:Name="StableAmount" Text="for" Unit="units" Margin="10,0,0,0" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <uc:TroopSelectorUc x:Name="WorkshopTroop" Text="Train in workshop" />
-                            <uc:RangeInputUc x:Name="WorkshopAmount" Text="for" Unit="unit(s)" Margin="10,0,0,0" />
+                            <uc:RangeInputUc x:Name="WorkshopAmount" Text="for" Unit="units" Margin="10,0,0,0" />
                         </StackPanel>
                     </StackPanel>
                 </Border>

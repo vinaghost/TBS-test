@@ -1,6 +1,6 @@
 ﻿using MainCore.Entities;
 
-namespace MainCore.Common.Tasks
+namespace MainCore.Tasks.Base
 {
     public abstract class VillageTask : TaskBase
     {

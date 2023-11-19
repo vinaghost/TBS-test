@@ -5,12 +5,12 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Storage;
 using MainCore.Common.Models;
-using MainCore.Common.Tasks;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Notification.Message;
 using MainCore.Repositories;
+using MainCore.Tasks.Base;
 using MediatR;
 using System.Text.Json;
 
