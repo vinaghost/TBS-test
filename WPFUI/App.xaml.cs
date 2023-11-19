@@ -1,8 +1,10 @@
 ﻿using MainCore;
 using MainCore.Services;
+using MainCore.UI;
 using MainCore.UI.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
+using ReactiveUI;
 using Splat;
 using System;
 using System.Windows;
@@ -27,6 +29,7 @@ namespace WPFUI
             {
                 ViewModel = Locator.Current.GetService<MainViewModel>(),
             };
+            RxApp.DefaultExceptionHandler = new ObservableExceptionHandler();
 
             var dialogService = Locator.Current.GetService<IDialogService>() as DialogService;
             dialogService.MessageBoxFunc = ShowMessage;

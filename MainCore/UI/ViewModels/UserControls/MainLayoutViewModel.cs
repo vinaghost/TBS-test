@@ -64,6 +64,7 @@ namespace MainCore.UI.ViewModels.UserControls
 
         private void AddAccountCommandHandler()
         {
+            throw new ArgumentOutOfRangeException();
             Accounts.SelectedItem = null;
             AccountTabStore.SetTabType(AccountTabType.AddAccount);
         }
