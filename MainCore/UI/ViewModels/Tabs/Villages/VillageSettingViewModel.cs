@@ -63,7 +63,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             var settings = VillageSettingInput.Get();
             await Task.Run(() => _unitOfRepository.VillageSettingRepository.Update(VillageId, settings));
-            await _mediator.Publish(new VillageSettingUpdated(VillageId));
+            await _mediator.Publish(new VillageSettingUpdated(AccountId, VillageId));
 
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
@@ -92,7 +92,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             settings = VillageSettingInput.Get();
             await Task.Run(() => _unitOfRepository.VillageSettingRepository.Update(VillageId, settings));
-            await _mediator.Publish(new VillageSettingUpdated(VillageId));
+            await _mediator.Publish(new VillageSettingUpdated(AccountId, VillageId));
 
             _dialogService.ShowMessageBox("Information", "Settings imported");
         }
@@ -103,7 +103,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var settings = await Task.Run(() => _unitOfRepository.VillageSettingRepository.Get(VillageId));
             var jsonString = JsonSerializer.Serialize(settings);
             await File.WriteAllTextAsync(path, jsonString);
-            _dialogService.ShowMessageBox("Settings exported", "Information");
+            _dialogService.ShowMessageBox("Information", "Settings exported");
         }
 
         private async Task LoadSettings(VillageId villageId)

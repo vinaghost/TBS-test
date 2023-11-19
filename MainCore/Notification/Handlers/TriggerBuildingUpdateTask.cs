@@ -7,12 +7,12 @@ using MediatR;
 
 namespace MainCore.Notification.Handlers
 {
-    public class TriggerBuildingUpdate : INotificationHandler<VillageUpdated>
+    public class TriggerBuildingUpdateTask : INotificationHandler<VillageUpdated>
     {
         private readonly ITaskManager _taskManager;
         private readonly IUnitOfRepository _unitOfRepository;
 
-        public TriggerBuildingUpdate(ITaskManager taskManager, IUnitOfRepository unitOfRepository)
+        public TriggerBuildingUpdateTask(ITaskManager taskManager, IUnitOfRepository unitOfRepository)
         {
             _taskManager = taskManager;
             _unitOfRepository = unitOfRepository;
@@ -28,7 +28,7 @@ namespace MainCore.Notification.Handlers
 
             foreach (var village in villages)
             {
-                _taskManager.AddOrUpdate<UpdateVillageTask>(accountId, village);
+                _taskManager.AddOrUpdate<UpdateBuildingTask>(accountId, village);
             }
         }
     }

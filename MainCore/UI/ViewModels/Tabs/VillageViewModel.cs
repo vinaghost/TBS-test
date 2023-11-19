@@ -56,7 +56,7 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
             var villageId = new VillageId(Villages.SelectedItemId);
-            _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, villageId);
+            _taskManager.AddOrUpdate<UpdateBuildingTask>(AccountId, villageId);
             _dialogService.ShowMessageBox("Information", $"Added update task");
             return;
         }
@@ -66,7 +66,7 @@ namespace MainCore.UI.ViewModels.Tabs
             var villages = await Task.Run(() => _unitOfRepository.VillageRepository.GetMissingBuildingVillages(AccountId));
             foreach (var village in villages)
             {
-                _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
+                _taskManager.AddOrUpdate<UpdateBuildingTask>(AccountId, village);
             }
             _dialogService.ShowMessageBox("Information", $"Added update task");
             return;
@@ -77,7 +77,7 @@ namespace MainCore.UI.ViewModels.Tabs
             var villages = await Task.Run(() => _unitOfRepository.VillageRepository.Get(AccountId));
             foreach (var village in villages)
             {
-                _taskManager.AddOrUpdate<UpdateVillageTask>(AccountId, village);
+                _taskManager.AddOrUpdate<UpdateBuildingTask>(AccountId, village);
             }
             _dialogService.ShowMessageBox("Information", $"Added update task");
             return;

@@ -10,13 +10,13 @@ using MediatR;
 namespace MainCore.Tasks
 {
     [RegisterAsTransient(withoutInterface: true)]
-    public class UpdateVillageTask : VillageTask
+    public class UpdateBuildingTask : VillageTask
     {
         private readonly IUnitOfRepository _unitOfRepository;
         private readonly IUnitOfCommand _unitOfCommand;
         private readonly IMediator _mediator;
 
-        public UpdateVillageTask(IUnitOfRepository unitOfRepository, IMediator mediator, IUnitOfCommand unitOfCommand)
+        public UpdateBuildingTask(IUnitOfRepository unitOfRepository, IMediator mediator, IUnitOfCommand unitOfCommand)
         {
             _unitOfRepository = unitOfRepository;
             _mediator = mediator;
