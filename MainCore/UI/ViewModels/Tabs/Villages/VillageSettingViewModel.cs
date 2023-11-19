@@ -2,6 +2,7 @@
 using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
 using MainCore.UI.Models.Input;
@@ -62,6 +63,8 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             var settings = VillageSettingInput.Get();
             await Task.Run(() => _unitOfRepository.VillageSettingRepository.Update(VillageId, settings));
+            await _mediator.Publish(new VillageSettingUpdated(VillageId));
+
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 
@@ -89,6 +92,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             settings = VillageSettingInput.Get();
             await Task.Run(() => _unitOfRepository.VillageSettingRepository.Update(VillageId, settings));
+            await _mediator.Publish(new VillageSettingUpdated(VillageId));
 
             _dialogService.ShowMessageBox("Information", "Settings imported");
         }
@@ -104,7 +108,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
 
         private async Task LoadSettings(VillageId villageId)
         {
-            var settings = await Task.Run(() => _unitOfRepository.VillageSettingRepository.Get(VillageId));
+            var settings = await Task.Run(() => _unitOfRepository.VillageSettingRepository.Get(villageId));
             await Observable.Start(() =>
             {
                 VillageSettingInput.Set(settings);

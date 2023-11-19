@@ -9,7 +9,7 @@ using MainCore.Common.Tasks;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Notification;
+using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MediatR;
 using System.Text.Json;

@@ -2,7 +2,7 @@
 using MainCore.Common.Tasks;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Notification;
+using MainCore.Notification.Message;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Splat;

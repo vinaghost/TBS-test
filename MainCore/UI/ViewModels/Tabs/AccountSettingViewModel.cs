@@ -2,10 +2,12 @@
 using MainCore.Common.Enums;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
+using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
 using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
+using MediatR;
 using ReactiveUI;
 using System.Reactive.Linq;
 using System.Text.Json;
@@ -21,15 +23,17 @@ namespace MainCore.UI.ViewModels.Tabs
 
         private readonly IUnitOfRepository _unitOfRepository;
         private readonly IDialogService _dialogService;
+        private readonly IMediator _mediator;
         public ReactiveCommand<Unit, Unit> SaveCommand { get; }
         public ReactiveCommand<Unit, Unit> ExportCommand { get; }
         public ReactiveCommand<Unit, Unit> ImportCommand { get; }
 
-        public AccountSettingViewModel(IValidator<AccountSettingInput> accountsettingInputValidator, IDialogService dialogService, IUnitOfRepository unitOfRepository)
+        public AccountSettingViewModel(IValidator<AccountSettingInput> accountsettingInputValidator, IDialogService dialogService, IUnitOfRepository unitOfRepository, IMediator mediator)
         {
             _accountsettingInputValidator = accountsettingInputValidator;
             _dialogService = dialogService;
             _unitOfRepository = unitOfRepository;
+            _mediator = mediator;
 
             SaveCommand = ReactiveCommand.CreateFromTask(SaveCommandHandler);
             ExportCommand = ReactiveCommand.CreateFromTask(ExportCommandHandler);
@@ -58,6 +62,8 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             var settings = AccountSettingInput.Get();
             await Task.Run(() => _unitOfRepository.AccountSettingRepository.Update(AccountId, settings));
+            await _mediator.Publish(new AccountSettingUpdated(AccountId));
+
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 
@@ -85,6 +91,8 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             settings = AccountSettingInput.Get();
             await Task.Run(() => _unitOfRepository.AccountSettingRepository.Update(AccountId, settings));
+            await _mediator.Publish(new AccountSettingUpdated(AccountId));
+
             _dialogService.ShowMessageBox("Information", "Settings imported");
         }
 

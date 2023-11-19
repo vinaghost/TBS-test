@@ -5,7 +5,7 @@ using MainCore.Common.Errors;
 using MainCore.DTO;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Notification;
+using MainCore.Notification.Message;
 using MainCore.Parsers;
 using MainCore.Repositories;
 using MainCore.Services;

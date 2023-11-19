@@ -1,5 +1,5 @@
 ﻿using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.UI.Notification;
+using MainCore.Notification.Message;
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;

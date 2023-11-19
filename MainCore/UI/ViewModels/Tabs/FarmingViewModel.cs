@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MainCore.Entities;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Notification;
+using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
 using MainCore.Tasks;
@@ -100,6 +100,8 @@ namespace MainCore.UI.ViewModels.Tabs
             }
             var settings = FarmListSettingInput.Get();
             await Task.Run(() => _unitOfRepository.AccountSettingRepository.Update(AccountId, settings));
+            await _mediator.Publish(new AccountSettingUpdated(AccountId));
+
             _dialogService.ShowMessageBox("Information", "Settings saved");
         }
 

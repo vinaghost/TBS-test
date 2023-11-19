@@ -1,6 +1,6 @@
 ﻿using MainCore.DTO;
 using MainCore.Infrasturecture.AutoRegisterDi;
-using MainCore.Notification;
+using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
 using MainCore.UI.ViewModels.Abstract;
