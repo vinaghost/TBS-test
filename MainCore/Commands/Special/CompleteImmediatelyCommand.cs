@@ -30,14 +30,10 @@ namespace MainCore.Commands.Special
 
         public async Task<Result> Handle(CompleteImmediatelyCommand request, CancellationToken cancellationToken)
         {
-            var result = await Task.Run(() => Handle(request));
-            return result;
-        }
-
-        public Result Handle(CompleteImmediatelyCommand request)
-        {
+            await Task.CompletedTask;
             var accountId = request.AccountId;
             var chromeBrowser = _chromeManager.Get(accountId);
+
             var html = chromeBrowser.Html;
 
             var completeNowButton = _unitOfParser.CompleteImmediatelyParser.GetCompleteButton(html);

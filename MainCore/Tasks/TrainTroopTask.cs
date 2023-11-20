@@ -63,13 +63,13 @@ namespace MainCore.Tasks
             }
 
             _unitOfRepository.VillageSettingRepository.Update(VillageId, settings);
-
+            SetNextExecute();
             return Result.Ok();
         }
 
-        public void SetNextExecute()
+        private void SetNextExecute()
         {
-            var minutes = _unitOfRepository.AccountSettingRepository.GetByName(AccountId, AccountSettingEnums.FarmIntervalMin, AccountSettingEnums.FarmIntervalMax);
+            var minutes = _unitOfRepository.VillageSettingRepository.GetByName(VillageId, VillageSettingEnums.TrainTroopRepeatTimeMin, VillageSettingEnums.TrainTroopRepeatTimeMax);
             ExecuteAt = DateTime.Now.AddMinutes(minutes);
         }
 

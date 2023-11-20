@@ -27,16 +27,28 @@ namespace MainCore.Tasks
         public override async Task<Result> Execute()
         {
             if (CancellationToken.IsCancellationRequested) return new Cancel();
+
             var sleepTimeMinutes = _unitOfRepository.AccountSettingRepository.GetByName(AccountId, AccountSettingEnums.SleepTimeMin, AccountSettingEnums.SleepTimeMax);
             Result result;
             result = await _sleepCommand.Execute(AccountId, TimeSpan.FromMinutes(sleepTimeMinutes), CancellationToken);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-            var resultAccess = await _chooseAccessCommand.Execute(AccountId, false);
-            if (resultAccess.IsFailed) return Result.Fail(resultAccess.Errors).WithError(new TraceMessage(TraceMessage.Line()));
-            var access = resultAccess.Value;
-            result = await Task.Run(() => _workCommand.Execute(AccountId, access));
+
+            result = await _chooseAccessCommand.Execute(AccountId, false);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
+            var access = _chooseAccessCommand.Value;
+            result = _workCommand.Execute(AccountId, access);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
+
+            SetNextExecute();
+
             return Result.Ok();
+        }
+
+        private void SetNextExecute()
+        {
+            var workTime = _unitOfRepository.AccountSettingRepository.GetByName(AccountId, AccountSettingEnums.WorkTimeMin, AccountSettingEnums.WorkTimeMax);
+            ExecuteAt = DateTime.Now.AddMinutes(workTime);
         }
 
         protected override void SetName()

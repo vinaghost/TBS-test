@@ -161,7 +161,8 @@ namespace MainCore.Tasks
 
         protected override void SetName()
         {
-            _name = "Upgrade building";
+            var village = _unitOfRepository.VillageRepository.GetVillageName(VillageId);
+            _name = $"Upgrade building in {village}";
         }
 
         private bool IsUpgradeable(NormalBuildPlan plan)

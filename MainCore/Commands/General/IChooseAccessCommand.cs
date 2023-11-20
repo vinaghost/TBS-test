@@ -6,6 +6,8 @@ namespace MainCore.Commands.General
 {
     public interface IChooseAccessCommand
     {
-        Task<Result<AccessDto>> Execute(AccountId accountId, bool ignoreSleepTime);
+        AccessDto Value { get; }
+
+        Task<Result> Execute(AccountId accountId, bool ignoreSleepTime);
     }
 }

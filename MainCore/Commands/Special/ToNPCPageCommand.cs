@@ -28,20 +28,10 @@ namespace MainCore.Commands.Special
 
         public async Task<Result> Handle(ToNPCPageCommand request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             var accountId = request.AccountId;
             var villageId = request.VillageId;
             Result result;
-            result = await _unitOfCommand.UpdateVillageListCommand.Execute(accountId);
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-
-            result = _unitOfCommand.SwitchVillageCommand.Execute(accountId, villageId);
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-
-            result = _unitOfCommand.ToDorfCommand.Execute(accountId, 2);
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
-
-            result = await _unitOfCommand.UpdateDorfCommand.Execute(accountId, villageId);
-            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
             var market = _unitOfRepository.BuildingRepository.GetBuildingLocation(villageId, BuildingEnums.Marketplace);
 

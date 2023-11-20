@@ -17,6 +17,8 @@ namespace MainCore.Commands.General
         private readonly IUnitOfCommand _unitOfCommand;
         private readonly ILogService _logService;
 
+        public AccessDto Value { get; private set; }
+
         public ChooseAccessCommand(IUnitOfRepository unitOfRepository, IUnitOfCommand unitOfCommand, ILogService logService)
         {
             _unitOfRepository = unitOfRepository;
@@ -24,7 +26,7 @@ namespace MainCore.Commands.General
             _logService = logService;
         }
 
-        public async Task<Result<AccessDto>> Execute(AccountId accountId, bool ignoreSleepTime)
+        public async Task<Result> Execute(AccountId accountId, bool ignoreSleepTime)
         {
             var logger = _logService.GetLogger(accountId);
             var accesses = _unitOfRepository.AccountRepository.GetAccesses(accountId);
@@ -32,14 +34,23 @@ namespace MainCore.Commands.General
             var access = await GetValidAccess(accesses, logger);
             if (access is null) return Result.Fail(NoAccessAvailable.AllAccessNotWorking);
 
-            if (accesses.Count == 1) return access;
-            if (ignoreSleepTime) return access;
+            if (accesses.Count == 1)
+            {
+                Value = access;
+                return Result.Ok();
+            }
+            if (ignoreSleepTime)
+            {
+                Value = access;
+                return Result.Ok();
+            }
 
             var minSleep = _unitOfRepository.AccountSettingRepository.GetByName(accountId, AccountSettingEnums.SleepTimeMin);
 
             var timeValid = DateTime.Now.AddMinutes(-minSleep);
             if (access.LastUsed > timeValid) return Result.Fail(NoAccessAvailable.LackOfAccess);
-            return access;
+            Value = access;
+            return Result.Ok();
         }
 
         private async Task<AccessDto> GetValidAccess(List<AccessDto> accesses, ILogger logger)
