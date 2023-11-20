@@ -9,7 +9,9 @@ namespace MainCore.UI.ViewModels.UserControls
     {
         private int _selectedIndex;
         private ListBoxItem _selectedItem;
+
         public ObservableCollection<ListBoxItem> Items { get; } = new();
+
         public bool IsSelected => SelectedItem is not null;
         public int SelectedItemId => SelectedItem?.Id ?? -1;
 

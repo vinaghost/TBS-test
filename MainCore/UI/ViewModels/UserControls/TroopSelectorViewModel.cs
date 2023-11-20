@@ -23,6 +23,17 @@ namespace MainCore.UI.ViewModels.UserControls
             return SelectedItem.Troop;
         }
 
+        public void ChangeTribe(BuildingEnums building, TribeEnums tribe)
+        {
+            var selectedItem = SelectedItem;
+            Items.Clear();
+            Items.Add(new(TroopEnums.None));
+            var troops = GetTroops(building, tribe);
+            Items.AddRange(troops.Select(x => new TroopItem(x)));
+
+            SelectedItem = Items.FirstOrDefault(x => x.Troop == SelectedItem?.Troop) ?? Items.First();
+        }
+
         public void Set(TroopEnums selectedTroop, BuildingEnums building, TribeEnums tribe)
         {
             Items.Clear();

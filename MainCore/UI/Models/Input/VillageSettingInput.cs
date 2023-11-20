@@ -2,6 +2,7 @@
 using MainCore.UI.ViewModels.Abstract;
 using MainCore.UI.ViewModels.UserControls;
 using ReactiveUI;
+using System.Reactive.Linq;
 
 namespace MainCore.UI.Models.Input
 {
@@ -135,6 +136,18 @@ namespace MainCore.UI.Models.Input
                 { VillageSettingEnums.AutoRefreshMax, autoRefreshMax },
             };
             return settings;
+        }
+
+        public VillageSettingInput()
+        {
+            this.WhenAnyValue(vm => vm.Tribe.SelectedItem)
+                .Select(x => x.Tribe)
+                .Subscribe((tribe) =>
+                {
+                    BarrackTroop.ChangeTribe(BuildingEnums.Barracks, tribe);
+                    StableTroop.ChangeTribe(BuildingEnums.Stable, tribe);
+                    WorkshopTroop.ChangeTribe(BuildingEnums.Workshop, tribe);
+                });
         }
 
         public bool UseHeroResourceForBuilding

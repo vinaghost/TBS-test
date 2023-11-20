@@ -45,21 +45,27 @@ namespace MainCore.Commands.UI
             var accountId = request.AccountId;
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
 
-            var resultAccessChooser = await _chooseAccessCommand.Execute(accountId, true);
-            if (resultAccessChooser.IsFailed) return Result.Fail(resultAccessChooser.Errors).WithError(new TraceMessage(TraceMessage.Line()));
+            Result result;
+            result = await _chooseAccessCommand.Execute(accountId, true);
+            if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
             var logger = _logService.GetLogger(accountId);
-            var access = resultAccessChooser.Value;
+            var access = _chooseAccessCommand.Value;
             logger.Information("Using connection {proxy} to start chrome", access.Proxy);
-            var result = await Task.Run(() => _workCommand.Execute(accountId, access), cancellationToken);
+            result = _workCommand.Execute(accountId, access);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            _taskManager.AddOrUpdate<LoginTask>(accountId, first: true);
-            await Task.Run(() => AddUpgradeBuildingTask(accountId), cancellationToken);
+            AddLoginTask(accountId);
+            AddUpgradeBuildingTask(accountId);
             AddSleepTask(accountId);
 
             _timerManager.Start(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Online);
             return Result.Ok();
+        }
+
+        private void AddLoginTask(AccountId accountId)
+        {
+            _taskManager.AddOrUpdate<LoginTask>(accountId, first: true);
         }
 
         private void AddUpgradeBuildingTask(AccountId accountId)
