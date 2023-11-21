@@ -1,11 +1,12 @@
 ﻿using MainCore.Common.Enums;
+using MainCore.Entities;
 using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
 using MainCore.Tasks;
 using MediatR;
 
-namespace MainCore.Notification.Handlers
+namespace MainCore.Notification.Handlers.Trigger
 {
     public class TriggerBuildingUpdateTask : INotificationHandler<VillageUpdated>
     {
@@ -20,11 +21,17 @@ namespace MainCore.Notification.Handlers
 
         public async Task Handle(VillageUpdated notification, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             var accountId = notification.AccountId;
-            var autoLoadVillageBuilding = await Task.Run(() => _unitOfRepository.AccountSettingRepository.GetBooleanByName(accountId, AccountSettingEnums.AutoLoadVillageBuilding));
+            Trigger(accountId);
+        }
+
+        private void Trigger(AccountId accountId)
+        {
+            var autoLoadVillageBuilding = _unitOfRepository.AccountSettingRepository.GetBooleanByName(accountId, AccountSettingEnums.AutoLoadVillageBuilding);
             if (!autoLoadVillageBuilding) return;
 
-            var villages = await Task.Run(() => _unitOfRepository.VillageRepository.GetMissingBuildingVillages(accountId));
+            var villages = _unitOfRepository.VillageRepository.GetMissingBuildingVillages(accountId);
 
             foreach (var village in villages)
             {

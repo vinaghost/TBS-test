@@ -1,12 +1,12 @@
 ﻿using MainCore.Entities;
 
-namespace MainCore.Commands.Base
+namespace MainCore.Common.MediatR
 {
-    public class ByAccountIdRequestBase
+    public class ByAccountIdBase
     {
         public AccountId AccountId { get; }
 
-        public ByAccountIdRequestBase(AccountId accountId)
+        public ByAccountIdBase(AccountId accountId)
         {
             AccountId = accountId;
         }

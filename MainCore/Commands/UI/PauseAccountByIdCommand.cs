@@ -1,12 +1,12 @@
-﻿using MainCore.Commands.Base;
-using MainCore.Common.Enums;
+﻿using MainCore.Common.Enums;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Services;
 using MediatR;
 
 namespace MainCore.Commands.UI
 {
-    public class PauseAccountByIdCommand : ByAccountIdRequestBase, IRequest
+    public class PauseAccountByIdCommand : ByAccountIdBase, IRequest
     {
         public PauseAccountByIdCommand(AccountId accountId) : base(accountId)
         {

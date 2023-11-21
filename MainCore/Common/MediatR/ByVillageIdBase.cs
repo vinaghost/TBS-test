@@ -1,12 +1,12 @@
 ﻿using MainCore.Entities;
 
-namespace MainCore.Commands.Base
+namespace MainCore.Common.MediatR
 {
-    public class ByVillageIdRequestBase
+    public class ByVillageIdBase
     {
         public VillageId VillageId { get; }
 
-        public ByVillageIdRequestBase(VillageId villageId)
+        public ByVillageIdBase(VillageId villageId)
         {
             VillageId = villageId;
         }

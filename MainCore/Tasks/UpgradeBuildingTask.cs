@@ -82,7 +82,7 @@ namespace MainCore.Tasks
                 var job = _chooseBuildingJobCommand.Value;
                 if (job.Type == JobTypeEnums.ResourceBuild)
                 {
-                    result = await _extractResourceFieldCommand.Execute(VillageId, job);
+                    result = await _extractResourceFieldCommand.Execute(AccountId, VillageId, job);
                     if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                     continue;
                 }
@@ -91,7 +91,7 @@ namespace MainCore.Tasks
                 result = await _toBuildingPageCommand.Execute(AccountId, VillageId, plan);
                 if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-                if (await JobComplete(VillageId, job))
+                if (await JobComplete(AccountId, VillageId, job))
                 {
                     continue;
                 }
@@ -105,7 +105,7 @@ namespace MainCore.Tasks
                 {
                     if (result.HasError<FreeCrop>())
                     {
-                        result = await _addCroplandCommand.Execute(VillageId);
+                        result = await _addCroplandCommand.Execute(AccountId, VillageId);
                         if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
                         continue;
                     }
@@ -204,12 +204,12 @@ namespace MainCore.Tasks
             ExecuteAt = buildingQueue.CompleteTime.AddSeconds(3);
         }
 
-        private async Task<bool> JobComplete(VillageId villageId, JobDto job)
+        private async Task<bool> JobComplete(AccountId accountId, VillageId villageId, JobDto job)
         {
             if (_unitOfRepository.JobRepository.JobComplete(villageId, job))
             {
                 _unitOfRepository.JobRepository.Delete(job.Id);
-                await _mediator.Publish(new JobUpdated(villageId));
+                await _mediator.Publish(new JobUpdated(accountId, villageId));
                 return true;
             }
             return false;

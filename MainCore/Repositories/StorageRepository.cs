@@ -55,6 +55,16 @@ namespace MainCore.Repositories
             return resource;
         }
 
+        public int GetGranaryPercent(VillageId villageId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var percent = context.Storages
+                .Where(x => x.VillageId == villageId.Value)
+                .Select(x => x.Crop * 1f / x.Granary)
+                .FirstOrDefault();
+            return (int)percent;
+        }
+
         public void Update(VillageId villageId, StorageDto dto)
         {
             using var context = _contextFactory.CreateDbContext();

@@ -43,5 +43,6 @@
 
   <ItemGroup>
     <Folder Include="Commands\Step\Browser\" />
+    <Folder Include="Notification\Handlers\AccountSettingUpdate\" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 using MainCore.UI.ViewModels.Tabs;
 using MediatR;
 
-namespace MainCore.Notification.Handlers
+namespace MainCore.Notification.Handlers.Refresh
 {
     public class AccountSettingRefresh : INotificationHandler<AccountSettingUpdated>
     {

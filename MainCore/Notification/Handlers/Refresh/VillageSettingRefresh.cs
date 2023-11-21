@@ -2,7 +2,7 @@
 using MainCore.UI.ViewModels.Tabs.Villages;
 using MediatR;
 
-namespace MainCore.Notification.Handlers
+namespace MainCore.Notification.Handlers.Refresh
 {
     public class VillageSettingRefresh : INotificationHandler<VillageSettingUpdated>
     {

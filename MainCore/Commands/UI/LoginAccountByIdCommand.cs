@@ -1,8 +1,8 @@
 ﻿using FluentResults;
-using MainCore.Commands.Base;
 using MainCore.Commands.General;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Repositories;
 using MainCore.Services;
@@ -11,7 +11,7 @@ using MediatR;
 
 namespace MainCore.Commands.UI
 {
-    public class LoginAccountByIdCommand : ByAccountIdRequestBase, IRequest<Result>
+    public class LoginAccountByIdCommand : ByAccountIdBase, IRequest<Result>
     {
         public LoginAccountByIdCommand(AccountId accountId) : base(accountId)
         {

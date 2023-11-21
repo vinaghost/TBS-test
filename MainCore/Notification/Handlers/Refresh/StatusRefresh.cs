@@ -2,7 +2,7 @@
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 
-namespace MainCore.Notification.Handlers
+namespace MainCore.Notification.Handlers.Refresh
 {
     public class StatusRefresh : INotificationHandler<StatusUpdated>
     {

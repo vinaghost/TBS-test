@@ -28,6 +28,27 @@ namespace MainCore.Repositories
             return queueBuilding;
         }
 
+        public void Clean(VillageId villageId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var now = DateTime.Now;
+            context.QueueBuildings
+                .Where(x => x.VillageId == villageId.Value)
+                .Where(x => x.Type != BuildingEnums.Site)
+                .Where(x => x.CompleteTime < now)
+                .ExecuteUpdate(x => x.SetProperty(x => x.Type, BuildingEnums.Site));
+        }
+
+        public int Count(VillageId villageId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var count = context.QueueBuildings
+                .Where(x => x.VillageId == villageId.Value)
+                .Where(x => x.Type != BuildingEnums.Site)
+                .Count();
+            return count;
+        }
+
         public void Update(VillageId villageId, List<BuildingDto> dtos)
         {
             using var context = _contextFactory.CreateDbContext();
@@ -80,36 +101,5 @@ namespace MainCore.Repositories
             context.AddRange(entities);
             context.SaveChanges();
         }
-
-        //private Task TriggerInstantUpgrade(VillageId villageId)
-        //{
-        //    var instantUpgrade = _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.InstantUpgrade);
-        //    if (instantUpgrade)
-        //    {
-        //        var applyRomanQueueLogicWhenBuilding = _villageSettingRepository.GetBoolSetting(villageId, VillageSettingEnums.ApplyRomanQueueLogicWhenBuilding);
-        //        AccountId accountId, count;
-        //        using (var context = _contextFactory.CreateDbContext())
-        //        {
-        //            var village = context.Villages.Find(villageId);
-        //            accountId = village.VillageId;
-        //            count = context.QueueBuildings.Where(x => x.VillageId == villageId).Count();
-        //        }
-
-        //        var isPlusActive = _accountInfoRepository.IsPlusActive(accountId);
-        //        var needCount = 1;
-        //        if (applyRomanQueueLogicWhenBuilding)
-        //        {
-        //            needCount++;
-        //        }
-        //        if (isPlusActive)
-        //        {
-        //            needCount++;
-        //        }
-        //        if (count == needCount)
-        //        {
-        //            _taskManager.AddOrUpdate<CompleteImmediatelyTask>(accountId, villageId);
-        //        }
-        //    }
-        //}
     }
 }

@@ -1,4 +1,4 @@
-﻿using MainCore.Commands.Base;
+﻿using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Repositories;
 using MainCore.Services;
@@ -7,7 +7,7 @@ using MediatR;
 
 namespace MainCore.Commands.Trigger
 {
-    public class TriggerUpgradeBuildingTask : ByAccountVillageIdRequestBase, IRequest
+    public class TriggerUpgradeBuildingTask : ByAccountVillageIdBase, IRequest
     {
         public TriggerUpgradeBuildingTask(AccountId accountId, VillageId villageId) : base(accountId, villageId)
         {
@@ -18,6 +18,12 @@ namespace MainCore.Commands.Trigger
     {
         private readonly ITaskManager _taskManager;
         private readonly IUnitOfRepository _unitOfRepository;
+
+        public TriggerUpgradeBuildingTaskHandler(ITaskManager taskManager, IUnitOfRepository unitOfRepository)
+        {
+            _taskManager = taskManager;
+            _unitOfRepository = unitOfRepository;
+        }
 
         public async Task Handle(TriggerUpgradeBuildingTask request, CancellationToken cancellationToken)
         {

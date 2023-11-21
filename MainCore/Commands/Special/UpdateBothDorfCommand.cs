@@ -1,13 +1,13 @@
 ﻿using FluentResults;
-using MainCore.Commands.Base;
 using MainCore.Common.Errors;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Services;
 using MediatR;
 
 namespace MainCore.Commands.Special
 {
-    public class UpdateBothDorfCommand : ByAccountVillageIdRequestBase, IRequest<Result>
+    public class UpdateBothDorfCommand : ByAccountVillageIdBase, IRequest<Result>
     {
         public UpdateBothDorfCommand(AccountId accountId, VillageId villageId) : base(accountId, villageId)
         {

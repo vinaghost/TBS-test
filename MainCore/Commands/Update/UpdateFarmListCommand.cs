@@ -30,7 +30,7 @@ namespace MainCore.Commands.Update
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
             var dtos = _unitOfParser.FarmParser.Get(html);
-            await Task.Run(() => _unitOfRepository.FarmRepository.Update(accountId, dtos.ToList()));
+            _unitOfRepository.FarmRepository.Update(accountId, dtos.ToList());
             await _mediator.Publish(new FarmListUpdated(accountId));
             return Result.Ok();
         }

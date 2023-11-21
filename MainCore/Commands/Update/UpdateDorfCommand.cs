@@ -34,23 +34,26 @@ namespace MainCore.Commands.Update
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
 
-            var dtoQueueBuilding = _unitOfParser.QueueBuildingParser.Get(html);
             var dtoBuilding = GetBuildings(chromeBrowser.CurrentUrl, html);
+            if (!dtoBuilding.Any()) return Result.Ok();
+
+            var dtoQueueBuilding = _unitOfParser.QueueBuildingParser.Get(html);
             var dtoStorage = _unitOfParser.StockBarParser.Get(html);
 
             var queueBuildings = dtoQueueBuilding.ToList();
             var result = IsVaild(queueBuildings);
             if (result.IsFailed) return result;
 
-            await Task.Run(() => _unitOfRepository.QueueBuildingRepository.Update(villageId, queueBuildings));
+            _unitOfRepository.QueueBuildingRepository.Update(villageId, queueBuildings);
 
-            await Task.Run(() => _unitOfRepository.BuildingRepository.Update(villageId, dtoBuilding.ToList()));
+            _unitOfRepository.BuildingRepository.Update(villageId, dtoBuilding.ToList());
 
             var dtoUnderConstructionBuildings = dtoBuilding.Where(x => x.IsUnderConstruction).ToList();
-            await Task.Run(() => _unitOfRepository.QueueBuildingRepository.Update(villageId, dtoUnderConstructionBuildings));
-            await _mediator.Publish(new QueueBuildingUpdated(villageId));
+            _unitOfRepository.QueueBuildingRepository.Update(villageId, dtoUnderConstructionBuildings);
+            await _mediator.Publish(new QueueBuildingUpdated(accountId, villageId));
 
-            await Task.Run(() => _unitOfRepository.StorageRepository.Update(villageId, dtoStorage));
+            _unitOfRepository.StorageRepository.Update(villageId, dtoStorage);
+            await _mediator.Publish(new StorageUpdated(accountId, villageId));
 
             return Result.Ok();
         }

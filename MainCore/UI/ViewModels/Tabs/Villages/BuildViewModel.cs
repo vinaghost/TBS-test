@@ -166,7 +166,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            await _mediator.Publish(new JobUpdated(VillageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
             Jobs.SelectedIndex = newIndex;
         }
 
@@ -183,7 +183,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            await _mediator.Publish(new JobUpdated(VillageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
             Jobs.SelectedIndex = newIndex;
         }
 
@@ -200,7 +200,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            await _mediator.Publish(new JobUpdated(VillageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
             Jobs.SelectedIndex = newIndex;
         }
 
@@ -217,7 +217,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var newJob = Jobs[newIndex];
 
             await Task.Run(() => _unitOfRepository.JobRepository.Move(new JobId(oldJob.Id), new JobId(newJob.Id)));
-            await _mediator.Publish(new JobUpdated(VillageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
             Jobs.SelectedIndex = newIndex;
         }
 
@@ -228,13 +228,13 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             var jobId = Jobs.SelectedItemId;
 
             await Task.Run(() => _unitOfRepository.JobRepository.Delete(new JobId(jobId)));
-            await _mediator.Publish(new JobUpdated(VillageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
         }
 
         private async Task DeleteAllTask()
         {
             await Task.Run(() => _unitOfRepository.JobRepository.Delete(VillageId));
-            await _mediator.Publish(new JobUpdated(VillageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
         }
 
         private async Task NormalBuild(VillageId villageId)
@@ -258,7 +258,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Validate(buildings, plan);
 
             await Task.Run(() => _unitOfRepository.JobRepository.Add(villageId, plan));
-            await _mediator.Publish(new JobUpdated(villageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
         }
 
         private async Task ResourceBuild(VillageId villageId)
@@ -270,7 +270,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 Level = level,
             };
             await Task.Run(() => _unitOfRepository.JobRepository.Add(villageId, plan));
-            await _mediator.Publish(new JobUpdated(villageId));
+            await _mediator.Publish(new JobUpdated(AccountId, VillageId));
         }
 
         private static Result CheckRequirements(List<BuildingItem> buildings, NormalBuildPlan plan)

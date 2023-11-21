@@ -30,7 +30,8 @@ namespace MainCore.Commands.Update
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
             var dto = _unitOfParser.AccountInfoParser.Get(html);
-            await Task.Run(() => _unitOfRepository.AccountInfoRepository.Update(accountId, dto));
+            _unitOfRepository.AccountInfoRepository.Update(accountId, dto);
+
             await _mediator.Publish(new AccountInfoUpdated(accountId));
             return Result.Ok();
         }

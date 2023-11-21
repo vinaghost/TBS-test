@@ -1,15 +1,15 @@
 ﻿using FluentResults;
-using MainCore.Commands.Base;
 using MainCore.Commands.Step.StartFarmlist;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Repositories;
 using MediatR;
 
 namespace MainCore.Commands.Special
 {
-    public class StartFarmListCommand : ByAccountIdRequestBase, IRequest<Result>
+    public class StartFarmListCommand : ByAccountIdBase, IRequest<Result>
     {
         public StartFarmListCommand(AccountId accountId) : base(accountId)
         {

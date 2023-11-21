@@ -5,6 +5,6 @@ namespace MainCore.Commands.Step.UpgradeBuilding
 {
     public interface IAddCroplandCommand
     {
-        Task<Result> Execute(VillageId villageId);
+        Task<Result> Execute(AccountId accountId, VillageId villageId);
     }
 }

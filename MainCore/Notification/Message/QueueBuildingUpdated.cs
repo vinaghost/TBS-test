@@ -1,15 +1,13 @@
-﻿using MainCore.Entities;
+﻿using MainCore.Common.MediatR;
+using MainCore.Entities;
 using MediatR;
 
 namespace MainCore.Notification.Message
 {
-    internal class QueueBuildingUpdated : INotification
+    public class QueueBuildingUpdated : ByAccountVillageIdBase, INotification
     {
-        public VillageId VillageId { get; }
-
-        public QueueBuildingUpdated(VillageId villageId)
+        public QueueBuildingUpdated(AccountId accountId, VillageId villageId) : base(accountId, villageId)
         {
-            VillageId = villageId;
         }
     }
 }

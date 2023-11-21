@@ -1,13 +1,13 @@
 ﻿using FluentResults;
-using MainCore.Commands.Base;
 using MainCore.Commands.Step.NPC;
 using MainCore.Common.Errors;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MediatR;
 
 namespace MainCore.Commands.Special
 {
-    public class NPCCommand : ByAccountVillageIdRequestBase, IRequest<Result>
+    public class NPCCommand : ByAccountVillageIdBase, IRequest<Result>
     {
         public NPCCommand(AccountId accountId, VillageId villageId) : base(accountId, villageId)
         {

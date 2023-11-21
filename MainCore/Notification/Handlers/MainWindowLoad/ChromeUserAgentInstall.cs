@@ -3,7 +3,7 @@ using MainCore.Services;
 using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 
-namespace MainCore.Notification.Handlers
+namespace MainCore.Notification.Handlers.MainWindowLoad
 {
     public class ChromeUserAgentInstall : INotificationHandler<MainWindowLoaded>
     {

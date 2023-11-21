@@ -1,6 +1,6 @@
 ﻿using FluentResults;
-using MainCore.Commands.Base;
 using MainCore.Common.Errors;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Parsers;
 using MainCore.Repositories;
@@ -10,7 +10,7 @@ using OpenQA.Selenium;
 
 namespace MainCore.Commands.Special
 {
-    public class LoginCommand : ByAccountIdRequestBase, IRequest<Result>
+    public class LoginCommand : ByAccountIdBase, IRequest<Result>
     {
         public LoginCommand(AccountId accountId) : base(accountId)
         {

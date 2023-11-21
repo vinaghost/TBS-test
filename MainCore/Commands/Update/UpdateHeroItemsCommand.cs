@@ -30,7 +30,7 @@ namespace MainCore.Commands.Update
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
             var dtos = _unitOfParser.HeroParser.Get(html);
-            await Task.Run(() => _unitOfRepository.HeroItemRepository.Update(accountId, dtos.ToList()));
+            _unitOfRepository.HeroItemRepository.Update(accountId, dtos.ToList());
             await _mediator.Publish(new HeroItemUpdated(accountId));
             return Result.Ok();
         }

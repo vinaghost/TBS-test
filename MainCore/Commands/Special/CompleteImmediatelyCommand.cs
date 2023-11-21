@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using HtmlAgilityPack;
-using MainCore.Commands.Base;
 using MainCore.Common.Errors;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Parsers;
 using MainCore.Services;
@@ -10,7 +10,7 @@ using OpenQA.Selenium;
 
 namespace MainCore.Commands.Special
 {
-    public class CompleteImmediatelyCommand : ByAccountIdRequestBase, IRequest<Result>
+    public class CompleteImmediatelyCommand : ByAccountIdBase, IRequest<Result>
     {
         public CompleteImmediatelyCommand(AccountId accountId) : base(accountId)
         {

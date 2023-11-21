@@ -1,13 +1,13 @@
-﻿using MainCore.Commands.Base;
-using MainCore.Commands.General;
+﻿using MainCore.Commands.General;
 using MainCore.Common.Enums;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Services;
 using MediatR;
 
 namespace MainCore.Commands.UI
 {
-    public class LogoutAccountByIdCommand : ByAccountIdRequestBase, IRequest
+    public class LogoutAccountByIdCommand : ByAccountIdBase, IRequest
     {
         public LogoutAccountByIdCommand(AccountId accountId) : base(accountId)
         {

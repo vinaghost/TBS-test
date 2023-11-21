@@ -16,6 +16,22 @@ namespace TestProject.Repositories
         }
 
         [TestMethod]
+        public void Clean_ShouldNotThrow()
+        {
+            var repository = GetRepository();
+            var func = () => repository.Clean(Constants.VillageId);
+            func.Should().NotThrow();
+        }
+
+        [TestMethod]
+        public void Count_ShouldNotThrow()
+        {
+            var repository = GetRepository();
+            var func = () => repository.Count(Constants.VillageId);
+            func.Should().NotThrow();
+        }
+
+        [TestMethod]
         public void Update_QueueBuilding_ShouldNotThrow()
         {
             var repository = GetRepository();

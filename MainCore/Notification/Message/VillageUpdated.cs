@@ -1,15 +1,13 @@
-﻿using MainCore.Entities;
+﻿using MainCore.Common.MediatR;
+using MainCore.Entities;
 using MediatR;
 
 namespace MainCore.Notification.Message
 {
-    public class VillageUpdated : INotification
+    public class VillageUpdated : ByAccountIdBase, INotification
     {
-        public AccountId AccountId { get; }
-
-        public VillageUpdated(AccountId accountId)
+        public VillageUpdated(AccountId accountId) : base(accountId)
         {
-            AccountId = accountId;
         }
     }
 }

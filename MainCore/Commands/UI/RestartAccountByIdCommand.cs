@@ -1,5 +1,5 @@
-﻿using MainCore.Commands.Base;
-using MainCore.Common.Enums;
+﻿using MainCore.Common.Enums;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Repositories;
 using MainCore.Services;
@@ -8,7 +8,7 @@ using MediatR;
 
 namespace MainCore.Commands.UI
 {
-    public class RestartAccountByIdCommand : ByAccountIdRequestBase, IRequest
+    public class RestartAccountByIdCommand : ByAccountIdBase, IRequest
     {
         public RestartAccountByIdCommand(AccountId accountId) : base(accountId)
         {

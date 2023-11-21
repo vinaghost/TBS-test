@@ -2,7 +2,7 @@
 using MainCore.Services;
 using MediatR;
 
-namespace MainCore.Notification.Handlers
+namespace MainCore.Notification.Handlers.MainWindowUnload
 {
     public class RestclientClean : INotificationHandler<MainWindowUnloaded>
     {

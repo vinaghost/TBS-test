@@ -150,6 +150,20 @@ namespace MainCore.Services
             return task;
         }
 
+        public bool IsExist<T>(AccountId accountId) where T : AccountTask
+        {
+            var tasks = GetTaskList(accountId);
+            var filteredTasks = tasks.OfType<T>();
+            return filteredTasks.Any(x => x.AccountId == accountId);
+        }
+
+        public bool IsExist<T>(AccountId accountId, VillageId villageId) where T : VillageTask
+        {
+            var tasks = GetTaskList(accountId);
+            var filteredTasks = tasks.OfType<T>();
+            return filteredTasks.Any(x => x.AccountId == accountId && x.VillageId == villageId);
+        }
+
         private void Add(AccountId accountId, TaskBase task, bool first = false)
         {
             var tasks = GetTaskList(accountId);

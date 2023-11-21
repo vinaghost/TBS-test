@@ -1,14 +1,14 @@
 ﻿using FluentResults;
-using MainCore.Commands.Base;
 using MainCore.Common.Errors;
 using MainCore.Common.Errors.Farming;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Repositories;
 using MediatR;
 
 namespace MainCore.Commands.Special
 {
-    public class ToFarmListPageCommand : ByAccountIdRequestBase, IRequest<Result>
+    public class ToFarmListPageCommand : ByAccountIdBase, IRequest<Result>
     {
         public ToFarmListPageCommand(AccountId accountId) : base(accountId)
         {

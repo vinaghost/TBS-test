@@ -1,14 +1,14 @@
 ﻿using FluentResults;
-using MainCore.Commands.Base;
 using MainCore.Common.Enums;
 using MainCore.Common.Errors;
+using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Repositories;
 using MediatR;
 
 namespace MainCore.Commands.Special
 {
-    public class ToNPCPageCommand : ByAccountVillageIdRequestBase, IRequest<Result>
+    public class ToNPCPageCommand : ByAccountVillageIdBase, IRequest<Result>
     {
         public ToNPCPageCommand(AccountId accountId, VillageId villageId) : base(accountId, villageId)
         {

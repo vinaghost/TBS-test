@@ -10,5 +10,6 @@ namespace MainCore.Repositories
 
         long[] GetMissingResource(VillageId villageId, long[] requiredResource);
         void Update(VillageId villageId, StorageDto dto);
+        int GetGranaryPercent(VillageId villageId);
     }
 }

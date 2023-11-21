@@ -30,7 +30,7 @@ namespace MainCore.Commands.Update
             var chromeBrowser = _chromeManager.Get(accountId);
             var html = chromeBrowser.Html;
             var dtos = _unitOfParser.VillagePanelParser.Get(html);
-            await Task.Run(() => _unitOfRepository.VillageRepository.Update(accountId, dtos.ToList()));
+            _unitOfRepository.VillageRepository.Update(accountId, dtos.ToList());
             await _mediator.Publish(new VillageUpdated(accountId));
             return Result.Ok();
         }

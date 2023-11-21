@@ -4,7 +4,7 @@ using MainCore.UI.ViewModels.UserControls;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace MainCore.Notification.Handlers
+namespace MainCore.Notification.Handlers.MainWindowLoad
 {
     public class DatabaseInstall : INotificationHandler<MainWindowLoaded>
     {

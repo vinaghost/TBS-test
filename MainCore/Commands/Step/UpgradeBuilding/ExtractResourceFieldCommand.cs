@@ -24,7 +24,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(VillageId villageId, JobDto job)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId, JobDto job)
         {
             var resourceBuildPlan = JsonSerializer.Deserialize<ResourceBuildPlan>(job.Content);
             var normalBuildPlan = _buildingRepository.GetNormalBuildPlan(villageId, resourceBuildPlan);
@@ -36,7 +36,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
             {
                 _jobRepository.AddToTop(villageId, normalBuildPlan);
             }
-            await _mediator.Publish(new JobUpdated(villageId));
+            await _mediator.Publish(new JobUpdated(accountId, villageId));
             return Result.Ok();
         }
     }

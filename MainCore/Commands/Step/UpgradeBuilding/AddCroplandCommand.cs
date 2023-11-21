@@ -20,7 +20,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
             _mediator = mediator;
         }
 
-        public async Task<Result> Execute(VillageId villageId)
+        public async Task<Result> Execute(AccountId accountId, VillageId villageId)
         {
             var cropland = _unitOfRepository.BuildingRepository.GetCropland(villageId);
 
@@ -32,7 +32,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
             };
 
             _unitOfRepository.JobRepository.AddToTop(villageId, plan);
-            await _mediator.Publish(new JobUpdated(villageId));
+            await _mediator.Publish(new JobUpdated(accountId, villageId));
             return Result.Ok();
         }
     }

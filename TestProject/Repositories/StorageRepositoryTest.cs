@@ -23,6 +23,14 @@ namespace TestProject.Repositories
         }
 
         [TestMethod]
+        public void GetGranaryPercent_ShouldNotThrow()
+        {
+            var repository = GetRepository();
+            var func = () => repository.GetGranaryPercent(Constants.VillageId);
+            func.Should().NotThrow();
+        }
+
+        [TestMethod]
         public void Update_ShouldNotThrow()
         {
             var repository = GetRepository();

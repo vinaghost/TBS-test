@@ -41,7 +41,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
                 if (countQueueBuilding == 0)
                 {
                     var job = _unitOfRepository.JobRepository.GetBuildingJob(villageId);
-                    if (await JobComplete(villageId, job)) continue;
+                    if (await JobComplete(accountId, villageId, job)) continue;
                     Value = job;
                     return Result.Ok();
                 }
@@ -54,7 +54,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
                     if (plusActive)
                     {
                         var job = _unitOfRepository.JobRepository.GetBuildingJob(villageId);
-                        if (await JobComplete(villageId, job)) continue;
+                        if (await JobComplete(accountId, villageId, job)) continue;
                         Value = job;
                         return Result.Ok();
                     }
@@ -62,7 +62,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
                     {
                         var job = GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
                         if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
-                        if (await JobComplete(villageId, job)) continue;
+                        if (await JobComplete(accountId, villageId, job)) continue;
                         Value = job;
                         return Result.Ok();
                     }
@@ -75,7 +75,7 @@ namespace MainCore.Commands.Step.UpgradeBuilding
                     {
                         var job = GetJobBasedOnRomanLogic(villageId, countQueueBuilding);
                         if (job is null) return Result.Fail(BuildingQueue.NotTaskInqueue);
-                        if (await JobComplete(villageId, job)) continue;
+                        if (await JobComplete(accountId, villageId, job)) continue;
                         Value = job;
                         return Result.Ok();
                     }
@@ -86,12 +86,12 @@ namespace MainCore.Commands.Step.UpgradeBuilding
             while (true);
         }
 
-        private async Task<bool> JobComplete(VillageId villageId, JobDto job)
+        private async Task<bool> JobComplete(AccountId accountId, VillageId villageId, JobDto job)
         {
             if (_unitOfRepository.JobRepository.JobComplete(villageId, job))
             {
                 _unitOfRepository.JobRepository.Delete(job.Id);
-                await _mediator.Publish(new JobUpdated(villageId));
+                await _mediator.Publish(new JobUpdated(accountId, villageId));
                 return true;
             }
             return false;
