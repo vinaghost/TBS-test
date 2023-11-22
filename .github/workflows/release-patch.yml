@@ -24,7 +24,7 @@ jobs:
         id: semvers
         uses: WyriHaximus/github-action-next-semvers@v1
         with:
-          version: ${{ steps.latesttag.outputs.release }}
+          version: ${{ steps.previoustag.outputs.tag }}
           
       - name: Get changelog
         id: changelog
