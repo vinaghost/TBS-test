@@ -46,6 +46,9 @@ jobs:
         
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: dotnet restore --locked-mode
       
       - name: Publish
         run: dotnet publish WPFUI -c Release --no-restore --self-contained -p:PublishSingleFile=true -p:Server=${{ matrix.server }} -p:AssemblyVersion=${{needs.version.outputs.version}}
