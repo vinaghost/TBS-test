@@ -117,6 +117,6 @@ jobs:
         server: [TRAVIAN_OFFICIAL, TTWARS]
     steps:
       - name: Delete artifact
-        uses: geekyeggo/delete-artifact@v1
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: TBS-${{ matrix.server }}
