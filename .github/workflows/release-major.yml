@@ -6,7 +6,7 @@ jobs:
   Version:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.semvers.outputs.patch }}
+      version: ${{ steps.semvers.outputs.major }}
       changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: Checkout 
