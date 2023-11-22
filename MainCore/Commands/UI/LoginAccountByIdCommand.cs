@@ -5,7 +5,6 @@ using MainCore.Common.Errors;
 using MainCore.Common.MediatR;
 using MainCore.Entities;
 using MainCore.Notification.Message;
-using MainCore.Repositories;
 using MainCore.Services;
 using MediatR;
 
@@ -22,20 +21,16 @@ namespace MainCore.Commands.UI
     {
         private readonly ITaskManager _taskManager;
         private readonly ITimerManager _timerManager;
-        private readonly IChromeManager _chromeManager;
-        private readonly IUnitOfRepository _unitOfRepository;
 
         private readonly IChooseAccessCommand _chooseAccessCommand;
         private readonly IWorkCommand _workCommand;
         private readonly ILogService _logService;
         private readonly IMediator _mediator;
 
-        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IChromeManager chromeManager, IUnitOfRepository unitOfRepository, IWorkCommand workCommand, IChooseAccessCommand chooseAccessCommand, ILogService logService, IMediator mediator)
+        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IWorkCommand workCommand, IChooseAccessCommand chooseAccessCommand, ILogService logService, IMediator mediator)
         {
             _taskManager = taskManager;
             _timerManager = timerManager;
-            _chromeManager = chromeManager;
-            _unitOfRepository = unitOfRepository;
             _workCommand = workCommand;
             _chooseAccessCommand = chooseAccessCommand;
             _logService = logService;

@@ -10,19 +10,10 @@ using MediatR;
 namespace MainCore.Commands.Update
 {
     [RegisterAsTransient]
-    public class UpdateAccountInfoCommand : IUpdateAccountInfoCommand
+    public class UpdateAccountInfoCommand : UpdateCommandBase, IUpdateAccountInfoCommand
     {
-        private readonly IChromeManager _chromeManager;
-        private readonly IMediator _mediator;
-        private readonly IUnitOfRepository _unitOfRepository;
-        private readonly IUnitOfParser _unitOfParser;
-
-        public UpdateAccountInfoCommand(IChromeManager chromeManager, IMediator mediator, IUnitOfRepository unitOfRepository, IUnitOfParser unitOfParser)
+        public UpdateAccountInfoCommand(IChromeManager chromeManager, IMediator mediator, IUnitOfRepository unitOfRepository, IUnitOfParser unitOfParser) : base(chromeManager, mediator, unitOfRepository, unitOfParser)
         {
-            _chromeManager = chromeManager;
-            _mediator = mediator;
-            _unitOfRepository = unitOfRepository;
-            _unitOfParser = unitOfParser;
         }
 
         public async Task<Result> Execute(AccountId accountId)
