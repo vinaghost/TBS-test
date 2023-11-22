@@ -8,7 +8,7 @@ using MediatR;
 
 namespace MainCore.Notification.Handlers.Trigger
 {
-    public class TriggerNPCTask : INotificationHandler<StorageUpdated>
+    public class TriggerNPCTask : INotificationHandler<StorageUpdated>, INotificationHandler<VillageSettingUpdated>
     {
         private readonly ITaskManager _taskManager;
         private readonly IUnitOfRepository _unitOfRepository;
@@ -20,6 +20,14 @@ namespace MainCore.Notification.Handlers.Trigger
         }
 
         public async Task Handle(StorageUpdated notification, CancellationToken cancellationToken)
+        {
+            await Task.CompletedTask;
+            var accountId = notification.AccountId;
+            var villageId = notification.VillageId;
+            Trigger(accountId, villageId);
+        }
+
+        public async Task Handle(VillageSettingUpdated notification, CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
             var accountId = notification.AccountId;

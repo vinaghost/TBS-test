@@ -1,9 +1,9 @@
 ﻿using MainCore.Common.Enums;
 using MainCore.Common.MediatR;
 using MainCore.Entities;
+using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
-using MainCore.Tasks;
 using MediatR;
 
 namespace MainCore.Commands.UI
@@ -20,12 +20,14 @@ namespace MainCore.Commands.UI
         private readonly ITaskManager _taskManager;
         private readonly IDialogService _dialogService;
         private readonly IUnitOfRepository _unitOfRepository;
+        private readonly IMediator _mediator;
 
-        public RestartCommandHandler(ITaskManager taskManager, IDialogService dialogService, IUnitOfRepository unitOfRepository)
+        public RestartCommandHandler(ITaskManager taskManager, IDialogService dialogService, IUnitOfRepository unitOfRepository, IMediator mediator)
         {
             _taskManager = taskManager;
             _dialogService = dialogService;
             _unitOfRepository = unitOfRepository;
+            _mediator = mediator;
         }
 
         public async Task Handle(RestartAccountByIdCommand request, CancellationToken cancellationToken)
@@ -47,34 +49,19 @@ namespace MainCore.Commands.UI
                     return;
 
                 case StatusEnums.Paused:
-                    await Task.Run(() => Handle(accountId), cancellationToken);
+                    await Handle(accountId);
                     return;
             }
         }
 
-        private void Handle(AccountId accountId)
+        private async Task Handle(AccountId accountId)
         {
             _taskManager.SetStatus(accountId, StatusEnums.Starting);
             _taskManager.Clear(accountId);
-            _taskManager.AddOrUpdate<LoginTask>(accountId, first: true);
-            AddUpgradeBuildingTask(accountId);
-            AddSleepTask(accountId);
+
+            await _mediator.Publish(new AccountInit(accountId));
+
             _taskManager.SetStatus(accountId, StatusEnums.Online);
-        }
-
-        private void AddUpgradeBuildingTask(AccountId accountId)
-        {
-            var hasBuildingJobVillages = _unitOfRepository.VillageRepository.GetHasBuildingJobVillages(accountId);
-            foreach (var village in hasBuildingJobVillages)
-            {
-                _taskManager.AddOrUpdate<UpgradeBuildingTask>(accountId, village);
-            }
-        }
-
-        private void AddSleepTask(AccountId accountId)
-        {
-            var workTime = _unitOfRepository.AccountSettingRepository.GetByName(accountId, AccountSettingEnums.WorkTimeMin, AccountSettingEnums.WorkTimeMax);
-            _taskManager.AddOrUpdate<SleepTask>(accountId, executeTime: DateTime.Now.AddMinutes(workTime));
         }
     }
 }

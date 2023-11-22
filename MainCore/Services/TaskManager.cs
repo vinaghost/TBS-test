@@ -173,7 +173,7 @@ namespace MainCore.Services
                 var firstTask = tasks.FirstOrDefault();
                 if (firstTask is not null)
                 {
-                    task.ExecuteAt = firstTask.ExecuteAt.AddSeconds(-1);
+                    task.ExecuteAt = firstTask.ExecuteAt.AddHours(-1);
                 }
             }
 

@@ -4,9 +4,9 @@ using MainCore.Common.Enums;
 using MainCore.Common.Errors;
 using MainCore.Common.MediatR;
 using MainCore.Entities;
+using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
-using MainCore.Tasks;
 using MediatR;
 
 namespace MainCore.Commands.UI
@@ -28,8 +28,9 @@ namespace MainCore.Commands.UI
         private readonly IChooseAccessCommand _chooseAccessCommand;
         private readonly IWorkCommand _workCommand;
         private readonly ILogService _logService;
+        private readonly IMediator _mediator;
 
-        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IChromeManager chromeManager, IUnitOfRepository unitOfRepository, IWorkCommand workCommand, IChooseAccessCommand chooseAccessCommand, ILogService logService)
+        public LoginAccountByIdCommandHandler(ITaskManager taskManager, ITimerManager timerManager, IChromeManager chromeManager, IUnitOfRepository unitOfRepository, IWorkCommand workCommand, IChooseAccessCommand chooseAccessCommand, ILogService logService, IMediator mediator)
         {
             _taskManager = taskManager;
             _timerManager = timerManager;
@@ -38,6 +39,7 @@ namespace MainCore.Commands.UI
             _workCommand = workCommand;
             _chooseAccessCommand = chooseAccessCommand;
             _logService = logService;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(LoginAccountByIdCommand request, CancellationToken cancellationToken)
@@ -54,33 +56,11 @@ namespace MainCore.Commands.UI
             result = _workCommand.Execute(accountId, access);
             if (result.IsFailed) return result.WithError(new TraceMessage(TraceMessage.Line()));
 
-            AddLoginTask(accountId);
-            AddUpgradeBuildingTask(accountId);
-            AddSleepTask(accountId);
+            await _mediator.Publish(new AccountInit(accountId));
 
             _timerManager.Start(accountId);
             _taskManager.SetStatus(accountId, StatusEnums.Online);
             return Result.Ok();
-        }
-
-        private void AddLoginTask(AccountId accountId)
-        {
-            _taskManager.AddOrUpdate<LoginTask>(accountId, first: true);
-        }
-
-        private void AddUpgradeBuildingTask(AccountId accountId)
-        {
-            var hasBuildingJobVillages = _unitOfRepository.VillageRepository.GetHasBuildingJobVillages(accountId);
-            foreach (var village in hasBuildingJobVillages)
-            {
-                _taskManager.AddOrUpdate<UpgradeBuildingTask>(accountId, village);
-            }
-        }
-
-        private void AddSleepTask(AccountId accountId)
-        {
-            var workTime = _unitOfRepository.AccountSettingRepository.GetByName(accountId, AccountSettingEnums.WorkTimeMin, AccountSettingEnums.WorkTimeMax);
-            _taskManager.AddOrUpdate<SleepTask>(accountId, executeTime: DateTime.Now.AddMinutes(workTime));
         }
     }
 }

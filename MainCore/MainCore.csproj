@@ -43,6 +43,6 @@
 
   <ItemGroup>
     <Folder Include="Commands\Step\Browser\" />
-    <Folder Include="Notification\Handlers\AccountSettingUpdate\" />
+    <Folder Include="Commands\Trigger\" />
   </ItemGroup>
 </Project>
