@@ -1,20 +1,28 @@
 ﻿using ReactiveUI;
+using System.Reactive;
 
 namespace MainCore.UI.ViewModels.Abstract
 {
     public abstract class TabViewModelBase : ViewModelBase
     {
         private bool _isActive;
+        private readonly ReactiveCommand<bool, Unit> TabCommand;
 
         public TabViewModelBase()
         {
-            this.WhenAnyValue(x => x.IsActive).Subscribe(async x =>
-            {
-                await IsActiveHandleTask(x);
-            });
+            TabCommand = ReactiveCommand.CreateFromTask<bool>(TabTask);
+
+            this.WhenAnyValue(x => x.IsActive)
+                .InvokeCommand(TabCommand);
         }
 
-        private async Task IsActiveHandleTask(bool isActive)
+        public bool IsActive
+        {
+            get => _isActive;
+            set => this.RaiseAndSetIfChanged(ref _isActive, value);
+        }
+
+        private async Task TabTask(bool isActive)
         {
             if (isActive)
             {
@@ -24,12 +32,6 @@ namespace MainCore.UI.ViewModels.Abstract
             {
                 await OnDeactive();
             }
-        }
-
-        public bool IsActive
-        {
-            get => _isActive;
-            set => this.RaiseAndSetIfChanged(ref _isActive, value);
         }
 
         protected virtual Task OnActive()
