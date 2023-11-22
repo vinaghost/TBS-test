@@ -10,13 +10,15 @@ jobs:
       changelog: ${{ steps.changelog.outputs.changelog }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3   
-      
-      - name: Get latest version
-        id: latesttag
-        uses: pozetroninc/github-action-get-latest-release@master        
+        uses: actions/checkout@v3  
         with:
-          repository: ${{ github.repository }}
+          fetch-depth: 0 
+      
+      - name: Get Previous tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1.3.0  
+        with:
+          fallback: 1.0.0
       
       - name: Get next version
         id: semvers
