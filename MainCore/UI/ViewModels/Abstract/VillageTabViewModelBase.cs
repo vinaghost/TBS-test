@@ -17,38 +17,37 @@ namespace MainCore.UI.ViewModels.Abstract
         private readonly ObservableAsPropertyHelper<VillageId> _villageId;
         public VillageId VillageId => _villageId.Value;
 
-        public ReactiveCommand<VillageId, Unit> VillageIdChangeHandleCommand { get; }
+        public ReactiveCommand<VillageId, Unit> VillageChanged { get; }
 
         public VillageTabViewModelBase()
         {
             _selectedItemStore = Locator.Current.GetService<SelectedItemStore>();
-            VillageIdChangeHandleCommand = ReactiveCommand.CreateFromTask<VillageId, Unit>(VillageIdChangeHandleTask);
+
+            VillageChanged = ReactiveCommand.CreateFromTask<VillageId>(VillageChangedHandler);
 
             var accountIdObservable = this.WhenAnyValue(vm => vm._selectedItemStore.Account)
-                                       .WhereNotNull()
-                                       .Select(x => new AccountId(x.Id));
+                                       .Select(x => new AccountId(x?.Id ?? 0));
 
             accountIdObservable.ToProperty(this, vm => vm.AccountId, out _accountId);
 
             var villageIdObservable = this.WhenAnyValue(vm => vm._selectedItemStore.Village)
-                                        .WhereNotNull()
-                                        .Select(x => new VillageId(x.Id));
+                                        .Select(x => new VillageId(x?.Id ?? 0));
 
             villageIdObservable.ToProperty(this, vm => vm.VillageId, out _villageId);
-            villageIdObservable.InvokeCommand(VillageIdChangeHandleCommand);
+            villageIdObservable.InvokeCommand(VillageChanged);
         }
 
-        private async Task<Unit> VillageIdChangeHandleTask(VillageId villageId)
+        private async Task VillageChangedHandler(VillageId villageId)
         {
-            if (!IsActive) return Unit.Default;
+            if (!IsActive) return;
+            if (villageId == VillageId.Empty) return;
             await Load(villageId);
-            return Unit.Default;
         }
 
         protected override async Task OnActive()
         {
-            if (_selectedItemStore.IsVillageNotSelected) return;
-            await Load(new VillageId(_selectedItemStore.Village.Id));
+            if (VillageId == VillageId.Empty) return;
+            await Load(VillageId);
         }
 
         protected abstract Task Load(VillageId villageId);

@@ -6,14 +6,14 @@ namespace MainCore.UI.ViewModels.Abstract
     public abstract class TabViewModelBase : ViewModelBase
     {
         private bool _isActive;
-        private readonly ReactiveCommand<bool, Unit> TabCommand;
+        private readonly ReactiveCommand<bool, Unit> TabStatusChanged;
 
         public TabViewModelBase()
         {
-            TabCommand = ReactiveCommand.CreateFromTask<bool>(TabTask);
+            TabStatusChanged = ReactiveCommand.CreateFromTask<bool>(TabStatusChangedHandler);
 
             this.WhenAnyValue(x => x.IsActive)
-                .InvokeCommand(TabCommand);
+                .InvokeCommand(TabStatusChanged);
         }
 
         public bool IsActive
@@ -22,7 +22,7 @@ namespace MainCore.UI.ViewModels.Abstract
             set => this.RaiseAndSetIfChanged(ref _isActive, value);
         }
 
-        private async Task TabTask(bool isActive)
+        private async Task TabStatusChangedHandler(bool isActive)
         {
             if (isActive)
             {
