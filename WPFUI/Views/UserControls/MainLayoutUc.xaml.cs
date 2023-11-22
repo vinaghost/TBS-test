@@ -28,6 +28,8 @@ namespace WPFUI.Views.UserControls
                 this.BindCommand(ViewModel, vm => vm.PauseCommand, v => v.PauseButton).DisposeWith(d);
                 this.BindCommand(ViewModel, vm => vm.RestartCommand, v => v.RestartButton).DisposeWith(d);
 
+                this.OneWayBind(ViewModel, vm => vm.Version, v => v.Version.Content).DisposeWith(d);
+
                 // account list
                 this.OneWayBind(ViewModel, vm => vm.Accounts.Items, v => v.AccountGrid.ItemsSource).DisposeWith(d);
                 this.Bind(ViewModel, vm => vm.Accounts.SelectedItem, v => v.AccountGrid.SelectedItem).DisposeWith(d);

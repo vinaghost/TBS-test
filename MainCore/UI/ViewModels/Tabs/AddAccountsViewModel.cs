@@ -21,8 +21,8 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly IMediator _mediator;
         private readonly IUnitOfRepository _unitOfRepository;
         private readonly WaitingOverlayViewModel _waitingOverlayViewModel;
-        public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
-        public ReactiveCommand<string, Unit> UpdateTableCommand { get; }
+        public ReactiveCommand<Unit, Unit> AddAccount { get; }
+        private ReactiveCommand<string, Unit> UpdateTable { get; }
 
         public ObservableCollection<AccountDetailDto> Accounts { get; } = new();
         private string _input;
@@ -40,14 +40,14 @@ namespace MainCore.UI.ViewModels.Tabs
             _waitingOverlayViewModel = waitingOverlayViewModel;
             _unitOfRepository = unitOfRepository;
 
-            AddAccountCommand = ReactiveCommand.CreateFromTask(AddAccountCommandHandler);
-            UpdateTableCommand = ReactiveCommand.CreateFromTask<string>(UpdateTableCommandHandler);
+            AddAccount = ReactiveCommand.CreateFromTask(AddAccountHandler);
+            UpdateTable = ReactiveCommand.CreateFromTask<string>(UpdateTableHandler);
 
             this.WhenAnyValue(x => x.Input)
-                .InvokeCommand(UpdateTableCommand);
+                .InvokeCommand(UpdateTable);
         }
 
-        private async Task UpdateTableCommandHandler(string input)
+        private async Task UpdateTableHandler(string input)
         {
             var dtos = Parse(input);
 
@@ -58,7 +58,7 @@ namespace MainCore.UI.ViewModels.Tabs
             }, RxApp.MainThreadScheduler);
         }
 
-        private async Task AddAccountCommandHandler()
+        private async Task AddAccountHandler()
         {
             await _waitingOverlayViewModel.Show("adding accounts");
             var accounts = Accounts.ToList();

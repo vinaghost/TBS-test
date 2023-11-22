@@ -16,7 +16,8 @@
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="5*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" Margin="5,0,5,0">
                 <Grid.ColumnDefinitions>
@@ -39,11 +40,15 @@
                 <Button x:Name="PauseButton"        Content="Pause"             Grid.Column="0"     Grid.Row="4" Margin="0,0,0,2" />
                 <Button x:Name="RestartButton"      Content="Restart"           Grid.Column="2"     Grid.Row="4" Margin="0,0,0,2" />
             </Grid>
-            <Grid Grid.Row="1">
-                <Border Style="{DynamicResource Box}">
-                    <ListBox x:Name="AccountGrid" SelectionMode="Single" ItemTemplate="{DynamicResource ListBoxColorItem}" />
-                </Border>
-            </Grid>
+            <Border Style="{DynamicResource Box}" Grid.Row="1">
+                <ListBox x:Name="AccountGrid" SelectionMode="Single" ItemTemplate="{DynamicResource ListBoxColorItem}" />
+            </Border>
+            <Border Style="{DynamicResource Box}" Grid.Row="2">
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Version: "></Label>
+                    <Label x:Name="Version" Content="30.4.1975"></Label>
+                </StackPanel>
+            </Border>
         </Grid>
         <Border Style="{DynamicResource Box}" Grid.Column="1" Margin="10,0,0,5">
             <TabControl>

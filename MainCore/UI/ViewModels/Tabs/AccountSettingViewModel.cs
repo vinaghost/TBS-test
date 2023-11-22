@@ -9,7 +9,7 @@ using MainCore.UI.Models.Input;
 using MainCore.UI.ViewModels.Abstract;
 using MediatR;
 using ReactiveUI;
-using System.Reactive.Linq;
+using System.Reactive.Concurrency;
 using System.Text.Json;
 using Unit = System.Reactive.Unit;
 
@@ -24,9 +24,9 @@ namespace MainCore.UI.ViewModels.Tabs
         private readonly IUnitOfRepository _unitOfRepository;
         private readonly IDialogService _dialogService;
         private readonly IMediator _mediator;
-        public ReactiveCommand<Unit, Unit> SaveCommand { get; }
-        public ReactiveCommand<Unit, Unit> ExportCommand { get; }
-        public ReactiveCommand<Unit, Unit> ImportCommand { get; }
+        public ReactiveCommand<Unit, Unit> Save { get; }
+        public ReactiveCommand<Unit, Unit> Export { get; }
+        public ReactiveCommand<Unit, Unit> Import { get; }
 
         public AccountSettingViewModel(IValidator<AccountSettingInput> accountsettingInputValidator, IDialogService dialogService, IUnitOfRepository unitOfRepository, IMediator mediator)
         {
@@ -35,24 +35,25 @@ namespace MainCore.UI.ViewModels.Tabs
             _unitOfRepository = unitOfRepository;
             _mediator = mediator;
 
-            SaveCommand = ReactiveCommand.CreateFromTask(SaveCommandHandler);
-            ExportCommand = ReactiveCommand.CreateFromTask(ExportCommandHandler);
-            ImportCommand = ReactiveCommand.CreateFromTask(ImportCommandHandler);
+            Save = ReactiveCommand.CreateFromTask(SaveHandler);
+            Export = ReactiveCommand.CreateFromTask(ExportHandler);
+            Import = ReactiveCommand.CreateFromTask(ImportHandler);
         }
 
-        public async Task SettingRefresh(AccountId accountId)
+        public void SettingRefresh(AccountId accountId)
         {
             if (!IsActive) return;
             if (accountId != AccountId) return;
-            await LoadSettings(accountId);
+            RxApp.MainThreadScheduler.Schedule(() => LoadSettings(accountId));
         }
 
         protected override async Task Load(AccountId accountId)
         {
-            await LoadSettings(accountId);
+            await Task.CompletedTask;
+            LoadSettings(accountId);
         }
 
-        private async Task SaveCommandHandler()
+        private async Task SaveHandler()
         {
             var result = _accountsettingInputValidator.Validate(AccountSettingInput);
             if (!result.IsValid)
@@ -61,13 +62,13 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
             var settings = AccountSettingInput.Get();
-            await Task.Run(() => _unitOfRepository.AccountSettingRepository.Update(AccountId, settings));
+            _unitOfRepository.AccountSettingRepository.Update(AccountId, settings);
             await _mediator.Publish(new AccountSettingUpdated(AccountId));
 
-            _dialogService.ShowMessageBox("Information", "Settings saved");
+            _dialogService.ShowMessageBox("Information", message: "Settings saved");
         }
 
-        private async Task ImportCommandHandler()
+        private async Task ImportHandler()
         {
             var path = _dialogService.OpenFileDialog();
             Dictionary<AccountSettingEnums, int> settings;
@@ -90,28 +91,25 @@ namespace MainCore.UI.ViewModels.Tabs
                 return;
             }
             settings = AccountSettingInput.Get();
-            await Task.Run(() => _unitOfRepository.AccountSettingRepository.Update(AccountId, settings));
+            _unitOfRepository.AccountSettingRepository.Update(AccountId, settings);
             await _mediator.Publish(new AccountSettingUpdated(AccountId));
 
             _dialogService.ShowMessageBox("Information", "Settings imported");
         }
 
-        private async Task ExportCommandHandler()
+        private async Task ExportHandler()
         {
             var path = _dialogService.SaveFileDialog();
-            var settings = await Task.Run(() => _unitOfRepository.AccountSettingRepository.Get(AccountId));
+            var settings = _unitOfRepository.AccountSettingRepository.Get(AccountId);
             var jsonString = JsonSerializer.Serialize(settings);
             await File.WriteAllTextAsync(path, jsonString);
             _dialogService.ShowMessageBox("Settings exported", "Information");
         }
 
-        private async Task LoadSettings(AccountId accountId)
+        private void LoadSettings(AccountId accountId)
         {
-            var settings = await Task.Run(() => _unitOfRepository.AccountSettingRepository.Get(accountId));
-            await Observable.Start(() =>
-            {
-                AccountSettingInput.Set(settings);
-            }, RxApp.MainThreadScheduler);
+            var settings = _unitOfRepository.AccountSettingRepository.Get(accountId);
+            AccountSettingInput.Set(settings);
         }
     }
 }

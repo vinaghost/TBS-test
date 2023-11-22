@@ -1,4 +1,5 @@
 ﻿using MainCore.Commands.UI;
+using MainCore.Common;
 using MainCore.Common.Enums;
 using MainCore.Common.Extensions;
 using MainCore.Entities;
@@ -12,6 +13,7 @@ using MainCore.UI.ViewModels.Abstract;
 using MediatR;
 using ReactiveUI;
 using System.Reactive.Linq;
+using System.Reflection;
 using Unit = System.Reactive.Unit;
 
 namespace MainCore.UI.ViewModels.UserControls
@@ -60,6 +62,7 @@ namespace MainCore.UI.ViewModels.UserControls
         public async Task Load()
         {
             await LoadAccountList();
+            await LoadVersion();
         }
 
         private void AddAccountCommandHandler()
@@ -150,6 +153,22 @@ namespace MainCore.UI.ViewModels.UserControls
             {
                 Accounts.Load(items);
             }, RxApp.MainThreadScheduler);
+        }
+
+        public async Task LoadVersion()
+        {
+            await Task.CompletedTask;
+            var versionAssembly = Assembly.GetExecutingAssembly().GetName().Version;
+            var version = new Version(versionAssembly.Major, versionAssembly.Minor, versionAssembly.Build);
+            Version = $"{version} - {Constants.Server}";
+        }
+
+        private string _version;
+
+        public string Version
+        {
+            get => _version;
+            set => this.RaiseAndSetIfChanged(ref _version, value);
         }
 
         public ReactiveCommand<Unit, Unit> AddAccountCommand { get; }
