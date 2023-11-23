@@ -9,7 +9,6 @@ using MainCore.Infrasturecture.AutoRegisterDi;
 using MainCore.Notification.Message;
 using MainCore.Repositories;
 using MainCore.Services;
-using MainCore.Tasks;
 using MainCore.UI.Models.Input;
 using MainCore.UI.Models.Output;
 using MainCore.UI.ViewModels.Abstract;
@@ -22,7 +21,7 @@ using Unit = System.Reactive.Unit;
 namespace MainCore.UI.ViewModels.Tabs.Villages
 {
     [RegisterAsSingleton(withoutInterface: true)]
-    public class BuildViewModel : VillageTabViewModelBase, IBuildViewModel
+    public class BuildViewModel : VillageTabViewModelBase
     {
         private readonly ITaskManager _taskManager;
         private readonly IMediator _mediator;
@@ -30,6 +29,27 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
         private readonly IUnitOfRepository _unitOfRepository;
 
         private readonly List<BuildingEnums> _availableBuildings = new();
+
+        private ReactiveCommand<ListBoxItem, Unit> BuildingChanged { get; }
+
+        public ReactiveCommand<Unit, Unit> BuildNormal { get; }
+        public ReactiveCommand<Unit, Unit> BuildResource { get; }
+
+        public ReactiveCommand<Unit, Unit> Up { get; }
+        public ReactiveCommand<Unit, Unit> Down { get; }
+        public ReactiveCommand<Unit, Unit> Top { get; }
+        public ReactiveCommand<Unit, Unit> Bottom { get; }
+        public ReactiveCommand<Unit, Unit> Delete { get; }
+        public ReactiveCommand<Unit, Unit> DeleteAll { get; }
+
+        public NormalBuildInput NormalBuildInput { get; } = new();
+        private readonly IValidator<NormalBuildInput> _normalBuildInputValidator;
+
+        public ResourceBuildInput ResourceBuildInput { get; } = new();
+        private readonly IValidator<ResourceBuildInput> _resourceBuildInputValidator;
+
+        public ListBoxItemViewModel Buildings { get; } = new();
+        public ListBoxItemViewModel Jobs { get; } = new();
 
         public BuildViewModel(IValidator<NormalBuildInput> normalBuildInputValidator, IValidator<ResourceBuildInput> resourceBuildInputValidator, ITaskManager taskManager, IDialogService dialogService, IMediator mediator, IUnitOfRepository unitOfRepository)
         {
@@ -41,19 +61,20 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             _unitOfRepository = unitOfRepository;
             _mediator = mediator;
 
-            LoadNormalBuildCommand = ReactiveCommand.CreateFromTask<ListBoxItem>(LoadNormalBuild);
-            NormalBuildCommand = ReactiveCommand.CreateFromTask(NormalBuildTask);
-            ResourceBuildCommand = ReactiveCommand.CreateFromTask(ResourceBuildTask);
+            BuildingChanged = ReactiveCommand.CreateFromTask<ListBoxItem>(BuildingChangedHandler);
 
-            UpCommand = ReactiveCommand.CreateFromTask(UpTask);
-            DownCommand = ReactiveCommand.CreateFromTask(DownTask);
-            TopCommand = ReactiveCommand.CreateFromTask(TopTask);
-            BottomCommand = ReactiveCommand.CreateFromTask(BottomTask);
-            DeleteCommand = ReactiveCommand.CreateFromTask(DeleteTask);
-            DeleteAllCommand = ReactiveCommand.CreateFromTask(DeleteAllTask);
+            BuildNormal = ReactiveCommand.CreateFromTask(BuildNormalHandler);
+            BuildResource = ReactiveCommand.CreateFromTask(ResourceNormalHandler);
+
+            Up = ReactiveCommand.CreateFromTask(UpHandler);
+            Down = ReactiveCommand.CreateFromTask(DownHandler);
+            Top = ReactiveCommand.CreateFromTask(TopHandler);
+            Bottom = ReactiveCommand.CreateFromTask(BottomHandler);
+            Delete = ReactiveCommand.CreateFromTask(DeleteHandler);
+            DeleteAll = ReactiveCommand.CreateFromTask(DeleteAllHandler);
 
             this.WhenAnyValue(vm => vm.Buildings.SelectedItem)
-                .InvokeCommand(LoadNormalBuildCommand);
+                .InvokeCommand(BuildingChanged);
 
             for (var i = BuildingEnums.Sawmill; i <= BuildingEnums.Hospital; i++)
             {
@@ -100,7 +121,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }, RxApp.MainThreadScheduler);
         }
 
-        private async Task LoadNormalBuild(ListBoxItem item)
+        private async Task BuildingChangedHandler(ListBoxItem item)
         {
             Action func;
             if (item is null)
@@ -109,7 +130,7 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             }
             else
             {
-                var (type, level) = await Task.Run(() => _unitOfRepository.BuildingRepository.GetBuildingInfo(new BuildingId(Buildings.SelectedItemId)));
+                var (type, level) = _unitOfRepository.BuildingRepository.GetBuildingInfo(new BuildingId(Buildings.SelectedItemId));
 
                 if (type == BuildingEnums.Site)
                 {
@@ -124,8 +145,15 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             await Observable.Start(func, RxApp.MainThreadScheduler);
         }
 
-        private async Task NormalBuildTask()
+        private async Task BuildNormalHandler()
         {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
+
             var result = _normalBuildInputValidator.Validate(NormalBuildInput);
             if (!result.IsValid)
             {
@@ -133,11 +161,16 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 return;
             }
             await NormalBuild(VillageId);
-            AddTask();
         }
 
-        private async Task ResourceBuildTask()
+        private async Task ResourceNormalHandler()
         {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
             var result = _resourceBuildInputValidator.Validate(ResourceBuildInput);
             if (!result.IsValid)
             {
@@ -145,16 +178,16 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 return;
             }
             await ResourceBuild(VillageId);
-            AddTask();
         }
 
-        private void AddTask()
+        private async Task UpHandler()
         {
-            _taskManager.AddOrUpdate<UpgradeBuildingTask>(AccountId, VillageId);
-        }
-
-        private async Task UpTask()
-        {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
             if (!Jobs.IsSelected) return;
 
             var oldIndex = Jobs.SelectedIndex;
@@ -170,8 +203,14 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.SelectedIndex = newIndex;
         }
 
-        private async Task DownTask()
+        private async Task DownHandler()
         {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
             if (!Jobs.IsSelected) return;
 
             var oldIndex = Jobs.SelectedIndex;
@@ -187,8 +226,14 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.SelectedIndex = newIndex;
         }
 
-        private async Task TopTask()
+        private async Task TopHandler()
         {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
             if (!Jobs.IsSelected) return;
 
             var oldIndex = Jobs.SelectedIndex;
@@ -204,8 +249,14 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.SelectedIndex = newIndex;
         }
 
-        private async Task BottomTask()
+        private async Task BottomHandler()
         {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
             if (!Jobs.IsSelected) return;
 
             var oldIndex = Jobs.SelectedIndex;
@@ -221,8 +272,14 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             Jobs.SelectedIndex = newIndex;
         }
 
-        private async Task DeleteTask()
+        private async Task DeleteHandler()
         {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
             if (!Jobs.IsSelected) return;
             var oldIndex = Jobs.SelectedIndex;
             var jobId = Jobs.SelectedItemId;
@@ -231,8 +288,14 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
             await _mediator.Publish(new JobUpdated(AccountId, VillageId));
         }
 
-        private async Task DeleteAllTask()
+        private async Task DeleteAllHandler()
         {
+            var status = _taskManager.GetStatus(AccountId);
+            if (status == StatusEnums.Online)
+            {
+                _dialogService.ShowMessageBox("Warning", "Please pause account before modifing building queue");
+                return;
+            }
             await Task.Run(() => _unitOfRepository.JobRepository.Delete(VillageId));
             await _mediator.Publish(new JobUpdated(AccountId, VillageId));
         }
@@ -318,26 +381,5 @@ namespace MainCore.UI.ViewModels.Tabs.Villages
                 plan.Location = building.Location;
             }
         }
-
-        public ReactiveCommand<ListBoxItem, Unit> LoadNormalBuildCommand { get; }
-
-        public ReactiveCommand<Unit, Unit> NormalBuildCommand { get; }
-        public ReactiveCommand<Unit, Unit> ResourceBuildCommand { get; }
-
-        public ReactiveCommand<Unit, Unit> UpCommand { get; }
-        public ReactiveCommand<Unit, Unit> DownCommand { get; }
-        public ReactiveCommand<Unit, Unit> TopCommand { get; }
-        public ReactiveCommand<Unit, Unit> BottomCommand { get; }
-        public ReactiveCommand<Unit, Unit> DeleteCommand { get; }
-        public ReactiveCommand<Unit, Unit> DeleteAllCommand { get; }
-
-        public NormalBuildInput NormalBuildInput { get; } = new();
-        private readonly IValidator<NormalBuildInput> _normalBuildInputValidator;
-
-        public ResourceBuildInput ResourceBuildInput { get; } = new();
-        private readonly IValidator<ResourceBuildInput> _resourceBuildInputValidator;
-
-        public ListBoxItemViewModel Buildings { get; } = new();
-        public ListBoxItemViewModel Jobs { get; } = new();
     }
 }
